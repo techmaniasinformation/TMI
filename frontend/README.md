@@ -32,17 +32,17 @@ frontend/src/
 
 ---
 
-## 📂 간단한 컴포넌트 구조
+## 📂 4단계 컴포넌트 분류 체계
 
-### 🏗️ **components/** - 공통 컴포넌트
+### 🏗️ **1단계: 공통 컴포넌트** (`components/`)
 ```
 components/
-├── ui/                    # 기본 UI 컴포넌트 (Button, Input, Modal, Card)
-├── layout/                # 레이아웃 컴포넌트 (Header, Footer)
-└── common/                # 재사용 컴포넌트 (SearchBar, Pagination)
+├── ui/                    # 기본 UI 요소 (Button, Input, Modal, Card)
+├── layout/                # 전역 레이아웃 (Header, Footer, Layout)  
+└── common/                # 공통 기능 (SearchBar, Pagination, ErrorBoundary)
 ```
 
-### 🎯 **features/** - 도메인별 기능 모듈
+### 🎯 **2단계: 도메인 컴포넌트** (`features/`) - 2개 이상 페이지 재사용
 ```
 features/
 ├── auth/                  # 🔐 소셜로그인
@@ -50,36 +50,62 @@ features/
 │   ├── useAuth.ts
 │   └── auth.types.ts
 ├── posts/                 # 📝 게시글
-│   ├── PostList.tsx
-│   ├── PostDetail.tsx
-│   ├── PostEditor.tsx
+│   ├── PostCard.tsx       # 메인, 검색페이지에서 사용
+│   ├── PostList.tsx       # 메인, 검색페이지에서 사용
 │   ├── usePosts.ts
 │   └── post.types.ts
 ├── user/                  # 👤 사용자
-│   ├── ProfileCard.tsx
+│   ├── UserAvatar.tsx     # 헤더, 마이페이지, 댓글에서 사용
 │   ├── useUser.ts
 │   └── user.types.ts
 ├── search/                # 🔍 검색
-│   ├── SearchResults.tsx
+│   ├── SearchFilters.tsx
 │   ├── useSearch.ts
 │   └── search.types.ts
 └── notifications/         # 🔔 알림
-    ├── NotificationList.tsx
+    ├── NotificationBell.tsx  # 헤더에서 사용
     ├── useNotifications.ts
     └── notification.types.ts
 ```
 
-### 📄 **pages/** - 페이지 컴포넌트
+### 📄 **3단계: 페이지 레이아웃 컴포넌트** (`pages/[PageName]/components/`)
 ```
 pages/
-├── LandingPage.tsx        # 🏷️ 1. 랜딩페이지
-├── HomePage.tsx           # 🏷️ 2. 메인페이지  
-├── AuthPage.tsx           # 🏷️ 3. 소셜로그인페이지
-├── PostDetailPage.tsx     # 🏷️ 5. 게시글 상세페이지
-├── PostEditorPage.tsx     # 🏷️ 6. 게시글 작성/수정페이지
-├── SearchPage.tsx         # 🏷️ 7. 검색결과 페이지
-├── MyPage.tsx             # 🏷️ 8. 마이페이지
-└── NotificationsPage.tsx  # 🏷️ 9. 알림페이지
+├── LandingPage/
+│   ├── LandingPage.tsx
+│   └── components/        # 랜딩페이지 전용 레이아웃
+│       ├── HeroSection/
+│       ├── FeatureSection/
+│       └── CTASection.tsx
+├── PostDetailPage/
+│   ├── PostDetailPage.tsx
+│   └── components/        # 상세페이지 전용 레이아웃
+│       ├── PostContent/
+│       ├── CommentSection/
+│       └── RecommendedPosts.tsx
+└── PostEditorPage/
+    ├── PostEditorPage.tsx
+    └── components/        # 에디터페이지 전용 레이아웃
+        ├── EditorToolbar/
+        ├── EditorContent/
+        └── PreviewPanel.tsx
+```
+
+### 🔧 **4단계: 내부 컴포넌트** (`internal/`) - 레이아웃 내부 전용
+```
+pages/LandingPage/components/HeroSection/
+├── HeroSection.tsx
+└── internal/              # HeroSection 내부에서만 사용
+    ├── HeroTitle.tsx
+    ├── HeroDescription.tsx
+    └── StartButton.tsx
+
+pages/PostDetailPage/components/CommentSection/
+├── CommentSection.tsx
+└── internal/              # CommentSection 내부에서만 사용
+    ├── CommentList.tsx
+    ├── CommentItem.tsx
+    └── CommentForm.tsx
 ```
 
 ### 🪝 **hooks/** - 전역 커스텀 훅
@@ -106,19 +132,19 @@ stores/
 **담당 페이지**: 1, 3, 7 + 헤더바
 - **features/auth/** - 소셜 로그인 기능
 - **features/search/** - 검색 기능
-- **pages/**: LandingPage, AuthPage, SearchPage
+- **pages/**: LandingPage/, AuthPage/, SearchPage/
 - **components/layout/Header** - 헤더바
 
 ### 🟢 **개발자 B - 게시글 & 메인 담당**
 **담당 페이지**: 2, 5, 6
 - **features/posts/** - 게시글 관련 모든 기능
-- **pages/**: HomePage, PostDetailPage, PostEditorPage
+- **pages/**: HomePage/, PostDetailPage/, PostEditorPage/
 
 ### 🟡 **개발자 C - 사용자 & 알림 담당**
 **담당 페이지**: 8, 9
 - **features/user/** - 사용자 프로필 관리
 - **features/notifications/** - 알림 시스템
-- **pages/**: MyPage, NotificationsPage
+- **pages/**: MyPage/, NotificationsPage/
 
 ---
 
@@ -215,9 +241,19 @@ import { useAuth } from '@/features/auth'
 
 ## 🎯 핵심 포인트
 
-1. **features/** - 각 도메인별로 관련 파일들을 한 곳에 모음
-2. **components/** - 재사용 가능한 공통 컴포넌트 3개 카테고리
-3. **pages/** - 라우트별 단일 페이지 컴포넌트
-4. **stores/** - 전역 상태 관리 (Zustand)
+### 📋 4단계 배치 기준
 
-> 💡 **직관적이고 단순한 구조**로 빠른 개발과 유지보수를 지원합니다.
+| 단계 | 위치 | 기준 | 예시 |
+|---|---|---|---|
+| 🏗️ 1단계 | `components/` | 전역 재사용 | Button, Modal |
+| 🎯 2단계 | `features/` | 2개 이상 페이지 재사용 | PostCard, UserAvatar |
+| 📄 3단계 | `pages/[Page]/components/` | 페이지 전용 레이아웃 | HeroSection, CommentSection |
+| 🔧 4단계 | `.../internal/` | 레이아웃 내부 전용 | HeroTitle, CommentItem |
+
+### 💡 개발 가이드라인
+
+1. **처음엔 가장 구체적인 곳에 배치** (4단계 → 3단계)
+2. **재사용이 필요해지면 상위 단계로 이동** (3단계 → 2단계 → 1단계)
+3. **YAGNI 원칙 준수**: 미래의 재사용을 가정하지 말고 현재 필요에 따라 배치
+
+> 💡 **점진적 구체화**: 범용적인 것부터 구체적인 것까지 4단계로 명확하게 분리하여 개발 효율성과 유지보수성을 극대화합니다.

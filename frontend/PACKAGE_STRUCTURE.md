@@ -7,7 +7,7 @@
 ```
 frontend/
 ├── 📄 package.json
-├── 📄 vite.config.ts
+├── 📄 vite.config.ts  
 ├── 📄 tailwind.config.js
 ├── 📄 tsconfig.json
 │
@@ -18,66 +18,68 @@ frontend/
     ├── 📄 main.tsx
     ├── 📄 App.tsx
     │
-    ├── 📁 components/           # 공통 컴포넌트
+    ├── 📁 assets/               # 정적 자원
+    │   ├── fonts/               # 웹폰트
+    │   ├── images/              # 이미지 파일
+    │   ├── icons/               # 아이콘
+    │   └── styles/              # CSS 변수 (색상, 폰트 등)
+    │       ├── colors.css
+    │       ├── fonts.css
+    │       └── variables.css
+    │
+    ├── 📁 domain_components/    # 도메인별 재사용 컴포넌트
     │   ├── ui/                  # 기본 UI (Button, Input, Modal)
-    │   ├── layout/              # 레이아웃 (Header, Footer)
-    │   └── common/              # 재사용 (SearchBar, Pagination)
+    │   ├── auth/                # 🔐 인증 (SocialLoginForm, AuthModal)
+    │   ├── posts/               # 📝 게시글 (PostCard, PostList)
+    │   ├── user/                # 👤 사용자 (UserAvatar, ProfileCard)
+    │   ├── search/              # 🔍 검색 (SearchBar, SearchFilters)
+    │   └── notifications/       # 🔔 알림 (NotificationBell, NotificationItem)
     │
-    ├── 📁 features/             # 도메인별 기능
-    │   ├── auth/                # 🔐 소셜로그인
-    │   │   ├── SocialLoginForm.tsx
-    │   │   ├── useAuth.ts
-    │   │   └── auth.types.ts
-    │   ├── posts/               # 📝 게시글
-    │   │   ├── PostList.tsx
-    │   │   ├── PostDetail.tsx
-    │   │   ├── PostEditor.tsx
-    │   │   ├── usePosts.ts
-    │   │   └── post.types.ts
-    │   ├── user/                # 👤 사용자
-    │   │   ├── ProfileCard.tsx
-    │   │   ├── useUser.ts
-    │   │   └── user.types.ts
-    │   ├── search/              # 🔍 검색
-    │   │   ├── SearchResults.tsx
-    │   │   ├── useSearch.ts
-    │   │   └── search.types.ts
-    │   └── notifications/       # 🔔 알림
-    │       ├── NotificationList.tsx
-    │       ├── useNotifications.ts
-    │       └── notification.types.ts
+    ├── 📁 pages/                # 페이지별 컴포넌트
+    │   ├── LandingPage/         # 🏷️ 1. 랜딩페이지
+    │   │   ├── LandingPage.tsx
+    │   │   └── layout_components/
+    │   │       ├── HeroSection.tsx
+    │   │       ├── FeatureSection.tsx
+    │   │       └── CTASection.tsx
+    │   ├── HomePage/            # 🏷️ 2. 메인페이지
+    │   │   ├── HomePage.tsx
+    │   │   └── layout_components/
+    │   │       ├── MainBanner.tsx
+    │   │       ├── PostSection.tsx
+    │   │       └── SidebarSection.tsx
+    │   ├── AuthPage/            # 🏷️ 3. 소셜로그인페이지
+    │   │   ├── AuthPage.tsx
+    │   │   └── layout_components/
+    │   │       └── LoginContainer.tsx
+    │   ├── PostDetailPage/      # 🏷️ 5. 게시글 상세페이지
+    │   │   ├── PostDetailPage.tsx
+    │   │   └── layout_components/
+    │   │       ├── PostContent.tsx
+    │   │       ├── CommentSection.tsx
+    │   │       └── RecommendedPosts.tsx
+    │   ├── PostEditorPage/      # 🏷️ 6. 게시글 작성/수정페이지
+    │   │   ├── PostEditorPage.tsx
+    │   │   └── layout_components/
+    │   │       ├── EditorToolbar.tsx
+    │   │       ├── EditorContent.tsx
+    │   │       └── PreviewPanel.tsx
+    │   ├── SearchPage/          # 🏷️ 7. 검색결과 페이지
+    │   │   ├── SearchPage.tsx
+    │   │   └── layout_components/
+    │   ├── MyPage/              # 🏷️ 8. 마이페이지
+    │   │   ├── MyPage.tsx
+    │   │   └── layout_components/
+    │   └── NotificationsPage/   # 🏷️ 9. 알림페이지
+    │       ├── NotificationsPage.tsx
+    │       └── layout_components/
     │
-    ├── 📁 pages/                # 페이지 컴포넌트
-    │   ├── LandingPage.tsx      # 🏷️ 1. 랜딩
-    │   ├── HomePage.tsx         # 🏷️ 2. 메인  
-    │   ├── AuthPage.tsx         # 🏷️ 3. 소셜로그인
-    │   ├── PostDetailPage.tsx   # 🏷️ 5. 게시글 상세
-    │   ├── PostEditorPage.tsx   # 🏷️ 6. 게시글 작성/수정
-    │   ├── SearchPage.tsx       # 🏷️ 7. 검색결과
-    │   ├── MyPage.tsx           # 🏷️ 8. 마이페이지
-    │   └── NotificationsPage.tsx # 🏷️ 9. 알림
-    │
-    ├── 📁 hooks/                # 전역 커스텀 훅
-    │   ├── useApi.ts
-    │   ├── useDebounce.ts
-    │   └── useLocalStorage.ts
-    │
-    ├── 📁 stores/               # 전역 상태 (Zustand)
-    │   ├── authStore.ts
-    │   ├── uiStore.ts
-    │   └── globalStore.ts
-    │
-    ├── 📁 utils/                # 유틸리티
-    │   ├── api.ts
-    │   ├── constants.ts
-    │   └── helpers.ts
-    │
-    ├── 📁 types/                # 전역 타입
-    │   └── global.types.ts
-    │
-    └── 📁 assets/               # 정적 자원
-        ├── images/
-        └── icons/
+    └── 📁 stores/               # 전역 상태 관리
+        ├── auth/                # 인증 상태
+        ├── posts/               # 게시글 상태
+        ├── user/                # 사용자 상태
+        ├── ui/                  # UI 상태 (모달, 토스트)
+        └── global/              # 전역 설정 (테마, 언어)
 ```
 
 ## 📋 간단한 파일 규칙
@@ -114,11 +116,44 @@ import { authStore } from '@/stores'
 - **Zustand** 5.0.6 (상태 관리)
 - **Vitest** 2.1.8 (테스팅)
 
-## 🎯 핵심 구조 포인트
+## 🎯 단순하고 직관적인 구조
 
-1. **features/** - 각 도메인별로 관련 파일들을 한 곳에 모음
-2. **components/** - 재사용 가능한 공통 컴포넌트
-3. **pages/** - 라우트별 페이지 컴포넌트
-4. **stores/** - 전역 상태 관리 (Zustand)
+### 📦 **4개 폴더 구조**
 
-> 💡 **직관적이고 단순한 구조**로 빠른 개발과 유지보수를 지원합니다.
+#### 📁 **assets/** - 정적 자원
+- **fonts/**: 웹폰트 파일
+- **images/**: 이미지 파일  
+- **icons/**: 아이콘 파일
+- **styles/**: CSS 변수 (색상, 폰트, 사이즈 등)
+
+#### 🎯 **domain_components/** - 도메인별 재사용 컴포넌트
+- **ui/**: 기본 UI 컴포넌트 (Button, Input, Modal)
+- **auth/**: 인증 관련 (SocialLoginForm, AuthModal)
+- **posts/**: 게시글 관련 (PostCard, PostList)
+- **user/**: 사용자 관련 (UserAvatar, ProfileCard)
+- **search/**: 검색 관련 (SearchBar, SearchFilters)
+- **notifications/**: 알림 관련 (NotificationBell, NotificationItem)
+
+#### 📄 **pages/** - 페이지별 컴포넌트
+각 페이지마다 `layout_components/` 폴더 포함:
+- **LandingPage/layout_components/**: HeroSection, FeatureSection, CTASection
+- **HomePage/layout_components/**: MainBanner, PostSection, SidebarSection
+- **AuthPage/layout_components/**: LoginContainer
+- **PostDetailPage/layout_components/**: PostContent, CommentSection, RecommendedPosts
+- **PostEditorPage/layout_components/**: EditorToolbar, EditorContent, PreviewPanel
+
+#### 🗄️ **stores/** - 전역 상태 관리
+- **auth/**: 인증 상태
+- **posts/**: 게시글 상태  
+- **user/**: 사용자 상태
+- **ui/**: UI 상태 (모달, 토스트, 로딩)
+- **global/**: 전역 설정 (테마, 언어)
+
+## 📋 배치 기준
+
+- **2개 이상 페이지에서 재사용** → `domain_components/`
+- **해당 페이지에서만 사용** → `pages/[PageName]/layout_components/`
+- **정적 자원** → `assets/`
+- **전역 상태** → `stores/`
+
+> 💡 **극도로 단순한 구조**: 4개 폴더만으로 모든 코드를 명확하게 분리하여 개발자가 고민 없이 파일을 배치할 수 있습니다.

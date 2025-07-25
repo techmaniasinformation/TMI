@@ -1,7 +1,7 @@
 // 경로 정의
 export const ROUTES = {
-  HOME: '/',
-  LANDING: '/landing',
+  HOME: '/home',
+  LANDING: '/',
   LOGIN: '/login',
   POST_DETAIL: '/posts/:id',
   POST_EDITOR: '/posts/editor',

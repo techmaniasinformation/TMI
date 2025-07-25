@@ -460,45 +460,37 @@ const MyPage: React.FC<MyPageProps> = () => {
           }
         }} className="w-full">
           <TabsList className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 w-full flex justify-start p-0 h-auto">
-            {/* Add isCompany state to control tab visibility */}
-            {!isCompany && (
-              <>
-                <TabsTrigger
-                  value="profile"
-                  className="flex items-center px-6 py-4 data-[state=active]:text-purple-600 data-[state=active]:border-b-2 data-[state=active]:border-purple-600">
-                  <i className="fas fa-user mr-2"></i>
-                  <span className="text-sm">내 정보</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="comments"
-                  className="flex items-center px-6 py-4 data-[state=active]:text-purple-600 data-[state=active]:border-b-2 data-[state=active]:border-purple-600">
-                  <i className="fas fa-comments mr-2"></i>
-                  <span className="text-sm">작성한 댓글</span>
-                </TabsTrigger>
-              </>
-            )}
+            {/* 임시로 모든 탭을 보이게 설정 */}
+            <TabsTrigger
+              value="profile"
+              className="flex items-center px-6 py-4 data-[state=active]:text-purple-600 data-[state=active]:border-b-2 data-[state=active]:border-purple-600">
+              <i className="fas fa-user mr-2"></i>
+              <span className="text-sm">내 정보</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="comments"
+              className="flex items-center px-6 py-4 data-[state=active]:text-purple-600 data-[state=active]:border-b-2 data-[state=active]:border-purple-600">
+              <i className="fas fa-comments mr-2"></i>
+              <span className="text-sm">작성한 댓글</span>
+            </TabsTrigger>
             <TabsTrigger
               value="posts"
               className="flex items-center px-6 py-4 data-[state=active]:text-purple-600 data-[state=active]:border-b-2 data-[state=active]:border-purple-600">
               <i className="fas fa-file-alt mr-2"></i>
               <span className="text-sm">작성한 게시글</span>
             </TabsTrigger>
-            {!isCompany && (
-              <>
-                <TabsTrigger
-                  value="follow"
-                  className="flex items-center px-6 py-4 data-[state=active]:text-purple-600 data-[state=active]:border-b-2 data-[state=active]:border-purple-600">
-                  <i className="fas fa-users mr-2"></i>
-                  <span className="text-sm">팔로우</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="starred"
-                  className="flex items-center px-6 py-4 data-[state=active]:text-purple-600 data-[state=active]:border-b-2 data-[state=active]:border-purple-600">
-                  <i className="fas fa-star mr-2"></i>
-                  <span className="text-sm">스타 게시글</span>
-                </TabsTrigger>
-              </>
-            )}
+            <TabsTrigger
+              value="follow"
+              className="flex items-center px-6 py-4 data-[state=active]:text-purple-600 data-[state=active]:border-b-2 data-[state=active]:border-purple-600">
+              <i className="fas fa-users mr-2"></i>
+              <span className="text-sm">팔로우</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="starred"
+              className="flex items-center px-6 py-4 data-[state=active]:text-purple-600 data-[state=active]:border-b-2 data-[state=active]:border-purple-600">
+              <i className="fas fa-star mr-2"></i>
+              <span className="text-sm">스타 게시글</span>
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="comments" className="mt-0">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">

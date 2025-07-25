@@ -1,10 +1,10 @@
-// The exported code uses Tailwind CSS. Install Tailwind CSS in your dev environment to ensure all styles work.
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface HomePageProps {}
 
@@ -22,11 +22,13 @@ interface Post {
   isFollowing?: boolean;
 }
 
+type TabType = 'latest' | 'following';
+
 const HomePage: React.FC<HomePageProps> = () => {
-  const [activeTab, setActiveTab] = useState<'latest' | 'following'>('latest');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isLoggedIn] = useState(false);
-  const [hasFollows] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabType>('latest');
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [isLoggedIn] = useState<boolean>(false);
+  const [hasFollows] = useState<boolean>(false);
 
   const allPosts: Post[] = [
     {
@@ -50,18 +52,18 @@ const HomePage: React.FC<HomePageProps> = () => {
   const postsPerPage = 10;
   const totalPages = Math.ceil(allPosts.length / postsPerPage);
 
-  const getCurrentPosts = () => {
+  const getCurrentPosts = (): Post[] => {
     if (activeTab === 'following') {
       if (!isLoggedIn) return [];
       if (!hasFollows) return [];
-      return allPosts.filter(post => post.isFollowing);
+      return allPosts.filter((post) => post.isFollowing);
     }
     const startIndex = (currentPage - 1) * postsPerPage;
     return allPosts.slice(startIndex, startIndex + postsPerPage);
   };
 
-  const getPageNumbers = () => {
-    const pageNumbers = [];
+  const getPageNumbers = (): number[] => {
+    const pageNumbers: number[] = [];
     let startPage = Math.max(1, currentPage - 2);
     let endPage = Math.min(totalPages, startPage + 4);
     if (endPage - startPage < 4) {
@@ -73,18 +75,18 @@ const HomePage: React.FC<HomePageProps> = () => {
     return pageNumbers;
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
     return date.toLocaleDateString('ko-KR', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
-  const formatNumber = (num: number) => {
+  const formatNumber = (num: number): string => {
     if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'k';
+      return `${(num / 1000).toFixed(1)}k`;
     }
     return num.toString();
   };

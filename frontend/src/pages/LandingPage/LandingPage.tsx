@@ -8,13 +8,12 @@ const LandingPage: React.FC<LandingPageProps> = () => {
   const [isHovered, setIsHovered] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handleSignupClick = () => {
-    // 로그인/회원가입 페이지로 이동 로직
+  const handleSignupClick = (): void => {
+    // TODO: 로그인/회원가입 페이지로 이동 로직 구현
     console.log('로그인/회원가입 페이지로 이동');
   };
 
-  const handleExploreClick = () => {
-    // 메인페이지(HomePage)로 이동
+  const handleExploreClick = (): void => {
     navigate('/home');
   };
 

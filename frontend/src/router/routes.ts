@@ -1,4 +1,3 @@
-// 경로 정의
 export const ROUTES = {
   HOME: '/home',
   LANDING: '/',
@@ -8,6 +7,6 @@ export const ROUTES = {
   SEARCH: '/search',
   MY_PAGE: '/my-page',
   NOTIFICATIONS: '/notifications',
-} as const
+} as const;
 
-export type RouteKeys = keyof typeof ROUTES
+export type RouteKeys = keyof typeof ROUTES;

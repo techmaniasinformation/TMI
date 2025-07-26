@@ -36,4 +36,11 @@ public class Star {
   private Post post;
 
   private LocalDateTime createdAt;
+
+  public static Star of(Member member, Post post) {
+    return Star.builder()
+        .member(member)
+        .post(post)
+        .build();
+  }
 }

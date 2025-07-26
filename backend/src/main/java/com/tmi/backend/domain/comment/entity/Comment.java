@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
+import java.lang.reflect.Member;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -44,4 +45,18 @@ public class Comment {
   private int recommendCount = 0;
 
   private LocalDateTime createdAt;
+
+  public static Comment of(
+      Post post,
+      Member member,
+      String content,
+      String link
+  ){
+    return Comment.builder()
+        .post(post)
+        .member(member)
+        .content(content)
+        .link(link)
+        .build();
+  }
 }

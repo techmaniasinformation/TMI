@@ -34,4 +34,11 @@ public class PostTag {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "tag_id", nullable = false)
   private Tag tag;
+
+  public static PostTag of(Post post, Tag tag) {
+    return PostTag.builder()
+        .post(post)
+        .tag(tag)
+        .build();
+  }
 }

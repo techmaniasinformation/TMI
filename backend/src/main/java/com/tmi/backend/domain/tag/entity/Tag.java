@@ -29,4 +29,11 @@ public class Tag {
 
   @Enumerated(EnumType.STRING)
   private TagType tagType;
+
+  public static Tag of(String name, TagType tagType) {
+    return Tag.builder()
+        .name(name)
+        .tagType(tagType)
+        .build();
+  }
 }

@@ -36,4 +36,11 @@ public class CommentRecommendation {
   private Comment comment;
 
   private LocalDateTime createdAt;
+
+  public static CommentRecommendation of(Member member, Comment comment) {
+    return CommentRecommendation.builder()
+        .member(member)
+        .comment(comment)
+        .build();
+  }
 }

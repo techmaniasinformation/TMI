@@ -20,8 +20,7 @@ public class MemberService {
     Member member = memberRepository.findByMemberId(memberId)
         .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-    // TODO: 추후 postCount 등은 실제 DB 쿼리로 가져올 수 있음
-    MemberStats stats = MemberStats.of(12, 47, 89, 1852); // 하드코딩된 값 예시
+    MemberStats stats = memberRepository.fetchStatsByMemberId(memberId); // 하드코딩된 값 예시
 
     return MemberResponse.of(member, stats);
   }

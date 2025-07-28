@@ -1,7 +1,7 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
-import { cn } from "@/utils/utils"
+import { cn } from "@/utils/utils" 
 
 // 여기에 공통 버튼, 일반 버튼 제작 예정
 // 다크 모드는 variant에 다크 모드 넣어서 하면 될 듯....
@@ -11,9 +11,9 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-light-bg text-primary border border-gray-300",
-        primary: "bg-prime-btn text-white",
-        dark: "bg-dark-bg text-white border border-gray-500",
+        default: "bg-light-bg text-primary border border-dark-bg hover:bg-light-bg-hover",
+        primary: "bg-prime-btn text-white hover:bg-prime-btn-hover",
+        dark: "bg-dark-bg text-white border border-light-bg hover:bg-dark-bg-hover",
         //이 아래는 사용 안 할 부분들. 다른 컴포넌트, 완성 전까지 임시로 남겨둠
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",

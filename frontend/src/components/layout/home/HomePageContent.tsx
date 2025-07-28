@@ -113,7 +113,7 @@ const HomePageContent: React.FC<HomePageContentProps> = ({
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-gray-700">{post.author}</span>
                 {post.authorBadge && (
-                  <Tag tag={post.authorBadge} variant="secondary" className="text-xs">
+                  <Tag tag={post.authorBadge} variant="default" className="text-xs">
                     {post.authorBadge}
                   </Tag>
                 )}
@@ -143,7 +143,7 @@ const HomePageContent: React.FC<HomePageContentProps> = ({
                 <Tag 
                   key={index} 
                   tag={tag} 
-                  variant="outline" 
+                  variant="default" 
                   className="text-xs"
                   onClick={() => onTagClick(tag)}
                 />

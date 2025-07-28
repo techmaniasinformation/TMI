@@ -1,6 +1,6 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {Button} from '@/components/foundation/button'
 
 interface LandingPageProps {}
 
@@ -10,11 +10,13 @@ const LandingPage: React.FC<LandingPageProps> = () => {
 
   const handleSignupClick = (): void => {
     // TODO: 로그인/회원가입 페이지로 이동 로직 구현
+    navigate('/login');
     console.log('로그인/회원가입 페이지로 이동');
   };
 
   const handleExploreClick = (): void => {
     navigate('/home');
+    console.log('메인 페이지로 이동');
   };
 
   return (
@@ -23,11 +25,13 @@ const LandingPage: React.FC<LandingPageProps> = () => {
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-80"
         style={{
-          backgroundImage: `url('https://readdy.ai/api/search-image?query=real%20milky%20way%20galaxy%20photograph%20taken%20from%20earth%2C%20authentic%20night%20sky%20photography%20showing%20bright%20milky%20way%20core%20with%20visible%20stars%20and%20cosmic%20dust%2C%20professional%20astrophotography%20of%20galaxy%20stretching%20across%20dark%20sky%2C%20realistic%20space%20photo%20with%20natural%20colors%20and%20lighting%2C%20actual%20milky%20way%20galaxy%20visible%20from%20earth%20surface%2C%20high%20quality%20astronomical%20photograph%20with%20deep%20space%20view&width=1920&height=1080&seq=real-milky-way-bg&orientation=landscape')`
+          // 배경 이미지. 추후에 더 좋은 배경 찾으면 변경 가능
+          backgroundImage: `url('https://readdy.ai/api/search-image?query=real%20milky%20way%20galaxy%20photograph%20taken%20from%20earth%2C%20authentic%20night%20sky%20photography%20showing%20bright%20milky%20way%20core%20with%20visible%20stars%20and%20cosmic%20dust%2C%20professional%20astrophotography%20of%20galaxy%20stretching%20across%20dark%20sky%2C%20realistic%20space%20photo%20with%20natural%20colors%20and%20lighting%2C%20actual%20milky%20way%20galaxy%20visible%20from%20earth%20surface%2C%20high%20quality%20astronomical%20photograph%20with%20deep%20space%20view&width=1920&height=1080&seq=real-milky-way-bg&orientation=landscape')`,
         }}
       />
-
+      
       {/* Animated Stars Overlay */}
+      {/* 별똥별 애니메이션 */}
       <div className="absolute inset-0">
         <div className="absolute top-10 left-10 w-1 h-1 bg-white rounded-full animate-pulse"></div>
         <div className="absolute top-32 right-20 w-1 h-1 bg-blue-300 rounded-full animate-pulse delay-500"></div>
@@ -78,31 +82,33 @@ const LandingPage: React.FC<LandingPageProps> = () => {
 
           {/* Navigation Buttons */}
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-            <button
+            <Button
+              variant={'primary'}
               onMouseEnter={() => setIsHovered('signup')}
               onMouseLeave={() => setIsHovered(null)}
               onClick={handleSignupClick}
-              className={`group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold rounded-full transition-all duration-300 cursor-pointer whitespace-nowrap border-2 border-transparent hover:border-white/20 transform ${isHovered === 'signup' ? 'scale-105' : 'scale-100'} w-[200px]`}
+              className={`group relative px-8 py-4 cursor-pointer whitespace-nowrap border-0.5 border-transparent transform ${isHovered === 'signup' ? 'scale-105' : 'scale-100'} w-[200px]`}
             >
               <div className="flex items-center justify-center space-x-2">
-                <i className="ri-login-circle-line w-5 h-5 flex items-center justify-center"></i>
+                {/* 로켓 아이콘 건의  */}
+                <i className="ri-login-circle-line w-5 h-5 flex items-center justify-center border border-blue-500"></i>
                 <span>로그인/회원가입</span>
               </div>
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-white/10 to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </button>
+            </Button>
 
-            <button
+            <Button
+            // variant="dark"
               onMouseEnter={() => setIsHovered('explore')}
               onMouseLeave={() => setIsHovered(null)}
               onClick={handleExploreClick}
-              className={`group relative px-8 py-4 bg-transparent hover:bg-white/10 text-white font-semibold rounded-full transition-all duration-300 cursor-pointer whitespace-nowrap border-2 border-white/50 hover:border-white transform ${isHovered === 'explore' ? 'scale-105' : 'scale-100'} w-[200px]`}
+              className={`group relative px-8 py-4 cursor-pointer whitespace-nowrap border transform ${isHovered === 'explore' ? 'scale-105' : 'scale-100'} w-[200px]`}
             >
               <div className="flex items-center justify-center space-x-2">
-                <i className="ri-compass-3-line w-5 h-5 flex items-center justify-center"></i>
+                {/* 돋보기 아이콘 건의 */}
+                <i className="ri-compass-3-line w-5 h-5 flex items-center justify-center border border-blue-500"></i>
                 <span>둘러보기</span>
               </div>
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400/20 to-purple-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </button>
+            </Button>
           </div>
 
           {/* Additional Info */}
@@ -294,18 +300,19 @@ const LandingPage: React.FC<LandingPageProps> = () => {
 
         {/* Bottom Explore Button */}
         <div className="mt-12 mb-8">
-          <button
-            onMouseEnter={() => setIsHovered('bottom-explore')}
-            onMouseLeave={() => setIsHovered(null)}
-            onClick={handleExploreClick}
-            className={`group relative px-8 py-4 bg-transparent hover:bg-white/10 text-white font-semibold rounded-full transition-all duration-300 cursor-pointer whitespace-nowrap border-2 border-white/50 hover:border-white transform ${isHovered === 'bottom-explore' ? 'scale-105' : 'scale-100'} w-[200px]`}
-          >
-            <div className="flex items-center justify-center space-x-2">
-              <i className="ri-compass-3-line w-5 h-5 flex items-center justify-center"></i>
-              <span>둘러보기</span>
-            </div>
-            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400/20 to-purple-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          </button>
+          <Button
+            // variant="dark"
+              onMouseEnter={() => setIsHovered('explore')}
+              onMouseLeave={() => setIsHovered(null)}
+              onClick={handleExploreClick}
+              className={`group relative px-8 py-4 cursor-pointer whitespace-nowrap border transform ${isHovered === 'explore' ? 'scale-105' : 'scale-100'} w-[350px]`}
+            >
+              <div className="flex items-center justify-center space-x-2">
+                {/* 돋보기 아이콘 건의 */}
+                <i className="ri-compass-3-line w-5 h-5 flex items-center justify-center border border-blue-500"></i>
+                <span>둘러보기</span>
+              </div>
+            </Button>
         </div>
       </main>
 

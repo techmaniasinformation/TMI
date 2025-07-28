@@ -3,18 +3,13 @@ import React, { useState } from 'react';
 import { SearchConditions, PostCard, Pagination, NoResults } from '@/components/layout/search';
 import { formatDate, formatNumber } from '@/utils/date';
 import { mockPosts } from '@/data/search.data';
+import { useTagSearch } from '@/hooks';
 
 interface SearchResultsPageProps {}
 
-interface SearchCondition {
-  keyword: string;
-  tags: string[];
-  company: string;
-}
-
 const SearchResultsPage: React.FC<SearchResultsPageProps> = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchConditions] = useState<SearchCondition>({
+  const { searchConditions, removeSearchTag } = useTagSearch({
     keyword: 'React 개발',
     tags: ['프론트엔드', 'JavaScript', 'React'],
     company: '네이버'
@@ -26,6 +21,9 @@ const SearchResultsPage: React.FC<SearchResultsPageProps> = () => {
   const currentPosts = mockPosts.slice(startIndex, startIndex + postsPerPage);
 
   const handleRemoveSearchCondition = (type: 'keyword' | 'tag' | 'company', value?: string) => {
+    if (type === 'tag' && value) {
+      removeSearchTag(value);
+    }
     console.log(`Remove ${type}: ${value}`);
   };
 

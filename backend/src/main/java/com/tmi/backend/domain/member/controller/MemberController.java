@@ -1,13 +1,17 @@
 package com.tmi.backend.domain.member.controller;
 
+import com.tmi.backend.domain.member.dto.request.MemberUpdateRequest;
 import com.tmi.backend.domain.member.dto.response.MemberResponse;
 import com.tmi.backend.domain.member.service.MemberService;
 import com.tmi.backend.global.common.response.ApiResponse;
 import com.tmi.backend.global.common.response.impl.ApiSuccessResponse;
+import jakarta.validation.Valid;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,17 +37,13 @@ public class MemberController {
         Map.of("isDuplicated", isDuplicated)
     );
   }
-//
-//  @PatchMapping("/{memberId}")
-//  public ResponseEntity<Void> updateMember(@PathVariable Long memberId,
-//      @RequestBody MemberUpdateRequest request) {
-//    memberService.updateMember(memberId, request);
-//    return ResponseEntity.noContent().build();
-//  }
-//
-//  @DeleteMapping("/{memberId}")
-//  public ResponseEntity<Void> deleteMember(@PathVariable Long memberId) {
-//    memberService.deleteMember(memberId);
-//    return ResponseEntity.noContent().build();
-//  }
+
+  @PatchMapping("/{memberId}")
+  public ApiResponse<Map<String, Long>> updateMember(
+      @PathVariable Long memberId,
+      @Valid @RequestBody MemberUpdateRequest req
+  ) {
+    memberService.updateMember(memberId, req);
+    return ApiSuccessResponse.success(Map.of("memberId", memberId));
+  }
 }

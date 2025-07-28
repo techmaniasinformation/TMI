@@ -1,9 +1,19 @@
 package com.tmi.backend.domain.member.entity;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import java.time.LocalDateTime;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
 
 @Entity
@@ -14,8 +24,8 @@ import lombok.NoArgsConstructor;
 })
 @Getter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Member {
 
   @Id
@@ -24,7 +34,7 @@ public class Member {
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private Provider provider; // ENUM: KAKAO, NAVER, GOOGLE
+  private Provider provider; // ENUM: KAKAO, NAVER, GOOGLE, ADMIN
 
   @Column(nullable = false, length = 100)
   private String providerMemberId;
@@ -41,11 +51,11 @@ public class Member {
   @Column(length = 255)
   private String githubUrl;
 
-  private String deletedAt;
+  private LocalDateTime deletedAt;
 
-  private String createdAt;
+  private LocalDateTime createdAt;
 
-  private String updatedAt;
+  private LocalDateTime updatedAt;
 
   public static Member of(Provider provider, String providerMemberId, String nickname,
       String memberProfileUrl) {
@@ -55,6 +65,10 @@ public class Member {
         .nickname(nickname)
         .memberProfileUrl(memberProfileUrl)
         .build();
+  }
+
+  public void delete() {
+    deletedAt = LocalDateTime.now();
   }
 
 }

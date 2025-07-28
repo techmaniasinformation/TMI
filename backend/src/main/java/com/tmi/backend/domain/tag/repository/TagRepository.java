@@ -10,4 +10,5 @@ import org.springframework.stereotype.Repository;
 public interface TagRepository extends JpaRepository<Tag, Long> {
 
   List<Tag> findAllByTagTypeAndNameIn(TagType tagType, List<String> names);
+  List<Tag> findByNameContainingIgnoreCase(String keyword);
 }

@@ -26,10 +26,11 @@ export default function PostBadges({
   return (
     // 왼쪽 정렬
     // show가 true일 때만 Count 표시
+    // 조회수, 별, 댓글 순으로 보임
     <div className="flex justify-start gap-4">
+      {showView && <ViewBadge count={viewCount} />}
       {showStar && <StarBadge count={starCount} />}
       {showComment && <CommentBadge count={commentCount} />}
-      {showView && <ViewBadge count={viewCount} />}
     </div>
   );
 }

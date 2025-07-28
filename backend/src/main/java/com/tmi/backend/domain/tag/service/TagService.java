@@ -1,6 +1,7 @@
 package com.tmi.backend.domain.tag.service;
 
 import com.tmi.backend.domain.tag.entity.Tag;
+import com.tmi.backend.domain.tag.entity.TagType;
 import com.tmi.backend.domain.tag.repository.TagRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,6 @@ public class TagService {
   public List<Tag> findTechTags(List<String> tags) {
     log.info("TagService : findTechTags() 호출");
 
-    return tagRepository.findAllByNameIn(tags);
+    return tagRepository.findAllByTagTypeAndNameIn(TagType.TECH, tags);
   }
 }

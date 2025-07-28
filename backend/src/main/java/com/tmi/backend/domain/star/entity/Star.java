@@ -1,5 +1,6 @@
 package com.tmi.backend.domain.star.entity;
 
+import com.tmi.backend.domain.member.entity.Member;
 import com.tmi.backend.domain.post.entity.Post;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

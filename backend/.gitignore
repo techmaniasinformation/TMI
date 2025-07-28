@@ -36,3 +36,4 @@ out/
 ### VS Code ###
 .vscode/
 .gitmessage.txt
+/src/main/java/resoureces/application.yml

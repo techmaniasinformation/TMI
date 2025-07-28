@@ -6,6 +6,7 @@ import com.tmi.backend.domain.postTag.repository.PostTagRepository;
 import com.tmi.backend.domain.tag.entity.Tag;
 import com.tmi.backend.domain.tag.repository.TagRepository;
 import com.tmi.backend.domain.tag.service.TagService;
+import jakarta.validation.constraints.Size;
 import java.util.List;
 import java.util.Locale;
 import lombok.RequiredArgsConstructor;
@@ -31,5 +32,24 @@ public class PostTagService {
         .toList();
 
     postTagRepository.saveAll(postTags);
+  }
+
+  @Transactional
+  public void updatePostTags(Post post, List<String> tags) {
+    log.info("PostTagService : updatePostTags() 호출");
+
+    postTagRepository.deleteAllByPost_Id(post.getId());
+
+    List<PostTag> postTags = tagService.findTechTags(tags).stream()
+        .map(tag -> PostTag.of(post, tag))
+        .toList();
+
+    postTagRepository.saveAll(postTags);
+  }
+
+  public void deletePostTags(Long postId) {
+    log.info("PostTagService : deletePostTags() 호출");
+
+    postTagRepository.deleteAllByPost_Id(postId);
   }
 }

@@ -32,8 +32,37 @@ const PostEditorPage: React.FC<PostEditorPageProps> = () => {
 - 세 번째 항목
 
 이것은 예시 게시글입니다.`);
-  const [tags, setTags] = useState(["예시"]);
+  
+  // 태그 관리 로직
+  const [tags, setTags] = useState<string[]>(["예시"]);
   const [newTag, setNewTag] = useState("");
+  const canAddMore = tags.length < 5;
+
+  const addTag = (tag: string) => {
+    const trimmedTag = tag.trim();
+    if (trimmedTag && !tags.includes(trimmedTag) && canAddMore) {
+      setTags(prev => [...prev, trimmedTag]);
+      setNewTag("");
+      return true;
+    }
+    return false;
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    setTags(prev => prev.filter(tag => tag !== tagToRemove));
+  };
+
+  const handleAddTag = () => {
+    const success = addTag(newTag);
+    if (!success && !canAddMore) {
+      alert("태그는 최대 5개까지만 추가할 수 있습니다.");
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    removeTag(tagToRemove);
+  };
+
   const [thumbnailImage, setThumbnailImage] = useState(
     "https://readdy.ai/api/search-image?query=data%20visualization%20charts%20and%20graphs%20on%20computer%20screen%20with%20Python%20code%20clean%20modern%20workspace%20with%20natural%20lighting&width=800&height=400&seq=thumb5&orientation=landscape"
   );
@@ -41,19 +70,6 @@ const PostEditorPage: React.FC<PostEditorPageProps> = () => {
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleAddTag = () => {
-    if (newTag.trim() && !tags.includes(newTag.trim()) && tags.length < 5) {
-      setTags([...tags, newTag.trim()]);
-      setNewTag("");
-    } else if (tags.length >= 5) {
-      alert("태그는 최대 5개까지만 추가할 수 있습니다.");
-    }
-  };
-
-  const handleRemoveTag = (tagToRemove: string) => {
-    setTags(tags.filter((tag) => tag !== tagToRemove));
-  };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
@@ -100,85 +116,35 @@ const PostEditorPage: React.FC<PostEditorPageProps> = () => {
           newText = `\`${selectedText || "코드"}\``;
           break;
         case "heading":
-          newText = `## ${selectedText || "제목"}`;
+          newText = `# ${selectedText || "제목"}`;
           break;
         case "list":
           newText = `- ${selectedText || "목록 항목"}`;
           break;
+        case "quote":
+          newText = `> ${selectedText || "인용문"}`;
+          break;
+        default:
+          newText = selectedText;
       }
       const newContent =
         content.substring(0, start) + newText + content.substring(end);
       setContent(newContent);
-      setTimeout(() => {
-        textarea.focus();
-        textarea.setSelectionRange(
-          start + newText.length,
-          start + newText.length
-        );
-      }, 0);
     }
   };
 
   const renderMarkdownPreview = (text: string) => {
-    return text.split("\n").map((line, index) => {
-      if (line.startsWith("# ")) {
-        return (
-          <h1
-            key={index}
-            className="text-3xl font-bold text-gray-900 mb-6 mt-8"
-          >
-            {line.substring(2)}
-          </h1>
-        );
-      }
-      if (line.startsWith("## ")) {
-        return (
-          <h2
-            key={index}
-            className="text-2xl font-semibold text-gray-800 mb-4 mt-6"
-          >
-            {line.substring(3)}
-          </h2>
-        );
-      }
-      if (line.startsWith("### ")) {
-        return (
-          <h3
-            key={index}
-            className="text-xl font-medium text-gray-700 mb-3 mt-4"
-          >
-            {line.substring(4)}
-          </h3>
-        );
-      }
-      if (line.startsWith("- ")) {
-        return (
-          <li key={index} className="text-gray-600 mb-2 ml-4">
-            {line.substring(2)}
-          </li>
-        );
-      }
-      if (line.trim() === "") {
-        return <br key={index} />;
-      }
-      let processedLine = line;
-      processedLine = processedLine.replace(
-        /\*\*(.*?)\*\*/g,
-        "<strong>$1</strong>"
-      );
-      processedLine = processedLine.replace(/\*(.*?)\*/g, "<em>$1</em>");
-      processedLine = processedLine.replace(
-        /`(.*?)`/g,
-        '<code class="bg-gray-100 px-1 py-0.5 rounded text-sm">$1</code>'
-      );
-      return (
-        <p
-          key={index}
-          className="text-gray-600 mb-4 leading-relaxed"
-          dangerouslySetInnerHTML={{ __html: processedLine }}
-        ></p>
-      );
-    });
+    // 간단한 마크다운 렌더링 (실제로는 마크다운 라이브러리 사용 권장)
+    return text
+      .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+      .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+      .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/`(.*?)`/g, '<code>$1</code>')
+      .replace(/^- (.*$)/gim, '<li>$1</li>')
+      .replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>')
+      .replace(/\n/g, '<br>');
   };
 
   const validateUrl = (url: string) => {
@@ -193,33 +159,20 @@ const PostEditorPage: React.FC<PostEditorPageProps> = () => {
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newUrl = e.target.value;
     setUrl(newUrl);
-    const isValid = newUrl === "" || validateUrl(newUrl);
-    setIsValidUrl(isValid);
-    if (isValid && newUrl) {
-      setIsLoadingAI(true);
-      setTimeout(() => {
-        const suggestedTags = ["AI", "Technology", "Web"];
-        setTags([...tags, ...suggestedTags]);
-        setThumbnailImage(
-          "https://readdy.ai/api/search-image?query=modern%20technology%20workspace%20with%20computer%20screens%20showing%20data%20analytics%20and%20programming%20code%20in%20a%20clean%20office%20environment&width=800&height=400&seq=thumb8&orientation=landscape"
-        );
-        setIsLoadingAI(false);
-      }, 1500);
+    if (newUrl) {
+      setIsValidUrl(validateUrl(newUrl));
+    } else {
+      setIsValidUrl(true);
     }
   };
 
   const generateAISummary = () => {
-    if (content.length < 50) {
-      alert("내용을 최소 50자 이상 입력해주세요.");
-      return;
-    }
     setIsLoadingAI(true);
+    // AI 요약 로직 시뮬레이션
     setTimeout(() => {
-      setAiSummary(
-        "이 글은 데이터 사이언스 분야에서 Python의 활용법을 다루며, 초보자를 위한 필수 라이브러리와 실용적인 예제를 포함하고 있습니다."
-      );
+      setAiSummary("이 게시글은 Python을 사용한 데이터 분석에 대한 내용입니다. 주요 기술과 방법론을 다루고 있으며, 실무에서 활용할 수 있는 팁들을 포함하고 있습니다.");
       setIsLoadingAI(false);
-    }, 1500);
+    }, 2000);
   };
 
   const handleSave = () => {
@@ -227,42 +180,322 @@ const PostEditorPage: React.FC<PostEditorPageProps> = () => {
       alert("제목을 입력해주세요.");
       return;
     }
-    if (!url.trim()) {
-      alert("링크 URL을 입력해주세요.");
-      return;
-    }
-    if (!isValidUrl) {
-      alert("올바른 URL을 입력해주세요.");
-      return;
-    }
     if (!content.trim()) {
       alert("내용을 입력해주세요.");
-      return;
-    }
-    if (content.length < 50) {
-      alert("내용은 최소 50자 이상 입력해주세요.");
       return;
     }
     setShowSaveConfirm(true);
   };
 
   const confirmSave = () => {
+    console.log("게시글 저장:", { title, content, tags, url, thumbnailImage });
     setShowSaveConfirm(false);
-    alert("게시글이 저장되었습니다.");
+    // 실제 저장 로직 구현
   };
 
   const handleCancel = () => {
     setShowCancelConfirm(true);
   };
 
-  const navigate = useNavigate();
-
   const confirmCancel = () => {
     setShowCancelConfirm(false);
-    navigate("/home");
+    // 실제 취소 로직 구현
   };
 
-  return <div className="max-w-4xl mx-auto" />;
+  return (
+    <div className="max-w-6xl mx-auto px-6 py-8">
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">게시글 작성</h1>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            className="!rounded-button cursor-pointer whitespace-nowrap"
+            onClick={handleCancel}
+          >
+            취소
+          </Button>
+          <Button
+            className="!rounded-button cursor-pointer whitespace-nowrap"
+            onClick={handleSave}
+          >
+            저장
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-6">
+          {/* 제목 입력 */}
+          <Card>
+            <CardContent className="p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">제목</h2>
+              <Input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="게시글 제목을 입력하세요"
+                className="text-lg"
+              />
+            </CardContent>
+          </Card>
+
+          {/* URL 입력 */}
+          <Card>
+            <CardContent className="p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">URL (선택사항)</h2>
+              <Input
+                value={url}
+                onChange={handleUrlChange}
+                placeholder="https://example.com"
+                className={!isValidUrl && url ? "border-red-500" : ""}
+              />
+              {!isValidUrl && url && (
+                <p className="text-red-500 text-sm mt-2">올바른 URL 형식을 입력해주세요.</p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* 태그 입력 */}
+          <Card>
+            <CardContent className="p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">태그</h2>
+              <div className="flex gap-2 mb-4">
+                <Input
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="태그를 입력하세요"
+                  disabled={!canAddMore}
+                />
+                <Button
+                  onClick={handleAddTag}
+                  disabled={!newTag.trim() || !canAddMore}
+                  className="!rounded-button cursor-pointer whitespace-nowrap"
+                >
+                  추가
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {tags.map((tag, index) => (
+                  <Badge
+                    key={index}
+                    variant="secondary"
+                    className="text-sm cursor-pointer hover:bg-red-100"
+                    onClick={() => handleRemoveTag(tag)}
+                    imgSrc=""
+                  >
+                    {tag} ×
+                  </Badge>
+                ))}
+              </div>
+              {!canAddMore && (
+                <p className="text-gray-500 text-sm mt-2">태그는 최대 5개까지만 추가할 수 있습니다.</p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* 썸네일 이미지 */}
+          <Card>
+            <CardContent className="p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">썸네일 이미지</h2>
+              {thumbnailImage ? (
+                <div className="relative">
+                  <img
+                    src={thumbnailImage}
+                    alt="썸네일"
+                    className="w-full h-48 object-cover rounded-lg"
+                  />
+                  <div className="absolute top-2 right-2 flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="!rounded-button cursor-pointer whitespace-nowrap bg-white"
+                    >
+                      변경
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleImageDelete}
+                      className="!rounded-button cursor-pointer whitespace-nowrap bg-white"
+                    >
+                      삭제
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                  <p className="text-gray-500 mb-4">썸네일 이미지를 추가하세요</p>
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="!rounded-button cursor-pointer whitespace-nowrap"
+                  >
+                    이미지 업로드
+                  </Button>
+                </div>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+            </CardContent>
+          </Card>
+
+          {/* 내용 입력 */}
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">내용</h2>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant={isPreviewMode ? "outline" : "default"}
+                    size="sm"
+                    onClick={() => setIsPreviewMode(false)}
+                    className="!rounded-button cursor-pointer whitespace-nowrap"
+                  >
+                    편집
+                  </Button>
+                  <Button
+                    variant={isPreviewMode ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setIsPreviewMode(true)}
+                    className="!rounded-button cursor-pointer whitespace-nowrap"
+                  >
+                    미리보기
+                  </Button>
+                </div>
+              </div>
+
+              {!isPreviewMode ? (
+                <div>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {["bold", "italic", "link", "code", "heading", "list", "quote"].map((syntax) => (
+                      <TooltipProvider key={syntax}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => insertMarkdown(syntax)}
+                              className="!rounded-button cursor-pointer whitespace-nowrap"
+                            >
+                              {syntax === "bold" && "B"}
+                              {syntax === "italic" && "I"}
+                              {syntax === "link" && "🔗"}
+                              {syntax === "code" && "{}"}
+                              {syntax === "heading" && "H"}
+                              {syntax === "list" && "•"}
+                              {syntax === "quote" && "❝"}
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{syntax} 삽입</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ))}
+                  </div>
+                  <Textarea
+                    id="content-editor"
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    placeholder="게시글 내용을 작성하세요..."
+                    className="min-h-[400px] font-mono"
+                  />
+                </div>
+              ) : (
+                <div
+                  className="min-h-[400px] p-4 border rounded-lg bg-gray-50 prose max-w-none"
+                  dangerouslySetInnerHTML={{ __html: renderMarkdownPreview(content) }}
+                />
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="space-y-6">
+          {/* AI 요약 */}
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">AI 요약</h2>
+                <Button
+                  onClick={generateAISummary}
+                  disabled={isLoadingAI}
+                  className="!rounded-button cursor-pointer whitespace-nowrap"
+                >
+                  {isLoadingAI ? "생성 중..." : "요약 생성"}
+                </Button>
+              </div>
+              {aiSummary ? (
+                <p className="text-gray-700 text-sm leading-relaxed">{aiSummary}</p>
+              ) : (
+                <p className="text-gray-500 text-sm">AI 요약을 생성해보세요.</p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* 저장 확인 모달 */}
+          {showSaveConfirm && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <Card className="w-96">
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">게시글 저장</h3>
+                  <p className="text-gray-700 mb-6">게시글을 저장하시겠습니까?</p>
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowSaveConfirm(false)}
+                      className="!rounded-button cursor-pointer whitespace-nowrap"
+                    >
+                      취소
+                    </Button>
+                    <Button
+                      onClick={confirmSave}
+                      className="!rounded-button cursor-pointer whitespace-nowrap"
+                    >
+                      저장
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* 취소 확인 모달 */}
+          {showCancelConfirm && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <Card className="w-96">
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">작성 취소</h3>
+                  <p className="text-gray-700 mb-6">작성 중인 내용이 사라집니다. 정말 취소하시겠습니까?</p>
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowCancelConfirm(false)}
+                      className="!rounded-button cursor-pointer whitespace-nowrap"
+                    >
+                      계속 작성
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={confirmCancel}
+                      className="!rounded-button cursor-pointer whitespace-nowrap"
+                    >
+                      취소
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default PostEditorPage;

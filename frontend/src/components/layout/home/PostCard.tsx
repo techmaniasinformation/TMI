@@ -49,7 +49,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
               </Avatar>
               <span className="text-sm text-gray-600">{post.author}</span>
               {post.authorBadge && (
-                <Tag tag={post.authorBadge} variant="secondary" className="text-xs" />
+                <Tag tag={post.authorBadge} variant="default" className="text-xs" />
               )}
             </div>
             
@@ -59,7 +59,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                 <Tag
                   key={index}
                   tag={tag}
-                  variant="outline"
+                  variant="default"
                   className="text-xs"
                 />
               ))}

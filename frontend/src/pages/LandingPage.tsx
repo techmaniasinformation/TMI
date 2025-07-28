@@ -312,73 +312,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
       {/* Bottom Gradient */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-gray-900/80 to-transparent"></div>
 
-      <style jsx>{`
-        @keyframes shooting-star-1 {
-          0% {
-            opacity: 0;
-            transform: translateX(-100px) translateY(50px);
-          }
-          10% {
-            opacity: 1;
-          }
-          90% {
-            opacity: 1;
-          }
-          100% {
-            opacity: 0;
-            transform: translateX(calc(100vw + 100px)) translateY(-50px);
-          }
-        }
 
-        @keyframes shooting-star-2 {
-          0% {
-            opacity: 0;
-            transform: translateX(100px) translateY(-50px);
-          }
-          15% {
-            opacity: 1;
-          }
-          85% {
-            opacity: 1;
-          }
-          100% {
-            opacity: 0;
-            transform: translateX(calc(-100vw - 100px)) translateY(50px);
-          }
-        }
-
-        @keyframes shooting-star-3 {
-          0% {
-            opacity: 0;
-            transform: translateX(-80px) translateY(30px);
-          }
-          20% {
-            opacity: 1;
-          }
-          80% {
-            opacity: 1;
-          }
-          100% {
-            opacity: 0;
-            transform: translateX(calc(100vw + 80px)) translateY(-30px);
-          }
-        }
-
-        .animate-shooting-star-1 {
-          animation: shooting-star-1 4s infinite;
-          animation-delay: 2s;
-        }
-
-        .animate-shooting-star-2 {
-          animation: shooting-star-2 5s infinite;
-          animation-delay: 4s;
-        }
-
-        .animate-shooting-star-3 {
-          animation: shooting-star-3 3s infinite;
-          animation-delay: 6s;
-        }
-      `}</style>
     </div>
   );
 };

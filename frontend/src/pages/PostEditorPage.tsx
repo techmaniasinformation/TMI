@@ -1,17 +1,17 @@
 // The exported code uses Tailwind CSS. Install Tailwind CSS in your dev environment to ensure all styles work.
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Tooltip } from "@/components/ui/tooltip";
+import { Button } from "@/components/foundation/button";
+import { Card, CardContent } from "@/components/domain/Card";
+import { Input } from "@/components/domain/Input";
+import { Textarea } from "@/components/domain/Textarea";
+import { Badge } from "@/components/domain/Badge";
+import { Tooltip } from "@/components/domain/Tooltip";
 import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@/components/domain/Tooltip";
 
 interface PostEditorPageProps {}
 
@@ -199,7 +199,7 @@ const PostEditorPage: React.FC<PostEditorPageProps> = () => {
       setIsLoadingAI(true);
       setTimeout(() => {
         const suggestedTags = ["AI", "Technology", "Web"];
-        setTags([new Set([tags, suggestedTags])]);
+        setTags([...tags, ...suggestedTags]);
         setThumbnailImage(
           "https://readdy.ai/api/search-image?query=modern%20technology%20workspace%20with%20computer%20screens%20showing%20data%20analytics%20and%20programming%20code%20in%20a%20clean%20office%20environment&width=800&height=400&seq=thumb8&orientation=landscape"
         );

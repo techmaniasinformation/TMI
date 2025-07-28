@@ -7,14 +7,13 @@ export interface SearchCondition {
 export interface Post {
   id: number;
   title: string;
-  author: {
-    name: string;
-    avatar: string;
-    company: string;
-  };
+  author: string;
+  authorProfile: string;
+  authorBadge?: string;
   tags: string[];
-  content: string;
-  createdAt: string;
+  date: string;
   views: number;
-  likes: number;
+  stars: number;
+  thumbnail: string;
+  isFollowing?: boolean;
 } 

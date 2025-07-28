@@ -1,10 +1,10 @@
 // The exported code uses Tailwind CSS. Install Tailwind CSS in your dev environment to ensure all styles work.
 import React, { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Card } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/foundation/button";
+import { Badge } from "@/components/domain/Badge";
+import { Switch } from "@/components/domain/Switch";
+import { Card } from "@/components/domain/Card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/domain/Avatar";
 
 interface NotificationsPageProps {}
 

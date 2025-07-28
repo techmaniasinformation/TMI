@@ -1,11 +1,16 @@
 // The exported code uses Tailwind CSS. Install Tailwind CSS in your dev environment to ensure all styles work.
 import React, { useState } from 'react';
-import { SearchConditions, PostCard, Pagination, NoResults } from './components';
-import { SearchCondition, Post } from './types';
-import { formatDate, formatNumber } from './utils';
-import { mockPosts } from './data';
+import { SearchConditions, PostCard, Pagination, NoResults } from '@/components/layout/search';
+import { formatDate, formatNumber } from '@/utils/date';
+import { mockPosts } from '@/data/search.data';
 
 interface SearchResultsPageProps {}
+
+interface SearchCondition {
+  keyword: string;
+  tags: string[];
+  company: string;
+}
 
 const SearchResultsPage: React.FC<SearchResultsPageProps> = () => {
   const [currentPage, setCurrentPage] = useState(1);

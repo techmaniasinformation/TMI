@@ -1,10 +1,10 @@
 // The exported code uses Tailwind CSS. Install Tailwind CSS in your dev environment to ensure all styles work.
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/foundation/button";
+import { Badge } from "@/components/domain/Badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/domain/Avatar";
+import { Textarea } from "@/components/domain/Textarea";
 
 interface PostDetailPageProps {}
 
@@ -218,7 +218,7 @@ Python은 다음과 같은 이유로 데이터 사이언스 분야에서 널리 
             <div className="flex justify-between items-end">
               <div className="flex flex-wrap gap-2">
                 {postData.tags.map((tag, index) => (
-                  <Badge key={index} variant="outline" className="cursor-pointer hover:bg-blue-50">
+                  <Badge key={index} variant="outline" className="cursor-pointer hover:bg-blue-50" imgSrc="">
                     #{tag}
                   </Badge>
                 ))}
@@ -282,7 +282,7 @@ Python은 다음과 같은 이유로 데이터 사이언스 분야에서 널리 
           {/* 태그 섹션 */}
           <div className="flex flex-wrap gap-2">
             {postData.tags.map((tag, index) => (
-              <Badge key={index} variant="outline" className="cursor-pointer hover:bg-blue-50">
+              <Badge key={index} variant="outline" className="cursor-pointer hover:bg-blue-50" imgSrc="">
                 #{tag}
               </Badge>
             ))}
@@ -304,7 +304,7 @@ Python은 다음과 같은 이유로 데이터 사이언스 분야에서 널리 
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="font-medium text-gray-900">{bestComment.author}</span>
-                  <Badge className="bg-yellow-400 text-yellow-900 text-xs">베스트</Badge>
+                  <Badge className="bg-yellow-400 text-yellow-900 text-xs" imgSrc="">베스트</Badge>
                 </div>
                 <p className="text-gray-700 mb-2">{bestComment.content}</p>
                 <div className="flex items-center gap-4 text-sm text-gray-500">

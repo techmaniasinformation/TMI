@@ -1,19 +1,19 @@
 // The exported code uses Tailwind CSS. Install Tailwind CSS in your dev environment to ensure all styles work.
-import React, { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Button } from "@/components/foundation/button";
+import { Input } from "@/components/domain/Input";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/domain/Avatar";
+import { Badge } from "@/components/domain/Badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/domain/Tabs";
 import {
 Dialog,
 DialogContent,
 DialogHeader,
 DialogTitle,
 DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import debounce from 'lodash/debounce';
+} from "@/components/domain/Dialog";
+import { Label } from "@/components/domain/Label";
+
 
 interface MyPageProps {}
 
@@ -57,6 +57,9 @@ const MyPage: React.FC<MyPageProps> = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
+  const [showFollowModal, setShowFollowModal] = useState(false);
+  const [showAchievementModal, setShowAchievementModal] = useState<string | null>(null);
   const postsPerPage = 5;
   const [isCompany, setIsCompany] = useState(true);
   const [selectedBadge, setSelectedBadge] = useState<string | null>('first-post');
@@ -119,16 +122,27 @@ const MyPage: React.FC<MyPageProps> = () => {
   const [githubUrl, setGithubUrl] = useState('https://github.com/example');
   const [nicknameStatus, setNicknameStatus] = useState('');
   const [lastNicknameChange, setLastNicknameChange] = useState<Date | null>(null);
-  const checkNicknameAvailability = debounce(async (value: string) => {
+  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  
+  const checkNicknameAvailability = useCallback(async (value: string) => {
     if (value === nickname) return;
     // Simulated API call
     const isAvailable = value.length > 2;
     setNicknameStatus(isAvailable ? '사용 가능한 닉네임입니다' : '이미 등록된 사용자/기업 닉네임입니다');
-  }, 100);
+  }, [nickname]);
+
+  const debouncedCheckNickname = useCallback((value: string) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(() => {
+      checkNicknameAvailability(value);
+    }, 100);
+  }, [checkNicknameAvailability]);
   const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setNickname(value);
-    checkNicknameAvailability(value);
+    debouncedCheckNickname(value);
   };
   const canChangeNickname = () => {
     if (!lastNicknameChange) return true;
@@ -164,7 +178,10 @@ const MyPage: React.FC<MyPageProps> = () => {
                 </Avatar>
                 <Button
                   className="!rounded-button whitespace-nowrap absolute bottom-0 right-0 w-8 h-8 p-0 bg-purple-600 hover:bg-purple-700"
-                  onClick={() => document.getElementById('profileImageInput').click()}
+                  onClick={() => {
+                    const input = document.getElementById('profileImageInput') as HTMLInputElement;
+                    if (input) input.click();
+                  }}
                   title="Upload profile image"
                 >
                   <i className="fas fa-camera text-white"></i>
@@ -325,7 +342,7 @@ const MyPage: React.FC<MyPageProps> = () => {
                             if (dialogElement) {
                               const closeButton = dialogElement.querySelector('button[type="button"]');
                               if (closeButton) {
-                                closeButton.click();
+                                (closeButton as HTMLButtonElement).click();
                               }
                             }
                           }}
@@ -335,29 +352,7 @@ const MyPage: React.FC<MyPageProps> = () => {
                         <Button
                           className="!rounded-button whitespace-nowrap bg-red-600 hover:bg-red-700 text-white"
                           onClick={() => {
-                            const dialogElement = document.querySelector('[role="dialog"]');
-                            if (dialogElement) {
-                              const closeButton = dialogElement.querySelector('button[type="button"]');
-                              if (closeButton) {
-                                closeButton.click();
-                              }
-                            }
-                            // Show completion modal
-                            const dialog = document.createElement('div');
-                            dialog.innerHTML = `
-                              <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                                <div class="bg-white rounded-lg p-6 max-w-sm mx-4">
-                                  <h3 class="text-lg font-medium text-gray-900 mb-4">탈퇴가 정상 처리되었습니다.</h3>
-                                  <div class="flex justify-end">
-                                    <button class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 !rounded-button whitespace-nowrap"
-                                      onclick="this.parentElement.parentElement.parentElement.remove(); window.location.href='/';">
-                                      확인
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                            `;
-                            document.body.appendChild(dialog);
+                            setShowWithdrawalModal(true);
                           }}
                         >
                           탈퇴
@@ -377,7 +372,7 @@ const MyPage: React.FC<MyPageProps> = () => {
               <div className="flex-1">
                 <div className="flex items-center space-x-3 mb-2">
                   <h1 className="text-2xl font-bold text-gray-900">NAVER</h1>
-                  <Badge className="bg-blue-100 text-blue-800">기업</Badge>
+                  <Badge className="bg-blue-100 text-blue-800" imgSrc="">기업</Badge>
                   {selectedBadge ? (
                     <Badge
                       className={`${achievements.find(a => a.id === selectedBadge)?.backgroundColor} ${achievements.find(a => a.id === selectedBadge)?.textColor} text-xs px-2 py-1`}
@@ -408,25 +403,7 @@ const MyPage: React.FC<MyPageProps> = () => {
                     className={`!rounded-button whitespace-nowrap ${isFollowing ? 'bg-gray-600 hover:bg-gray-700' : 'bg-purple-600 hover:bg-purple-700'} text-white`}
                     onClick={() => {
                       setIsFollowing(!isFollowing);
-                      const dialog = document.createElement('div');
-                      dialog.innerHTML = `
-                        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                          <div class="bg-white rounded-lg p-6 max-w-sm mx-4">
-                            <div class="flex items-center ${isFollowing ? 'text-red-600' : 'text-green-600'} mb-4">
-                              <i class="fas ${isFollowing ? 'fa-user-minus' : 'fa-check-circle'} mr-2"></i>
-                              <h3 class="text-lg font-medium">${isFollowing ? '팔로우 취소' : '팔로우 완료'}</h3>
-                            </div>
-                            <p class="text-gray-600 mb-4">NAVER님을 ${isFollowing ? '팔로우 취소했습니다.' : '팔로우하기 시작했습니다.'}</p>
-                            <div class="flex justify-end">
-                              <button class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 !rounded-button whitespace-nowrap"
-                                onclick="this.parentElement.parentElement.parentElement.remove()">
-                                확인
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      `;
-                      document.body.appendChild(dialog);
+                      setShowFollowModal(true);
                     }}
                   >
                     <i className={`fas ${isFollowing ? 'fa-user-minus' : 'fa-user-plus'} mr-2`}></i>
@@ -566,7 +543,7 @@ const MyPage: React.FC<MyPageProps> = () => {
                           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-gray-50/50 group-hover:opacity-0 transition-opacity duration-300"></div>
                         </div>
                       </DialogTrigger>
-                      <DialogContent className="sm:max-w-[425px]" hideClose>
+                                             <DialogContent className="sm:max-w-[425px]">
                         <DialogHeader>
                           <DialogTitle className="text-xl font-bold">{achievement.title}</DialogTitle>
                         </DialogHeader>
@@ -587,13 +564,7 @@ const MyPage: React.FC<MyPageProps> = () => {
                                 <Button
                                   onClick={() => {
                                     setSelectedBadge(selectedBadge === achievement.id ? null : achievement.id);
-                                    const dialogElement = document.querySelector('[role="dialog"]');
-                                    if (dialogElement) {
-                                      const closeButton = dialogElement.querySelector('button[type="button"]');
-                                      if (closeButton) {
-                                        closeButton.click();
-                                      }
-                                    }
+                                    setShowAchievementModal(null);
                                   }}
                                   variant={selectedBadge === achievement.id ? "outline" : "default"}
                                   className="!rounded-button whitespace-nowrap flex-1"
@@ -603,15 +574,7 @@ const MyPage: React.FC<MyPageProps> = () => {
                                 <Button
                                   variant="outline"
                                   className="!rounded-button whitespace-nowrap flex-1"
-                                  onClick={() => {
-                                    const dialogElement = document.querySelector('[role="dialog"]');
-                                    if (dialogElement) {
-                                      const closeButton = dialogElement.querySelector('button[type="button"]');
-                                      if (closeButton) {
-                                        closeButton.click();
-                                      }
-                                    }
-                                  }}
+                                  onClick={() => setShowAchievementModal(null)}
                                 >
                                   닫기
                                 </Button>
@@ -637,15 +600,7 @@ const MyPage: React.FC<MyPageProps> = () => {
                                 <Button
                                   variant="outline"
                                   className="!rounded-button whitespace-nowrap w-full"
-                                  onClick={() => {
-                                    const dialogElement = document.querySelector('[role="dialog"]');
-                                    if (dialogElement) {
-                                      const closeButton = dialogElement.querySelector('button[type="button"]');
-                                      if (closeButton) {
-                                        closeButton.click();
-                                      }
-                                    }
-                                  }}
+                                  onClick={() => setShowAchievementModal(null)}
                                 >
                                   닫기
                                 </Button>

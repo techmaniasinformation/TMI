@@ -1,4 +1,6 @@
-// 훅 통합 export
-export * from './auth'
-export * from './posts'
-export * from './user'
+// Auth hooks
+export { useAuth } from './auth/useAuth';
+export { useSignup } from './auth/useSignup';
+
+// Posts hooks
+export { usePosts } from './posts/usePosts';

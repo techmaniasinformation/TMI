@@ -1,4 +1,4 @@
-package com.tmi.backend.domain.member;
+package com.tmi.backend.domain.member.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,6 +7,11 @@ import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(uniqueConstraints = {
+    @UniqueConstraint(name = "uk_provider_member", columnNames = {"provider",
+        "provider_member_id"}),
+    @UniqueConstraint(name = "uk_member_nickname", columnNames = "nickname")
+})
 @Getter
 @Builder
 @NoArgsConstructor
@@ -38,10 +43,18 @@ public class Member {
 
   private String deletedAt;
 
-  @Column(nullable = false)
   private String createdAt;
 
-  @Column(nullable = false)
   private String updatedAt;
+
+  public static Member of(Provider provider, String providerMemberId, String nickname,
+      String memberProfileUrl) {
+    return Member.builder()
+        .provider(provider)
+        .providerMemberId(providerMemberId)
+        .nickname(nickname)
+        .memberProfileUrl(memberProfileUrl)
+        .build();
+  }
 
 }

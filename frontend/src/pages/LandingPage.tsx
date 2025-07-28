@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -10,6 +9,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
 
   const handleSignupClick = (): void => {
     // TODO: 로그인/회원가입 페이지로 이동 로직 구현
+    navigate('/login');
     console.log('로그인/회원가입 페이지로 이동');
   };
 

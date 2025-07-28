@@ -66,11 +66,20 @@ public class Member {
         .providerMemberId(providerMemberId)
         .nickname(nickname)
         .memberProfileUrl(memberProfileUrl)
+        .createdAt(LocalDateTime.now())
+        .updatedAt(LocalDateTime.now())
         .build();
   }
 
   public void delete() {
     deletedAt = LocalDateTime.now();
+  }
+
+  public void reviveAndUpdate() {
+    deletedAt = null;
+    createdAt = LocalDateTime.now();
+    updatedAt = LocalDateTime.now();
+
   }
 
 }

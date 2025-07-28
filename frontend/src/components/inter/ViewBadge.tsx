@@ -1,16 +1,14 @@
 import React from 'react';
-import view from '@/assets/icons/view.svg';
 
-// props 타입 지정
 interface ViewBadgeProps {
   count?: number;
 }
 
 export default function ViewBadge({ count = 0 }: ViewBadgeProps) {
   return (
-    <div className="inline-flex items-center gap-1 whitespace-nowrap">
-      <img src={view} alt="조회수 아이콘" className="w-5 h-5" />
-      <span>{count}</span>
-    </div>
+    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+      <i className="fas fa-eye mr-1"></i>
+      {count.toLocaleString()}
+    </span>
   );
-}
+} 

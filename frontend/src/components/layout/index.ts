@@ -1,9 +1,5 @@
 // Layout 컴포넌트들 - 한 개 페이지에서만 사용하지만 재사용 가능성 있음
 
-// HomePage 전용
-export { HomePageContent } from './home';
-export { PostCard as HomePostCard } from './home';
-
 // MyPage 전용
 export * from './mypage';
 

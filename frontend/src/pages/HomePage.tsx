@@ -7,6 +7,7 @@ import { Badge } from '@/components/domain/Badge';
 import { Button } from '@/components/foundation/button';
 import { Card, CardContent } from '@/components/domain/Card';
 import { Tag } from '@/components/domain/Tag';
+import { ArticleInfo } from '@/components/domain/ArticleInfo';
 
 interface HomePageProps {}
 
@@ -129,50 +130,20 @@ const HomePage: React.FC<HomePageProps> = () => {
                     <Card key={post.id} className="hover:shadow-lg transition-shadow duration-300 cursor-pointer">
                       <CardContent className="p-4">
                         <div className="flex items-start gap-4">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-4">
-                              <Avatar className="w-8 h-8">
-                                <AvatarImage src={post.authorProfile} alt={post.author} />
-                                <AvatarFallback>{post.author[0]}</AvatarFallback>
-                              </Avatar>
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium text-gray-700">{post.author}</span>
-                                {post.authorBadge && (
-                                  <Badge variant="secondary" className="text-xs" imgSrc="">
-                                    {post.authorBadge}
-                                  </Badge>
-                                )}
-                              </div>
-                            </div>
-                            <Link to={`/posts/${post.id}`} className="block">
-                              <h3 className="text-lg font-semibold text-gray-900 mb-3 hover:text-blue-600 transition-colors">
-                                {post.title}
-                              </h3>
-                            </Link>
-                            <div className="flex items-center gap-3 text-sm text-gray-500">
-                              <span>{formatDate(post.date)}</span>
-                              <span>•</span>
-                              <div className="flex items-center gap-2">
-                                <span className="flex items-center gap-1">
-                                  <i className="fas fa-eye"></i>
-                                  {formatNumber(post.views)}
-                                </span>
-                                <span className="flex items-center gap-1">
-                                  <i className="fas fa-star text-yellow-400"></i>
-                                  {formatNumber(post.stars)}
-                                </span>
-                              </div>
-                            </div>
-                            <div className="flex flex-wrap gap-2 mt-4">
-                              {post.tags.slice(0, 5).map((tag, index) => (
-                                <Tag 
-                                  key={index} 
-                                  tag={tag} 
-                                  variant="default"
-                                />
-                              ))}
-                            </div>
-                          </div>
+                          <ArticleInfo
+                            id={post.id}
+                            title={post.title}
+                            author={post.author}
+                            authorProfile={post.authorProfile}
+                            authorBadge={post.authorBadge}
+                            tags={post.tags}
+                            date={post.date}
+                            views={post.views}
+                            stars={post.stars}
+                            formatDate={formatDate}
+                            formatNumber={formatNumber}
+                            maxTags={5}
+                          />
                           <div className="w-48 h-32 flex-shrink-0">
                             <img
                               src={post.thumbnail}

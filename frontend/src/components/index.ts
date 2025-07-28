@@ -21,13 +21,18 @@ export {
   Avatar,
   AvatarImage,
   AvatarFallback,
-  Badge
+  Badge,
+  // Article 관련 컴포넌트들
+  UserInfo,
+  DateTimeComponent,
+  CardInfoCount,
+  TagArea,
+  ArticleInfo
 } from './domain';
 
 // ===== Layout 컴포넌트들 (한 개 페이지에서만 사용) =====
-export { PostCard, HomePageContent } from './layout/home';
 export { UserProfile } from './layout/mypage';
 export { SearchFilter } from './layout/search';
 
 // ===== Inter 컴포넌트들 (특정 컴포넌트 내부에서만 사용) =====
-// 현재는 비어있음 - 향후 확장용 
+export * from './inter'; 

@@ -24,6 +24,10 @@ public class MemberService {
 
     return MemberResponse.of(member, stats);
   }
+
+  public boolean existsByNickname(String nickname) {
+    return memberRepository.existsByNickname(nickname);
+  }
 //
 //  @Transactional
 //  public void updateMember(Long memberId, MemberUpdateRequest request) {

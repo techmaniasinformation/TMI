@@ -11,9 +11,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
   Optional<Member> findByMemberId(Long memberId);
 
-  /**
-   * 한 번의 쿼리로 MemberStats DTO를 조회합니다. – 게시글 수 – 댓글 수 – 팔로워 수 – 조회수 합계
-   */
+  //한 번의 쿼리로 MemberStats DTO를 조회합니다. ( 게시글 수, 댓글 수, 팔로워 수, 조회수 합계)
   @Query("""
         SELECT new com.tmi.backend.domain.member.dto.response.MemberStats(
           (SELECT COUNT(p)   FROM Post p          WHERE p.member.memberId = :memberId),
@@ -25,4 +23,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
         WHERE m.memberId = :memberId
       """)
   MemberStats fetchStatsByMemberId(@Param("memberId") Long memberId);
+
+  boolean existsByNickname(String nickname);
 }

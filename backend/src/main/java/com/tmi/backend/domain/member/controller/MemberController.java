@@ -4,10 +4,12 @@ import com.tmi.backend.domain.member.dto.response.MemberResponse;
 import com.tmi.backend.domain.member.service.MemberService;
 import com.tmi.backend.global.common.response.ApiResponse;
 import com.tmi.backend.global.common.response.impl.ApiSuccessResponse;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -22,6 +24,15 @@ public class MemberController {
     return ApiSuccessResponse.success(memberService.getMember(memberId));
   }
 
+  @GetMapping("/duplicate")
+  public ApiResponse<Map<String, Boolean>> checkNicknameDuplicate(
+      @RequestParam String nickname
+  ) {
+    boolean isDuplicated = memberService.existsByNickname(nickname);
+    return ApiSuccessResponse.success(
+        Map.of("isDuplicated", isDuplicated)
+    );
+  }
 //
 //  @PatchMapping("/{memberId}")
 //  public ResponseEntity<Void> updateMember(@PathVariable Long memberId,

@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/domain/Avatar'
 import { Badge } from '@/components/domain/Badge';
 import { Button } from '@/components/foundation/button';
 import { Card, CardContent } from '@/components/domain/Card';
+import { Tag } from '@/components/domain/Tag';
 
 interface HomePageProps {}
 
@@ -55,6 +56,33 @@ const HomePage: React.FC<HomePageProps> = () => {
 
     return (
     <div>
+        {/* Tag 데모 섹션 */}
+        <div className="mb-8 p-6 bg-white rounded-lg shadow-sm border border-gray-200">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">🏷️ Tag 컴포넌트 데모</h2>
+          
+          {/* 기본 태그들 */}
+          <div className="mb-4">
+            <h3 className="text-sm font-medium text-gray-700 mb-2">기본 태그들:</h3>
+            <div className="flex flex-wrap gap-2">
+              <Tag tag="일반태그" />
+              <Tag tag="네이버" variant="company" />
+              <Tag tag="React" variant="tech" />
+              <Tag tag="검색어" variant="search" />
+            </div>
+          </div>
+
+          {/* 제거 가능한 태그들 */}
+          <div className="mb-4">
+            <h3 className="text-sm font-medium text-gray-700 mb-2">제거 가능한 태그들:</h3>
+            <div className="flex flex-wrap gap-2">
+              <Tag tag="제거가능" removable={true} onRemove={() => console.log('제거됨')} />
+              <Tag tag="네이버" variant="company" removable={true} onRemove={() => console.log('네이버 제거됨')} />
+              <Tag tag="React" variant="tech" removable={true} onRemove={() => console.log('React 제거됨')} />
+              <Tag tag="검색어" variant="search" removable={true} onRemove={() => console.log('검색어 제거됨')} />
+            </div>
+          </div>
+        </div>
+
         <div className="flex gap-8">
           <div className="flex-1 max-w-[70%]">
             <div className="mb-8 flex justify-center">
@@ -137,9 +165,11 @@ const HomePage: React.FC<HomePageProps> = () => {
                             </div>
                             <div className="flex flex-wrap gap-2 mt-4">
                               {post.tags.slice(0, 5).map((tag, index) => (
-                                <Badge key={index} variant="outline" className="text-xs cursor-pointer hover:bg-blue-50" imgSrc="">
-                                  #{tag}
-                                </Badge>
+                                <Tag 
+                                  key={index} 
+                                  tag={tag} 
+                                  variant="default"
+                                />
                               ))}
                             </div>
                           </div>

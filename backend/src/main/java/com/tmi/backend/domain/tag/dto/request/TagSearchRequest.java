@@ -4,27 +4,24 @@ import com.tmi.backend.domain.tag.entity.Tag;
 import com.tmi.backend.domain.tag.entity.TagType;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Data;
+import lombok.Builder;
 
-@Data
-public class TagSearchRequest {
-
-  private List<TechTag> techTags = new ArrayList<>();
-  private List<CompanyTag> companyTags = new ArrayList<>();
-
+public record TagSearchRequest(
+    List<TechTag>    techTags,
+    List<CompanyTag> companyTags
+) {
 
   public static TagSearchRequest of(List<Tag> tags) {
-    TagSearchRequest dto = new TagSearchRequest();
+    List<TechTag> tech  = new ArrayList<>();
+    List<CompanyTag> corp  = new ArrayList<>();
 
     for (Tag tag : tags) {
       if (tag.getTagType() == TagType.TECH) {
-        dto.getTechTags()
-            .add(new TechTag(tag.getId().intValue(), tag.getName()));
+        tech.add(new TechTag(tag.getId().intValue(), tag.getName()));
       } else if (tag.getTagType() == TagType.COMPANY) {
-        dto.getCompanyTags()
-            .add(new CompanyTag(tag.getId().intValue(), tag.getName()));
+        corp.add(new CompanyTag(tag.getId().intValue(), tag.getName()));
       }
     }
-    return dto;
+    return new TagSearchRequest(tech, corp);
   }
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import Tag from '@/components/domain/Tag';
+import Tag from './Tag';
 
 interface TagAreaProps {
   tags: string[];

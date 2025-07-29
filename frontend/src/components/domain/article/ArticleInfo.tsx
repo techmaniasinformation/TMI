@@ -61,9 +61,8 @@ export default function ArticleInfo({
         />
         <span>•</span>
         <CardInfoCount 
-          views={views}
-          stars={stars}
-          formatNumber={formatNumber}
+          viewCount={views}
+          starCount={stars}
         />
       </div>
       

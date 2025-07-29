@@ -6,6 +6,8 @@ import { Switch } from "@/components/domain/Switch";
 import { Card } from "@/components/domain/Card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/domain/Avatar";
 
+import Pagination from '@/components/domain/Pagination';
+
 interface NotificationsPageProps {}
 
 interface Notification {
@@ -30,52 +32,24 @@ const NotificationsPage: React.FC<NotificationsPageProps> = () => {
 
   // Mock data for demonstration
   useEffect(() => {
-    const mockNotifications: Notification[] = Array.from({ length: 3 }, (_, index) => {
-      const types = ['badge', 'comment', 'post'];
-      const type = types[index % 3];
-      const isRead = index % 2 === 0;
-      const date = new Date('2025-01-18T10:30:00Z');
-      date.setHours(date.getHours() - index);
-      
-      const baseNotification = {
-        id: (index + 1).toString(),
-        type: type as 'badge' | 'comment' | 'post',
-        message: '',
-        timestamp: date.toISOString(),
-        isRead: isRead,
-      };
+    const fetchNotifications = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch('/notifications.json');
+        if (!response.ok) throw new Error('네트워크 응답 실패');
 
-      switch (type) {
-        case 'badge':
-          return {
-            ...baseNotification,
-            message: `${index % 2 === 0 ? '우수 성과' : '커뮤니티 기여자'} 배지를 획득하셨습니다`,
-            badgeType: index % 2 === 0 ? '우수 성과' : '커뮤니티 기여자'
-          };
-        case 'comment':
-          return {
-            ...baseNotification,
-            message: `${['김민수', '이지영', '박서준'][index % 3]}님이 회원님의 게시물에 댓글을 남겼습니다`,
-            userId: `user${index}`,
-            userName: ['김민수', '이지영', '박서준'][index % 3],
-            userAvatar: `https://readdy.ai/api/search-image?query=professional%20business%20person%20headshot%20portrait%20with%20clean%20white%20background%20modern%20corporate%20style%20high%20quality%20photography&width=40&height=40&seq=avatar${index}&orientation=squarish`,
-            postId: `post${index}`
-          };
-        case 'post':
-          return {
-            ...baseNotification,
-            message: `${['테크코리아', '이노베이션랩스', '퓨처테크'][index % 3]}가 새로운 게시물을 공유했습니다`,
-            userId: `company${index}`,
-            userName: ['테크코리아', '이노베이션랩스', '퓨처테크'][index % 3],
-            userAvatar: `https://readdy.ai/api/search-image?query=modern%20technology%20company%20logo%20icon%20clean%20minimalist%20design%20corporate%20branding&width=40&height=40&seq=avatar${index}&orientation=squarish`,
-            postId: `post${index}`
-          };
-        default:
-          return baseNotification;
+        const data: Notification[] = await response.json();
+        setNotifications(data);
+      } catch (error) {
+        console.error('알림 데이터를 불러오는 중 오류 발생:', error);
+      } finally {
+        setLoading(false);
       }
-    });
-    setNotifications(mockNotifications);
+    };
+
+    fetchNotifications();
   }, []);
+
 
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
@@ -231,39 +205,12 @@ const NotificationsPage: React.FC<NotificationsPageProps> = () => {
         </div>
 
         {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex justify-center items-center space-x-2 mt-8">
-            <button
-              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-              disabled={currentPage === 1}
-              className="px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              이전
-            </button>
-            
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`px-3 py-2 rounded-lg text-sm ${
-                  currentPage === page
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                {page}
-              </button>
-            ))}
-            
-            <button
-              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-              disabled={currentPage === totalPages}
-              className="px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              다음
-            </button>
-          </div>
-        )}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+
 
         {/* Empty State */}
         {currentNotifications.length === 0 && (

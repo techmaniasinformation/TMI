@@ -6,11 +6,13 @@ export * from './Input';
 export * from './Label';
 export * from './Switch';
 export * from './Tabs';
-export * from './Tag';
 export * from './Textarea';
 export * from './Tooltip';
-export * from './UserInfo';
-export * from './DateTimeComponent';
-export * from './CardInfoCount';
-export * from './TagArea';
-export * from './ArticleInfo'; 
+
+// Default export 컴포넌트들
+export { default as UserInfo } from './UserInfo';
+export { default as CardInfoCount } from './CardInfoCount';
+export { default as ArticleInfo } from './ArticleInfo';
+export { default as Tag } from './Tag';
+export { default as TagArea } from './TagArea';
+export { default as DateTimeComponent } from './DateTimeComponent'; 

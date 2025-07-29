@@ -9,14 +9,14 @@ export interface TagProps extends React.HTMLAttributes<HTMLDivElement> {
   onRemove?: () => void;
 }
 
-const Tag: React.FC<TagProps> = ({ 
+export default function Tag({ 
   className, 
   variant = 'default',
   tag, 
   removable = false,
   onRemove,
   ...props 
-}) => {
+}: TagProps) {
   const { baseStyles, variantStyles, getRemoveButtonStyles } = useTagStyles();
   const { getRemoveButtonProps } = useTagRemove();
 
@@ -44,6 +44,4 @@ const Tag: React.FC<TagProps> = ({
       )}
     </div>
   );
-};
-
-export { Tag }; 
+} 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { usePosts } from '@/hooks/posts/usePosts';
 
@@ -6,12 +6,28 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/domain/Avatar'
 import { Badge } from '@/components/domain/Badge';
 import { Button } from '@/components/foundation/button';
 import { Card, CardContent } from '@/components/domain/Card';
-import { Tag } from '@/components/domain/Tag';
-import { ArticleInfo } from '@/components/domain/ArticleInfo';
+import Tag from '@/components/domain/Tag';
+import ArticleInfo from '@/components/domain/ArticleInfo';
 
 interface HomePageProps {}
 
-const HomePage: React.FC<HomePageProps> = () => {
+// 상수 정의
+const MAX_TAGS = 5;
+const TAG_DEMO_DATA = [
+  { tag: '일반태그', variant: 'default' as const },
+  { tag: '네이버', variant: 'company' as const },
+  { tag: 'React', variant: 'tech' as const },
+  { tag: '검색어', variant: 'search' as const }
+];
+
+const REMOVABLE_TAG_DATA = [
+  { tag: '제거가능', variant: 'default' as const },
+  { tag: '네이버', variant: 'company' as const },
+  { tag: 'React', variant: 'tech' as const },
+  { tag: '검색어', variant: 'search' as const }
+];
+
+export default function HomePage({}: HomePageProps) {
   const {
     activeTab,
     setActiveTab,
@@ -28,6 +44,28 @@ const HomePage: React.FC<HomePageProps> = () => {
     formatDate,
     formatNumber
   } = usePosts();
+
+  // 메모이제이션된 콜백 함수들
+  const handleTagRemove = useCallback((tagName: string) => {
+    console.log(`${tagName} 제거됨`);
+  }, []);
+
+  const handleTabChange = useCallback((tab: 'latest' | 'following') => {
+    setActiveTab(tab);
+    setCurrentPage(1);
+  }, [setActiveTab, setCurrentPage]);
+
+  const handlePageChange = useCallback((page: number) => {
+    setCurrentPage(page);
+  }, [setCurrentPage]);
+
+  const handlePreviousPage = useCallback(() => {
+    setCurrentPage(Math.max(1, currentPage - 1));
+  }, [currentPage, setCurrentPage]);
+
+  const handleNextPage = useCallback(() => {
+    setCurrentPage(Math.min(totalPages, currentPage + 1));
+  }, [currentPage, totalPages, setCurrentPage]);
 
   const renderFollowingContent = () => {
     if (!isLoggedIn) {
@@ -55,7 +93,23 @@ const HomePage: React.FC<HomePageProps> = () => {
     return null;
   };
 
-    return (
+  // 메모이제이션된 ArticleInfo props
+  const getArticleInfoProps = useCallback((post: any) => ({
+    id: post.id,
+    title: post.title,
+    author: post.author,
+    authorProfile: post.authorProfile,
+    authorBadge: post.authorBadge,
+    tags: post.tags,
+    date: post.date,
+    views: post.views,
+    stars: post.stars,
+    formatDate,
+    formatNumber,
+    maxTags: MAX_TAGS
+  }), [formatDate, formatNumber]);
+
+  return (
     <div>
         {/* Tag 데모 섹션 */}
         <div className="mb-8 p-6 bg-white rounded-lg shadow-sm border border-gray-200">
@@ -65,10 +119,9 @@ const HomePage: React.FC<HomePageProps> = () => {
           <div className="mb-4">
             <h3 className="text-sm font-medium text-gray-700 mb-2">기본 태그들:</h3>
             <div className="flex flex-wrap gap-2">
-              <Tag tag="일반태그" />
-              <Tag tag="네이버" variant="company" />
-              <Tag tag="React" variant="tech" />
-              <Tag tag="검색어" variant="search" />
+              {TAG_DEMO_DATA.map(({ tag, variant }) => (
+                <Tag key={tag} tag={tag} variant={variant} />
+              ))}
             </div>
           </div>
 
@@ -76,10 +129,15 @@ const HomePage: React.FC<HomePageProps> = () => {
           <div className="mb-4">
             <h3 className="text-sm font-medium text-gray-700 mb-2">제거 가능한 태그들:</h3>
             <div className="flex flex-wrap gap-2">
-              <Tag tag="제거가능" removable={true} onRemove={() => console.log('제거됨')} />
-              <Tag tag="네이버" variant="company" removable={true} onRemove={() => console.log('네이버 제거됨')} />
-              <Tag tag="React" variant="tech" removable={true} onRemove={() => console.log('React 제거됨')} />
-              <Tag tag="검색어" variant="search" removable={true} onRemove={() => console.log('검색어 제거됨')} />
+              {REMOVABLE_TAG_DATA.map(({ tag, variant }) => (
+                <Tag 
+                  key={tag}
+                  tag={tag} 
+                  variant={variant}
+                  removable={true} 
+                  onRemove={() => handleTagRemove(tag)} 
+                />
+              ))}
             </div>
           </div>
         </div>
@@ -95,13 +153,9 @@ const HomePage: React.FC<HomePageProps> = () => {
                       ? 'bg-gradient-to-r from-indigo-600 to-blue-500 text-white font-medium shadow-lg shadow-indigo-200'
                       : 'text-gray-500 hover:text-gray-700'
                   }`}
-                  onClick={() => {
-                    setActiveTab('latest');
-                    setCurrentPage(1);
-                  }}
+                  onClick={() => handleTabChange('latest')}
                 >
-                  <i className="fas fa-clock mr-2"></i>
-                  최신 게시글
+                  최신순
                 </Button>
                 <Button
                   variant="ghost"
@@ -110,13 +164,9 @@ const HomePage: React.FC<HomePageProps> = () => {
                       ? 'bg-gradient-to-r from-indigo-600 to-blue-500 text-white font-medium shadow-lg shadow-indigo-200'
                       : 'text-gray-500 hover:text-gray-700'
                   }`}
-                  onClick={() => {
-                    setActiveTab('following');
-                    setCurrentPage(1);
-                  }}
+                  onClick={() => handleTabChange('following')}
                 >
-                  <i className="fas fa-users mr-2"></i>
-                  팔로우 게시글
+                  팔로우순
                 </Button>
               </div>
             </div>
@@ -130,20 +180,7 @@ const HomePage: React.FC<HomePageProps> = () => {
                     <Card key={post.id} className="hover:shadow-lg transition-shadow duration-300 cursor-pointer">
                       <CardContent className="p-4">
                         <div className="flex items-start gap-4">
-                          <ArticleInfo
-                            id={post.id}
-                            title={post.title}
-                            author={post.author}
-                            authorProfile={post.authorProfile}
-                            authorBadge={post.authorBadge}
-                            tags={post.tags}
-                            date={post.date}
-                            views={post.views}
-                            stars={post.stars}
-                            formatDate={formatDate}
-                            formatNumber={formatNumber}
-                            maxTags={5}
-                          />
+                          <ArticleInfo {...getArticleInfoProps(post)} />
                           <div className="w-48 h-32 flex-shrink-0">
                             <img
                               src={post.thumbnail}
@@ -162,7 +199,7 @@ const HomePage: React.FC<HomePageProps> = () => {
                     <Button
                       variant="outline"
                       className="!rounded-button cursor-pointer whitespace-nowrap"
-                      onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                      onClick={handlePreviousPage}
                       disabled={currentPage === 1}
                     >
                       <i className="fas fa-chevron-left mr-2"></i>
@@ -173,7 +210,7 @@ const HomePage: React.FC<HomePageProps> = () => {
                         key={pageNum}
                         variant={currentPage === pageNum ? 'default' : 'outline'}
                         className="!rounded-button cursor-pointer whitespace-nowrap w-10 h-10"
-                        onClick={() => setCurrentPage(pageNum)}
+                        onClick={() => handlePageChange(pageNum)}
                       >
                         {pageNum}
                       </Button>
@@ -181,7 +218,7 @@ const HomePage: React.FC<HomePageProps> = () => {
                     <Button
                       variant="outline"
                       className="!rounded-button cursor-pointer whitespace-nowrap"
-                      onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                      onClick={handleNextPage}
                       disabled={currentPage === totalPages}
                     >
                       다음
@@ -235,6 +272,4 @@ const HomePage: React.FC<HomePageProps> = () => {
       </div>
     </div>
   );
-};
-
-export default HomePage;
+}

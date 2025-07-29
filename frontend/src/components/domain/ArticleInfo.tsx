@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { UserInfo } from './UserInfo';
-import { DateTimeComponent } from './DateTimeComponent';
-import { CardInfoCount } from './CardInfoCount';
-import { TagArea } from './TagArea';
+import UserInfo from './UserInfo';
+import DateTimeComponent from './DateTimeComponent';
+import CardInfoCount from './CardInfoCount';
+import TagArea from './TagArea';
 
 interface ArticleInfoProps {
   id: number;
@@ -20,7 +20,7 @@ interface ArticleInfoProps {
   maxTags?: number;
 }
 
-const ArticleInfo: React.FC<ArticleInfoProps> = ({
+export default function ArticleInfo({
   id,
   title,
   author,
@@ -33,15 +33,18 @@ const ArticleInfo: React.FC<ArticleInfoProps> = ({
   formatDate,
   formatNumber,
   maxTags = 5
-}) => {
+}: ArticleInfoProps) {
   return (
     <div className="flex-1">
       {/* 1. 작성자 정보 */}
       <UserInfo 
-        author={author}
-        authorProfile={authorProfile}
-        authorBadge={authorBadge}
-      />
+        profileImageUrl={authorProfile}
+        nickname={author}
+      >
+        {authorBadge && (
+          <span className="text-xs text-blue-600 font-medium">{authorBadge}</span>
+        )}
+      </UserInfo>
       
       {/* 2. 제목 */}
       <Link to={`/posts/${id}`} className="block">
@@ -71,6 +74,4 @@ const ArticleInfo: React.FC<ArticleInfoProps> = ({
       />
     </div>
   );
-};
-
-export { ArticleInfo }; 
+} 

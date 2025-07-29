@@ -5,15 +5,13 @@ interface DateTimeComponentProps {
   formatDate: (date: string) => string;
 }
 
-const DateTimeComponent: React.FC<DateTimeComponentProps> = ({ 
+export default function DateTimeComponent({ 
   date, 
   formatDate 
-}) => {
+}: DateTimeComponentProps) {
   return (
     <span className="text-sm text-gray-500">
       {formatDate(date)}
     </span>
   );
-};
-
-export { DateTimeComponent }; 
+} 

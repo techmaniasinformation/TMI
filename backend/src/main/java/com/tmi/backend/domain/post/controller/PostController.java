@@ -23,6 +23,11 @@ public class PostController {
   private final PostService postService;
 
   // TODO: 권한 검증 구현하기
+
+  /**
+   * 게시글 등록 API
+   * @param postCreateRequest 게시글 등록 정보
+   */
   @PostMapping
   public ApiResponse<?> createPost(
       @Valid @RequestBody PostCreateRequest postCreateRequest
@@ -31,7 +36,12 @@ public class PostController {
     return ApiSuccessResponse.success(postService.createPost(postCreateRequest));
   }
 
-  @PatchMapping("{postId}")
+  /**
+   * 게시글 수정 API
+   * @param postId 수정할 게시글 id
+   * @param postUpdateRequest 게시글 수정 정보
+   */
+  @PatchMapping("/{postId}")
   public ApiResponse<?> updatePost(
       @PathVariable Long postId,
       @Valid @RequestBody PostUpdateRequest postUpdateRequest
@@ -40,7 +50,11 @@ public class PostController {
     return ApiSuccessResponse.success(postService.updatePost(postId, postUpdateRequest));
   }
 
-  @DeleteMapping("{postId}")
+  /**
+   * 게시글 삭제 API
+   * @param postId 삭제할 게시글 id
+   */
+  @DeleteMapping("/{postId}")
   public ApiResponse<Void> deletePost(@PathVariable Long postId) {
 
     postService.deletePost(postId);

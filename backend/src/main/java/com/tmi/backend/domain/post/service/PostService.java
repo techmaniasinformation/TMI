@@ -22,11 +22,11 @@ public class PostService {
   private final PostRepository postRepository;
   private final PostTagService postTagService;
 
-  // TODO : member, company null 값 빼기
   @Transactional
   public Map<String, Long> createPost(PostCreateRequest postCreateRequest) {
     log.info("PostService : createPost() 호출");
 
+    // TODO : member, company null 값 빼기 -> memberRepository 등장 이후에 구현
     Post post = Post.of(
         null,
         null,
@@ -49,11 +49,11 @@ public class PostService {
     Post post = postRepository.findById(postId)
         .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
 
-    post.change(postUpdateRequest.getTitle(), postUpdateRequest.getContent(),
-        postUpdateRequest.getLink(), postUpdateRequest.getThumbnailUrl());
+    post.change(postUpdateRequest.title(), postUpdateRequest.content(),
+        postUpdateRequest.link(), postUpdateRequest.thumbnailUrl());
 
-    if (postUpdateRequest.getTags() != null) {
-      postTagService.updatePostTags(post, postUpdateRequest.getTags());
+    if (postUpdateRequest.tags() != null) {
+      postTagService.updatePostTags(post, postUpdateRequest.tags());
     }
 
     return Map.of("PostId", postId);
@@ -70,6 +70,6 @@ public class PostService {
 
     postTagService.deletePostTags(post.getId());
 
-    // TODO : 게시글의 댓글까지 연쇄 삭제 필요
+    // TODO : 게시글의 댓글까지 연쇄 삭제 필요 -> commentService 등장 이후 구현
   }
 }

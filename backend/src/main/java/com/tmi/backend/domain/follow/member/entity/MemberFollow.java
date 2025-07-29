@@ -2,6 +2,7 @@ package com.tmi.backend.domain.follow.member.entity;
 
 
 import com.tmi.backend.domain.member.entity.Member;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -30,7 +31,8 @@ public class MemberFollow {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long memberFollowId;
+  @Column(name = "member_follow_id")
+  private Long id;
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "follower_id", nullable = false)

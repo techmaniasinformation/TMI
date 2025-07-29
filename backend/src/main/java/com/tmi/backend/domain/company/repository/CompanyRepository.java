@@ -15,12 +15,12 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
 
   @Query("""
       SELECT new com.tmi.backend.domain.company.dto.response.CompanyStats(
-        (SELECT COUNT(p)   FROM Post p            WHERE p.company.companyId = :companyId),
-        (SELECT COUNT(f)   FROM CompanyFollow f   WHERE f.company.companyId = :companyId),
-        (SELECT COALESCE(SUM(p2.viewCount), 0) FROM Post p2 WHERE p2.company.companyId = :companyId)
+        (SELECT COUNT(p)   FROM Post p            WHERE p.company.id = :companyId),
+        (SELECT COUNT(f)   FROM CompanyFollow f   WHERE f.company.id = :companyId),
+        (SELECT COALESCE(SUM(p2.viewCount), 0) FROM Post p2 WHERE p2.company.id = :companyId)
       )
       FROM Company c
-      WHERE c.companyId = :companyId
+      WHERE c.id = :companyId
       """)
-  CompanyStats fetchStatsByCompanyId(@Param("companyId") Long companyId);
+  CompanyStats fetchStatsById(@Param("companyId") Long companyId);
 }

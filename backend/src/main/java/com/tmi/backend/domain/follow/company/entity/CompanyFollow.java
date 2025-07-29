@@ -2,6 +2,7 @@ package com.tmi.backend.domain.follow.company.entity;
 
 import com.tmi.backend.domain.company.entity.Company;
 import com.tmi.backend.domain.member.entity.Member;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -25,7 +26,8 @@ public class CompanyFollow {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long companyFollowId;
+  @Column(name = "company_follow_id")
+  private Long id;
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "follower_id", nullable = false)

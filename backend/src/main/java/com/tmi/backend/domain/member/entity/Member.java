@@ -32,7 +32,8 @@ public class Member {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long memberId;
+  @Column(name = "member_id")
+  private Long id;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)

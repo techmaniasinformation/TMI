@@ -22,15 +22,23 @@ public class CompanyController {
 
   private final CompanyService companyService;
 
+  /**
+   * 기업 정보 조회 API
+   */
   @GetMapping("/{companyId}")
   public ApiResponse<CompanyResponse> getCompany(@PathVariable Long companyId) {
     CompanyResponse response = companyService.getCompany(companyId);
     return ApiSuccessResponse.success(response);
   }
 
+  /**
+   * 기업 등록 API
+   *
+   * @RequestBody : 등록할 기업의 정보
+   */
   @PostMapping
   public ApiResponse<Map<String, Long>> createCompany(
-      @RequestBody @Valid CompanyCreateRequest request
+      @Valid @RequestBody CompanyCreateRequest request
   ) {
     Long companyId = companyService.createCompany(request);
     return ApiSuccessResponse.success(Map.of("companyId", companyId));

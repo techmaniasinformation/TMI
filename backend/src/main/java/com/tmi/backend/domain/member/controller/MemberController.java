@@ -25,11 +25,19 @@ public class MemberController {
 
   private final MemberService memberService;
 
+  /**
+   * 멤버 등록 API
+   */
   @GetMapping("/{memberId}")
   public ApiResponse<MemberResponse> getMember(@PathVariable Long memberId) {
     return ApiSuccessResponse.success(memberService.getMember(memberId));
   }
 
+  /**
+   * 닉네임 중복 여부 API
+   *
+   * @RequestParam : 사용하려는 닉네임
+   */
   @GetMapping("/duplicate")
   public ApiResponse<Map<String, Boolean>> checkNicknameDuplicate(
       @RequestParam String nickname
@@ -40,6 +48,12 @@ public class MemberController {
     );
   }
 
+  /**
+   * 멤버 정보 수정 API
+   *
+   * @RequestBody : 수정된 멤버의 정보
+   */
+  //TODO : 권한 검증 구현하기
   @PatchMapping("/{memberId}")
   public ApiResponse<Map<String, Long>> updateMember(
       @PathVariable Long memberId,
@@ -49,6 +63,11 @@ public class MemberController {
     return ApiSuccessResponse.success(Map.of("memberId", memberId));
   }
 
+  /**
+   * 회원가입 등록 API
+   *
+   * @RequestBody : 신규 회원 정보
+   */
   @PostMapping
   public ApiResponse<Map<String, Long>> signup(
       @RequestBody @Valid MemberCreateRequest req
@@ -59,6 +78,10 @@ public class MemberController {
     );
   }
 
+  /**
+   * 회원탈퇴(논리적 삭제) API
+   */
+  //TODO : 권한 검증 구현하기
   @PatchMapping("/{memberId}/delete")
   public ApiResponse<Map<String, Long>> resign(@PathVariable Long memberId) {
     Long resignMemberId = memberService.resign(memberId);

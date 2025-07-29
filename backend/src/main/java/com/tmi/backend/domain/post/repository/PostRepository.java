@@ -14,7 +14,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
   @Query("""
       SELECT MAX(p.createdAt)
       FROM Post p
-      WHERE p.company.companyId = :companyId
+      WHERE p.company.id = :companyId
       """)
-  Optional<LocalDateTime> findLatestCreatedAtByCompanyId(@Param("companyId") Long companyId);
+  Optional<LocalDateTime> findLatestCreatedAtById(@Param("companyId") Long companyId);
 }

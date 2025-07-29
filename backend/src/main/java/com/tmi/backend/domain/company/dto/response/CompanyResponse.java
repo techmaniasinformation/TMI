@@ -7,29 +7,23 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Getter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class CompanyResponse {
+public record CompanyResponse(
+    Long companyId,
+    String name,
+    String companyProfileUrl,
+    String techBlogUrl,
+    LocalDateTime lastUpdatedAt,
+    CompanyStats stats
+) {
 
-  private Long companyId;
-  private String name;
-  private String companyProfileUrl;
-  private String techBlogUrl;
-  private LocalDateTime lastUpdatedAt;
-  private CompanyStats stats;
-
-  public static CompanyResponse of(Company company, LocalDateTime lastUpdateAt,
-      CompanyStats stats) {
-    return CompanyResponse.builder()
-        .companyId(company.getCompanyId())
-        .name(company.getName())
-        .companyProfileUrl(company.getCompanyProfileUrl())
-        .techBlogUrl(company.getTechBlogUrl())
-        .lastUpdatedAt(lastUpdateAt)
-        .stats(stats)
-        .build();
+  public static CompanyResponse of(Company company, LocalDateTime lastUpdatedAt, CompanyStats stats) {
+    return new CompanyResponse(
+        company.getId(),
+        company.getName(),
+        company.getCompanyProfileUrl(),
+        company.getTechBlogUrl(),
+        lastUpdatedAt,
+        stats
+    );
   }
 }
-

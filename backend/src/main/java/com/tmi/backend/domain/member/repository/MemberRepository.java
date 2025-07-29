@@ -10,20 +10,20 @@ import org.springframework.data.repository.query.Param;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
-  Optional<Member> findByMemberId(Long memberId);
+  Optional<Member> findById(Long memberId);
 
   //한 번의 쿼리로 MemberStats DTO를 조회.( 게시글 수, 댓글 수, 팔로워 수, 조회수 합계)
   @Query("""
         SELECT new com.tmi.backend.domain.member.dto.response.MemberStats(
-          (SELECT COUNT(p)   FROM Post p          WHERE p.member.memberId = :memberId),
-          (SELECT COUNT(c)   FROM Comment c       WHERE c.post.member.memberId = :memberId),
-          (SELECT COUNT(f)   FROM MemberFollow f  WHERE f.followee.memberId = :memberId),
-          (SELECT COALESCE(SUM(p2.viewCount), 0)  FROM Post p2         WHERE p2.member.memberId = :memberId)
+          (SELECT COUNT(p)   FROM Post p          WHERE p.member.id = :memberId),
+          (SELECT COUNT(c)   FROM Comment c       WHERE c.post.member.id = :memberId),
+          (SELECT COUNT(f)   FROM MemberFollow f  WHERE f.followee.id = :memberId),
+          (SELECT COALESCE(SUM(p2.viewCount), 0)  FROM Post p2         WHERE p2.member.id = :memberId)
         )
         FROM Member m
-        WHERE m.memberId = :memberId
+        WHERE m.id = :memberId
       """)
-  MemberStats fetchStatsByMemberId(@Param("memberId") Long memberId);
+  MemberStats fetchStatsById(@Param("memberId") Long memberId);
 
   boolean existsByNickname(String nickname);
 

@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CompanyService {
 
   private final CompanyRepository companyRepository;
@@ -23,39 +24,27 @@ public class CompanyService {
 
   @Transactional
   public Long createCompany(CompanyCreateRequest request) {
-    companyRepository.findByName(request.getName()).ifPresent(c -> {
+    companyRepository.findByName(request.name()).ifPresent(c -> {
       throw new BusinessException(ErrorCode.COMMON_INTERNAL_ERROR);
     });
 
-    Company company = Company.of(
-        request.getName(),
-        request.getCompanyProfileUrl(),
-        request.getTechBlogUrl()
-    );
+    Company company = Company.of(request.name(), request.companyProfileUrl(),
+        request.techBlogUrl());
 
     companyRepository.save(company);
-
-    return company.getCompanyId();
+    return company.getId();
   }
 
-  @Transactional
   public CompanyResponse getCompany(Long companyId) {
     Company company = companyRepository.findById(companyId)
         .orElseThrow(() -> new BusinessException(ErrorCode.COMPANY_NOT_FOUND));
 
-    CompanyStats stats = companyRepository.fetchStatsByCompanyId(companyId);
-
     // 게시글 중 가장 최근 작성일 (없으면 회사 updatedAt 사용)
-    LocalDateTime lastUpdatedAt = postRepository.findLatestCreatedAtByCompanyId(companyId)
+    LocalDateTime lastUpdatedAt = postRepository.findLatestCreatedAtById(companyId)
         .orElse(company.getUpdatedAt());
 
-    return CompanyResponse.builder()
-        .companyId(company.getCompanyId())
-        .name(company.getName())
-        .companyProfileUrl(company.getCompanyProfileUrl())
-        .techBlogUrl(company.getTechBlogUrl())
-        .lastUpdatedAt(lastUpdatedAt)
-        .stats(stats)
-        .build();
+    CompanyStats stats = companyRepository.fetchStatsById(companyId);
+
+    return CompanyResponse.of(company, lastUpdatedAt, stats);
   }
 }

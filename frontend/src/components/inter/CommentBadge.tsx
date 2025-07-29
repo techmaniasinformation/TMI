@@ -6,7 +6,7 @@ interface CommentBadgeProps {
 
 export default function CommentBadge({ count = 0 }: CommentBadgeProps) {
   return (
-    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+    <span className="inline-flex items-center text-xs">
       <i className="fas fa-comment mr-1"></i>
       {count.toLocaleString()}
     </span>

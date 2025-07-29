@@ -1,69 +1,105 @@
-import React from 'react';
-import { useHomePage } from '@/hooks/api/useHomePage';
-import { HomePageContent } from '@/components/layout/home';
+import React, { useCallback } from 'react';
+import { usePosts } from '@/hooks/posts/usePosts';
+
+import { Button } from '@/components/foundation/button';
+import { Card, CardContent } from '@/components/domain/Card';
+import FilterableCardList from '@/components/domain/FilterableCardList';
 
 interface HomePageProps {}
 
-const HomePage: React.FC<HomePageProps> = () => {
+// 탭 설정
+const HOME_TABS = [
+  { id: 'latest', label: '최신순', icon: 'fas fa-clock' },
+  { id: 'following', label: '팔로우순', icon: 'fas fa-users' }
+];
+
+export default function HomePage({}: HomePageProps) {
   const {
-    // 상태
     activeTab,
+    setActiveTab,
     currentPage,
+    setCurrentPage,
     isLoggedIn,
     hasFollows,
-    
-    // 데이터
-    currentPosts,
     popularPosts,
-    totalPages,
-    pageNumbers,
-    
-    // 액션
-    handleTabChange,
-    handlePageChange,
-    handleTagClick,
-    handleCardClick,
-    
-    // 유틸리티
     formatDate,
-    formatNumber,
-    
-    // 조건부 렌더링
-    shouldShowFollowingContent,
-    shouldShowLoginPrompt,
-    shouldShowFollowPrompt,
-  } = useHomePage();
+    formatNumber
+  } = usePosts();
+
+  const handleTabChange = useCallback((tab: string) => {
+    console.log('TabBar 클릭됨:', tab); // 디버깅용 로그
+    setActiveTab(tab as 'latest' | 'following');
+    setCurrentPage(1);
+  }, [setActiveTab, setCurrentPage]);
+
+  const handlePageChange = useCallback((page: number) => {
+    setCurrentPage(page);
+  }, [setCurrentPage]);
+
+  const handleArticleClick = useCallback((id: number) => {
+    console.log(`게시글 ${id} 클릭됨`);
+    // 실제로는 라우터로 이동하거나 모달을 열 수 있음
+  }, []);
 
   return (
-    <HomePageContent
-      // 상태
-      activeTab={activeTab}
-      currentPage={currentPage}
-      isLoggedIn={isLoggedIn}
-      hasFollows={hasFollows}
-      
-      // 데이터
-      currentPosts={currentPosts}
-      popularPosts={popularPosts}
-      totalPages={totalPages}
-      pageNumbers={pageNumbers}
-      
-      // 액션
-      onTabChange={handleTabChange}
-      onPageChange={handlePageChange}
-      onTagClick={handleTagClick}
-      onCardClick={handleCardClick}
-      
-      // 유틸리티
-      formatDate={formatDate}
-      formatNumber={formatNumber}
-      
-      // 조건부 렌더링
-      shouldShowFollowingContent={shouldShowFollowingContent}
-      shouldShowLoginPrompt={shouldShowLoginPrompt}
-      shouldShowFollowPrompt={shouldShowFollowPrompt}
-    />
-  );
-};
+    <div className="flex gap-8">
+      <div className="flex-1 max-w-[70%]">
+        <FilterableCardList
+          formatDate={formatDate}
+          formatNumber={formatNumber}
+          onArticleClick={handleArticleClick}
+          onTabChange={handleTabChange}
+          onPageChange={handlePageChange}
+          activeTab={activeTab}
+          currentPage={currentPage}
+          showThumbnail={true}
+          maxTags={5}
+          postsPerPage={10}
+          isLoggedIn={isLoggedIn}
+          hasFollows={hasFollows}
+          tabs={HOME_TABS}
+        />
+      </div>
 
-export default HomePage;
+      <div className="w-[30%]">
+        <Card>
+          <CardContent className="p-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
+              <i className="fas fa-fire text-orange-500 mr-2"></i>
+              인기 게시글
+            </h2>
+            <div className="space-y-4">
+              {popularPosts.map((post, index) => (
+                <div key={post.id} className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                  <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+                    {index + 1}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-medium text-gray-900 line-clamp-2 leading-tight mb-2">
+                      {post.title}
+                    </h3>
+                    <div className="flex items-center justify-between text-xs text-gray-500">
+                      <span className="flex items-center gap-1">
+                        {post.author}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="flex items-center gap-1">
+                          <i className="fas fa-eye"></i>
+                          {formatNumber(post.views)}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <i className="fas fa-star text-yellow-400"></i>
+                          {formatNumber(post.stars)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

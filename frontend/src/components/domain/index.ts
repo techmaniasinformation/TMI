@@ -1,24 +1,18 @@
-// Domain 컴포넌트들 - 2개 이상 페이지에서 사용
-export { Tag } from './Tag';
-export { Textarea } from './Textarea';
-export { Tooltip } from './Tooltip';
-export { Input } from './Input';
-export { Label } from './Label';
-export { Dialog } from './Dialog';
-export { Tabs } from './Tabs';
-export { Switch } from './Switch';
-export { 
-  Card, 
-  CardHeader, 
-  CardFooter, 
-  CardTitle, 
-  CardDescription, 
-  CardContent, 
-  PageCard 
-} from './Card';
-export { 
-  Avatar, 
-  AvatarImage, 
-  AvatarFallback 
-} from './Avatar';
-export { Badge } from './Badge'; 
+export * from './Avatar';
+export * from './Badge';
+export * from './Card';
+export * from './Dialog';
+export * from './Input';
+export * from './Label';
+export * from './Switch';
+export * from './Tabs';
+export * from './Textarea';
+export * from './Tooltip';
+
+// Default export 컴포넌트들
+export { default as FilterableCardList } from './FilterableCardList';
+export { default as TabBar } from './TabBar';
+export { default as Pagination } from './Pagination';
+
+// Article 관련 컴포넌트들 (article 폴더)
+export * from './article'; 

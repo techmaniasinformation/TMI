@@ -45,7 +45,7 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
               <Tag
                 key={tag}
                 tag={tag}
-                variant={selectedTags.includes(tag) ? 'default' : 'outline'}
+                variant={selectedTags.includes(tag) ? 'default' : 'default'}
                 className={`cursor-pointer ${
                   selectedTags.includes(tag) ? 'bg-blue-100 border-blue-300' : ''
                 }`}

@@ -30,7 +30,7 @@ const badgeVariants = cva(
 export interface BadgeProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof badgeVariants> {
-      imgSrc: string;
+      imgSrc?: string;
       imgAlt?: string;
     }
 
@@ -50,25 +50,3 @@ function Badge({ className, variant, imgSrc, imgAlt,  ...props }: BadgeProps) {
 }
 
 export { Badge, badgeVariants } 
-
-// 태그 컴포넌트 만들 용도로 참고할 원문
-// const badgeVariants = cva(
-//   // 태그 컴포넌트 만들 때 badge 참고해야 할 듯!!! 
-//   "inline-flex items-center rounded-full border border-blue-500 px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-//   {
-//     variants: {
-//       variant: {
-//         default:
-//           "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
-//         secondary:
-//           "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
-//         destructive:
-//           "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
-//         outline: "text-foreground",
-//       },
-//     },
-//     defaultVariants: {
-//       variant: "default",
-//     },
-//   }
-// )

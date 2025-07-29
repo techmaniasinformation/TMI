@@ -1,6 +1,7 @@
 package com.tmi.backend.domain.commentRecommendation.entity;
 
 import com.tmi.backend.domain.comment.entity.Comment;
+import com.tmi.backend.domain.member.entity.Member;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

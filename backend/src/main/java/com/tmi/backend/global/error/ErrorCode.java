@@ -73,7 +73,11 @@ public enum ErrorCode {
   AI_SERVICE_ERROR             (HttpStatus.INTERNAL_SERVER_ERROR, "AI-002",     "AI 서비스 오류가 발생했습니다"),
   AI_UNSUPPORTED_LINK          (HttpStatus.BAD_REQUEST,           "AI-003",     "지원하지 않는 링크입니다"),
   AI_TOO_MANY_REQUESTS         (HttpStatus.TOO_MANY_REQUESTS,     "AI-004",     "AI 요약 요청이 너무 많습니다"),
-  AI_TAG_MATCH_FAIL            (HttpStatus.BAD_REQUEST,           "AI-005",     "태그 매칭 실패 – 기타로 분류됩니다");
+  AI_TAG_MATCH_FAIL(HttpStatus.BAD_REQUEST, "AI-005", "태그 매칭 실패 – 기타로 분류됩니다"),/* 3. USER – 사용자 */
+
+  /* 14. COMPANY – 기업 */
+  COMPANY_NOT_FOUND(HttpStatus.NOT_FOUND, "COMP-001", "기업을 찾을 수 없습니다");
+
 
   private final HttpStatus httpStatus;
   private final String code;

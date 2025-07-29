@@ -36,7 +36,7 @@ public class Company {
 
   private LocalDateTime updatedAt;
 
-  public static Company of(String name, String description, String companyProfileUrl,
+  public static Company of(String name, String companyProfileUrl,
       String techBlogUrl) {
     return Company.builder()
         .name(name)

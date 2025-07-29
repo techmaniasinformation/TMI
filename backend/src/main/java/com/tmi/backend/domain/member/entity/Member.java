@@ -15,6 +15,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(uniqueConstraints = {
@@ -23,6 +24,7 @@ import lombok.NoArgsConstructor;
     @UniqueConstraint(name = "uk_member_nickname", columnNames = "nickname")
 })
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -30,7 +32,8 @@ public class Member {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long memberId;
+  @Column(name = "member_id")
+  private Long id;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
@@ -64,11 +67,20 @@ public class Member {
         .providerMemberId(providerMemberId)
         .nickname(nickname)
         .memberProfileUrl(memberProfileUrl)
+        .createdAt(LocalDateTime.now())
+        .updatedAt(LocalDateTime.now())
         .build();
   }
 
   public void delete() {
     deletedAt = LocalDateTime.now();
+  }
+
+  public void reviveAndUpdate() {
+    deletedAt = null;
+    createdAt = LocalDateTime.now();
+    updatedAt = LocalDateTime.now();
+
   }
 
 }

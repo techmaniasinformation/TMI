@@ -13,6 +13,7 @@ const buttonVariants = cva(
       variant: {
         default: "bg-light-bg text-primary border border-dark-bg hover:bg-light-bg-hover",
         primary: "bg-prime-btn text-white hover:bg-prime-btn-hover",
+        light: "bg-light-bg text-primary border border-dark-bg hover:bg-light-bg-hover",
         dark: "bg-dark-bg text-white border border-light-bg hover:bg-dark-bg-hover",
         //이 아래는 사용 안 할 부분들. 다른 컴포넌트, 완성 전까지 임시로 남겨둠
         destructive:

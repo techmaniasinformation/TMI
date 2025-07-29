@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {Button} from '@/components/foundation/button'
+import { useThemeStore } from '@/stores/themeStore';  //테마
+
 
 interface LandingPageProps {}
 
 const LandingPage: React.FC<LandingPageProps> = () => {
   const [isHovered, setIsHovered] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  // 테마 관련 변수 받기
+  const { isDarkMode } = useThemeStore();
 
   const handleSignupClick = (): void => {
     // TODO: 로그인/회원가입 페이지로 이동 로직 구현
@@ -97,7 +102,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
             </Button>
 
             <Button
-            // variant="dark"
+              variant={isDarkMode ? 'dark' : 'default'}
               onMouseEnter={() => setIsHovered('explore')}
               onMouseLeave={() => setIsHovered(null)}
               onClick={handleExploreClick}
@@ -144,7 +149,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
           <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-12">
             인기 게시글
           </h2>
-
+{/* 각 카드는 layout에다가 컴포넌트 만들기 */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Card 1 */}
             <div className="bg-gray-800/70 backdrop-blur-sm hover:bg-gray-800/90 transition-all duration-300 cursor-pointer rounded-lg border border-gray-700/50 hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/20">

@@ -1,8 +1,8 @@
 import React from 'react';
 import { RouterProvider } from 'react-router-dom';
 
-import { router } from './routes';
-import './styles/App.css';
+import { router } from './router';
+import './App.css';
 
 const App: React.FC = () => {
   return <RouterProvider router={router} />;

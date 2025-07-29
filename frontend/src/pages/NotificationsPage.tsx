@@ -30,7 +30,7 @@ const NotificationsPage: React.FC<NotificationsPageProps> = () => {
   const [loading, setLoading] = useState(false);
   const itemsPerPage = 5;
 
-  // Mock data for demonstration
+  // 데이터 가져오는 코드
   useEffect(() => {
     const fetchNotifications = async () => {
       setLoading(true);

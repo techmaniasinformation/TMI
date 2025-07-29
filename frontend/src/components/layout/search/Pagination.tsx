@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from '@/components/foundation/button';
 
 interface PaginationProps {
   currentPage: number;
@@ -6,46 +7,61 @@ interface PaginationProps {
   onPageChange: (page: number) => void;
 }
 
-const Pagination: React.FC<PaginationProps> = ({ 
+export default function Pagination({ 
   currentPage, 
   totalPages, 
   onPageChange 
-}) => {
+}: PaginationProps) {
   if (totalPages <= 1) return null;
 
+  // 페이지 번호들 생성
+  const getPageNumbers = () => {
+    const pageNumbers: number[] = [];
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, startPage + 4);
+    
+    if (endPage - startPage < 4) {
+      startPage = Math.max(1, endPage - 4);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+    return pageNumbers;
+  };
+
   return (
-    <div className="flex justify-center items-center space-x-2 mt-8">
-      <button
+    <div className="flex justify-center items-center gap-2">
+      <Button
+        variant="outline"
+        className="!rounded-button cursor-pointer whitespace-nowrap"
         onClick={() => onPageChange(Math.max(1, currentPage - 1))}
         disabled={currentPage === 1}
-        className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
       >
+        <i className="fas fa-chevron-left mr-2"></i>
         이전
-      </button>
+      </Button>
       
-      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-        <button
-          key={page}
-          onClick={() => onPageChange(page)}
-          className={`px-4 py-2 rounded-lg text-sm ${
-            currentPage === page
-              ? 'bg-blue-600 text-white'
-              : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
-          }`}
+      {getPageNumbers().map((pageNum) => (
+        <Button
+          key={pageNum}
+          variant={currentPage === pageNum ? 'default' : 'outline'}
+          className="!rounded-button cursor-pointer whitespace-nowrap w-10 h-10"
+          onClick={() => onPageChange(pageNum)}
         >
-          {page}
-        </button>
+          {pageNum}
+        </Button>
       ))}
       
-      <button
+      <Button
+        variant="outline"
+        className="!rounded-button cursor-pointer whitespace-nowrap"
         onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
         disabled={currentPage === totalPages}
-        className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         다음
-      </button>
+        <i className="fas fa-chevron-right ml-2"></i>
+      </Button>
     </div>
   );
-};
-
-export default Pagination; 
+} 

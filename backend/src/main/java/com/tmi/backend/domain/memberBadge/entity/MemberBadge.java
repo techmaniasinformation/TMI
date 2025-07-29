@@ -2,6 +2,7 @@ package com.tmi.backend.domain.memberBadge.entity;
 
 import com.tmi.backend.domain.badge.entity.Badge;
 import com.tmi.backend.domain.member.entity.Member;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
@@ -31,7 +32,8 @@ public class MemberBadge {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long memberBadgeId;
+  @Column(name = "member_badge_id")
+  private Long id;
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "member_id", nullable = false, foreignKey = @ForeignKey(name = "fk_member_badge_member"))

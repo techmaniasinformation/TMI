@@ -1,15 +1,11 @@
 // The exported code uses Tailwind CSS. Install Tailwind CSS in your dev environment to ensure all styles work.
-import React, { useState } from 'react';
+import React from 'react';
+import { useAuth } from '@/hooks/auth/useAuth';
 
 interface LoginPageProps {}
 
 const LoginPage: React.FC<LoginPageProps> = () => {
-  const [hoveredButton, setHoveredButton] = useState<string | null>(null);
-
-  const handleSocialLogin = (platform: string) => {
-    console.log(`${platform} 로그인 시작`);
-    // 실제 소셜 로그인 로직은 여기에 구현
-  };
+  const { hoveredButton, setHoveredButton, handleSocialLogin } = useAuth();
 
   return (
     <div className="flex items-center justify-center px-4 py-8">
@@ -81,4 +77,4 @@ const LoginPage: React.FC<LoginPageProps> = () => {
   );
 };
 
-export default LoginPage;
+export default LoginPage; 

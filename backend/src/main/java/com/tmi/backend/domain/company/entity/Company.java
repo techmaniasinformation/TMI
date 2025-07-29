@@ -42,6 +42,8 @@ public class Company {
         .name(name)
         .companyProfileUrl(companyProfileUrl)
         .techBlogUrl(techBlogUrl)
+        .createdAt(LocalDateTime.now())
+        .updatedAt(LocalDateTime.now())
         .build();
   }
 }

@@ -64,7 +64,7 @@ public class MemberService {
 
       // 이미 탈퇴된 회원 → 정보 갱신 후 복구
       if (existing.getDeletedAt() != null) {
-        existing.reviveAndUpdate();
+        existing.reviveAndUpdate(); //시간 업데이트
         existing.setNickname(req.getNickname());
         existing.setMemberProfileUrl(req.getMemberProfileUrl());
         return existing.getMemberId();

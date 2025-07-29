@@ -152,7 +152,7 @@ const NotificationsPage: React.FC<NotificationsPageProps> = () => {
             <div
               key={notification.id}
               onClick={() => handleNotificationClick(notification)}
-              className={`bg-white rounded-lg shadow-sm border border-gray-200 p-4 cursor-pointer transition-colors hover:bg-gray-50 ${
+              className={`bg-light-header dark:bg-dark-header rounded-lg shadow-sm border border-gray-200 p-4 cursor-pointer transition-colors hover:bg-gray-50 ${
                 !notification.isRead ? 'border-l-4 border-l-blue-500' : ''
               }`}
             >

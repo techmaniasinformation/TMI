@@ -42,19 +42,19 @@ export default function ArticleInfo({
         nickname={author}
       >
         {authorBadge && (
-          <span className="text-xs text-blue-600 font-medium">{authorBadge}</span>
+          <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">{authorBadge}</span>
         )}
       </UserInfo>
       
       {/* 2. 제목 */}
       <Link to={`/posts/${id}`} className="block">
-        <h3 className="text-lg font-semibold text-gray-900 mb-3 hover:text-blue-600 transition-colors">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
           {title}
         </h3>
       </Link>
       
       {/* 3. 메타 정보 (날짜 + 조회수/좋아요) */}
-      <div className="flex items-center gap-3 text-sm text-gray-500">
+      <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
         <DateTimeComponent 
           date={date}
           formatDate={formatDate}

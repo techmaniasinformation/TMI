@@ -511,7 +511,7 @@ const MyPage: React.FC<MyPageProps> = () => {
                     <Dialog key={achievement.id}>
                       <DialogTrigger asChild>
                         <div
-                          className={`aspect-square flex flex-col items-center justify-center p-4 bg-white border border-gray-200 rounded-xl transition-all duration-300 ${!achievement.condition() && 'grayscale opacity-50'} cursor-pointer group relative overflow-hidden`}
+                          className={`aspect-square flex flex-col items-center justify-center p-4 bg-light-header dark:bg-dark-header border border-gray-200 rounded-xl transition-all duration-300 ${!achievement.condition() && 'grayscale opacity-50'} cursor-pointer group relative overflow-hidden`}
                         >
                           <div className={`w-20 h-20 ${achievement.backgroundColor} rounded-2xl flex items-center justify-center mb-3 transform group-hover:scale-105 transition-transform duration-300 relative`}
                             style={{

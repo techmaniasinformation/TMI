@@ -17,6 +17,10 @@ public class TagController {
 
   private final TagService tagService;
 
+  /**
+   * 태그 검색 API
+   * @param q 검색어
+   */
   @GetMapping
   public ApiResponse<TagSearchRequest> searchTags(@RequestParam String q) {
 

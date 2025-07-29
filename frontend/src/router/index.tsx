@@ -2,15 +2,15 @@ import React from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 
 import Layout from '../components/layout/Layout';
-import LoginPage from '../pages/AuthPage/LoginPage';
-import HomePage from '../pages/HomePage/HomePage';
-import LandingPage from '../pages/LandingPage/LandingPage';
-import MyPage from '../pages/MyPage/MyPage';
-import NotificationsPage from '../pages/NotificationsPage/NotificationsPage';
-import PostDetailPage from '../pages/PostDetailPage/PostDetailPage';
-import PostEditorPage from '../pages/PostEditorPage/PostEditorPage';
-import SearchResultsPage from '../pages/SearchPage/SearchResultsPage';
-import SignupPage from '../pages/AuthPage/SignupPage';
+import LoginPage from '../pages/LoginPage';
+import HomePage from '../pages/HomePage';
+import LandingPage from '../pages/LandingPage';
+import MyPage from '../pages/MyPage';
+import NotificationsPage from '../pages/NotificationsPage';
+import PostDetailPage from '../pages/PostDetailPage';
+import PostEditorPage from '../pages/PostEditorPage';
+import SearchResultsPage from '../pages/SearchResultsPage';
+import SignupPage from '../pages/SignupPage';
 import { ROUTES } from './routes';
 
 export const router = createBrowserRouter([

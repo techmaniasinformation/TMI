@@ -1,17 +1,16 @@
-package com.tmi.backend.domain.tag.dto.request;
+package com.tmi.backend.domain.tag.dto.response;
 
 import com.tmi.backend.domain.tag.entity.Tag;
 import com.tmi.backend.domain.tag.entity.TagType;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Builder;
 
-public record TagSearchRequest(
+public record TagSearchResponse(
     List<TechTag>    techTags,
     List<CompanyTag> companyTags
 ) {
 
-  public static TagSearchRequest of(List<Tag> tags) {
+  public static TagSearchResponse of(List<Tag> tags) {
     List<TechTag> tech  = new ArrayList<>();
     List<CompanyTag> corp  = new ArrayList<>();
 
@@ -22,6 +21,6 @@ public record TagSearchRequest(
         corp.add(new CompanyTag(tag.getId().intValue(), tag.getName()));
       }
     }
-    return new TagSearchRequest(tech, corp);
+    return new TagSearchResponse(tech, corp);
   }
 }

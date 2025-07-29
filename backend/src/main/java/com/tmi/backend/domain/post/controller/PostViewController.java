@@ -2,15 +2,14 @@ package com.tmi.backend.domain.post.controller;
 
 import com.tmi.backend.domain.post.dto.request.PostFilter;
 import com.tmi.backend.domain.post.dto.request.PostSearchFilter;
-import com.tmi.backend.domain.post.dto.response.DetailPostRequest;
-import com.tmi.backend.domain.post.dto.response.SimplePostPageRequest;
-import com.tmi.backend.domain.post.dto.response.SimplePostSearchRequest;
+import com.tmi.backend.domain.post.dto.response.DetailPostResponse;
+import com.tmi.backend.domain.post.dto.response.SimplePostPageResponse;
+import com.tmi.backend.domain.post.dto.response.SimplePostSearchResponse;
 import com.tmi.backend.domain.post.service.PostViewService;
 import com.tmi.backend.global.common.response.ApiResponse;
 import com.tmi.backend.global.common.response.impl.ApiSuccessResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -36,7 +35,7 @@ public class PostViewController {
    * @param filter 조회할 파라미터 확인
    */
   @GetMapping()
-  public ApiResponse<SimplePostPageRequest> readPosts(
+  public ApiResponse<SimplePostPageResponse> readPosts(
       @Valid @ModelAttribute PostFilter filter,
       @Positive @RequestParam(defaultValue = "1") int page,
       @Positive @RequestParam(defaultValue = "10") int size
@@ -55,7 +54,7 @@ public class PostViewController {
    * @param filter 검색어 및 검색 태그
    */
   @GetMapping("/search")
-  public ApiResponse<SimplePostSearchRequest> searchPosts(
+  public ApiResponse<SimplePostSearchResponse> searchPosts(
       @ModelAttribute PostSearchFilter filter,
       @Positive @RequestParam(defaultValue = "1") int page,
       @Positive @RequestParam(defaultValue = "10") int size
@@ -69,7 +68,7 @@ public class PostViewController {
    * @param postId 해당 게시글 id
    */
   @GetMapping("/{postId}")
-  public ApiResponse<DetailPostRequest> readDetailPost(@Positive @PathVariable Long postId) {
+  public ApiResponse<DetailPostResponse> readDetailPost(@Positive @PathVariable Long postId) {
 
     return ApiSuccessResponse.success(postViewService.readDetailPost(postId));
   }
@@ -78,7 +77,7 @@ public class PostViewController {
    * 인기 게시글 조회 API
    */
   @GetMapping("/popular")
-  public ApiResponse<SimplePostPageRequest> readPopularPosts(
+  public ApiResponse<SimplePostPageResponse> readPopularPosts(
       @Positive @RequestParam(defaultValue = "10") int size
   ) {
     return ApiSuccessResponse.success(postViewService.readPopularPosts(size));

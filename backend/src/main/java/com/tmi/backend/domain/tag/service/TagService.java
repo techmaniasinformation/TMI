@@ -1,6 +1,6 @@
 package com.tmi.backend.domain.tag.service;
 
-import com.tmi.backend.domain.tag.dto.request.TagSearchRequest;
+import com.tmi.backend.domain.tag.dto.response.TagSearchResponse;
 import com.tmi.backend.domain.tag.entity.Tag;
 import com.tmi.backend.domain.tag.entity.TagType;
 import com.tmi.backend.domain.tag.repository.TagRepository;
@@ -26,13 +26,13 @@ public class TagService {
     return tagRepository.findAllByTagTypeAndNameIn(TagType.TECH, tags);
   }
 
-  public TagSearchRequest searchTags(String keyword) {
+  public TagSearchResponse searchTags(String keyword) {
     log.info("TagService : searchTags(" + keyword + ") 호출");
 
     if (keyword.isBlank()) {
       throw new BusinessException(ErrorCode.SEARCH_TERM_MISSING);
     }
 
-    return TagSearchRequest.of(tagRepository.findByNameContainingIgnoreCase(keyword));
+    return TagSearchResponse.of(tagRepository.findByNameContainingIgnoreCase(keyword));
   }
 }

@@ -1,7 +1,43 @@
 package com.tmi.backend.domain.post.dto.response;
 
+import com.tmi.backend.domain.post.entity.Post;
+import java.time.LocalDateTime;
+import java.util.List;
+import lombok.AccessLevel;
 import lombok.Builder;
 
-@Builder
-public record SimplePostResponse() {
+@Builder(access = AccessLevel.PRIVATE)
+public record SimplePostResponse(
+    String postId,
+    String memberProfile,
+    String companyProfileUrl,
+    String name,
+    String badgeUrl,
+    String title,
+    LocalDateTime createAt,
+    int viewCount,
+    int starCount,
+    int commentCount,
+    List<String> tags,
+    String thumbnailUrl
+) {
+
+  public static SimplePostResponse of(Post post) {
+    return SimplePostResponse.builder()
+        .postId(post.getId().toString())
+        .memberProfile(post.getMember().getMemberProfileUrl())
+        .companyProfileUrl(post.getCompany().getCompanyProfileUrl())
+        .name(post.getMember().getNickname())
+//        .badgeUrl(post.getMember().getBadgeUrl())
+        .title(post.getTitle())
+        .createAt(post.getCreatedAt())
+        .viewCount(post.getViewCount())
+        .starCount(post.getStarCount())
+//        .commentCount(post.getComments().size())
+//        .tags(post.getTags().stream()
+//            .map(Tag::getName)
+//            .toList())
+        .thumbnailUrl(post.getThumbnailUrl())
+        .build();
+  }
 }

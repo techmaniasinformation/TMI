@@ -26,7 +26,7 @@ public class PostService {
   public Map<String, Long> createPost(PostCreateRequest postCreateRequest) {
     log.info("PostService : createPost() 호출");
 
-    // TODO : member, company null 값 빼기 -> memberRepository 등장 이후에 구현
+    // TODO : member, company null 값 빼기 -> 인증 로직 등장 이후에 구현
     Post post = Post.of(
         null,
         null,
@@ -35,11 +35,11 @@ public class PostService {
         postCreateRequest.content(),
         postCreateRequest.thumbnailUrl());
 
-    postRepository.save(post);
+    Post save = postRepository.save(post);
 
-    postTagService.createPostTags(post, postCreateRequest.tags());
+    postTagService.createPostTags(save, postCreateRequest.tags());
 
-    return Map.of("postId", post.getId());
+    return Map.of("postId", save.getId());
   }
 
   @Transactional

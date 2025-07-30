@@ -71,6 +71,8 @@ public class Post {
         .link(link)
         .content(content)
         .thumbnailUrl(thumbnailUrl)
+        .createdAt(LocalDateTime.now())
+        .updatedAt(LocalDateTime.now())
         .build();
   }
 

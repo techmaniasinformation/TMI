@@ -1,5 +1,7 @@
 package com.tmi.backend.domain.post.service;
 
+import com.tmi.backend.domain.member.entity.Member;
+import com.tmi.backend.domain.member.repository.MemberRepository;
 import com.tmi.backend.domain.post.dto.request.PostCreateRequest;
 import com.tmi.backend.domain.post.dto.request.PostUpdateRequest;
 import com.tmi.backend.domain.post.entity.Post;
@@ -19,16 +21,20 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class PostService {
 
+  private final MemberRepository memberRepository;
   private final PostRepository postRepository;
   private final PostTagService postTagService;
 
+  // TODO : 인증 로직 구현
   @Transactional
   public Map<String, Long> createPost(PostCreateRequest postCreateRequest) {
     log.info("PostService : createPost() 호출");
 
-    // TODO : member, company null 값 빼기 -> 인증 로직 등장 이후에 구현
+    Member member = memberRepository.findById(postCreateRequest.memberId())
+        .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
     Post post = Post.of(
-        null,
+        member,
         null,
         postCreateRequest.title(),
         postCreateRequest.link(),

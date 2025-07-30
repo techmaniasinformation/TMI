@@ -1,80 +1,44 @@
 // The exported code uses Tailwind CSS. Install Tailwind CSS in your dev environment to ensure all styles work.
-import React, { useState } from 'react';
-import { SearchConditions, PostCard, Pagination, NoResults } from '@/components/layout/search';
-import { formatDate, formatNumber } from '@/utils/date';
-import { mockPosts } from '@/data/search.data';
-import { useTagSearch } from '@/hooks';
+import React from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import SearchPostListContainer from '@/components/domain/SearchPostList';
+import { useSearchResults } from '@/hooks/posts/useSearchResults';
 
-interface SearchResultsPageProps {}
+const SearchResultsPage = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
-const SearchResultsPage: React.FC<SearchResultsPageProps> = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const { searchConditions, removeSearchTag } = useTagSearch({
-    keyword: 'React 개발',
-    tags: ['프론트엔드', 'JavaScript', 'React'],
-    company: '네이버'
-  });
+  // 검색 결과 관리
+  const {
+    posts,
+    loading,
+    error,
+    currentPage,
+    totalCount,
+    appliedFilters,
+    setCurrentPage
+  } = useSearchResults();
 
-  const postsPerPage = 5;
-  const totalPages = Math.ceil(mockPosts.length / postsPerPage);
-  const startIndex = (currentPage - 1) * postsPerPage;
-  const currentPosts = mockPosts.slice(startIndex, startIndex + postsPerPage);
-
-  const handleRemoveSearchCondition = (type: 'keyword' | 'tag' | 'company', value?: string) => {
-    if (type === 'tag' && value) {
-      removeSearchTag(value);
-    }
-    console.log(`Remove ${type}: ${value}`);
-  };
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+  // 게시글 클릭 핸들러
+  const handlePostClick = (postId: number) => {
+    // 상세 페이지 대신 홈페이지로 이동
+    navigate('/home');
   };
 
   return (
-      <div className="max-w-6xl mx-auto px-6 py-8">
-        {/* Search Conditions */}
-        <SearchConditions 
-          searchConditions={searchConditions}
-          onRemoveCondition={handleRemoveSearchCondition}
-        />
-
-        {/* Results Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">
-            검색 결과 ({mockPosts.length}개)
-          </h1>
-          <div className="flex items-center space-x-4">
-            <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
-              <option>최신순</option>
-              <option>인기순</option>
-              <option>조회수순</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Posts List */}
-        <div className="space-y-6">
-          {currentPosts.map((post) => (
-            <PostCard
-              key={post.id}
-              post={post}
-              highlightedTags={searchConditions.tags}
-              formatDate={formatDate}
-              formatNumber={formatNumber}
-            />
-          ))}
-        </div>
-
-        {/* Pagination */}
-        <Pagination
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8">
+        <SearchPostListContainer
+          posts={posts}
+          loading={loading}
+          error={error}
           currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
+          totalCount={totalCount}
+          appliedFilters={appliedFilters}
+          onPageChange={setCurrentPage}
+          onPostClick={handlePostClick}
         />
-
-        {/* No Results */}
-        {mockPosts.length === 0 && <NoResults />}
+      </div>
     </div>
   );
 };

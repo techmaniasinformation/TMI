@@ -48,13 +48,8 @@ const Footer: React.FC<FooterProps> = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/posts/editor" className="text-gray-400 hover:text-white transition-colors">
-                  글쓰기
-                </Link>
-              </li>
-              <li>
-                <Link to="/notifications" className="text-gray-400 hover:text-white transition-colors">
-                  알림
+                <Link to="/home" className="text-gray-400 hover:text-white transition-colors">
+                  둘러보기
                 </Link>
               </li>
             </ul>

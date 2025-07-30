@@ -1,98 +1,106 @@
 interface ServerPaginationProps {
   currentPage: number;  // 현재 페이지 번호
-  totalPages: number;   // 전체 페이지 수
+  totalCount: number;   // 전체 데이터 개수
+  pageSize?: number;    // 페이지당 데이터 개수 (기본값: 10)
   onPageChange: (page: number) => void; // 페이지 변경 시 실행할 함수
 }
 
-// 페이지 버튼 만들어주는 함수
-function ServerPagination({ currentPage, totalPages, onPageChange }: ServerPaginationProps) {
-  // 최대 보여줄 페이지 개수
-  const visiblePages = 5;
+// 서버 페이지네이션 버튼 만들어주는 함수
+function ServerPagination({ 
+  currentPage, 
+  totalCount, 
+  pageSize = 10, 
+  onPageChange 
+}: ServerPaginationProps) {
+  // 전체 페이지 수 계산
+  const totalPages = Math.ceil(totalCount / pageSize);
 
-  // 페이지 번호 목록 계산
+  // 디버깅을 위한 콘솔 로그
+  console.log('📄 ServerPagination Debug:', {
+    currentPage,
+    totalCount,
+    pageSize,
+    totalPages,
+    shouldShow: totalPages > 0
+  });
+
+  // 페이지가 0개 이하면 페이지네이션 숨김
+  if (totalPages <= 0) {
+    console.log('❌ ServerPagination hidden: totalPages <= 0');
+    return null;
+  }
+
+  // 페이지 번호들을 계산하는 함수
   const getPageNumbers = () => {
-    const pages: number[] = [];
-    const half = Math.floor(visiblePages / 2); // 현재 페이지를 중심으로 반쪽
-
-    // 시작 페이지 계산 (최소 1이상)
-    let start = Math.max(1, currentPage - half);
-
-    // 끝 페이지 계산
-    let end = start + visiblePages - 1;
-
-    // 끝 페이지가 전체 페이지를 넘으면 마지막 번호를 전체 페이지로
-    if (end > totalPages) {
-      end = totalPages;
-      start = Math.max(1, end - visiblePages + 1);
+    const pages: (number | string)[] = [];
+    
+    // 항상 최소 1페이지는 표시
+    if (totalPages === 1) {
+      pages.push(1);
+    } else if (totalPages <= 5) {
+      // 5페이지 이하면 모두 표시
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // 5페이지 초과면 현재 페이지 ±2 기준으로 표시
+      const startPage = Math.max(1, currentPage - 2);
+      const endPage = Math.min(totalPages, currentPage + 2);
+      
+      // 현재 페이지 ±2 범위만 추가
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
     }
-
-    // start ~ end 까지 페이지 번호 배열 생성
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
-    }
-
+    
     return pages;
   };
 
-  // 첫 페이지인지 확인
-  const isFirst = currentPage === 1;
-  // 마지막 페이지인지 확인
-  const isLast = currentPage === totalPages;
+  const pageNumbers = getPageNumbers();
 
   return (
-    <div className="flex justify-center items-center mt-6 space-x-1">
-      {/* 맨 앞으로 이동 버튼 («) */}
+    <div className="flex justify-center items-center space-x-2 mt-8">
+      {/* 이전 페이지 버튼 */}
       <button
-        className="w-9 h-9 border rounded text-gray-400 hover:bg-gray-100 disabled:cursor-not-allowed"
-        onClick={() => onPageChange(1)}
-        disabled={isFirst}
-      >
-        «
-      </button>
-
-      {/* 이전 페이지 이동 버튼 (‹) */}
-      <button
-        className="w-9 h-9 border rounded text-gray-400 hover:bg-gray-100 disabled:cursor-not-allowed"
         onClick={() => onPageChange(currentPage - 1)}
-        disabled={isFirst}
+        disabled={currentPage === 1}
+        className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        aria-label="이전 페이지"
       >
-        ‹
+        이전
       </button>
 
       {/* 페이지 번호 버튼들 */}
-      {getPageNumbers().map((page) => (
+      {pageNumbers.map((page, index) => (
         <button
-          key={page}
-          onClick={() => onPageChange(page)}
-          className={`w-9 h-9 border rounded text-sm font-medium ${
-            currentPage === page
+          key={index}
+          onClick={() => typeof page === 'number' ? onPageChange(page) : undefined}
+          disabled={typeof page === 'string'}
+          className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+            typeof page === 'number' && currentPage === page
               ? 'bg-blue-600 text-white'
-              : 'text-gray-700 hover:bg-gray-100'
+              : typeof page === 'string'
+              ? 'text-gray-400 bg-white border border-gray-300 cursor-default'
+              : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
           }`}
+          aria-label={typeof page === 'number' ? `페이지 ${page}로 이동` : undefined}
+          aria-current={typeof page === 'number' && currentPage === page ? 'page' : undefined}
         >
           {page}
         </button>
       ))}
 
-      {/* 다음 페이지 이동 버튼 (›) */}
+      {/* 다음 페이지 버튼 */}
       <button
-        className="w-9 h-9 border rounded text-gray-400 hover:bg-gray-100 disabled:cursor-not-allowed"
         onClick={() => onPageChange(currentPage + 1)}
-        disabled={isLast}
+        disabled={currentPage === totalPages}
+        className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        aria-label="다음 페이지"
       >
-        ›
-      </button>
-
-      {/* 맨 끝으로 이동 버튼 (») */}
-      <button
-        className="w-9 h-9 border rounded text-gray-400 hover:bg-gray-100 disabled:cursor-not-allowed"
-        onClick={() => onPageChange(totalPages)}
-        disabled={isLast}
-      >
-        »
+        다음
       </button>
     </div>
   );
 }
 
-export default ServerPagination; 
+export default ServerPagination;

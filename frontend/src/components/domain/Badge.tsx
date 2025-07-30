@@ -1,6 +1,6 @@
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
-import { cn } from "@/utils/utils"
+import { cn } from "@/utils"
 
 //닉네임 옆 뱃지 
 const badgeVariants = cva(

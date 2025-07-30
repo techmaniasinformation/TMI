@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/utils/utils";
 import { Link, useNavigate } from "react-router-dom";
-import SearchBar from "./Searchbar"; // ✅ 대소문자 주의
+import SearchBar from "./Searchbar"; // 검색바 컴포넌트 분리
 import { Button } from "./button";
 import { useThemeStore } from "@/stores/themeStore"; // 테마 불러오기
+
 
 const headerVariants = cva("text-white", {
   variants: {
@@ -69,10 +70,8 @@ const Header: React.FC<HeaderProps> = ({ variant = "light", size = "default" }) 
           {/* 로고 */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">T</span>
-              </div>
-              <span className="text-xl font-bold">TechBlog</span>
+              <img src="src/assets/icons/tmiLogo.svg" alt="TMI Logo" className="w-20 h-20" />
+              <span className="text-xl font-bold">TMI</span>
             </Link>
           </div>
 
@@ -94,13 +93,7 @@ const Header: React.FC<HeaderProps> = ({ variant = "light", size = "default" }) 
           </button>
             {isLoggedIn ? (
             <div className="relative flex">
-              {/* 알림 */}
-              <Link to="/notifications" className="relative p-2 text-gray-500 hover:text-gray-700">
-                <i className="fas fa-bell"></i>
-                {hasUnreadNotifications && (
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                )}
-              </Link>
+
               {/* 프로필 */}
               <button
                 onClick={() => setShowProfileMenu(!showProfileMenu)}
@@ -118,6 +111,14 @@ const Header: React.FC<HeaderProps> = ({ variant = "light", size = "default" }) 
                 {showProfileMenu && (
                   <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                     <div className="py-1">
+                      {/* 알림 */}
+                      <Link to="/notifications" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <span>알림 확인</span>
+                        {/* 빨간점을... 어떻게 해야.... */}
+                        {hasUnreadNotifications && (
+                          <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                        )}
+                      </Link>
                       <Link to="/my-page" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         마이페이지
                       </Link>

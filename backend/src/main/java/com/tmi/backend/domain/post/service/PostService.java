@@ -35,7 +35,6 @@ public class PostService {
 
     Post post = Post.of(
         member,
-        null,
         postCreateRequest.title(),
         postCreateRequest.link(),
         postCreateRequest.content(),

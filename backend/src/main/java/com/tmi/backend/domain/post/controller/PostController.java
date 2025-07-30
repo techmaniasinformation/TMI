@@ -6,6 +6,7 @@ import com.tmi.backend.domain.post.service.PostService;
 import com.tmi.backend.global.common.response.ApiResponse;
 import com.tmi.backend.global.common.response.impl.ApiSuccessResponse;
 import jakarta.validation.Valid;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -29,7 +30,7 @@ public class PostController {
    * @param postCreateRequest 게시글 등록 정보
    */
   @PostMapping
-  public ApiResponse<?> createPost(
+  public ApiResponse<Map<String, Long>> createPost(
       @Valid @RequestBody PostCreateRequest postCreateRequest
   ) {
 
@@ -42,7 +43,7 @@ public class PostController {
    * @param postUpdateRequest 게시글 수정 정보
    */
   @PatchMapping("/{postId}")
-  public ApiResponse<?> updatePost(
+  public ApiResponse<Map<String, Long>> updatePost(
       @PathVariable Long postId,
       @Valid @RequestBody PostUpdateRequest postUpdateRequest
   ) {

@@ -11,7 +11,7 @@ public record PostCreateRequest(
   @NotBlank String link,
   @NotBlank String title,
   String thumbnailUrl,
-  String content,
+  @Size(min = 50) String content,
   @Size(max = 5) List<String> tags
 ) {
 }

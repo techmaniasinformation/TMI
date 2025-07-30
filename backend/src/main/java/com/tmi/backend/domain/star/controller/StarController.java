@@ -10,6 +10,7 @@ import com.tmi.backend.global.common.response.impl.ApiSuccessResponse;
 import com.tmi.backend.global.error.ErrorCode;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,7 +36,7 @@ public class StarController {
    * @param request 멤버 id 와 게시글 id 를 받습니다.
    */
   @PostMapping
-  public ApiResponse<?> starRegister(
+  public ApiResponse<Map<String, Long>> starRegister(
       @Valid @RequestBody StarRegisterRequest request
   ) {
 
@@ -58,7 +59,7 @@ public class StarController {
    * @param starId 취소하려는 스타 id
    */
   @DeleteMapping("/{starId}")
-  public ApiResponse<?> deleteStar(@PathVariable Long starId) {
+  public ApiResponse<Void> deleteStar(@PathVariable Long starId) {
 
     starService.deleteStar(starId);
     return ApiSuccessResponse.success();

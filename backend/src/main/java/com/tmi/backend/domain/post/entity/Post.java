@@ -58,7 +58,6 @@ public class Post {
 
   public static Post of(
       Member member,
-      Company company,
       String title,
       String link,
       String content,
@@ -66,7 +65,6 @@ public class Post {
   ) {
     return Post.builder()
         .member(member)
-        .company(company)
         .title(title)
         .link(link)
         .content(content)

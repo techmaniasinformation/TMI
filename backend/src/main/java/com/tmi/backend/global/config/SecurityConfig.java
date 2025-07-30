@@ -1,5 +1,8 @@
 package com.tmi.backend.global.config;
 
+import com.tmi.backend.global.oauth.CustomOAuth2UserService;
+import com.tmi.backend.global.oauth.OAuth2FailureHandler;
+import com.tmi.backend.global.oauth.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +19,9 @@ public class SecurityConfig {
 
   private final JwtFilter jwtFilter;
   private final OAuth2SuccessHandler oAuth2SuccessHandler;
+  private final OAuth2FailureHandler oAuth2FailureHandler;
   private final CustomOAuth2UserService customOAuth2UserService;
+
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -32,6 +37,7 @@ public class SecurityConfig {
         .oauth2Login(oauth -> oauth
             .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
             .successHandler(oAuth2SuccessHandler)
+            .failureHandler(oAuth2FailureHandler)
         );
 
     http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

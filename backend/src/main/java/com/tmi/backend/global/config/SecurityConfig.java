@@ -2,6 +2,7 @@ package com.tmi.backend.global.config;
 
 import com.tmi.backend.global.jwt.JwtAuthenticationFilter;
 import com.tmi.backend.global.oauth.CustomOAuth2UserService;
+import com.tmi.backend.global.oauth.CustomOidcUserService;
 import com.tmi.backend.global.oauth.OAuth2FailureHandler;
 import com.tmi.backend.global.oauth.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class SecurityConfig {
   private final OAuth2SuccessHandler oAuth2SuccessHandler;
   private final OAuth2FailureHandler oAuth2FailureHandler;
   private final CustomOAuth2UserService customOAuth2UserService;
+  private final CustomOidcUserService customOidcUserService;
 
 
   @Bean
@@ -48,6 +50,7 @@ public class SecurityConfig {
                 .baseUri("/api/v1/oauth2/code/*")
             )
             .userInfoEndpoint(userInfo -> userInfo
+                .oidcUserService(customOidcUserService)
                 .userService(customOAuth2UserService)
             )
             .successHandler(oAuth2SuccessHandler)

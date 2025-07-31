@@ -24,7 +24,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
   public void onAuthenticationSuccess(HttpServletRequest request,
       HttpServletResponse response,
       Authentication authentication) {
-    CustomOAuth2User customUser = (CustomOAuth2User) authentication.getPrincipal();
+    CustomAuthenticatedUser customUser = (CustomAuthenticatedUser) authentication.getPrincipal();
 
     // 신규 및 재가입 회원
     if (customUser.isNewUser()) {

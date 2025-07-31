@@ -34,11 +34,8 @@ public class StarService {
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-    log.info("postId = {}", postId);
     Post post = postRepository.findById(postId)
         .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
-    log.info("post title = {}", post.getTitle());
-
 
     if (starRepository.existsByMemberAndPost(member, post)) {
       throw new BusinessException(ErrorCode.STAR_ALREADY_STARRED);

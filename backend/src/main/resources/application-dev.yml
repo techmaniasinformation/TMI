@@ -12,5 +12,6 @@ spring:
     properties:
 
       hibernate:
+        default_batch_fetch_size: 100 # n+1 문제 최적화 -> 1 + 1 문제로 해결 (in 절의 개수 설정)
         format_sql: true
     database-platform: org.hibernate.dialect.MySQL8Dialect

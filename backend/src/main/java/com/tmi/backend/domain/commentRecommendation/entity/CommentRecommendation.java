@@ -43,6 +43,12 @@ public class CommentRecommendation {
     return CommentRecommendation.builder()
         .member(member)
         .comment(comment)
+        .createdAt(LocalDateTime.now())
         .build();
+  }
+
+  public void assignToComment(Comment comment) {
+    this.comment = comment;
+    this.comment.getRecommendations().add(this);
   }
 }

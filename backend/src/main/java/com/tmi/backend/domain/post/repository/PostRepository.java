@@ -2,7 +2,9 @@ package com.tmi.backend.domain.post.repository;
 
 import com.tmi.backend.domain.post.entity.Post;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,4 +19,11 @@ public interface PostRepository extends JpaRepository<Post, Long> {
       WHERE p.company.id = :companyId
       """)
   Optional<LocalDateTime> findLatestCreatedAtById(@Param("companyId") Long companyId);
+
+  @EntityGraph(attributePaths = {
+      "member",
+      "company",
+      "postTags.tag"
+  })
+  Optional<Post> findById(Long id);
 }

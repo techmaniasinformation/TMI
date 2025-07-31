@@ -26,7 +26,7 @@ public class MemberController {
   private final MemberService memberService;
 
   /**
-   * 멤버 등록 API
+   * 멤버 조회 API
    */
   @GetMapping("/{memberId}")
   public ApiResponse<MemberResponse> getMember(@PathVariable Long memberId) {
@@ -35,7 +35,6 @@ public class MemberController {
 
   /**
    * 닉네임 중복 여부 API
-   *
    * @RequestParam : 사용하려는 닉네임
    */
   @GetMapping("/duplicate")
@@ -50,7 +49,6 @@ public class MemberController {
 
   /**
    * 멤버 정보 수정 API
-   *
    * @RequestBody : 수정된 멤버의 정보
    */
   //TODO : 권한 검증 구현하기
@@ -64,11 +62,10 @@ public class MemberController {
   }
 
   /**
-   * 회원가입 등록 API
-   *
+   * 멤버등록 (회원가입)  API
    * @RequestBody : 신규 회원 정보
    */
-  @PostMapping
+  @PostMapping("/signup")
   public ApiResponse<Map<String, Long>> signup(
       @RequestBody @Valid MemberCreateRequest req
   ) {

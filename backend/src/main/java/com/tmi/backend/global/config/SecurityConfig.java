@@ -1,5 +1,6 @@
 package com.tmi.backend.global.config;
 
+import com.tmi.backend.global.jwt.JwtAuthenticationFilter;
 import com.tmi.backend.global.oauth.CustomOAuth2UserService;
 import com.tmi.backend.global.oauth.OAuth2FailureHandler;
 import com.tmi.backend.global.oauth.OAuth2SuccessHandler;
@@ -17,7 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-  private final JwtFilter jwtFilter;
+  private final JwtAuthenticationFilter jwtAuthenticationFilter;
   private final OAuth2SuccessHandler oAuth2SuccessHandler;
   private final OAuth2FailureHandler oAuth2FailureHandler;
   private final CustomOAuth2UserService customOAuth2UserService;
@@ -29,18 +30,32 @@ public class SecurityConfig {
         .csrf(csrf -> csrf.disable())
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(auth -> auth
-            //TODO: 경로 추가하기
-            .requestMatchers("/auth/**", "/login/**", "/oauth2/**", "/signup/**").permitAll()
+        .authorizeHttpRequests(authorize -> authorize
+            .requestMatchers(
+                "/oauth2/**",         // 소셜 로그인 진입 및 콜백
+                "/auth/refresh",
+                "/api/v1/oauth2/authorization/**",
+                "/api/v1/oauth2/code/**",
+                "/api/v1/member/signup"
+            ).permitAll()
             .anyRequest().authenticated()
         )
-        .oauth2Login(oauth -> oauth
-            .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+        .oauth2Login(oauth2 -> oauth2
+            .authorizationEndpoint(endpoint -> endpoint
+                .baseUri("/api/v1/oauth2/authorization")
+            )
+            .redirectionEndpoint(endpoint -> endpoint
+                .baseUri("/api/v1/oauth2/code/*")
+            )
+            .userInfoEndpoint(userInfo -> userInfo
+                .userService(customOAuth2UserService)
+            )
             .successHandler(oAuth2SuccessHandler)
             .failureHandler(oAuth2FailureHandler)
+        ).addFilterBefore(
+            jwtAuthenticationFilter,
+            UsernamePasswordAuthenticationFilter.class
         );
-
-    http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
   }

@@ -16,73 +16,45 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
-
   private final MemberRepository memberRepository;
 
   @Override
   public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-    // 소셜 서버로부터 사용자 정보를 받아와서 OAuth2User로 변환
     OAuth2User oAuth2User = super.loadUser(userRequest);
-
-    // 어떤 소셜 로그인인지 (kakao, google 등)
     Provider provider = Provider.valueOf(
         userRequest.getClientRegistration().getRegistrationId().toUpperCase());
+    Map<String, Object> attrs = oAuth2User.getAttributes();
+    String providerMemberId = extractProviderMemberId(provider, attrs);
 
-    // 소셜에서 제공한 데이터.
-    Map<String, Object> attributes = oAuth2User.getAttributes();
+    // 1) 삭제여부 상관없이 무조건 조회
+    Optional<Member> opt = memberRepository
+        .findByProviderAndProviderMemberId(provider, providerMemberId);
 
-    // 소셜의 고유 사용자 ID 추출
-    String providerMemberId = extractProviderMemberId(provider, attributes);
+    if (opt.isPresent()) {
+      Member m = opt.get();
 
-    // 기존 회원 조회
-    Optional<Member> optionalMember = memberRepository.findByProviderAndProviderMemberId(
-        provider, providerMemberId
-    );
-
-    //회원 정보가 있는 경우.
-    if (optionalMember.isPresent()) {
-      Member member = optionalMember.get();
-
-      //탈퇴한 회원인경우
-      if (member.getDeletedAt() != null) {
-        LocalDateTime deletedAt = member.getDeletedAt();
-        LocalDateTime now = LocalDateTime.now();
-
-        // 7일 이내 재가입 불가
-        if (deletedAt.plusDays(7).isAfter(now)) {
-          throw new OAuth2AuthenticationException("탈퇴한 회원입니다. 7일 후 재가입이 가능합니다.");
-
-          // 7일 이후 재가입 가능
-        } else {
-          return new CustomOAuth2User(
-              null,
-              provider,
-              providerMemberId,
-              attributes,
-              true
-          );
-        }
+      // 2‑1) 정상 회원
+      if (m.getDeletedAt() == null) {
+        return new CustomOAuth2User(
+            m.getId(), provider, providerMemberId, attrs, false);
       }
 
-      // 기존 회원 로그인 처리
-      return new CustomOAuth2User(
-          member.getId(),
-          provider,
-          providerMemberId,
-          attributes,
-          false
-      );
+      // 2‑2) soft‑delete 된 회원
+      LocalDateTime deletedAt = m.getDeletedAt();
+      if (deletedAt.plusDays(7).isAfter(LocalDateTime.now())) {
+        // 7일 이내면 예외
+        throw new OAuth2AuthenticationException(
+            "탈퇴한 회원입니다. 7일 후 재가입이 가능합니다");
+      } else {
+        // 7일 지났으면 신규 회원처럼 처리
+        return new CustomOAuth2User(
+            null, provider, providerMemberId, attrs, true);
+      }
     }
 
-    // 회원정보 없는 경우
+    // 3) 조회된 회원이 없으면 → 신규 회원
     return new CustomOAuth2User(
-        null,
-        provider,
-        providerMemberId,
-        attributes,
-        true // 신규 회원
-    );
-
+        null, provider, providerMemberId, attrs, true);
   }
 
 

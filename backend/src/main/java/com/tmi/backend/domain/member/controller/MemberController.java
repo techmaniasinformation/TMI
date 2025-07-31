@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/members")
+@RequestMapping("/api/v1/member")
 @RequiredArgsConstructor
 public class MemberController {
 
@@ -54,14 +54,13 @@ public class MemberController {
    * 멤버 정보 수정 API
    * @RequestBody : 수정된 멤버의 정보
    */
-  //TODO : 권한 검증 구현하기
   @PatchMapping("/{memberId}")
   public ApiResponse<Map<String, Long>> updateMember(
       @PathVariable Long memberId,
       @Valid @RequestBody MemberUpdateRequest req
   ) {
-    memberService.updateMember(memberId, req);
-    return ApiSuccessResponse.success(Map.of("memberId", memberId));
+    Long updeatedMemberId = memberService.updateMember(memberId, req);
+    return ApiSuccessResponse.success(Map.of("memberId", updeatedMemberId));
   }
 
   /**
@@ -82,12 +81,11 @@ public class MemberController {
   /**
    * 회원탈퇴(논리적 삭제) API
    */
-  //TODO : 권한 검증 구현하기
   @PatchMapping("/{memberId}/delete")
-  public ApiResponse<Map<String, Long>> resign(@PathVariable Long memberId) {
-    Long resignMemberId = memberService.resign(memberId);
+  public ApiResponse<Map<String, Long>> deleteMember(@PathVariable Long memberId) {
+    Long deletedMemberId = memberService.deleteMember(memberId);
     return ApiSuccessResponse.success(
-        Map.of("memberId", resignMemberId)
+        Map.of("memberId", deletedMemberId)
     );
   }
 }

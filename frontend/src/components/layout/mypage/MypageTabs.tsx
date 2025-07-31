@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 // Tabs UI 컴포넌트 임포트
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/domain/Tabs";
@@ -16,6 +16,12 @@ import IconTab2 from '@/assets/icons/IconTab2';
 import IconTab3 from '@/assets/icons/IconTab3';
 import IconTab4 from '@/assets/icons/IconTab4';
 import IconTab5 from '@/assets/icons/IconTab5';
+
+import { CommentCardProps } from './CommentCard';
+
+// 페이지네이션
+import Pagination from '@/components/domain/Pagination';
+import usePagination from '@/hooks/mypage/usePagination';
 
 // props 타입 정의
 interface MyPageTabsProps {
@@ -38,8 +44,23 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   currentPage,
   setCurrentPage
 }) => {
-  // 팔로우 탭의 서브탭 상태: 기업 or 개인
   const [followSubTab, setFollowSubTab] = useState<'company' | 'user'>('company');
+  const [comments, setComments] = useState<CommentCardProps[]>([]); 
+
+  useEffect(() => {
+    fetch('/mypage_comments.json')
+      .then(res => res.json())
+      .then(data => setComments(data))
+      .catch(err => console.error('댓글 로딩 실패:', err));
+  }, []);
+
+  // usePagination 훅 적용 (댓글에만)
+  const {
+    currentPage: currentCommentPage,
+    setCurrentPage: setCurrentCommentPage,
+    totalPages: totalCommentPages,
+    paginatedItems: paginatedComments
+  } = usePagination<CommentCardProps>(comments, 5);
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className='w-[1232px]'>
@@ -103,7 +124,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
           </TabsTrigger>
         )}
       </TabsList>
-      
+
       {/* '내 정보' 탭 내용 (현재는 비어 있음) */}
       {!isCompany && (
         <TabsContent value="profile" className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
@@ -116,15 +137,34 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
         <>
           <TabsContent value="comments" className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
             <h2 className="text-lg font-semibold mb-4">작성한 댓글</h2>
-            <CommentCard
-              postTitle="React 18의 새로운 기능 소개"
-              comment="Concurrent Mode는 정말 혁신적"
-              date="2025-07-18"
-              onClick={() => window.location.href = '#'}
-            />
+
+            {comments.length === 0 ? (
+              <p className="text-sm text-gray-500">작성한 댓글이 없습니다.</p>
+            ) : (
+              <div className="space-y-4">
+                {paginatedComments.map((comment, idx) => (
+                  <CommentCard
+                    key={idx}
+                    postTitle={comment.postTitle}
+                    comment={comment.comment}
+                    date={comment.date}
+                    onClick={() => window.location.href = '#'}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* 페이지네이션 */}
+            {totalCommentPages > 1 && (
+              <Pagination
+                currentPage={currentCommentPage}
+                totalPages={totalCommentPages}
+                onPageChange={setCurrentCommentPage}
+              />
+            )}
           </TabsContent>
 
-          {/* 팔로우 탭 (기업/개인 서브 탭) */}
+          {/* 팔로우 탭 */}
           <TabsContent value="follow" className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
             <div className="flex space-x-2 mb-4">
               <button
@@ -168,7 +208,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
               </div>
             )}
           </TabsContent>
-          
+
           {/* 스타 게시글 탭 */}
           <TabsContent value="starred" className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
             <h2 className="text-lg font-semibold mb-4">스타 게시글</h2>
@@ -185,7 +225,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
         </>
       )}
 
-      {/* 게시글 탭 (모든 사용자 공통) */}
+      {/* 게시글 탭 */}
       <TabsContent value="posts" className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
         <h2 className="text-lg font-semibold mb-4">작성한 게시글</h2>
         <PostCard post={{
@@ -198,7 +238,6 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
           comments: 23
         }} />
 
-        {/* 페이지 이동 버튼 */}
         <div className="mt-6 flex justify-center space-x-2">
           <Button onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}>이전</Button>
           <Button>{currentPage}</Button>

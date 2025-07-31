@@ -2,6 +2,8 @@ package com.tmi.backend.domain.post.entity;
 
 import com.tmi.backend.domain.company.entity.Company;
 import com.tmi.backend.domain.member.entity.Member;
+import com.tmi.backend.domain.postTag.entity.PostTag;
+import com.tmi.backend.domain.tag.entity.Tag;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -10,7 +12,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -52,6 +57,10 @@ public class Post {
   @Builder.Default
   private int starCount = 0;
 
+  @OneToMany(mappedBy = "post")
+  @Builder.Default
+  private List<PostTag> postTags = new ArrayList<>();
+
   private LocalDateTime createdAt;
 
   private LocalDateTime updatedAt;
@@ -65,6 +74,7 @@ public class Post {
   ) {
     return Post.builder()
         .member(member)
+        .company(null)  // 사용자가 작성한 게시글은 별도의 회사를 받지 않음
         .title(title)
         .link(link)
         .content(content)
@@ -84,11 +94,13 @@ public class Post {
     }
 
     if (link != null) {
-      this.content = content;
+      this.link = link;
     }
 
     if (thumbnailUrl != null) {
       this.thumbnailUrl = thumbnailUrl;
     }
+
+    updatedAt = LocalDateTime.now();
   }
 }

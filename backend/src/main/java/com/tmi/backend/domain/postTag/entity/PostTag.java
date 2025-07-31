@@ -41,4 +41,9 @@ public class PostTag {
         .tag(tag)
         .build();
   }
+
+  public void assignToPost(Post post) {
+    this.post = post;
+    post.getPostTags().add(this);
+  }
 }

@@ -38,7 +38,7 @@ public class PostTagService {
   public void updatePostTags(Post post, List<String> tags) {
     log.info("PostTagService : updatePostTags() 호출");
 
-    postTagRepository.deleteAllByPost_Id(post.getId());
+    postTagRepository.deleteAllByPostId(post.getId());
 
     List<PostTag> postTags = tagService.findTechTags(tags).stream()
         .map(tag -> PostTag.of(post, tag))
@@ -50,6 +50,6 @@ public class PostTagService {
   public void deletePostTags(Long postId) {
     log.info("PostTagService : deletePostTags() 호출");
 
-    postTagRepository.deleteAllByPost_Id(postId);
+    postTagRepository.deleteAllByPostId(postId);
   }
 }

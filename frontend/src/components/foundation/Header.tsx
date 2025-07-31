@@ -229,12 +229,6 @@ const Header: React.FC<HeaderProps> = () => {
                 {showProfileMenu && (
                   <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                     <div className="py-1">
-                      <Link
-                        to="/my-page"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        마이페이지
-                      </Link>
                       <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         설정
                       </button>
@@ -252,16 +246,16 @@ const Header: React.FC<HeaderProps> = () => {
             ) : (
               <div className="flex items-center space-x-2">
                 <Link
-                  to="/login"
+                  to="/home"
                   className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
                 >
-                  로그인
+                  둘러보기
                 </Link>
                 <Link
-                  to="/signup"
+                  to="/home"
                   className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
                 >
-                  회원가입
+                  시작하기
                 </Link>
               </div>
             )}

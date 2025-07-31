@@ -1,5 +1,4 @@
 // Inter 컴포넌트들 - 특정 컴포넌트 내부에서만 사용
-// 현재는 비어있음 - 향후 확장용
-
-// 빈 export로 모듈 유지
-export {}; 
+export { default as CommentBadge } from './CommentBadge';
+export { default as StarBadge } from './StarBadge';
+export { default as ViewBadge } from './ViewBadge'; 

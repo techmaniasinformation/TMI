@@ -39,6 +39,28 @@ export interface Post {
   thumbnailUrl: string;
 }
 
+// ===== 게시글 상세 타입 =====
+export interface PostDetail extends Post {
+  content: string;
+  link: string;
+  isStar: boolean;
+  bestCommentId: number;
+  comments: Comment[];
+}
+
+// ===== 댓글 타입 =====
+export interface Comment {
+  commentId: number;
+  memberProfileUrl: string;
+  name: string;
+  badgeUrl: string;
+  comment: string;
+  link: string;
+  createAt: string;
+  isRecommend: boolean;
+  recommendCount: number;
+}
+
 // ===== 댓글 타입 =====
 export interface Comment extends BaseData {
   content: string;

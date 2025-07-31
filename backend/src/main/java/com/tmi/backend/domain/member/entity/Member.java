@@ -24,7 +24,7 @@ import lombok.Setter;
     @UniqueConstraint(name = "uk_member_nickname", columnNames = "nickname")
 })
 @Getter
-@Setter
+@Setter // TODO : 삭제하기 -> 필요시 명시적으로 쓰기
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -60,6 +60,7 @@ public class Member {
 
   private LocalDateTime updatedAt;
 
+  // TODO : 파라미터 개수에 따라 이름 짓기 of(여러개), from(한개)
   public static Member of(Provider provider, String providerMemberId, String nickname,
       String memberProfileUrl) {
     return Member.builder()
@@ -72,6 +73,7 @@ public class Member {
         .build();
   }
 
+  //TODO : 메서드명 명확히 바꾸기
   public void delete() {
     deletedAt = LocalDateTime.now();
   }

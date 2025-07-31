@@ -4,11 +4,14 @@ import com.tmi.backend.domain.member.dto.request.MemberCreateRequest;
 import com.tmi.backend.domain.member.dto.request.MemberUpdateRequest;
 import com.tmi.backend.domain.member.dto.response.MemberResponse;
 import com.tmi.backend.domain.member.service.MemberService;
+import com.tmi.backend.global.auth.TokenService;
 import com.tmi.backend.global.common.response.ApiResponse;
 import com.tmi.backend.global.common.response.impl.ApiSuccessResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberController {
 
   private final MemberService memberService;
-
+  private final TokenService tokenService;
   /**
    * 멤버 조회 API
    */
@@ -66,12 +69,13 @@ public class MemberController {
    * @RequestBody : 신규 회원 정보
    */
   @PostMapping("/signup")
-  public ApiResponse<Map<String, Long>> signup(
-      @RequestBody @Valid MemberCreateRequest req
-  ) {
+  public ResponseEntity<ApiResponse<Map<String, Long>>> signup(
+      @RequestBody MemberCreateRequest req, HttpServletResponse res) {
     Long memberId = memberService.createOrReviveMember(req);
-    return ApiSuccessResponse.success(
-        Map.of("memberId", memberId)
+    tokenService.createAndAddAuthCookies(res, memberId);
+
+    return ResponseEntity.ok(
+        ApiSuccessResponse.success(Map.of("memberId", memberId))
     );
   }
 
@@ -83,7 +87,7 @@ public class MemberController {
   public ApiResponse<Map<String, Long>> resign(@PathVariable Long memberId) {
     Long resignMemberId = memberService.resign(memberId);
     return ApiSuccessResponse.success(
-        Map.of("memberId", memberId)
+        Map.of("memberId", resignMemberId)
     );
   }
 }

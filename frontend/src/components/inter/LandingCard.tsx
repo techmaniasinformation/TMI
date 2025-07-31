@@ -1,6 +1,7 @@
 import React from 'react';
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/utils/utils";
+import Tag from "@/components/domain/article/Tag";
 
 // 카드 variant 스타일 정의
 const cardVariants = cva(
@@ -148,7 +149,7 @@ const LandingCard: React.FC<LandingCardProps> = ({
             </div>
 
             {/* 태그 */}
-            <div className='flex flex-wrap gap-2'>
+            {/* <div className='flex flex-wrap gap-2'>
               {tags.map((tag, index) => (
                 <span
                   key={index}
@@ -156,6 +157,17 @@ const LandingCard: React.FC<LandingCardProps> = ({
                 >
                   #{tag}
                 </span>
+              ))} */}
+                          <div className='flex flex-wrap gap-2'>
+              {tags.map((tag, index) => (
+                // &&& 기존 span 대신 Tag 컴포넌트 사용
+                <Tag 
+                  key={index}
+                  tag={`#${tag}`}
+                  variant="tech"
+                  removable={false}
+                  className="text-xs"
+                />
               ))}
             </div>
           </div>

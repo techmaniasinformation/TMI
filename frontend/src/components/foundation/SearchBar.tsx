@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/utils/utils';
 import { useThemeStore } from '@/stores/themeStore';
@@ -52,12 +52,42 @@ const SearchBar: React.FC<SearchBarProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchError, setSearchError] = useState<string>('');
+  const [tagError, setTagError] = useState<string>(''); // &&& 추가: 태그 개수 제한 에러
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [showRecentSearches, setShowRecentSearches] = useState(false);
   const { isDarkMode } = useThemeStore(); // 다크모드 여부 확인
 
   //isDarkMode에 따라 variant 자동 설정
   const activeVariant = variant || (isDarkMode ? 'dark' : 'light');
+
+  //각 태그 선택 여부
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+  // 태그 삭제 핸들러 추가
+  const handleTagRemove = (tag: string) => {
+    setSelectedTags((prevTags) => prevTags.filter((t) => t !== tag));
+    setTagError(''); // &&& 태그 삭제 시 에러 메시지 초기화????
+  };
+
+  // 검색창 유지 시도
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setShowSearchResults(false);
+        setShowRecentSearches(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   // 검색어 추천용 딕셔너리 // db 정리되면 이것도 db랑 연결
   const dictionary = [
@@ -80,7 +110,6 @@ const SearchBar: React.FC<SearchBarProps> = ({
   };
 
   const handleSearchFocus = () => {
-
     setShowSearchResults(true); //포커스 시 무조건 드롭다운 보이게
     setShowRecentSearches(searchQuery.trim() === '');
   };
@@ -111,7 +140,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
         );
 
   return (
-    <div className='flex-1 max-w-2xl mx-8 relative'>
+    <div ref={containerRef} className='flex-1 max-w-2xl mx-8 relative'>
       <form onSubmit={handleSearchSubmit} className='relative'>
         <div className='relative'>
           <input
@@ -119,7 +148,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
             value={searchQuery}
             onChange={handleSearchChange}
             onFocus={handleSearchFocus}
-            onBlur={handleSearchBlur}
+            // onBlur={handleSearchBlur}
             placeholder='기술 블로그 검색...'
             className={cn(searchBarVariants({ variant: activeVariant }))}
           />
@@ -156,37 +185,6 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
       {(showSearchResults || showRecentSearches) && (
         <div className={cn(dropdownVariants({ variant: activeVariant }))}>
-          {showRecentSearches && recentSearches.length > 0 && (
-            <div className='p-4 border-b border-gray-100'>
-              <div className='flex items-center justify-between mb-2'>
-                <h3 className='text-sm font-medium text-gray-700'>
-                  최근 검색어
-                </h3>
-                <button
-                  onClick={() => removeFromRecentSearches('')}
-                  className='text-xs text-gray-500 hover:text-gray-700'
-                >
-                  전체 삭제
-                </button>
-              </div>
-              <div className='space-y-1'>
-                {recentSearches.map((term, index) => (
-                  <div
-                    key={index}
-                    className='flex items-center justify-between p-2 hover:bg-gray-50 rounded'
-                  >
-                    <span className='text-sm text-gray-700'>{term}</span>
-                    <button
-                      onClick={() => removeFromRecentSearches(term)}
-                      className='text-gray-400 hover:text-gray-600'
-                    >
-                      <i className='fas fa-times text-xs'></i>
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
           {/* 검색어 없을 때도 추천 검색어 영역은 보이도록 */}
           <div className='p-4'>
             <h3
@@ -204,18 +202,39 @@ const SearchBar: React.FC<SearchBarProps> = ({
                     key={index}
                     className={cn(
                       'p-2 hover:bg-gray-50 rounded cursor-pointer group',
-                      isDarkMode ? 'text-light-header': 'text-dark-header'
+                      isDarkMode ? 'text-light-header' : 'text-dark-header'
                     )}
                     onClick={() => {
+                      // &&&&
+                      if (selectedTags.length >= 5) {
+                        // &&& 태그가 5개 이상일 경우
+                        setTagError('검색 태그는 최대 5개 선택 가능합니다'); // &&& 에러 메시지 설정
+                        return;
+                      }
                       setSearchQuery(word);
                       addToRecentSearches(word);
-                      setShowSearchResults(false);
+                      //선택 태그 추가
+                      if (!selectedTags.includes(word)) {
+                        setSelectedTags([...selectedTags, word]);
+                      }
+                      // 입력창에 포커스 유지
+                      const inputElement =
+                        document.querySelector<HTMLInputElement>(
+                          'input[type="text"]'
+                        );
+                      inputElement?.focus();
                     }}
                   >
-                    <span className={cn(
-                      'text-sm text-gray-700',
-                      isDarkMode ? 'text-light-header group-hover:text-dark-header' : 'text-dark-header'
-                    )}>{word}</span>
+                    <span
+                      className={cn(
+                        'text-sm text-gray-700',
+                        isDarkMode
+                          ? 'text-light-header group-hover:text-dark-header'
+                          : 'text-dark-header'
+                      )}
+                    >
+                      {word}
+                    </span>
                   </div>
                 ))
               ) : (
@@ -223,6 +242,30 @@ const SearchBar: React.FC<SearchBarProps> = ({
                 <div className='p-2 text-sm text-gray-400'> </div>
               )}
             </div>
+
+            {/* 선택된 태그 영역 */}
+            {selectedTags.length > 0 && (
+              <div className='mt-4'>
+                 <hr className="my-3 border-gray-300 dark:border-gray-600" /> 
+                <h3
+                  className={cn(
+                    'text-sm font-medium mb-2',
+                    isDarkMode ? 'text-light-header' : 'text-dark-header'
+                  )}
+                >
+                  선택된 태그
+                </h3>
+                {tagError && ( // &&& 태그 제한 안내 표시
+                  <p className='mt-2 text-sm text-red-500'>{tagError}</p>
+                )}
+
+                <TagArea
+                  tags={selectedTags}
+                  maxTags={5}
+                  onRemoveTag={handleTagRemove} // 삭제 핸들러 전달
+                />
+              </div>
+            )}
           </div>
         </div>
       )}

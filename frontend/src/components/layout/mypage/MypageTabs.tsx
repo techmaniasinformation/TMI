@@ -66,73 +66,49 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
     <Tabs value={activeTab} onValueChange={setActiveTab} className='w-[1232px]'>
       {/* 탭 목록 (상단 버튼들) */}
       <TabsList className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 w-full flex justify-start p-0 h-auto">
-        {/* 기업이 아닌 경우에만 "내 정보" 탭 노출 */}
+        {/* 내 정보 탭 - 개인 사용자만 노출 */}
         {!isCompany && (
-          <TabsTrigger
-            value="profile"
-            className="flex items-center px-6 py-4 text-gray-500 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600"
-          >
+          <TabsTrigger value="profile" className="flex items-center px-6 py-4 text-gray-500 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600">
             <IconTab1 className="w-4 h-4 mr-2 text-inherit" />
             <span className="text-sm">내 정보</span>
           </TabsTrigger>
         )}
-        {/* 본인 마이페이지이고 기업이 아닐 경우, 여러 탭 노출 */}
+
+        {/* 댓글, 팔로우, 스타 탭 - 본인 + 개인 사용자일 때만 */}
         {!isCompany && isMyPage && (
           <>
-            <TabsTrigger
-              value="comments"
-              className="flex items-center px-6 py-4 text-gray-500 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600"
-            >
+            <TabsTrigger value="comments" className="flex items-center px-6 py-4 text-gray-500 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600">
               <IconTab2 className="w-4 h-4 mr-2 text-inherit" />
               <span className="text-sm">작성한 댓글</span>
             </TabsTrigger>
 
-            <TabsTrigger
-              value="posts"
-              className="flex items-center px-6 py-4 text-gray-500 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600"
-            >
-              <IconTab3 className="w-4 h-4 mr-2 text-inherit" />
-              <span className="text-sm">작성한 게시글</span>
-            </TabsTrigger>
-
-            <TabsTrigger
-              value="follow"
-              className="flex items-center px-6 py-4 text-gray-500 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600"
-            >
+            <TabsTrigger value="follow" className="flex items-center px-6 py-4 text-gray-500 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600">
               <IconTab4 className="w-4 h-4 mr-2 text-inherit" />
               <span className="text-sm">팔로우</span>
             </TabsTrigger>
 
-            <TabsTrigger
-              value="starred"
-              className="flex items-center px-6 py-4 text-gray-500 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600"
-            >
+            <TabsTrigger value="starred" className="flex items-center px-6 py-4 text-gray-500 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600">
               <IconTab5 className="w-4 h-4 mr-2 text-inherit" />
               <span className="text-sm">스타 게시글</span>
             </TabsTrigger>
           </>
         )}
 
-        {/* 기업 페이지인 경우 게시글 탭만 노출 */}
-        {isCompany && (
-          <TabsTrigger
-            value="posts"
-            className="flex items-center px-6 py-4 text-gray-500 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600"
-          >
-            <IconTab3 className="w-4 h-4 mr-2 text-inherit" />
-            <span className="text-sm">작성한 게시글</span>
-          </TabsTrigger>
-        )}
+        {/* 게시글 탭 - 모두 노출 */}
+        <TabsTrigger value="posts" className="flex items-center px-6 py-4 text-gray-500 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600">
+          <IconTab3 className="w-4 h-4 mr-2 text-inherit" />
+          <span className="text-sm">작성한 게시글</span>
+        </TabsTrigger>
       </TabsList>
 
-      {/* '내 정보' 탭 내용 (현재는 비어 있음) */}
+      {/* 내 정보 탭 */}
       {!isCompany && (
         <TabsContent value="profile" className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
           <p className="text-sm text-gray-500">현재는 표시할 정보가 없습니다.</p>
         </TabsContent>
       )}
 
-      {/* 기업이 아닌 본인 마이페이지인 경우의 탭 내용들 */}
+      {/* 댓글, 팔로우, 스타 탭 - 본인 + 개인 사용자일 때만 */}
       {!isCompany && isMyPage && (
         <>
           <TabsContent value="comments" className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
@@ -154,7 +130,6 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
               </div>
             )}
 
-            {/* 페이지네이션 */}
             {totalCommentPages > 1 && (
               <Pagination
                 currentPage={currentCommentPage}
@@ -164,79 +139,40 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
             )}
           </TabsContent>
 
-          {/* 팔로우 탭 */}
           <TabsContent value="follow" className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
             <div className="flex space-x-2 mb-4">
-              <button
-                onClick={() => setFollowSubTab('company')}
-                className={`px-4 py-1.5 text-sm rounded-md transition ${
-                  followSubTab === 'company' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-500'
-                }`}
-              >
+              <button onClick={() => setFollowSubTab('company')} className={`px-4 py-1.5 text-sm rounded-md transition ${followSubTab === 'company' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-500'}`}>
                 기업
               </button>
-              <button
-                onClick={() => setFollowSubTab('user')}
-                className={`px-4 py-1.5 text-sm rounded-md transition ${
-                  followSubTab === 'user' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-500'
-                }`}
-              >
+              <button onClick={() => setFollowSubTab('user')} className={`px-4 py-1.5 text-sm rounded-md transition ${followSubTab === 'user' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-500'}`}>
                 개인
               </button>
             </div>
 
             {followSubTab === 'company' && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <FollowCompanyCard
-                  id="company1"
-                  name="Tech Inc"
-                  image="https://example.com/company1.png"
-                  onClick={() => {}}
-                />
+                <FollowCompanyCard id="company1" name="Tech Inc" image="https://example.com/company1.png" onClick={() => {}} />
               </div>
             )}
 
             {followSubTab === 'user' && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <FollowUserCard
-                  id="user1"
-                  nickname="개발자"
-                  badge="시니어"
-                  image="https://example.com/user1.png"
-                  onClick={() => {}}
-                />
+                <FollowUserCard id="user1" nickname="개발자" badge="시니어" image="https://example.com/user1.png" onClick={() => {}} />
               </div>
             )}
           </TabsContent>
 
-          {/* 스타 게시글 탭 */}
           <TabsContent value="starred" className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
             <h2 className="text-lg font-semibold mb-4">스타 게시글</h2>
-            <PostCard post={{
-              id: 'post1',
-              title: "좋아요 누른 글",
-              thumbnail: "...",
-              tags: ["React"],
-              views: 111,
-              stars: 10,
-              comments: 2
-            }} />
+            <PostCard post={{ id: 'post1', title: "좋아요 누른 글", thumbnail: "...", tags: ["React"], views: 111, stars: 10, comments: 2 }} />
           </TabsContent>
         </>
       )}
 
-      {/* 게시글 탭 */}
+      {/* 게시글 탭 - 모든 사용자 표시 */}
       <TabsContent value="posts" className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
         <h2 className="text-lg font-semibold mb-4">작성한 게시글</h2>
-        <PostCard post={{
-          id: 'post1',
-          title: "React와 TypeScript로 시작하는 웹 개발",
-          thumbnail: "...",
-          tags: ["React", "TypeScript"],
-          views: 1234,
-          stars: 56,
-          comments: 23
-        }} />
+        <PostCard post={{ id: 'post1', title: "React와 TypeScript로 시작하는 웹 개발", thumbnail: "...", tags: ["React", "TypeScript"], views: 1234, stars: 56, comments: 23 }} />
 
         <div className="mt-6 flex justify-center space-x-2">
           <Button onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}>이전</Button>

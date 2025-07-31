@@ -7,6 +7,9 @@ import Star from '@/assets/icons/star.svg';
 import GitHub from '@/assets/icons/Github.svg';
 import Blog from '@/assets/icons/blog.svg';
 import Follow from '@/assets/icons/Follow.svg';
+import ArticleFix from '@/assets/icons/articlefix.svg'
+import UserDelete from '@/assets/icons/userdelete.svg'
+import Update from '@/assets/icons/Update.svg'
 
 // 컴포넌트 props 타입 정의
 interface ProfileHeaderProps {
@@ -53,7 +56,9 @@ export default function ProfileHeader({
             <div className="flex items-center space-x-3 mb-1">
               <h1 className="text-2xl font-bold text-gray-900">{nickname}</h1>
               {isCompany && (
-                <Badge className="bg-blue-100 text-blue-800">기업</Badge>
+                <span className="bg-blue-100 text-blue-800 text-sm font-medium px-2 py-0.5 rounded-md">
+                  기업
+                </span>
               )}
             </div>
 
@@ -63,12 +68,22 @@ export default function ProfileHeader({
                 {email && <p className="text-gray-500 text-sm">{email}</p>}
                 <div className="flex space-x-6 mt-4">
                   {/* 블로그 링크 */}
-                  <a href={blogUrl} target="_blank" rel="noopener noreferrer" className="flex items-center text-sm text-gray-600 hover:text-gray-900">
+                  <a
+                    href={blogUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center text-sm text-gray-600 hover:text-gray-900"
+                  >
                     <img src={Blog} alt="blog" className="w-4 h-4 mr-2" /> 블로그
                   </a>
                   {/* GitHub 링크 (옵션) */}
                   {githubUrl && (
-                    <a href={githubUrl} target="_blank" rel="noopener noreferrer" className="flex items-center text-sm text-gray-600 hover:text-gray-900">
+                    <a
+                      href={githubUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center text-sm text-gray-600 hover:text-gray-900"
+                    >
                       <img src={GitHub} alt="github" className="w-4 h-4 mr-2" /> 깃허브
                     </a>
                   )}
@@ -80,13 +95,18 @@ export default function ProfileHeader({
             {isCompany && (
               <>
                 {/* 최근 업데이트 날짜 */}
-                <p className="text-sm text-gray-500 mt-1">
-                  <i className="fas fa-clock mr-2" />
+                <div className="flex items-center text-sm text-gray-500 mt-1">
+                  <img src={Update} alt="update icon" className="w-4 h-4 mr-2" />
                   최근 업데이트: {lastUpdate}
-                </p>
+                </div>
                 {/* 블로그 링크 */}
                 <div className="flex items-center mt-4">
-                  <a href={blogUrl} target="_blank" rel="noopener noreferrer" className="flex items-center text-sm text-gray-600 hover:text-gray-900">
+                  <a
+                    href={blogUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center text-sm text-gray-600 hover:text-gray-900"
+                  >
                     <img src={Blog} alt="blog" className="w-4 h-4 mr-2" /> 블로그
                   </a>
                 </div>
@@ -106,8 +126,20 @@ export default function ProfileHeader({
             isCompany={isCompany}
           />
 
-          {/* 본인 페이지가 아닌 경우에만 팔로우 버튼 표시 */}
-          {!isMyPage && (
+          {/* 본인 페이지인 경우: 프로필 수정 / 회원 탈퇴 버튼 */}
+          {isMyPage ? (
+            <div className="flex space-x-2">
+              <button className="w-[132px] bg-prime-btn text-white text-sm rounded-md py-2 px-3 hover:bg-prime-btn-hover flex items-center justify-center">
+                <img src={ArticleFix} alt="edit icon" className="w-4 h-4 mr-2" />
+                프로필 수정
+              </button>
+              <button className="w-[120px] bg-red-500 text-white text-sm rounded-md py-2 px-3 hover:bg-red-600 flex items-center justify-center">
+                <img src={UserDelete} alt="delete icon" className="w-4 h-4 mr-2" />
+                회원 탈퇴
+              </button>
+            </div>
+          ) : (
+            // 본인 페이지가 아닌 경우에만 팔로우 버튼 표시
             <button
               onClick={onFollowToggle}
               className={`w-[120px] text-white text-sm rounded-md py-2 px-3 transition-colors flex items-center justify-center

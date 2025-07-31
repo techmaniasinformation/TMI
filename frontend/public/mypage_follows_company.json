@@ -1,0 +1,12 @@
+[
+  { "id": "company1", "name": "Tech Inc", "image": "https://example.com/company1.png" },
+  { "id": "company2", "name": "DevCorp", "image": "" },
+  { "id": "company3", "name": "SoftHub", "image": "https://example.com/company3.png" },
+  { "id": "company4", "name": "CodeBase", "image": "" },
+  { "id": "company5", "name": "AlgoWorks", "image": "https://example.com/company5.png" },
+  { "id": "company6", "name": "BitForge", "image": "" },
+  { "id": "company7", "name": "SmartSoft", "image": "https://example.com/company7.png" },
+  { "id": "company8", "name": "DataLogic", "image": "" },
+  { "id": "company9", "name": "AI Factory", "image": "https://example.com/company9.png" },
+  { "id": "company10", "name": "CloudNest", "image": "" }
+]

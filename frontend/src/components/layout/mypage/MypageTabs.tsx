@@ -6,7 +6,6 @@ import PostCard from './PostCard';
 import CommentCard, { CommentCardProps } from './CommentCard';
 import FollowCompanyCard from './FollowCompanyCard';
 import FollowUserCard from './FollowUserCard';
-import { Button } from '@/components/foundation/button';
 
 // 아이콘 컴포넌트
 import IconTab1 from '@/assets/icons/IconTab1';
@@ -75,6 +74,37 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
     totalPages: totalPostPages,
     paginatedItems: paginatedPosts
   } = usePagination<Post>(posts, 5);
+  
+  // FollowCompanyCard용 JSON 데이터 불러오기
+  const { data: followedCompanies } = useFetchJson<{
+    id: string;
+    name: string;
+    image: string;
+  }>('/mypage_follows_company.json');
+
+  // 페이지네이션 적용
+  const {
+    currentPage: currentCompanyPage,
+    setCurrentPage: setCurrentCompanyPage,
+    totalPages: totalCompanyPages,
+    paginatedItems: paginatedCompanies
+  } = usePagination(followedCompanies, 9); // 한 페이지당 9개로 설정
+
+  // 개인 유저 FollowUserCard용 JSON 데이터 로딩
+  const { data: followedUsers } = useFetchJson<{
+    id: string;
+    nickname: string;
+    badge: string;
+    image: string;
+  }>('/mypage_follows_user.json');
+
+  // 개인 유저 팔로우 페이지네이션
+  const {
+    currentPage: currentUserPage,
+    setCurrentPage: setCurrentUserPage,
+    totalPages: totalUserPages,
+    paginatedItems: paginatedUsers
+  } = usePagination(followedUsers, 9);  // 한 페이지당 9개
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className='w-[1232px]'>
@@ -90,14 +120,22 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
 
         {/* 작성한 댓글 (본인일 때) */}
         {isMyPage && isPersonal && (
-          <TabsTrigger value="comments" className="flex items-center px-6 py-4 text-gray-500 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600">
+          <TabsTrigger
+            value="comments"
+            className="flex items-center px-6 py-4 text-gray-500 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600"
+            onClick={() => setCurrentCommentPage(1)}  // 페이지 초기화
+            >
             <IconTab2 className="w-4 h-4 mr-2 text-inherit" />
             <span className="text-sm">작성한 댓글</span>
           </TabsTrigger>
         )}
 
         {/* 작성한 게시글 (모든 사용자에게 노출) */}
-        <TabsTrigger value="posts" className="flex items-center px-6 py-4 text-gray-500 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600">
+        <TabsTrigger
+          value="posts"
+          className="flex items-center px-6 py-4 text-gray-500 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600"
+          onClick={() => setCurrentPostPage(1)}  // 페이지 초기화
+          >
           <IconTab3 className="w-4 h-4 mr-2 text-inherit" />
           <span className="text-sm">작성한 게시글</span>
         </TabsTrigger>
@@ -162,31 +200,77 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
         )}
       </TabsContent>
 
-      {/* 팔로우 */}
+      {/* 팔로우 */} 
       {isMyPage && isPersonal && (
         <TabsContent value="follow" className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
           {/* 서브 탭 버튼 */}
           <div className="flex space-x-2 mb-4">
-            <button onClick={() => setFollowSubTab('company')} className={`px-4 py-1.5 text-sm rounded-md transition ${followSubTab === 'company' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-500'}`}>
+            <button
+              onClick={() => {
+                setFollowSubTab('company');
+                setCurrentCompanyPage(1); // 기업 탭 선택 시 1페이지로 초기화
+              }}
+              className={`px-4 py-1.5 text-sm rounded-md transition ${
+                followSubTab === 'company' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-500'
+              }`}
+            >
               기업
             </button>
-            <button onClick={() => setFollowSubTab('user')} className={`px-4 py-1.5 text-sm rounded-md transition ${followSubTab === 'user' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-500'}`}>
+            <button
+              onClick={() => {
+                setFollowSubTab('user');
+                setCurrentUserPage(1); // 개인 탭 선택 시 1페이지로 초기화
+              }}
+              className={`px-4 py-1.5 text-sm rounded-md transition ${
+                followSubTab === 'user' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-500'
+              }`}
+            >
               개인
             </button>
           </div>
 
-          {/* 기업 탭 */}
+          {/* 기업 팔로우 목록 */}
           {followSubTab === 'company' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <FollowCompanyCard id="company1" name="Tech Inc" image="https://example.com/company1.png" onClick={() => {}} />
-            </div>
+            <>
+              {paginatedCompanies.length === 0 ? (
+                <p className="text-sm text-gray-500">팔로우한 기업이 없습니다.</p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {paginatedCompanies.map((company) => (
+                    <FollowCompanyCard key={company.id} {...company} onClick={() => {}} />
+                  ))}
+                </div>
+              )}
+              {totalCompanyPages > 1 && (
+                <Pagination
+                  currentPage={currentCompanyPage}
+                  totalPages={totalCompanyPages}
+                  onPageChange={setCurrentCompanyPage}
+                />
+              )}
+            </>
           )}
 
-          {/* 개인 탭 */}
+          {/* 개인 팔로우 목록 */}
           {followSubTab === 'user' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <FollowUserCard id="user1" nickname="개발자" badge="시니어" image="https://example.com/user1.png" onClick={() => {}} />
-            </div>
+            <>
+              {paginatedUsers.length === 0 ? (
+                <p className="text-sm text-gray-500">팔로우한 유저가 없습니다.</p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {paginatedUsers.map((user) => (
+                    <FollowUserCard key={user.id} {...user} onClick={() => {}} />
+                  ))}
+                </div>
+              )}
+              {totalUserPages > 1 && (
+                <Pagination
+                  currentPage={currentUserPage}
+                  totalPages={totalUserPages}
+                  onPageChange={setCurrentUserPage}
+                />
+              )}
+            </>
           )}
         </TabsContent>
       )}

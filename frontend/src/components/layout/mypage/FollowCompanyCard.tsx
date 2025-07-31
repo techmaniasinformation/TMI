@@ -1,6 +1,6 @@
 import React from "react";
+import DefaultCompanyImage from "@/assets/icons/excompany.svg";
 
-// 컴포넌트에 전달될 props 타입 정의
 interface FollowCompanyCardProps {
   id: string;
   name: string;
@@ -8,8 +8,12 @@ interface FollowCompanyCardProps {
   onClick?: () => void;
 }
 
-// 회사 팔로우 카드 컴포넌트
 const FollowCompanyCard: React.FC<FollowCompanyCardProps> = ({ id, name, image, onClick }) => {
+  // 이미지 로딩 오류 시 기본 이미지로 대체
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    e.currentTarget.src = DefaultCompanyImage;
+  };
+
   return (
     <div
       key={id}
@@ -19,6 +23,7 @@ const FollowCompanyCard: React.FC<FollowCompanyCardProps> = ({ id, name, image, 
       <img
         src={image}
         alt={name}
+        onError={handleImageError}
         className="w-16 h-16 rounded-lg object-cover"
       />
       <span className="font-medium text-gray-900">{name}</span>

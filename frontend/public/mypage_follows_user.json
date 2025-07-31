@@ -1,0 +1,12 @@
+[
+  { "id": "user1", "nickname": "개발자1", "badge": "시니어", "image": "https://example.com/user1.png" },
+  { "id": "user2", "nickname": "초보자2", "badge": "주니어", "image": "" },
+  { "id": "user3", "nickname": "프론트엔드3", "badge": "중급", "image": "https://example.com/user3.png" },
+  { "id": "user4", "nickname": "백엔드4", "badge": "시니어", "image": "" },
+  { "id": "user5", "nickname": "풀스택5", "badge": "중급", "image": "https://example.com/user5.png" },
+  { "id": "user6", "nickname": "초보개발자6", "badge": "주니어", "image": "" },
+  { "id": "user7", "nickname": "알고리즘7", "badge": "중급", "image": "https://example.com/user7.png" },
+  { "id": "user8", "nickname": "DB엔지니어8", "badge": "시니어", "image": "" },
+  { "id": "user9", "nickname": "AI개발자9", "badge": "시니어", "image": "https://example.com/user9.png" },
+  { "id": "user10", "nickname": "게임개발자10", "badge": "중급", "image": "" }
+]

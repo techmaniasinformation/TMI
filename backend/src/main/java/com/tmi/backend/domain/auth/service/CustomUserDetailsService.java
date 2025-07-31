@@ -1,5 +1,6 @@
-package com.tmi.backend.global.auth;
+package com.tmi.backend.domain.auth.service;
 
+import com.tmi.backend.domain.auth.util.CustomUserDetails;
 import com.tmi.backend.domain.member.repository.MemberRepository;
 import com.tmi.backend.global.error.ErrorCode;
 import com.tmi.backend.global.error.exception.BusinessException;

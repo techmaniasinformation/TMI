@@ -1,6 +1,6 @@
-package com.tmi.backend.global.auth;
+package com.tmi.backend.domain.auth.service;
 
-import com.tmi.backend.global.jwt.JwtTokenProvider;
+import com.tmi.backend.domain.auth.jwt.JwtTokenProvider;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -42,7 +42,7 @@ public class TokenService {
     response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
   }
 
-  String getRefreshTokenFromCookie(HttpServletRequest req) {
+  public String getRefreshTokenFromCookie(HttpServletRequest req) {
     return Arrays.stream(Optional.ofNullable(req.getCookies()).orElse(new Cookie[0]))
         .filter(c -> "REFRESH_TOKEN".equals(c.getName()))
         .map(Cookie::getValue)

@@ -1,5 +1,6 @@
-package com.tmi.backend.global.oauth;
+package com.tmi.backend.domain.auth.oauth.service;
 
+import com.tmi.backend.domain.auth.oauth.util.OAuthUserProcessor;
 import com.tmi.backend.domain.member.entity.Provider;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;

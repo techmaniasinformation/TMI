@@ -1,10 +1,10 @@
 package com.tmi.backend.domain.member.controller;
 
+import com.tmi.backend.domain.auth.service.TokenService;
 import com.tmi.backend.domain.member.dto.request.MemberCreateRequest;
 import com.tmi.backend.domain.member.dto.request.MemberUpdateRequest;
 import com.tmi.backend.domain.member.dto.response.MemberResponse;
 import com.tmi.backend.domain.member.service.MemberService;
-import com.tmi.backend.global.auth.TokenService;
 import com.tmi.backend.global.common.response.ApiResponse;
 import com.tmi.backend.global.common.response.impl.ApiSuccessResponse;
 import jakarta.servlet.http.HttpServletResponse;

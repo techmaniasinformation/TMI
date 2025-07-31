@@ -1,4 +1,4 @@
-package com.tmi.backend.global.auth;
+package com.tmi.backend.domain.auth.util;
 
 import com.tmi.backend.domain.member.entity.Member;
 import java.util.Collection;
@@ -35,23 +35,4 @@ public class CustomUserDetails implements UserDetails {
     return memberId.toString();
   }
 
-  @Override
-  public boolean isAccountNonExpired() {
-    return true;
-  }
-
-  @Override
-  public boolean isAccountNonLocked() {
-    return true;
-  }
-
-  @Override
-  public boolean isCredentialsNonExpired() {
-    return true;
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return true;
-  }
 }

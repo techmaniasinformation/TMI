@@ -1,4 +1,4 @@
-package com.tmi.backend.global.oauth;
+package com.tmi.backend.domain.auth.oauth.util;
 
 import com.tmi.backend.domain.member.entity.Provider;
 import com.tmi.backend.domain.member.repository.MemberRepository;
@@ -16,7 +16,7 @@ public class OAuthUserProcessor {
 
   protected final MemberRepository memberRepository;
 
-  protected CustomAuthenticatedUser process(
+  public CustomOauthUser process(
       Provider provider,
       Map<String, Object> attrs,
       String providerMemberId,
@@ -26,7 +26,7 @@ public class OAuthUserProcessor {
         .map(m -> {
           // 기존 회원
           if (m.getDeletedAt() == null) {
-            return new CustomAuthenticatedUser(m.getId(), provider, providerMemberId, attrs, false,
+            return new CustomOauthUser(m.getId(), provider, providerMemberId, attrs, false,
                 oidcUser);
           }
 
@@ -36,12 +36,12 @@ public class OAuthUserProcessor {
           }
 
           //탈퇴한지 7일 이상 경과된 회원
-          return new CustomAuthenticatedUser(null, provider, providerMemberId, attrs, true,
+          return new CustomOauthUser(null, provider, providerMemberId, attrs, true,
               oidcUser);
         })
 
         // 신규 회원
-        .orElseGet(() -> new CustomAuthenticatedUser(null, provider, providerMemberId, attrs, true,
+        .orElseGet(() -> new CustomOauthUser(null, provider, providerMemberId, attrs, true,
             oidcUser));
   }
 }

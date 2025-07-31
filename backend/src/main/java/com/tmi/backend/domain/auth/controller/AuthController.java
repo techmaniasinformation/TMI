@@ -1,10 +1,12 @@
-package com.tmi.backend.global.auth;
+package com.tmi.backend.domain.auth.controller;
 
+import com.tmi.backend.domain.auth.jwt.JwtTokenProvider;
+import com.tmi.backend.domain.auth.service.TokenService;
+import com.tmi.backend.domain.auth.util.CustomUserDetails;
 import com.tmi.backend.global.common.response.ApiResponse;
 import com.tmi.backend.global.common.response.impl.ApiErrorResponse;
 import com.tmi.backend.global.common.response.impl.ApiSuccessResponse;
 import com.tmi.backend.global.error.ErrorCode;
-import com.tmi.backend.global.jwt.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;

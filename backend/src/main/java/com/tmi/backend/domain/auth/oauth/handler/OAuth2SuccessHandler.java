@@ -1,7 +1,8 @@
-package com.tmi.backend.global.oauth;
+package com.tmi.backend.domain.auth.oauth.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tmi.backend.global.auth.TokenService;
+import com.tmi.backend.domain.auth.oauth.util.CustomOauthUser;
+import com.tmi.backend.domain.auth.service.TokenService;
 import com.tmi.backend.global.common.response.ApiResponse;
 import com.tmi.backend.global.common.response.impl.ApiSuccessResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,7 +25,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
   public void onAuthenticationSuccess(HttpServletRequest request,
       HttpServletResponse response,
       Authentication authentication) {
-    CustomAuthenticatedUser customUser = (CustomAuthenticatedUser) authentication.getPrincipal();
+    CustomOauthUser customUser = (CustomOauthUser) authentication.getPrincipal();
 
     // 신규 및 재가입 회원
     if (customUser.isNewUser()) {

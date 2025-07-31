@@ -1,4 +1,4 @@
-package com.tmi.backend.global.jwt;
+package com.tmi.backend.domain.auth.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tmi.backend.global.common.response.ApiResponse;

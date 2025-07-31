@@ -1,4 +1,4 @@
-package com.tmi.backend.global.oauth;
+package com.tmi.backend.domain.auth.oauth.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tmi.backend.global.common.response.ApiResponse;

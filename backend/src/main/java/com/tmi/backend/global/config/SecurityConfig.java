@@ -1,10 +1,10 @@
 package com.tmi.backend.global.config;
 
-import com.tmi.backend.global.jwt.JwtAuthenticationFilter;
-import com.tmi.backend.global.oauth.CustomOAuth2UserService;
-import com.tmi.backend.global.oauth.CustomOidcUserService;
-import com.tmi.backend.global.oauth.OAuth2FailureHandler;
-import com.tmi.backend.global.oauth.OAuth2SuccessHandler;
+import com.tmi.backend.domain.auth.jwt.JwtAuthenticationFilter;
+import com.tmi.backend.domain.auth.oauth.handler.OAuth2FailureHandler;
+import com.tmi.backend.domain.auth.oauth.handler.OAuth2SuccessHandler;
+import com.tmi.backend.domain.auth.oauth.service.CustomOAuth2UserService;
+import com.tmi.backend.domain.auth.oauth.service.CustomOidcUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

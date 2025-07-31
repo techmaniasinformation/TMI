@@ -1,6 +1,6 @@
-package com.tmi.backend.global.jwt;
+package com.tmi.backend.domain.auth.jwt;
 
-import com.tmi.backend.global.auth.CustomUserDetailsService;
+import com.tmi.backend.domain.auth.service.CustomUserDetailsService;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

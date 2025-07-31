@@ -34,11 +34,7 @@ export default function SearchPostListContainer({
   const companyTags = searchParams.get('companyTags')?.split(',').filter(Boolean) ?? [];
 
   // 검색 조건이 있는지 확인
-  const hasSearchConditions = appliedFilters && (
-    appliedFilters.q || 
-    (appliedFilters.techTags && appliedFilters.techTags.length > 0) || 
-    (appliedFilters.companyTags && appliedFilters.companyTags.length > 0)
-  );
+  const hasSearchConditions = keyword.trim() || techTags.length > 0 || companyTags.length > 0;
 
   // 디버깅을 위한 콘솔 로그
   console.log('🔍 SearchPostListContainer Debug:', {
@@ -90,7 +86,7 @@ export default function SearchPostListContainer({
   return (
     <div className="w-full max-w-4xl mx-auto">
       {/* 1. 검색 결과 바 - 검색 조건이 있을 때만 표시 */}
-      {hasSearchConditions && (
+      {hasSearchConditions && appliedFilters && (
         <SearchResultBar
           totalCount={totalCount}
           appliedFilters={appliedFilters}
@@ -112,13 +108,15 @@ export default function SearchPostListContainer({
         searchCompanyTags={companyTags}
       />
 
-      {/* 3. 페이지네이션 - 항상 표시 (검색 조건이 없어도 기본 게시글 목록이므로) */}
-      <ServerPagination
-        currentPage={currentPage}
-        totalCount={totalCount}
-        pageSize={10}
-        onPageChange={onPageChange}
-      />
+      {/* 3. 페이지네이션 - 검색 조건이 있을 때만 표시 */}
+      {hasSearchConditions && (
+        <ServerPagination
+          currentPage={currentPage}
+          totalCount={totalCount}
+          pageSize={10}
+          onPageChange={onPageChange}
+        />
+      )}
     </div>
   );
 } 

@@ -1,12 +1,8 @@
 import { useState, useEffect } from 'react';
+import { Post } from '@/types';
 
-interface Post {
-  id: number;
-  title: string;
-  author: string;
-  views: number;
-  stars: number;
-}
+// JSON 파일을 직접 import
+import popularPostsData from '../../../public/popular-posts.json';
 
 export const usePopularPosts = () => {
   const [popularPosts, setPopularPosts] = useState<Post[]>([]);
@@ -15,27 +11,23 @@ export const usePopularPosts = () => {
 
   // 인기 게시글 가져오기
   useEffect(() => {
-    const fetchPopularPosts = async () => {
+    const fetchPopularPosts = () => {
       try {
+        console.log('🔍 [usePopularPosts] 인기 게시글 가져오기 시작');
         setLoading(true);
-        // TODO: 실제 API로 변경 시 - /api/posts/popular?limit=10
-        const response = await fetch('/articles.json');
         
-        if (!response.ok) {
-          throw new Error('Failed to fetch popular posts');
-        }
+        // JSON 파일에서 데이터 가져오기
+        const response = popularPostsData as any;
+        const posts = response.data.posts;
         
-        const data: Post[] = await response.json();
+        console.log('✅ [usePopularPosts] 인기 게시글 가져오기 완료:', {
+          postsCount: posts.length
+        });
         
-        // star 기준 상위 10개 추출 (실제로는 서버에서 처리)
-        const popularData = data
-          .sort((a, b) => b.stars - a.stars)
-          .slice(0, 10);
-        
-        setPopularPosts(popularData);
+        setPopularPosts(posts);
         setError(null);
       } catch (err) {
-        console.error('Error loading popular posts:', err);
+        console.error('❌ Error loading popular posts:', err);
         setError('인기 게시글을 불러오는데 실패했습니다.');
       } finally {
         setLoading(false);

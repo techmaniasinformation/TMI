@@ -1,6 +1,30 @@
 import React from 'react';
 import Tag from './Tag';
-import { techTags, companyTags, TagType } from '@/data/tagMapping';
+
+// 하드코딩된 태그 데이터
+const techTags = [
+  { name: 'React', type: 'tech' },
+  { name: 'Vue.js', type: 'tech' },
+  { name: 'Angular', type: 'tech' },
+  { name: 'JavaScript', type: 'tech' },
+  { name: 'TypeScript', type: 'tech' },
+  { name: 'Node.js', type: 'tech' },
+  { name: 'Python', type: 'tech' },
+  { name: 'Java', type: 'tech' },
+  { name: 'Spring', type: 'tech' },
+  { name: 'Django', type: 'tech' }
+];
+
+const companyTags = [
+  { name: '네이버', type: 'company' },
+  { name: '카카오', type: 'company' },
+  { name: '구글', type: 'company' },
+  { name: '애플', type: 'company' },
+  { name: '마이크로소프트', type: 'company' },
+  { name: '아마존', type: 'company' },
+  { name: '메타', type: 'company' },
+  { name: '넷플릭스', type: 'company' }
+];
 
 interface TagAreaProps {
   tags: string[];
@@ -51,12 +75,12 @@ export default function TagArea({
     }
     
     // 기술 태그인지 확인
-    const isTechTag = techTags.some(techTag => 
+    const isTechTag = techTags.some((techTag: { name: string; type: string }) => 
       techTag.name.toLowerCase() === tagName.toLowerCase()
     );
     
     // 회사 태그인지 확인
-    const isCompanyTag = companyTags.some(companyTag => 
+    const isCompanyTag = companyTags.some((companyTag: { name: string; type: string }) => 
       companyTag.name.toLowerCase() === tagName.toLowerCase()
     );
     

@@ -53,6 +53,7 @@ public class Notification {
   @JoinColumn(name = "badge_id")
   private Badge badge;
 
+  @Builder.Default
   @Column(nullable = false)
   private Boolean isRead = false;
 

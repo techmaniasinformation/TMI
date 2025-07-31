@@ -104,4 +104,12 @@ public class Post {
 
     updatedAt = LocalDateTime.now();
   }
+
+  public void plusStarCount() {
+    this.starCount++;
+  }
+
+  public void minusStarCount() {
+    this.starCount--;
+  }
 }

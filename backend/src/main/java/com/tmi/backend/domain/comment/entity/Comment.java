@@ -69,4 +69,12 @@ public class Comment {
         .createdAt(LocalDateTime.now())
         .build();
   }
+
+  public void plusRecommendCount() {
+    this.recommendCount++;
+  }
+
+  public void minusRecommendCount() {
+    this.recommendCount--;
+  }
 }

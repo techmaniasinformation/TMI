@@ -41,6 +41,7 @@ public class StarService {
       throw new BusinessException(ErrorCode.STAR_ALREADY_STARRED);
     }
 
+    post.plusStarCount();
     Star star = starRepository.save(Star.of(member, post));
 
     return Map.of("starId", star.getId());
@@ -63,6 +64,7 @@ public class StarService {
     Star star = starRepository.findById(starId)
         .orElseThrow(() -> new BusinessException(ErrorCode.STAR_NOT_FOUND));
 
+    star.getPost().minusStarCount();
     starRepository.delete(star);
   }
 }

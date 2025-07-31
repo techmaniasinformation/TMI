@@ -49,6 +49,6 @@ public class CommentRecommendation {
 
   public void assignToComment(Comment comment) {
     this.comment = comment;
-    this.comment.getRecommendations().add(this);
+    comment.getRecommendations().add(this);
   }
 }

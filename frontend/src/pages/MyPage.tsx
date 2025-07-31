@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ProfileHeader from '@/components/layout/mypage/ProfileHeader';
 import MyPageTabs from '@/components/layout/mypage/MypageTabs';
 
@@ -27,7 +27,14 @@ interface UserStats {
 }
 
 const MyPage: React.FC<MyPageProps> = ({ isCompany, isMyPage }) => {
-  const [activeTab, setActiveTab] = useState(isCompany ? "posts" : "profile");
+  // 진입 시 탭 설정: 본인 -> profile / 기업 -> posts / 타인 -> profile
+  const getInitialTab = () => {
+    if (isMyPage) return 'profile';
+    if (isCompany) return 'posts';
+    return 'profile'; // 타인
+  };
+
+  const [activeTab, setActiveTab] = useState(getInitialTab);
   const [currentPage, setCurrentPage] = useState(1);
 
   const [nickname, setNickname] = useState('NAVER');

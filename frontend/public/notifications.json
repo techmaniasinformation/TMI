@@ -1,0 +1,570 @@
+[
+  {
+    "id": "1",
+    "type": "badge",
+    "timestamp": "2025-07-29T11:55:00Z",
+    "isRead": false,
+    "message": "커뮤니티 기여자 배지를 획득하셨습니다",
+    "badgeType": "커뮤니티 기여자"
+  },
+  {
+    "id": "2",
+    "type": "badge",
+    "timestamp": "2025-07-29T11:50:00Z",
+    "isRead": true,
+    "message": "우수 성과 배지를 획득하셨습니다",
+    "badgeType": "우수 성과"
+  },
+  {
+    "id": "3",
+    "type": "comment",
+    "timestamp": "2025-07-29T11:45:00Z",
+    "isRead": false,
+    "message": "홍길동님이 회원님의 게시물에 댓글을 남겼습니다",
+    "userId": "user3",
+    "userName": "홍길동",
+    "postId": "post3"
+  },
+  {
+    "id": "4",
+    "type": "comment",
+    "timestamp": "2025-07-29T11:40:00Z",
+    "isRead": true,
+    "message": "최유리님이 회원님의 게시물에 댓글을 남겼습니다",
+    "userId": "user4",
+    "userName": "최유리",
+    "postId": "post4"
+  },
+  {
+    "id": "5",
+    "type": "badge",
+    "timestamp": "2025-07-29T11:35:00Z",
+    "isRead": true,
+    "message": "우수 성과 배지를 획득하셨습니다",
+    "badgeType": "우수 성과"
+  },
+  {
+    "id": "6",
+    "type": "badge",
+    "timestamp": "2025-07-29T11:30:00Z",
+    "isRead": true,
+    "message": "우수 성과 배지를 획득하셨습니다",
+    "badgeType": "우수 성과"
+  },
+  {
+    "id": "7",
+    "type": "post",
+    "timestamp": "2025-07-29T11:25:00Z",
+    "isRead": false,
+    "message": "그로스업가 새로운 게시물을 공유했습니다",
+    "userId": "company7",
+    "userName": "그로스업",
+    "postId": "post7"
+  },
+  {
+    "id": "8",
+    "type": "post",
+    "timestamp": "2025-07-29T11:20:00Z",
+    "isRead": true,
+    "message": "퓨처테크가 새로운 게시물을 공유했습니다",
+    "userId": "company8",
+    "userName": "퓨처테크",
+    "postId": "post8"
+  },
+  {
+    "id": "9",
+    "type": "post",
+    "timestamp": "2025-07-29T11:15:00Z",
+    "isRead": false,
+    "message": "퓨처테크가 새로운 게시물을 공유했습니다",
+    "userId": "company9",
+    "userName": "퓨처테크",
+    "postId": "post9"
+  },
+  {
+    "id": "10",
+    "type": "comment",
+    "timestamp": "2025-07-29T11:10:00Z",
+    "isRead": true,
+    "message": "이지영님이 회원님의 게시물에 댓글을 남겼습니다",
+    "userId": "user10",
+    "userName": "이지영",
+    "postId": "post10"
+  },
+  {
+    "id": "11",
+    "type": "comment",
+    "timestamp": "2025-07-29T11:05:00Z",
+    "isRead": false,
+    "message": "이지영님이 회원님의 게시물에 댓글을 남겼습니다",
+    "userId": "user11",
+    "userName": "이지영",
+    "postId": "post11"
+  },
+  {
+    "id": "12",
+    "type": "comment",
+    "timestamp": "2025-07-29T11:00:00Z",
+    "isRead": false,
+    "message": "김철수님이 회원님의 게시물에 댓글을 남겼습니다",
+    "userId": "user12",
+    "userName": "김철수",
+    "postId": "post12"
+  },
+  {
+    "id": "13",
+    "type": "comment",
+    "timestamp": "2025-07-29T10:55:00Z",
+    "isRead": true,
+    "message": "최유리님이 회원님의 게시물에 댓글을 남겼습니다",
+    "userId": "user13",
+    "userName": "최유리",
+    "postId": "post13"
+  },
+  {
+    "id": "14",
+    "type": "comment",
+    "timestamp": "2025-07-29T10:50:00Z",
+    "isRead": false,
+    "message": "홍길동님이 회원님의 게시물에 댓글을 남겼습니다",
+    "userId": "user14",
+    "userName": "홍길동",
+    "postId": "post14"
+  },
+  {
+    "id": "15",
+    "type": "post",
+    "timestamp": "2025-07-29T10:45:00Z",
+    "isRead": true,
+    "message": "그로스업가 새로운 게시물을 공유했습니다",
+    "userId": "company15",
+    "userName": "그로스업",
+    "postId": "post15"
+  },
+  {
+    "id": "16",
+    "type": "post",
+    "timestamp": "2025-07-29T10:40:00Z",
+    "isRead": false,
+    "message": "넥스트AI가 새로운 게시물을 공유했습니다",
+    "userId": "company16",
+    "userName": "넥스트AI",
+    "postId": "post16"
+  },
+  {
+    "id": "17",
+    "type": "post",
+    "timestamp": "2025-07-29T10:35:00Z",
+    "isRead": true,
+    "message": "그로스업가 새로운 게시물을 공유했습니다",
+    "userId": "company17",
+    "userName": "그로스업",
+    "postId": "post17"
+  },
+  {
+    "id": "18",
+    "type": "comment",
+    "timestamp": "2025-07-29T10:30:00Z",
+    "isRead": false,
+    "message": "최유리님이 회원님의 게시물에 댓글을 남겼습니다",
+    "userId": "user18",
+    "userName": "최유리",
+    "postId": "post18"
+  },
+  {
+    "id": "19",
+    "type": "badge",
+    "timestamp": "2025-07-29T10:25:00Z",
+    "isRead": false,
+    "message": "커뮤니티 기여자 배지를 획득하셨습니다",
+    "badgeType": "커뮤니티 기여자"
+  },
+  {
+    "id": "20",
+    "type": "comment",
+    "timestamp": "2025-07-29T10:20:00Z",
+    "isRead": true,
+    "message": "김철수님이 회원님의 게시물에 댓글을 남겼습니다",
+    "userId": "user20",
+    "userName": "김철수",
+    "postId": "post20"
+  },
+  {
+    "id": "21",
+    "type": "comment",
+    "timestamp": "2025-07-29T10:15:00Z",
+    "isRead": false,
+    "message": "홍길동님이 회원님의 게시물에 댓글을 남겼습니다",
+    "userId": "user21",
+    "userName": "홍길동",
+    "postId": "post21"
+  },
+  {
+    "id": "22",
+    "type": "post",
+    "timestamp": "2025-07-29T10:10:00Z",
+    "isRead": false,
+    "message": "그로스업가 새로운 게시물을 공유했습니다",
+    "userId": "company22",
+    "userName": "그로스업",
+    "postId": "post22"
+  },
+  {
+    "id": "23",
+    "type": "post",
+    "timestamp": "2025-07-29T10:05:00Z",
+    "isRead": false,
+    "message": "그로스업가 새로운 게시물을 공유했습니다",
+    "userId": "company23",
+    "userName": "그로스업",
+    "postId": "post23"
+  },
+  {
+    "id": "24",
+    "type": "badge",
+    "timestamp": "2025-07-29T10:00:00Z",
+    "isRead": false,
+    "message": "커뮤니티 기여자 배지를 획득하셨습니다",
+    "badgeType": "커뮤니티 기여자"
+  },
+  {
+    "id": "25",
+    "type": "post",
+    "timestamp": "2025-07-29T09:55:00Z",
+    "isRead": true,
+    "message": "넥스트AI가 새로운 게시물을 공유했습니다",
+    "userId": "company25",
+    "userName": "넥스트AI",
+    "postId": "post25"
+  },
+  {
+    "id": "26",
+    "type": "post",
+    "timestamp": "2025-07-29T09:50:00Z",
+    "isRead": true,
+    "message": "그로스업가 새로운 게시물을 공유했습니다",
+    "userId": "company26",
+    "userName": "그로스업",
+    "postId": "post26"
+  },
+  {
+    "id": "27",
+    "type": "comment",
+    "timestamp": "2025-07-29T09:45:00Z",
+    "isRead": true,
+    "message": "박민수님이 회원님의 게시물에 댓글을 남겼습니다",
+    "userId": "user27",
+    "userName": "박민수",
+    "postId": "post27"
+  },
+  {
+    "id": "28",
+    "type": "badge",
+    "timestamp": "2025-07-29T09:40:00Z",
+    "isRead": false,
+    "message": "우수 성과 배지를 획득하셨습니다",
+    "badgeType": "우수 성과"
+  },
+  {
+    "id": "29",
+    "type": "badge",
+    "timestamp": "2025-07-29T09:35:00Z",
+    "isRead": true,
+    "message": "우수 성과 배지를 획득하셨습니다",
+    "badgeType": "우수 성과"
+  },
+  {
+    "id": "30",
+    "type": "comment",
+    "timestamp": "2025-07-29T09:30:00Z",
+    "isRead": true,
+    "message": "최유리님이 회원님의 게시물에 댓글을 남겼습니다",
+    "userId": "user30",
+    "userName": "최유리",
+    "postId": "post30"
+  },
+  {
+    "id": "31",
+    "type": "comment",
+    "timestamp": "2025-07-29T09:25:00Z",
+    "isRead": false,
+    "message": "김철수님이 회원님의 게시물에 댓글을 남겼습니다",
+    "userId": "user31",
+    "userName": "김철수",
+    "postId": "post31"
+  },
+  {
+    "id": "32",
+    "type": "comment",
+    "timestamp": "2025-07-29T09:20:00Z",
+    "isRead": false,
+    "message": "홍길동님이 회원님의 게시물에 댓글을 남겼습니다",
+    "userId": "user32",
+    "userName": "홍길동",
+    "postId": "post32"
+  },
+  {
+    "id": "33",
+    "type": "comment",
+    "timestamp": "2025-07-29T09:15:00Z",
+    "isRead": true,
+    "message": "박민수님이 회원님의 게시물에 댓글을 남겼습니다",
+    "userId": "user33",
+    "userName": "박민수",
+    "postId": "post33"
+  },
+  {
+    "id": "34",
+    "type": "post",
+    "timestamp": "2025-07-29T09:10:00Z",
+    "isRead": false,
+    "message": "오픈데이터랩가 새로운 게시물을 공유했습니다",
+    "userId": "company34",
+    "userName": "오픈데이터랩",
+    "postId": "post34"
+  },
+  {
+    "id": "35",
+    "type": "comment",
+    "timestamp": "2025-07-29T09:05:00Z",
+    "isRead": true,
+    "message": "홍길동님이 회원님의 게시물에 댓글을 남겼습니다",
+    "userId": "user35",
+    "userName": "홍길동",
+    "postId": "post35"
+  },
+  {
+    "id": "36",
+    "type": "badge",
+    "timestamp": "2025-07-29T09:00:00Z",
+    "isRead": false,
+    "message": "우수 성과 배지를 획득하셨습니다",
+    "badgeType": "우수 성과"
+  },
+  {
+    "id": "37",
+    "type": "post",
+    "timestamp": "2025-07-29T08:55:00Z",
+    "isRead": true,
+    "message": "오픈데이터랩가 새로운 게시물을 공유했습니다",
+    "userId": "company37",
+    "userName": "오픈데이터랩",
+    "postId": "post37"
+  },
+  {
+    "id": "38",
+    "type": "badge",
+    "timestamp": "2025-07-29T08:50:00Z",
+    "isRead": false,
+    "message": "우수 성과 배지를 획득하셨습니다",
+    "badgeType": "우수 성과"
+  },
+  {
+    "id": "39",
+    "type": "badge",
+    "timestamp": "2025-07-29T08:45:00Z",
+    "isRead": true,
+    "message": "커뮤니티 기여자 배지를 획득하셨습니다",
+    "badgeType": "커뮤니티 기여자"
+  },
+  {
+    "id": "40",
+    "type": "comment",
+    "timestamp": "2025-07-29T08:40:00Z",
+    "isRead": false,
+    "message": "홍길동님이 회원님의 게시물에 댓글을 남겼습니다",
+    "userId": "user40",
+    "userName": "홍길동",
+    "postId": "post40"
+  },
+  {
+    "id": "41",
+    "type": "comment",
+    "timestamp": "2025-07-29T08:35:00Z",
+    "isRead": true,
+    "message": "홍길동님이 회원님의 게시물에 댓글을 남겼습니다",
+    "userId": "user41",
+    "userName": "홍길동",
+    "postId": "post41"
+  },
+  {
+    "id": "42",
+    "type": "badge",
+    "timestamp": "2025-07-29T08:30:00Z",
+    "isRead": false,
+    "message": "커뮤니티 기여자 배지를 획득하셨습니다",
+    "badgeType": "커뮤니티 기여자"
+  },
+  {
+    "id": "43",
+    "type": "post",
+    "timestamp": "2025-07-29T08:25:00Z",
+    "isRead": true,
+    "message": "오픈데이터랩가 새로운 게시물을 공유했습니다",
+    "userId": "company43",
+    "userName": "오픈데이터랩",
+    "postId": "post43"
+  },
+  {
+    "id": "44",
+    "type": "comment",
+    "timestamp": "2025-07-29T08:20:00Z",
+    "isRead": false,
+    "message": "최유리님이 회원님의 게시물에 댓글을 남겼습니다",
+    "userId": "user44",
+    "userName": "최유리",
+    "postId": "post44"
+  },
+  {
+    "id": "45",
+    "type": "post",
+    "timestamp": "2025-07-29T08:15:00Z",
+    "isRead": true,
+    "message": "오픈데이터랩가 새로운 게시물을 공유했습니다",
+    "userId": "company45",
+    "userName": "오픈데이터랩",
+    "postId": "post45"
+  },
+  {
+    "id": "46",
+    "type": "comment",
+    "timestamp": "2025-07-29T08:10:00Z",
+    "isRead": true,
+    "message": "최유리님이 회원님의 게시물에 댓글을 남겼습니다",
+    "userId": "user46",
+    "userName": "최유리",
+    "postId": "post46"
+  },
+  {
+    "id": "47",
+    "type": "post",
+    "timestamp": "2025-07-29T08:05:00Z",
+    "isRead": true,
+    "message": "블루칩테크가 새로운 게시물을 공유했습니다",
+    "userId": "company47",
+    "userName": "블루칩테크",
+    "postId": "post47"
+  },
+  {
+    "id": "48",
+    "type": "post",
+    "timestamp": "2025-07-29T08:00:00Z",
+    "isRead": true,
+    "message": "넥스트AI가 새로운 게시물을 공유했습니다",
+    "userId": "company48",
+    "userName": "넥스트AI",
+    "postId": "post48"
+  },
+  {
+    "id": "49",
+    "type": "comment",
+    "timestamp": "2025-07-29T07:55:00Z",
+    "isRead": true,
+    "message": "이지영님이 회원님의 게시물에 댓글을 남겼습니다",
+    "userId": "user49",
+    "userName": "이지영",
+    "postId": "post49"
+  },
+  {
+    "id": "50",
+    "type": "badge",
+    "timestamp": "2025-07-29T07:50:00Z",
+    "isRead": false,
+    "message": "우수 성과 배지를 획득하셨습니다",
+    "badgeType": "우수 성과"
+  },
+  {
+    "id": "51",
+    "type": "badge",
+    "timestamp": "2025-07-29T07:45:00Z",
+    "isRead": false,
+    "message": "커뮤니티 기여자 배지를 획득하셨습니다",
+    "badgeType": "커뮤니티 기여자"
+  },
+  {
+    "id": "52",
+    "type": "comment",
+    "timestamp": "2025-07-29T07:40:00Z",
+    "isRead": true,
+    "message": "박민수님이 회원님의 게시물에 댓글을 남겼습니다",
+    "userId": "user52",
+    "userName": "박민수",
+    "postId": "post52"
+  },
+  {
+    "id": "53",
+    "type": "comment",
+    "timestamp": "2025-07-29T07:35:00Z",
+    "isRead": true,
+    "message": "홍길동님이 회원님의 게시물에 댓글을 남겼습니다",
+    "userId": "user53",
+    "userName": "홍길동",
+    "postId": "post53"
+  },
+  {
+    "id": "54",
+    "type": "badge",
+    "timestamp": "2025-07-29T07:30:00Z",
+    "isRead": false,
+    "message": "커뮤니티 기여자 배지를 획득하셨습니다",
+    "badgeType": "커뮤니티 기여자"
+  },
+  {
+    "id": "55",
+    "type": "post",
+    "timestamp": "2025-07-29T07:25:00Z",
+    "isRead": false,
+    "message": "그로스업가 새로운 게시물을 공유했습니다",
+    "userId": "company55",
+    "userName": "그로스업",
+    "postId": "post55"
+  },
+  {
+    "id": "56",
+    "type": "post",
+    "timestamp": "2025-07-29T07:20:00Z",
+    "isRead": false,
+    "message": "퓨처테크가 새로운 게시물을 공유했습니다",
+    "userId": "company56",
+    "userName": "퓨처테크",
+    "postId": "post56"
+  },
+  {
+    "id": "57",
+    "type": "badge",
+    "timestamp": "2025-07-29T07:15:00Z",
+    "isRead": false,
+    "message": "커뮤니티 기여자 배지를 획득하셨습니다",
+    "badgeType": "커뮤니티 기여자"
+  },
+  {
+    "id": "58",
+    "type": "comment",
+    "timestamp": "2025-07-29T07:10:00Z",
+    "isRead": false,
+    "message": "최유리님이 회원님의 게시물에 댓글을 남겼습니다",
+    "userId": "user58",
+    "userName": "최유리",
+    "postId": "post58"
+  },
+  {
+    "id": "59",
+    "type": "post",
+    "timestamp": "2025-05-29T07:05:00Z",
+    "isRead": true,
+    "message": "그로스업가 새로운 게시물을 공유했습니다",
+    "userId": "company59",
+    "userName": "그로스업",
+    "postId": "post59"
+  },
+  {
+    "id": "60",
+    "type": "post",
+    "timestamp": "2025-05-29T07:00:00Z",
+    "isRead": false,
+    "message": "넥스트AI가 새로운 게시물을 공유했습니다",
+    "userId": "company60",
+    "userName": "넥스트AI",
+    "postId": "post60"
+  }
+]

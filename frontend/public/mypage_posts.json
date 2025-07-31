@@ -1,0 +1,92 @@
+[
+  {
+    "id": "post1",
+    "title": "React와 TypeScript로 시작하는 웹 개발",
+    "thumbnail": "https://via.placeholder.com/200x120.png?text=React+TS",
+    "tags": ["React", "TypeScript"],
+    "views": 1234,
+    "stars": 56,
+    "comments": 23
+  },
+  {
+    "id": "post2",
+    "title": "백엔드 입문자를 위한 Node.js 가이드",
+    "thumbnail": "https://via.placeholder.com/200x120.png?text=Node.js",
+    "tags": ["Node.js", "Express"],
+    "views": 980,
+    "stars": 42,
+    "comments": 15
+  },
+  {
+    "id": "post3",
+    "title": "데이터베이스 설계 기초와 실습",
+    "thumbnail": "https://via.placeholder.com/200x120.png?text=DB",
+    "tags": ["MySQL", "DB 설계"],
+    "views": 1120,
+    "stars": 38,
+    "comments": 12
+  },
+  {
+    "id": "post4",
+    "title": "AWS로 클라우드 배포하기",
+    "thumbnail": "https://via.placeholder.com/200x120.png?text=AWS",
+    "tags": ["AWS", "EC2", "S3"],
+    "views": 1780,
+    "stars": 64,
+    "comments": 31
+  },
+  {
+    "id": "post5",
+    "title": "Spring Boot로 API 서버 만들기",
+    "thumbnail": "https://via.placeholder.com/200x120.png?text=Spring",
+    "tags": ["Spring", "Java"],
+    "views": 1450,
+    "stars": 50,
+    "comments": 22
+  },
+  {
+    "id": "post6",
+    "title": "JWT를 활용한 인증 시스템 구현",
+    "thumbnail": "https://via.placeholder.com/200x120.png?text=JWT",
+    "tags": ["Security", "JWT"],
+    "views": 890,
+    "stars": 30,
+    "comments": 11
+  },
+  {
+    "id": "post7",
+    "title": "리액트 성능 최적화 전략",
+    "thumbnail": "https://via.placeholder.com/200x120.png?text=React",
+    "tags": ["React", "Performance"],
+    "views": 1320,
+    "stars": 47,
+    "comments": 19
+  },
+  {
+    "id": "post8",
+    "title": "GraphQL vs REST: 무엇을 선택할까?",
+    "thumbnail": "https://via.placeholder.com/200x120.png?text=GraphQL+REST",
+    "tags": ["GraphQL", "REST"],
+    "views": 1010,
+    "stars": 35,
+    "comments": 14
+  },
+  {
+    "id": "post9",
+    "title": "Python으로 데이터 분석 시작하기",
+    "thumbnail": "https://via.placeholder.com/200x120.png?text=Python",
+    "tags": ["Python", "Pandas"],
+    "views": 1650,
+    "stars": 58,
+    "comments": 27
+  },
+  {
+    "id": "post10",
+    "title": "Docker로 개발 환경 통일하기",
+    "thumbnail": "https://via.placeholder.com/200x120.png?text=Docker",
+    "tags": ["Docker", "CI/CD"],
+    "views": 1390,
+    "stars": 44,
+    "comments": 17
+  }
+]

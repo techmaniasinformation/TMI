@@ -1,4 +1,5 @@
 import React from 'react';
+import ViewIcon from '@/assets/icons/view.svg';
 
 interface ViewBadgeProps {
   count?: number;
@@ -6,9 +7,9 @@ interface ViewBadgeProps {
 
 export default function ViewBadge({ count = 0 }: ViewBadgeProps) {
   return (
-    <span className="inline-flex items-center text-xs">
-      <i className="fas fa-eye mr-1"></i>
+    <span className="inline-flex items-center text-xs text-gray-600">
+      <img src={ViewIcon} alt="views" className="w-4 h-4 mr-1" />
       {count.toLocaleString()}
     </span>
   );
-} 
+}

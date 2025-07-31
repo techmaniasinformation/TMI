@@ -1,5 +1,6 @@
 import React from "react";
-import { Badge } from "@/components/domain/Badge";
+import DefaultThumbnail from "@/assets/icons/star.svg"; // 기본 썸네일로 사용할 아이콘
+import CardInfoCount from "@/components/domain/article/CardInfoCount"; // 조회수, 좋아요, 댓글 수 뱃지 컴포넌트
 
 // 게시글(Post) 객체의 타입 정의
 interface Post {
@@ -23,17 +24,23 @@ const PostCard: React.FC<PostCardProps> = ({ post, onClick }) => {
   // 구조 분해 할당으로 post 객체 내부 값 추출
   const { id, title, thumbnail, tags, views, stars, comments } = post;
 
+  // 이미지 로딩 오류 시 fallback 이미지로 대체
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    e.currentTarget.src = DefaultThumbnail;
+  };
+
   return (
     <div
       key={id}
       className="flex items-start space-x-4 p-4 border border-gray-100 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors duration-200"
       onClick={onClick} // 카드 클릭 시 동작
     >
-      {/* 썸네일 이미지 */}
+      {/* 썸네일 이미지 (오류 시 대체 이미지로 변경) */}
       <img
         src={thumbnail}
         alt={title}
-        className="w-[200px] h-[120px] object-cover rounded-lg"
+        className="w-[200px] h-[120px] object-contain rounded-lg"
+        onError={handleImageError}
       />
 
       {/* 게시글 정보 */}
@@ -44,27 +51,21 @@ const PostCard: React.FC<PostCardProps> = ({ post, onClick }) => {
         {/* 태그 목록 */}
         <div className="flex flex-wrap gap-2 mb-3">
           {tags.map((tag, index) => (
-            <Badge key={index} className="bg-blue-100 text-blue-800 text-xs">
+            <span
+              key={index}
+              className="min-w-[60px] h-[22px] px-3 inline-flex items-center justify-center rounded-md text-xs font-medium bg-blue-100 text-blue-800 whitespace-nowrap overflow-hidden text-ellipsis"
+            >
               {tag}
-            </Badge>
+            </span>
           ))}
         </div>
 
-        {/* 조회수, 좋아요, 댓글 수 */}
-        <div className="flex items-center space-x-4 text-sm text-gray-500">
-          <span className="flex items-center">
-            <i className="fas fa-eye mr-1"></i> {/* 눈 아이콘 (FontAwesome 기반) */}
-            {views.toLocaleString()}
-          </span>
-          <span className="flex items-center">
-            <i className="fas fa-star mr-1"></i> {/* 별 아이콘 */}
-            {stars}
-          </span>
-          <span className="flex items-center">
-            <i className="fas fa-comment mr-1"></i> {/* 말풍선 아이콘 */}
-            {comments}
-          </span>
-        </div>
+        {/* 조회수, 좋아요, 댓글 수 뱃지로 표시 */}
+        <CardInfoCount
+          viewCount={views}
+          starCount={stars}
+          commentCount={comments}
+        />
       </div>
     </div>
   );

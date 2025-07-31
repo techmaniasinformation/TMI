@@ -1,6 +1,10 @@
 // NotificationsPage.tsx
 import React, { useState, useEffect } from 'react';
 
+// 테스트 후 나중에 지울 것들
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '@/router/routes';
+
 // 만든 다른 컴포넌트들
 import Pagination from '@/components/domain/Pagination';
 import NotificationItem from '@/components/layout/notifications/NotifiactionItem';
@@ -33,6 +37,10 @@ const NotificationsPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   // 한 페이지에 5개씩 보여줌
   const itemsPerPage = 5;
+
+
+  // 지울 거
+  const navigate = useNavigate(); // ✅ 네비게이션 훅 추가
 
   // 처음 페이지 열었을 때 알림 목록 불러오기
   useEffect(() => {
@@ -127,6 +135,30 @@ const NotificationsPage: React.FC = () => {
       {currentNotifications.length === 0 && (
         <NoNotifications showUnreadOnly={showUnreadOnly} />
       )}
+
+      {/* 지울 것들       */}
+      {/* ✅ 마이페이지 이동 버튼 */}
+      <div className="flex justify-center gap-4 mt-8">
+        <button
+          onClick={() => navigate(ROUTES.MY_PAGE)}
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+        >
+          🙋 내 마이페이지
+        </button>
+        <button
+          onClick={() => navigate(ROUTES.MY_PAGE_COMPANY)}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+        >
+          🏢 기업 마이페이지
+        </button>
+        <button
+          onClick={() => navigate(ROUTES.MY_PAGE_USER)}
+          className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition"
+        >
+          👤 타인 마이페이지
+        </button>
+      </div>
+
     </div>
   );
 };

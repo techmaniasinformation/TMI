@@ -33,7 +33,7 @@ public class SecurityConfig {
         .authorizeHttpRequests(authorize -> authorize
             .requestMatchers(
                 "/oauth2/**",         // 소셜 로그인 진입 및 콜백
-                "/auth/refresh",
+                "/api/v1/auth/refresh",
                 "/api/v1/oauth2/authorization/**",
                 "/api/v1/oauth2/code/**",
                 "/api/v1/member/signup"

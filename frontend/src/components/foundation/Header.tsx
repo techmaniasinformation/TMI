@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@/utils/utils";
+import { cn } from "@/utils";
 import { Link, useNavigate } from "react-router-dom";
-import SearchBar from "./Searchbar"; // 검색바 컴포넌트 분리
+import SearchBar from "./SearchBar"; // 검색바 컴포넌트 분리
 import { Button } from "./button";
 import { useThemeStore } from "@/stores/themeStore"; // 테마 불러오기
 

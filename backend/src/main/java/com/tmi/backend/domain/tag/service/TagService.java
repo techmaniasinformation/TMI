@@ -29,6 +29,10 @@ public class TagService {
   public TagSearchRequest searchTags(String keyword) {
     log.info("TagService : searchTags(" + keyword + ") 호출");
 
+    if (keyword == null) {
+      return TagSearchRequest.of(tagRepository.findAll());
+    }
+
     if (keyword.isBlank()) {
       throw new BusinessException(ErrorCode.SEARCH_TERM_MISSING);
     }

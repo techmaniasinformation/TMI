@@ -22,7 +22,7 @@ public class TagController {
    * @param q 검색어
    */
   @GetMapping
-  public ApiResponse<TagSearchRequest> searchTags(@RequestParam String q) {
+  public ApiResponse<TagSearchRequest> searchTags(@RequestParam(required = false) String q) {
 
     return ApiSuccessResponse.success(tagService.searchTags(q));
   }

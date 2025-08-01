@@ -41,9 +41,31 @@ export const usePosts = () => {
     .sort((a, b) => (b.views * 0.3 + b.stars * 0.7) - (a.views * 0.3 + a.stars * 0.7))
     .slice(0, 10);
 
+  const postsPerPage = 10;
+  const totalPages = Math.ceil(allPosts.length / postsPerPage);
 
+  const getCurrentPosts = (): Post[] => {
+    if (activeTab === 'following') {
+      if (!isLoggedIn) return [];
+      if (!hasFollows) return [];
+      return allPosts.filter((post) => post.isFollowing);
+    }
+    const startIndex = (currentPage - 1) * postsPerPage;
+    return allPosts.slice(startIndex, startIndex + postsPerPage);
+  };
 
-
+  const getPageNumbers = (): number[] => {
+    const pageNumbers: number[] = [];
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, startPage + 4);
+    if (endPage - startPage < 4) {
+      startPage = Math.max(1, endPage - 4);
+    }
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+    return pageNumbers;
+  };
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
@@ -68,7 +90,12 @@ export const usePosts = () => {
     setCurrentPage,
     isLoggedIn,
     hasFollows,
+    allPosts,
     popularPosts,
+    postsPerPage,
+    totalPages,
+    getCurrentPosts,
+    getPageNumbers,
     formatDate,
     formatNumber
   };

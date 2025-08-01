@@ -47,7 +47,7 @@ const Footer: React.FC<FooterProps> = ({
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <p className="text-gray-400 text-sm">
-              © 2025 TMI. All rights reserved.
+              © 2024 TechBlog. All rights reserved.
               </p>
             </div>
           </div>

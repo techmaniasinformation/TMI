@@ -1,96 +1,23 @@
-// ===== 기본 타입들 =====
-export interface EmptyProps {}
+// 타입 통합 export
+export * from './api.types'
 
-export interface BaseComponentProps {
-  className?: string;
-  children?: React.ReactNode;
-}
-
-export interface PageProps extends BaseComponentProps {}
-
-export interface BaseData {
-  id: string | number;
-  createdAt: string;
-  updatedAt?: string;
-}
-
-// ===== 사용자 타입 =====
-export interface User extends BaseData {
-  nickname: string;
-  email: string;
-  profileImage?: string;
-  bio?: string;
-  isVerified?: boolean;
-}
-
-// ===== 게시글 타입 (검색 API용) =====
-export interface Post {
-  postId: number;
-  memberProfileUrl: string;
-  companyProfileUrl: string | null;
-  name: string;
-  badgeUrl: string;
-  title: string;
-  createAt: string;
-  viewCount: number;
-  starCount: number;
-  commentCount: number;
-  tags: string[];
-  thumbnailUrl: string;
-}
-
-// ===== 댓글 타입 =====
-export interface Comment extends BaseData {
-  content: string;
-  author: User;
-  postId: string | number;
-  likeCount: number;
-  isLiked?: boolean;
-}
-
-// ===== 알림 타입 =====
-export interface Notification extends BaseData {
-  type: 'badge' | 'comment' | 'post' | 'follow';
-  message: string;
-  isRead: boolean;
-  userId?: string;
-  userName?: string;
-  userAvatar?: string;
-  postId?: string;
-  badgeType?: string;
-}
-
-// ===== 검색 관련 타입 =====
-export interface SearchApiResponse {
-  status: string;
-  data: {
-    posts: Post[];
-    pageInfo: PageInfo;
-    appliedFilters?: AppliedFilters;
-  };
-}
-
-export interface PageInfo {
-  totalElements: number;
-  totalPages: number;
-  isLast: boolean;
-  currPage: number;
-}
-
-export interface AppliedFilters {
-  q?: string;
-  techTags?: string[];
-  companyTags?: string[];
-}
-
-// ===== API 요청 타입 =====
-export interface CreatePostRequest {
-  title: string;
-  content: string;
-  imageUrl?: string;
-  tags?: string[];
-}
-
-export interface UpdatePostRequest extends Partial<CreatePostRequest> {
-  id: string;
-}
+// 충돌 방지를 위해 명시적으로 export
+export type { User } from './auth.types'
+export type { 
+  UserProfile, 
+  UpdateProfileRequest, 
+  UserStats 
+} from './user.types'
+export type { 
+  Post, 
+  Comment, 
+  AppliedFilters, 
+  PageInfo, 
+  SearchApiResponse,
+  Notification,
+  EmptyProps,
+  BaseComponentProps,
+  PageProps,
+  BaseData
+} from './common'
+export type { CreatePostRequest, UpdatePostRequest } from './posts.types'

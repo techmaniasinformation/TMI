@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {Button} from '@/components/foundation/button'
 
 interface LandingPageProps {}
 
-const LandingPage: React.FC<LandingPageProps> = () => {
+const LandingPage = () => {
   const [isHovered, setIsHovered] = useState<string | null>(null);
   const navigate = useNavigate();
 

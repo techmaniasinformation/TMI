@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { useSearchParams } from 'react-router-dom';
 import SearchResultBar from './search/SearchResultBar';
 import SearchPostList from './search/SearchPostList';

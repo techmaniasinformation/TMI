@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { usePopularPosts } from '@/hooks/posts/usePopularPosts';
 import { Card, CardContent } from '@/components/domain/Card';
 import { Button } from '@/components/foundation/button';

@@ -1,11 +1,10 @@
-import React from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 
 interface LayoutProps {}
 
-const Layout: React.FC<LayoutProps> = () => {
+const Layout = () => {
   const location = useLocation();
   // 랜딩 페이지에서 여백 없애기
   const isNoPadding = location.pathname === '/';

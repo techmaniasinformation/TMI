@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface UserInfoBoxProps {
-  profileImageUrl: string;
+  profileImageUrl?: string;
   nickname: string;
   // 닉네임 아래에 추가 정보를 넣고 싶을 때 사용
   children?: React.ReactNode;
@@ -29,15 +29,29 @@ export default function UserInfoBox({
       style={{ width, height }}
     >
       {/* 프로필 이미지 (크기 지정 가능) */}
-      <img
-        src={profileImageUrl}
-        alt="profile"
-        style={{
-          width: imageSize,
-          height: imageSize,
-        }}
-        className="rounded-full object-cover"
-      />
+      {profileImageUrl ? (
+        <img
+          src={profileImageUrl}
+          alt="profile"
+          style={{
+            width: imageSize,
+            height: imageSize,
+          }}
+          className="rounded-full object-cover"
+        />
+      ) : (
+        <div
+          style={{
+            width: imageSize,
+            height: imageSize,
+          }}
+          className="rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center"
+        >
+          <span className="text-white font-semibold text-sm">
+            {nickname.charAt(0)}
+          </span>
+        </div>
+      )}
 
       {/* 닉네임 + 하위 정보 */}
       <div className="flex flex-col">

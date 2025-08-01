@@ -1,9 +1,6 @@
 export const ROUTES = {
   HOME: '/home',
   LANDING: '/',
-  LOGIN: '/login',
-  POST_DETAIL: '/posts/:id',
-  POST_EDITOR: '/posts/editor',
   SEARCH: '/search',
   MY_PAGE: '/my-page',               // 기본 사용자 마이페이지
   MY_PAGE_USER: '/my-page-user',     // 사용자용 테스트 라우트

@@ -211,7 +211,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
                         setTagError('검색 태그는 최대 5개 선택 가능합니다'); // &&& 에러 메시지 설정
                         return;
                       }
-                      setSearchQuery(word);
+                      setSearchQuery('');
                       addToRecentSearches(word);
                       //선택 태그 추가
                       if (!selectedTags.includes(word)) {
@@ -246,7 +246,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
             {/* 선택된 태그 영역 */}
             {selectedTags.length > 0 && (
               <div className='mt-4'>
-                 <hr className="my-3 border-gray-300 dark:border-gray-600" /> 
+                <hr className='my-3 border-gray-300 dark:border-gray-600' />
                 <h3
                   className={cn(
                     'text-sm font-medium mb-2',
@@ -255,15 +255,18 @@ const SearchBar: React.FC<SearchBarProps> = ({
                 >
                   선택된 태그
                 </h3>
-                {tagError && ( // &&& 태그 제한 안내 표시
+                {/* {tagError && ( // &&& 태그 제한 안내 표시
                   <p className='mt-2 text-sm text-red-500'>{tagError}</p>
-                )}
+                )} */}
 
                 <TagArea
                   tags={selectedTags}
                   maxTags={5}
                   onRemoveTag={handleTagRemove} // 삭제 핸들러 전달
                 />
+                {tagError && ( // &&& 태그 제한 안내 표시
+                  <p className='mt-2 text-sm text-red-500'>{tagError}</p>
+                )}
               </div>
             )}
           </div>

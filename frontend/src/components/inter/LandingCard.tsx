@@ -1,22 +1,23 @@
 import React from 'react';
-import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@/utils/utils";
-import Tag from "@/components/domain/article/Tag";
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '@/utils/utils';
+import Tag from '@/components/domain/article/Tag';
 
 // 카드 variant 스타일 정의
 const cardVariants = cva(
-  "backdrop-blur-sm transition-all duration-300 cursor-pointer rounded-lg border hover:shadow-lg", 
+  'backdrop-blur-sm transition-all duration-300 cursor-pointer rounded-lg border hover:shadow-lg',
   {
     variants: {
       variant: {
-        default: "bg-light-bg text-dark-bg border border-dark-bg hover:bg-light-bg-hover",
-        dark: "bg-dark-bg text-white border border-light-bg hover:bg-dark-bg-hover",
-        light: "bg-light-bg text-dark-bg border border-dark-bg hover:bg-light-bg-hover",
-        
-        },
+        default:
+          'bg-light-bg text-dark-bg border border-dark-bg hover:bg-light-bg-hover',
+        dark: 'bg-dark-bg text-white border border-light-bg hover:bg-dark-bg-hover',
+        light:
+          'bg-light-bg text-dark-bg border border-dark-bg hover:bg-light-bg-hover',
+      },
     },
     defaultVariants: {
-      variant: "light",
+      variant: 'light',
     },
   }
 );
@@ -39,8 +40,6 @@ interface LandingCardProps extends VariantProps<typeof cardVariants> {
   hoverShadow: string; // ex: "hover:shadow-blue-500/20"
   onClick?: () => void; // 클릭 이벤트를 부모 컴포넌트로부터 받음
 }
-
-
 
 const LandingCard: React.FC<LandingCardProps> = ({
   postId,
@@ -66,16 +65,16 @@ const LandingCard: React.FC<LandingCardProps> = ({
   return (
     <div
       key={postId}
-      //className={`bg-gray-800/70 backdrop-blur-sm hover:bg-gray-800/90 
-    //   transition-all duration-300 cursor-pointer rounded-lg border 
-    //   border-gray-700/50 ${hoverBorder} hover:shadow-lg ${hoverShadow} ${roleColor}`} // roleColor도 여기서 사용 가능 ********
-       className={cn(
+      //className={`bg-gray-800/70 backdrop-blur-sm hover:bg-gray-800/90
+      //   transition-all duration-300 cursor-pointer rounded-lg border
+      //   border-gray-700/50 ${hoverBorder} hover:shadow-lg ${hoverShadow} ${roleColor}`} // roleColor도 여기서 사용 가능 ********
+      className={cn(
         cardVariants({ variant }), // ***** 다크/라이트에 따라 클래스 적용
         // roleColor,
         hoverBorder,
         hoverShadow
       )}
-    onClick={onClick} // ******** 클릭 이벤트 바인딩 ********
+      onClick={onClick} // ******** 클릭 이벤트 바인딩 ********
       role='button'
       tabIndex={0}
       onKeyPress={(e) => {
@@ -104,9 +103,7 @@ const LandingCard: React.FC<LandingCardProps> = ({
               )}
 
               <div className='flex items-center gap-2'>
-                <span className='text-sm font-medium'>
-                  {name}
-                </span>
+                <span className='text-sm font-medium'>{name}</span>
                 {badgeUrl && (
                   <img
                     src={badgeUrl}
@@ -149,24 +146,16 @@ const LandingCard: React.FC<LandingCardProps> = ({
             </div>
 
             {/* 태그 */}
-            {/* <div className='flex flex-wrap gap-2'>
-              {tags.map((tag, index) => (
-                <span
-                  key={index}
-                  className='px-2 py-1 bg-gray-700/50  text-xs rounded border  hover:bg-blue-600/20 hover:cursor-pointer transition-colors'
-                >
-                  #{tag}
-                </span>
-              ))} */}
-                          <div className='flex flex-wrap gap-2'>
+
+            <div className='flex flex-wrap gap-2'>
               {tags.map((tag, index) => (
                 // &&& 기존 span 대신 Tag 컴포넌트 사용
-                <Tag 
+                <Tag
                   key={index}
                   tag={`#${tag}`}
-                  variant="tech"
+                  variant='tech'
                   removable={false}
-                  className="text-xs"
+                  className='text-xs'
                 />
               ))}
             </div>

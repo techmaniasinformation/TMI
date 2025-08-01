@@ -1,7 +1,7 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
-import { cn } from "@/utils/utils" 
+import { cn } from "@/utils" 
 
 // 여기에 공통 버튼, 일반 버튼 제작 예정
 // 다크 모드는 variant에 다크 모드 넣어서 하면 될 듯....

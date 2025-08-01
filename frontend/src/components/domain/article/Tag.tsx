@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { cn } from '@/utils/utils';
-import { useTagStyles, useTagRemove } from '@/hooks/tags';
+import { cn } from '@/utils';
+import { useTagStyles, useTagRemove } from '@/hooks';
 
 export interface TagProps extends React.HTMLAttributes<HTMLDivElement> {
   tag: string;

@@ -20,7 +20,8 @@ public class Badge {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long badgeId;
+  @Column(name = "badge_id")
+  private Long id;
 
   @Column(length = 50, nullable = false)
   private String name;

@@ -1,0 +1,17 @@
+{
+  "status": "SUCCESS",
+  "data": {
+    "posts": [],
+    "pageInfo": {
+      "totalElements": 0,
+      "totalPages": 0,
+      "isLast": true,
+      "currPage": 1
+    },
+    "appliedFilters": {
+      "q": "존재하지않는키워드",
+      "techTags": null,
+      "companyTags": null
+    }
+  }
+} 

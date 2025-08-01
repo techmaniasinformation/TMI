@@ -38,15 +38,10 @@ const getPostsFromJson = (params: { page: number; size: number; sort: string }):
     data: {
       posts: paginatedPosts,
       pageInfo: {
-        currentPage: page,
         currPage: page,
         totalElements: allPosts.length,
         totalPages: Math.ceil(allPosts.length / size),
-        totalItems: allPosts.length,
-        itemsPerPage: size,
-        isLast: endIndex >= allPosts.length,
-        hasNextPage: endIndex < allPosts.length,
-        hasPreviousPage: page > 1
+        isLast: endIndex >= allPosts.length
       },
       appliedFilters: undefined
     }

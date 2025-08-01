@@ -29,14 +29,20 @@ const companyTags = [
 interface TagAreaProps {
   tags: string[];
   maxTags?: number;
+
+  onRemoveTag?: (tag: string) => void; // 태그에 삭제 기능 추가
+
   searchKeyword?: string;
   searchTechTags?: string[];
   searchCompanyTags?: string[];
+
 }
 
 export default function TagArea({ 
   tags, 
+
   maxTags = 5,
+  onRemoveTag, // 태그 삭제 관련
   searchKeyword = '',
   searchTechTags = [],
   searchCompanyTags = []
@@ -96,6 +102,8 @@ export default function TagArea({
           key={index} 
           tag={tag} 
           variant={getTagVariant(tag)}
+                    removable={!!onRemoveTag} // &&&& onRemoveTag 있으면 삭제 버튼 표시
+          onRemove={() => onRemoveTag && onRemoveTag(tag)} // &&&& 클릭 시 부모에 알림
         />
       ))}
     </div>

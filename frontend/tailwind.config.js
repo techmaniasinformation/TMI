@@ -19,11 +19,10 @@ module.exports = {
         //다크 모드 배경 색상
         'dark-bg' : '#0A1929',
         'dark-bg-hover': '#132f4d', 
-
-
-
         //다크 모드 헤더 색상
         'dark-header': '#0A1F33',
+        // 두 모드에서 잘 보일 빨간색
+        'warning':'#ff5c5c',
       },
       //별똥별 움직임 관련
       keyframes: {

@@ -9,7 +9,7 @@ interface ArticleInfoProps {
   id: number;
   title: string;
   author: string;
-  authorProfile: string;
+  authorProfile?: string;
   authorBadge?: string;
   tags: string[];
   date: string;

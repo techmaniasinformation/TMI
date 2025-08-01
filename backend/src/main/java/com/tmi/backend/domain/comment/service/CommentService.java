@@ -1,18 +1,27 @@
 package com.tmi.backend.domain.comment.service;
 
 import com.tmi.backend.domain.comment.dto.request.CommentRequest;
+import com.tmi.backend.domain.comment.dto.request.SortType;
+import com.tmi.backend.domain.comment.dto.response.CommentListResponse;
+import com.tmi.backend.domain.comment.dto.response.PostCommentListRepository;
+import com.tmi.backend.domain.comment.dto.response.SimpleCommentResponse;
 import com.tmi.backend.domain.comment.entity.Comment;
 import com.tmi.backend.domain.comment.repository.CommentRepository;
 import com.tmi.backend.domain.member.entity.Member;
 import com.tmi.backend.domain.member.repository.MemberRepository;
 import com.tmi.backend.domain.post.entity.Post;
 import com.tmi.backend.domain.post.repository.PostRepository;
-import com.tmi.backend.domain.star.entity.Star;
+import com.tmi.backend.global.common.entity.PageDetail;
 import com.tmi.backend.global.error.ErrorCode;
 import com.tmi.backend.global.error.exception.BusinessException;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,5 +59,43 @@ public class CommentService {
         .orElseThrow(() -> new BusinessException(ErrorCode.COMMENT_NOT_FOUND));
 
     commentRepository.delete(comment);
+  }
+
+  public CommentListResponse readMemberComments(Long memberId, int page, int size) {
+    log.info("CommentService : readMemberComments({}) 호출", memberId);
+
+    if (!memberRepository.existsById(memberId)) {
+      throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+    }
+
+    Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
+
+    Page<Comment> commentPage = commentRepository.findByMemberId(memberId, pageable);
+
+    return CommentListResponse.of(commentPage, page);
+  }
+
+  public PostCommentListRepository readPostComments(Long postId, SortType sort) {
+    log.info("CommentService : readPostComments({}) 호출", postId);
+
+    if (!postRepository.existsById(postId)) {
+      throw new BusinessException(ErrorCode.POST_NOT_FOUND);
+    }
+
+    Comment best = commentRepository
+        .findTopByRecommendCountGreaterThanEqualOrderByRecommendCountDescCreatedAtAsc(5)
+        .orElse(null);
+
+    List<Comment> comments = commentRepository.findByPostId(postId, convertSort(sort));
+
+    return PostCommentListRepository.of(best, comments);
+  }
+
+  private Sort convertSort(SortType sortType) {
+    return switch (sortType) {
+      case earliest -> Sort.by("createdAt").ascending();           // 오래된 순
+      case popular  -> Sort.by("recommendCount").descending()      // 추천 ↑
+          .and(Sort.by("createdAt").ascending());
+    };
   }
 }

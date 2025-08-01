@@ -6,6 +6,7 @@ import LoginPage from '../pages/LoginPage';
 import HomePage from '../pages/HomePage';
 import LandingPage from '../pages/LandingPage';
 import MyPage from '../pages/MyPage';
+import NotificationsPage from '../pages/NotificationsPage';
 import PostDetailPage from '../pages/PostDetailPage';
 import PostEditorPage from '../pages/PostEditorPage';
 import SearchResultsPage from '../pages/SearchResultsPage';
@@ -56,6 +57,10 @@ export const router = createBrowserRouter([
       {
         path: ROUTES.MY_PAGE_USER, // 다른 사람의 마이페이지
         element: <MyPage isCompany={false} isMyPage={false} />,
+      },
+      {
+        path: ROUTES.NOTIFICATIONS,
+        element: <NotificationsPage />,
       },
     ],
   },

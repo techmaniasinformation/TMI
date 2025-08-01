@@ -106,6 +106,18 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
     paginatedItems: paginatedUsers
   } = usePagination(followedUsers, 9);  // 한 페이지당 9개
 
+  // 스타 게시글 데이터 로딩
+  const { data: starredPosts, loading: starLoading, error: starError } =
+  useFetchJson<Post>('/mypage_starred_posts.json');
+
+  // 스타게시글 페이지네이션
+  const {
+    currentPage: currentStarPage,
+    setCurrentPage: setCurrentStarPage,
+    totalPages: totalStarPages,
+    paginatedItems: paginatedStarredPosts,
+  } = usePagination<Post>(starredPosts, 5);  // 5개씩 페이지네이션
+
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className='w-[1232px]'>
       {/* 탭 목록 */}
@@ -143,11 +155,22 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
         {/* 팔로우 / 스타 게시글 (본인일 때만) */}
         {isMyPage && isPersonal && (
           <>
-            <TabsTrigger value="follow" className="flex items-center px-6 py-4 text-gray-500 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600">
+            <TabsTrigger
+              value="follow"
+              className="flex items-center px-6 py-4 text-gray-500 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600"
+              onClick={() => {
+                setCurrentCompanyPage(1);
+                setCurrentUserPage(1);
+              }}
+            >
               <IconTab4 className="w-4 h-4 mr-2 text-inherit" />
               <span className="text-sm">팔로우</span>
             </TabsTrigger>
-            <TabsTrigger value="starred" className="flex items-center px-6 py-4 text-gray-500 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600">
+            <TabsTrigger
+              value="starred"
+              className="flex items-center px-6 py-4 text-gray-500 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600"
+              onClick={() => setCurrentStarPage(1)}
+              >
               <IconTab5 className="w-4 h-4 mr-2 text-inherit" />
               <span className="text-sm">스타 게시글</span>
             </TabsTrigger>
@@ -279,8 +302,28 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
       {isMyPage && isPersonal && (
         <TabsContent value="starred" className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
           <h2 className="text-lg font-semibold mb-4">스타 게시글</h2>
-          {/* 임시 데이터 */}
-          <PostCard post={{ id: 'post1', title: "좋아요 누른 글", thumbnail: "...", tags: ["React"], views: 111, stars: 10, comments: 2 }} />
+
+          {starLoading ? (
+            <p className="text-sm text-gray-500">불러오는 중...</p>
+          ) : starError ? (
+            <p className="text-sm text-red-500">에러: {starError}</p>
+          ) : paginatedStarredPosts.length === 0 ? (
+            <p className="text-sm text-gray-500">스타한 게시글이 없습니다.</p>
+          ) : (
+            <div className="space-y-4">
+              {paginatedStarredPosts.map((post) => (
+                <PostCard key={post.id} post={post} onClick={() => window.location.href = '#'} />
+              ))}
+            </div>
+          )}
+
+          {totalStarPages > 1 && (
+            <Pagination
+              currentPage={currentStarPage}
+              totalPages={totalStarPages}
+              onPageChange={setCurrentStarPage}
+            />
+          )}
         </TabsContent>
       )}
     </Tabs>

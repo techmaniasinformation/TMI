@@ -183,7 +183,21 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
       {/* 내 정보 */}
       {(isMyPage || isOtherUser) && isPersonal && (
         <TabsContent value="profile" className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-          <p className="text-sm text-gray-500">현재는 표시할 정보가 없습니다.</p>
+          <h2 className="text-lg font-semibold mb-6">업적</h2>
+
+          <div className="grid grid-cols-5 gap-4">
+            {Array.from({ length: 17 }).map((_, idx) => (
+              <div
+                key={idx}
+                className="aspect-square bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col items-center justify-center hover:shadow-md transition"
+              >
+                <div className="w-10 h-10 mb-2 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-sm">
+                  ?
+                </div>
+                <p className="text-xs text-gray-700 font-medium text-center">이건 머지?</p>
+              </div>
+            ))}
+          </div>
         </TabsContent>
       )}
 

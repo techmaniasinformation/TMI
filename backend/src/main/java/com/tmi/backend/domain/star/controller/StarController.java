@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/star")
 @RequiredArgsConstructor
-public class StarController extends BaseController {
+public class StarController implements BaseController {
 
   private final StarService starService;
 

@@ -1,247 +1,196 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/utils";
+import { Link, useNavigate } from "react-router-dom";
+import SearchBar from "./SearchBar"; // 검색바 컴포넌트 분리
+import { Button } from "./button";
+import { useThemeStore } from "@/stores/themeStore"; // 테마 불러오기
 
-interface HeaderProps {}
+const headerVariants = cva('text-white', {
+  variants: {
+    variant: {
+      light: 'bg-light-header text-dark-bg',
+      dark: 'bg-dark-header text-white',
+      transparent: 'bg-transparent text-dark-bg',
+    },
+    size: {
+      default: 'py-1',
+      compact: 'py-1',
+    },
+  },
+  defaultVariants: {
+    variant: 'light',
+    size: 'default',
+  },
+});
 
-const Header: React.FC<HeaderProps> = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+interface HeaderProps extends VariantProps<typeof headerVariants> {}
+
+const Header: React.FC<HeaderProps> = ({
+  variant = 'light',
+  size = 'default',
+}) => {
+  // 로그인 여부 확인
+  // const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const { isDarkMode, toggleTheme } = useThemeStore(); // 전역 상태 사용
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchError, setSearchError] = useState<string>('');
-  const [showSearchResults, setShowSearchResults] = useState(false);
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
-  const [showRecentSearches, setShowRecentSearches] = useState(false);
+  const navigate = useNavigate();
 
-  // Mock dictionary for demonstration
-  const dictionary = ['react', 'javascript', 'typescript', 'python', 'java', 'node.js', 'html', 'css'];
-
-  const handleLogin = () => {
-    setIsLoggedIn(!isLoggedIn);
-  };
-
-  const handleThemeToggle = () => {
-    setIsDarkMode(!isDarkMode);
-  };
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    if (value.length > 20) {
-      return;
-    }
-    setSearchQuery(value);
-    setSearchError('');
-    setShowSearchResults(true);
-    if (value.trim() !== '') {
-      setSearchError('');
-    }
-  };
-
-  const handleSearchFocus = () => {
-    if (selectedTags.length > 0) {
-      setShowSearchResults(true);
-      setShowRecentSearches(false);
-    } else if (searchQuery.trim() === '') {
-      setShowRecentSearches(true);
-      setShowSearchResults(false);
-    } else {
-      setShowSearchResults(true);
-      setShowRecentSearches(false);
-    }
-  };
-
-  const handleSearchBlur = () => {
-    if (selectedTags.length === 0) {
-      setTimeout(() => {
-        setShowSearchResults(false);
-        setShowRecentSearches(false);
-      }, 200);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    setShowSearchResults(false);
-    setShowRecentSearches(false);
-  };
+  const handleLogin = () => setIsLoggedIn(!isLoggedIn);
+  // const handleThemeToggle = () => setIsDarkMode(!isDarkMode);
 
   const addToRecentSearches = (term: string) => {
-    setRecentSearches(prev => {
-      const newSearches = [term, ...prev.filter(item => item !== term)].slice(0, 5);
-      return newSearches;
-    });
+    setRecentSearches((prev) =>
+      [term, ...prev.filter((item) => item !== term)].slice(0, 5)
+    );
   };
 
   const removeFromRecentSearches = (term: string) => {
-    setRecentSearches(prev => prev.filter(item => item !== term));
-  };
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim() === '') {
-      setSearchError('검색어를 입력해주세요');
-      setShowSearchResults(false);
-      return;
+    if (term === '') {
+      setRecentSearches([]);
+    } else {
+      setRecentSearches((prev) => prev.filter((item) => item !== term));
     }
-    setShowSearchResults(true);
   };
 
-  const matchedWords = dictionary.filter(word =>
-    word.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // ✅ 게시글 작성 버튼 클릭시 로그인 여부에 따라 반응
+  const handleWritePost = () => {
+    if (!isLoggedIn) {
+      alert('로그인이 필요합니다.'); // 알림 표시
+      navigate('/login'); // 로그인 페이지로 이동
+    } else {
+      navigate('/posts/editor'); // 게시글 작성 페이지로 이동 (예: /write)
+    }
+  };
+
+  // variant에 따른 텍스트 색상 정의
+  const textColor =
+    variant === 'dark'
+      ? 'text-white hover:font-bold hover:text-dark-bg'
+      : 'text-dark-bg hover:font-bold';
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+    <header className={cn(headerVariants({ variant, size }))}>
+      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+        <div className='flex justify-between items-center h-16'>
           {/* 로고 */}
-          <div className="flex items-center">
-            <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">T</span>
-              </div>
-              <span className="text-xl font-bold text-gray-900">TechBlog</span>
+          <div className='flex items-center'>
+            <Link to='/' className='flex items-center space-x-2'>
+              <img
+                src='src/assets/icons/tmiLogo.svg'
+                alt='TMI Logo'
+                className='w-20 h-20'
+              />
+              <span className='text-xl font-bold'>TMI</span>
             </Link>
           </div>
 
           {/* 검색바 */}
-          <div className="flex-1 max-w-2xl mx-8 relative">
-            <form onSubmit={handleSearchSubmit} className="relative">
-              <div className="relative">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                  onFocus={handleSearchFocus}
-                  onBlur={handleSearchBlur}
-                  placeholder="기술 블로그 검색..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <i className="fas fa-search text-gray-400"></i>
-                </div>
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchQuery('')}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  >
-                    <i className="fas fa-times text-gray-400 hover:text-gray-600"></i>
-                  </button>
-                )}
-              </div>
-              {searchError && (
-                <p className="mt-1 text-sm text-red-500">{searchError}</p>
-              )}
-            </form>
-
-            {/* 검색 결과 드롭다운 */}
-            {(showSearchResults || showRecentSearches) && (
-              <div
-                className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
-                onMouseLeave={handleMouseLeave}
-              >
-                {showRecentSearches && recentSearches.length > 0 && (
-                  <div className="p-4 border-b border-gray-100">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-sm font-medium text-gray-700">최근 검색어</h3>
-                      <button
-                        onClick={() => setRecentSearches([])}
-                        className="text-xs text-gray-500 hover:text-gray-700"
-                      >
-                        전체 삭제
-                      </button>
-                    </div>
-                    <div className="space-y-1">
-                      {recentSearches.map((term, index) => (
-                        <div key={index} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
-                          <span className="text-sm text-gray-700">{term}</span>
-                          <button
-                            onClick={() => removeFromRecentSearches(term)}
-                            className="text-gray-400 hover:text-gray-600"
-                          >
-                            <i className="fas fa-times text-xs"></i>
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {showSearchResults && matchedWords.length > 0 && (
-                  <div className="p-4">
-                    <h3 className="text-sm font-medium text-gray-700 mb-2">추천 검색어</h3>
-                    <div className="space-y-1">
-                      {matchedWords.map((word, index) => (
-                        <div
-                          key={index}
-                          className="p-2 hover:bg-gray-50 rounded cursor-pointer"
-                          onClick={() => {
-                            setSearchQuery(word);
-                            addToRecentSearches(word);
-                            setShowSearchResults(false);
-                          }}
-                        >
-                          <span className="text-sm text-gray-700">{word}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+          <SearchBar
+            addToRecentSearches={addToRecentSearches}
+            recentSearches={recentSearches}
+            removeFromRecentSearches={removeFromRecentSearches}
+          />
 
           {/* 우측 메뉴 */}
-          <div className="flex items-center space-x-4">
-            {/* 테마 토글 */}
+          <div className='flex items-center space-x-4'>
+            {/* 라이트/다크 토글 */}
             <button
-              onClick={handleThemeToggle}
-              className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+              onClick={toggleTheme}
+              className='p-2 text-gray-500 hover:text-gray-700 w-10 h-10 flex items-center justify-center'
             >
-              <i className={`fas ${isDarkMode ? 'fa-sun' : 'fa-moon'}`}></i>
+              <i
+                className={`fas ${isDarkMode ? 'fa-sun' : 'fa-moon'} text-lg`}
+              />
             </button>
-
-            {/* 알림 */}
-            <Link to="/notifications" className="relative p-2 text-gray-500 hover:text-gray-700 transition-colors">
-              <i className="fas fa-bell"></i>
-              {hasUnreadNotifications && (
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-              )}
-            </Link>
-
-            {/* 프로필 */}
+            {/* 로그인 여부에 따라 다르게 */}
             {isLoggedIn ? (
-              <div className="relative">
+              <div className='relative flex'>
+                {/* 프로필 */}
                 <button
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
-                  className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  className={cn(
+                    'relative flex items-center space-x-2 p-2 rounded-lg',
+                    textColor, 
+                    'hover:bg-opacity-70'
+                  )}
                 >
-                  <img
-                    src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20male%20developer%20with%20modern%20background%2C%20confident%20expression%2C%20tech%20professional&width=32&height=32&seq=user1&orientation=squarish"
-                    alt="Profile"
-                    className="w-8 h-8 rounded-full"
-                  />
-                  <span className="text-sm font-medium text-gray-700">김개발</span>
-                  <i className="fas fa-chevron-down text-xs text-gray-500"></i>
+                  <div className='relative'>
+                    <img
+                      src='https://readdy.ai/api/search-image?query=professional%20headshot%20developer&width=32&height=32&orientation=squarish'
+                      alt='Profile'
+                      className='w-8 h-8 rounded-full'
+                    />
+                    {/* 알림 뱃지 */}
+                    {hasUnreadNotifications && (
+                      <span className='absolute top-0 right-0 block w-3 h-3 bg-warning rounded-full border-2 border-blue'></span>
+                    )}
+                  </div>
+                  <span 
+  className={cn(
+    'text-sm font-medium hover:font-bold', // 기본 크기와 두께
+    variant === 'dark' ? 'text-white' : 'text-dark-bg', 
+  )}
+>
+  김개발
+</span>
+                  <i
+                    className={cn(
+                      'fas text-xs',
+                      showProfileMenu
+                        ? 'fa-chevron-up text-bold text-prime-btn'
+                        : 'fa-chevron-down text-bold text-gray-500'
+                    )}
+                  ></i>
                 </button>
-
+                {/* 프로필 메뉴 */}
                 {showProfileMenu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                    <div className="py-1">
+                  <div
+                    className={cn(
+                      'absolute top-full right-0 mt-2 w-48 border rounded-lg shadow-lg z-50',
+                      // 테마 적용
+                      variant === 'dark'
+                        ? 'bg-dark-header border-light-header'
+                        : 'bg-light-header border-dark-header'
+
+
+                    )}
+                  >
+                    <div className='py-1'>
+                      {/* 알림 */}
                       <Link
-                        to="/my-page"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        to='/notifications'
+                        className={cn(
+                          'flex items-center justify-between px-4 py-2 text-sm hover:bg-gray-100 hover:text-dark-bg',
+                          textColor
+                        )}
+                      >
+                        <span>알림 확인</span>
+                        {hasUnreadNotifications && (
+                          // db랑 연결되면 알림 갯수는 db에서 가져오기로
+                          <span className='ml-2 text-red-600 font-bold'>
+                            100
+                          </span>
+                        )}
+                      </Link>
+                      {/* 마이 페이지로 */}
+                      <Link
+                        to='/my-page'
+                        className={cn(
+                          'flex items-center justify-between px-4 py-2 text-sm hover:bg-gray-100 hover:text-dark-bg',
+                          textColor
+                        )}
                       >
                         마이페이지
                       </Link>
-                      <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        설정
-                      </button>
-                      <hr className="my-1" />
+                      <hr className='my-1' />
+                      {/* api 나오면 로그아웃도 함수로 연결하기 */}
                       <button
                         onClick={handleLogin}
-                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                        className='block w-full text-left px-4 py-2 text-sm text-warning font-bold hover:bg-gray-100 hover:font-bold'
                       >
                         로그아웃
                       </button>
@@ -250,21 +199,16 @@ const Header: React.FC<HeaderProps> = () => {
                 )}
               </div>
             ) : (
-              <div className="flex items-center space-x-2">
-                <Link
-                  to="/login"
-                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
-                >
-                  로그인
-                </Link>
-                <Link
-                  to="/signup"
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  회원가입
+              // 로그아웃 상태일 때
+              <div className='flex items-center space-x-2'>
+                <Link to='/login' className='px-4 py-2 text-sm hover:font-bold'>
+                  로그인/회원가입
                 </Link>
               </div>
             )}
+            <Button variant='primary' onClick={handleWritePost}>
+              게시글 작성
+            </Button>
           </div>
         </div>
       </div>
@@ -272,4 +216,4 @@ const Header: React.FC<HeaderProps> = () => {
   );
 };
 
-export default Header; 
+export default Header;

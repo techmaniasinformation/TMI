@@ -1,5 +1,4 @@
 import React from 'react';
-import CommentIcon from '@/assets/icons/comment.svg';
 
 interface CommentBadgeProps {
   count?: number;
@@ -7,9 +6,9 @@ interface CommentBadgeProps {
 
 export default function CommentBadge({ count = 0 }: CommentBadgeProps) {
   return (
-    <span className="inline-flex items-center text-xs text-gray-600">
-      <img src={CommentIcon} alt="comments" className="w-4 h-4 mr-1" />
+    <span className="inline-flex items-center text-xs">
+      <i className="fas fa-comment mr-1"></i>
       {count.toLocaleString()}
     </span>
   );
-}
+} 

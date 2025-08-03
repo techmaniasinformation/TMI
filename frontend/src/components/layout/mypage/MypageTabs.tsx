@@ -15,7 +15,7 @@ import IconTab4 from '@/assets/icons/IconTab4';
 import IconTab5 from '@/assets/icons/IconTab5';
 
 // 훅
-import Pagination from '@/components/domain/Pagination';
+import Pagination from '@/components/domain/ServerPagination';
 import usePagination from '@/hooks/mypage/usePagination';
 import useFetchJson from '@/hooks/mypage/useFetchJson';
 

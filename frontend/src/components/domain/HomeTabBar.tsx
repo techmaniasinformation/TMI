@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/foundation/button';
 
-interface TabBarProps {
+interface HomeTabBarProps {
   activeTab: string;
   tabs: Array<{
     id: string;
@@ -12,12 +12,12 @@ interface TabBarProps {
   className?: string;
 }
 
-export default function TabBar({
+export default function HomeTabBar({
   activeTab,
   tabs,
   onTabChange,
   className = ''
-}: TabBarProps) {
+}: HomeTabBarProps) {
   return (
     <div className={`mb-8 flex justify-center ${className}`}>
       <div className="inline-flex items-center p-1.5 bg-gradient-to-r from-gray-100 to-gray-50 rounded-xl w-[600px]">

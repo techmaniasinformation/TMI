@@ -1,8 +1,12 @@
-/**
- * 날짜 문자열을 포맷팅하는 함수
- * @param dateString - 포맷팅할 날짜 문자열
- * @returns 포맷팅된 날짜 문자열
- */
+import { type ClassValue, clsx } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+// ===== CSS 클래스 유틸리티 =====
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+
+// ===== 날짜 포맷팅 =====
 export const formatDate = (dateString: string): string => {
   const date = new Date(dateString);
   const now = new Date();
@@ -28,11 +32,6 @@ export const formatDate = (dateString: string): string => {
   }
 };
 
-/**
- * 숫자를 포맷팅하는 함수
- * @param num - 포맷팅할 숫자
- * @returns 포맷팅된 숫자 문자열
- */
 export const formatNumber = (num: number): string => {
   if (num >= 1000000) {
     return (num / 1000000).toFixed(1) + 'M';

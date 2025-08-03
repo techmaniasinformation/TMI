@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/router/routes';
 
 // 만든 다른 컴포넌트들
-import Pagination from '@/components/domain/Pagination';
+import Pagination from '@/components/domain/ServerPagination';
 import NotificationItem from '@/components/layout/notifications/NotifiactionItem';
 import NotificationToolbar from '@/components/layout/notifications/NotifiactionToolbar';
 import NoNotifications from '@/components/layout/notifications/NoNotifications';

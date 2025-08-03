@@ -1,9 +1,21 @@
+import React from 'react';
+import { RouterProvider } from 'react-router-dom';
+
+import { router } from './router';
+
+const App: React.FC = () => {
+  return <RouterProvider router={router} />;
+};
+
+export default App;
+
+// 다크모드 기능 추가 버전 (S13P11A509-100-프론트-레이아웃-및-네비게이션 브랜치 기준)
+/*
 import React, { useEffect } from 'react';
 import { RouterProvider } from 'react-router-dom';
 
 import { router } from './router';
 import { useThemeStore } from './stores/themeStore';
-import './App.css';
 
 const App: React.FC = () => {
   const { isDarkMode } = useThemeStore();
@@ -21,3 +33,4 @@ const App: React.FC = () => {
 };
 
 export default App;
+*/

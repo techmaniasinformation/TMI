@@ -21,6 +21,7 @@ const Layout: React.FC<LayoutProps> = () => {
       
       {/* 메인 콘텐츠 */}
       <main className="flex-1 bg-gray-50 dark:bg-dark-bg">
+      {/* 원격 브랜치 버전: <main className="flex-1 bg-gray-50"> */}
         <div
           className={
             isNoPadding

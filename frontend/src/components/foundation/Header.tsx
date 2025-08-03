@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/utils/utils";
+// 원격 브랜치 버전: import { cn } from "@/utils";
 import { Link, useNavigate } from "react-router-dom";
 import SearchBar from "./SearchBar"; // 검색바 컴포넌트 분리
 import { Button } from "./button";
@@ -13,6 +14,10 @@ const headerVariants = cva('text-white', {
       dark: 'bg-dark-header text-white',
       transparent: 'bg-transparent text-dark-bg dark:text-white',
     },
+    // 원격 브랜치 버전:
+    // light: 'bg-light-header text-dark-bg',
+    // dark: 'bg-dark-header text-white',
+    // transparent: 'bg-transparent text-dark-bg',
     size: {
       default: 'py-1',
       compact: 'py-1',

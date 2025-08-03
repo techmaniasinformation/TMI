@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/utils/utils';
+// 원격 브랜치 버전: import { cn } from '@/utils';
 import { useThemeStore } from '@/stores/themeStore';
 import Tag from '@/components/domain/article/Tag';
 import TagArea from '@/components/domain/article/TagArea';

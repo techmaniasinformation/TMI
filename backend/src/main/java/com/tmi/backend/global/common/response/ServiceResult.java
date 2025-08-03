@@ -11,6 +11,10 @@ public record ServiceResult<T>(
     return new ServiceResult<>(true, data, null);
   }
 
+  public static ServiceResult<Void> ok() {
+    return new ServiceResult<>(true, null, null);
+  }
+
   public static <T> ServiceResult<T> fail(ErrorCode errorCode) {
     return new ServiceResult<>(false, null, errorCode);
   }

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { SearchConditions, PostCard, Pagination, NoResults } from '@/components/layout/search';
 import { formatDate, formatNumber } from '@/utils/date';
 import { mockPosts } from '@/data/search.data';
-import { useTagSearch } from '@/hooks';
+import { useTagSearch } from '@/hooks/tags';
 
 interface SearchResultsPageProps {}
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { cva, type VariantProps } from "class-variance-authority"
-import { cn } from "@/utils/utils"
+import { cn } from "../../utils"
 import { Link } from 'react-router-dom';
 
 const footerVariants = cva(

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@/utils/utils";
+import { cn } from "../../utils";
 import { Link, useNavigate } from "react-router-dom";
 import SearchBar from "./SearchBar"; // 검색바 컴포넌트 분리
 import { Button } from "./button";

@@ -1,6 +1,6 @@
 import React from 'react';
 import { cva, type VariantProps } from "class-variance-authority"
-import { cn } from "../../utils"
+import { cn } from "@/utils/utils"
 import { Link } from 'react-router-dom';
 
 const footerVariants = cva(
@@ -8,9 +8,9 @@ const footerVariants = cva(
   {
     variants: {
       variant: {
-        light: "bg-light-header text-dark-bg",
+        light: "bg-light-header text-dark-bg dark:bg-dark-header dark:text-white",
         dark: "bg-dark-header text-white",
-        transparent: "bg-transparent text-dark-bg", // 필요 시 추가
+        transparent: "bg-transparent text-dark-bg dark:text-white", // 필요 시 추가
       },
       size: {
         default: "py-8",

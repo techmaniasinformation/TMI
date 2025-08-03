@@ -17,3 +17,70 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* 별똥별 애니메이션 */
+@keyframes shooting-star-1 {
+  0% {
+    opacity: 0;
+    transform: translateX(-100px) translateY(0);
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(calc(100vw + 100px)) translateY(100px);
+  }
+}
+
+@keyframes shooting-star-2 {
+  0% {
+    opacity: 0;
+    transform: translateX(calc(100vw + 100px)) translateY(0);
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-100px) translateY(150px);
+  }
+}
+
+@keyframes shooting-star-3 {
+  0% {
+    opacity: 0;
+    transform: translateX(-100px) translateY(0);
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(calc(100vw + 100px)) translateY(200px);
+  }
+}
+
+.animate-shooting-star-1 {
+  animation: shooting-star-1 4s ease-in-out infinite;
+  animation-delay: 0s;
+}
+
+.animate-shooting-star-2 {
+  animation: shooting-star-2 6s ease-in-out infinite;
+  animation-delay: 2s;
+}
+
+.animate-shooting-star-3 {
+  animation: shooting-star-3 5s ease-in-out infinite;
+  animation-delay: 4s;
+}

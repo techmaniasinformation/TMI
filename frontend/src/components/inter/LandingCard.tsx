@@ -1,6 +1,6 @@
 import React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../../utils';
+import { cn } from '@/utils/utils';
 import Tag from '@/components/domain/article/Tag';
 
 // 카드 variant 스타일 정의

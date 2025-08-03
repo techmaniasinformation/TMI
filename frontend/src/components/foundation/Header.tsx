@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "../../utils";
+import { cn } from "@/utils/utils";
 import { Link, useNavigate } from "react-router-dom";
 import SearchBar from "./SearchBar"; // 검색바 컴포넌트 분리
 import { Button } from "./button";
@@ -9,9 +9,9 @@ import { useThemeStore } from "@/stores/themeStore"; // 테마 불러오기
 const headerVariants = cva('text-white', {
   variants: {
     variant: {
-      light: 'bg-light-header text-dark-bg',
+      light: 'bg-light-header text-dark-bg dark:bg-dark-header dark:text-white',
       dark: 'bg-dark-header text-white',
-      transparent: 'bg-transparent text-dark-bg',
+      transparent: 'bg-transparent text-dark-bg dark:text-white',
     },
     size: {
       default: 'py-1',
@@ -100,7 +100,7 @@ const Header: React.FC<HeaderProps> = ({
             {/* 라이트/다크 토글 */}
             <button
               onClick={toggleTheme}
-              className='p-2 text-gray-500 hover:text-gray-700 w-10 h-10 flex items-center justify-center'
+              className='p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 w-10 h-10 flex items-center justify-center'
             >
               <i
                 className={`fas ${isDarkMode ? 'fa-sun' : 'fa-moon'} text-lg`}

@@ -20,7 +20,7 @@ const Layout: React.FC<LayoutProps> = () => {
       <Header variant={isDarkMode ? "dark" : "light"}/>
       
       {/* 메인 콘텐츠 */}
-      <main className="flex-1 bg-gray-50">
+      <main className="flex-1 bg-gray-50 dark:bg-dark-bg">
         <div
           className={
             isNoPadding

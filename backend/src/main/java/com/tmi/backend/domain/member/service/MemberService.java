@@ -29,7 +29,7 @@ public class MemberService {
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-    MemberStats stats = memberRepository.fetchStatsById(memberId); // 하드코딩된 값 예시
+    MemberStats stats = memberRepository.fetchStatsById(memberId);
 
     return MemberResponse.of(member, stats);
   }
@@ -39,44 +39,34 @@ public class MemberService {
   }
 
   @Transactional
-  public void updateMember(Long memberId, MemberUpdateRequest req) {
+  public Long updateMember(Long memberId, MemberUpdateRequest req) {
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new BusinessException(ErrorCode.COMMON_INTERNAL_ERROR));
 
-    member.setNickname(req.nickname());
-    member.setMemberProfileUrl(req.memberProfileUrl());
-    member.setBlogUrl(req.blogUrl());
-    member.setGithubUrl(req.githubUrl());
+    member.change(req);
+    return member.getId();
   }
 
   @Transactional
   public Long createOrReviveMember(MemberCreateRequest req) {
 
-    Member member = memberRepository.findByProviderAndProviderMemberId(
-        req.provider(), req.providerMemberId()
-    ).orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+    Member member = memberRepository.findByProviderAndProviderMemberId(req.provider(),
+        req.providerMemberId()).orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-    // 이미 탈퇴된 회원 → 정보 갱신 후 복구
+    // 재가입
     if (member.getDeletedAt() != null) {
-      member.reviveAndUpdate(); //시간 업데이트
-      member.setNickname(req.nickname());
-      member.setMemberProfileUrl(req.memberProfileUrl());
+      member.reviveAndUpdate(req); //시간 업데이트
       return member.getId();
     }
 
     // 신규 가입
-    Member newMember = Member.of(
-        req.provider(),
-        req.providerMemberId(),
-        req.nickname(),
-        req.memberProfileUrl()
-    );
+    Member newMember = Member.of(req);
     memberRepository.save(newMember);
     return newMember.getId();
   }
 
   @Transactional
-  public Long resign(Long memberId) {
+  public Long deleteMember(Long memberId) {
     Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
     member.delete();

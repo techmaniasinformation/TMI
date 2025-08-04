@@ -5,6 +5,9 @@ spring:
     password: ${RDB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+
+
+
   jpa:
     hibernate:
       ddl-auto: update  # 또는 create, none, validate 등
@@ -14,3 +17,8 @@ spring:
       hibernate:
         format_sql: true
     database-platform: org.hibernate.dialect.MySQL8Dialect
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-token-expiration-minutes: 60
+  refresh-token-expiration-minutes: 100

@@ -8,6 +8,7 @@ import java.util.Map;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.http.ResponseEntity;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -28,4 +29,17 @@ public class ApiSuccessResponse<T> extends ApiResponse<T> {
   public static <T> ApiResponse<T> success(T data) {
     return new ApiSuccessResponse<>(data);
   }
+
+  public static <T> ResponseEntity<ApiResponse<T>> successEntity(T data) {
+    return ResponseEntity.ok(success(data));
+  }
+
+  public static <T> ResponseEntity<ApiResponse<Map<String, T>>> successEntity(String key, T data) {
+    return ResponseEntity.ok(success(key, data));
+  }
+
+  public static ResponseEntity<ApiResponse<Void>> successEntity() {
+    return ResponseEntity.ok(success());
+  }
+
 }

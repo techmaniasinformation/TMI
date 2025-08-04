@@ -4,6 +4,7 @@ import com.tmi.backend.domain.tag.dto.request.TagSearchRequest;
 import com.tmi.backend.domain.tag.entity.Tag;
 import com.tmi.backend.domain.tag.entity.TagType;
 import com.tmi.backend.domain.tag.repository.TagRepository;
+import com.tmi.backend.global.common.response.ServiceResult;
 import com.tmi.backend.global.error.ErrorCode;
 import com.tmi.backend.global.error.exception.BusinessException;
 import java.util.List;
@@ -26,13 +27,13 @@ public class TagService {
     return tagRepository.findAllByTagTypeAndNameIn(TagType.TECH, tags);
   }
 
-  public TagSearchRequest searchTags(String keyword) {
+  public ServiceResult<TagSearchRequest> searchTags(String keyword) {
     log.info("TagService : searchTags(" + keyword + ") 호출");
 
     if (keyword.isBlank()) {
-      throw new BusinessException(ErrorCode.SEARCH_TERM_MISSING);
+      return ServiceResult.fail(ErrorCode.SEARCH_TERM_MISSING);
     }
 
-    return TagSearchRequest.of(tagRepository.findByNameContainingIgnoreCase(keyword));
+    return ServiceResult.ok(TagSearchRequest.of(tagRepository.findByNameContainingIgnoreCase(keyword)));
   }
 }

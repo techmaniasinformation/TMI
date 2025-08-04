@@ -19,6 +19,8 @@ import Pagination from '@/components/domain/Pagination';
 import usePagination from '@/hooks/mypage/usePagination';
 import useFetchJson from '@/hooks/mypage/useFetchJson';
 
+import AchievementIcon from '@/assets/images/Amumu.png';
+
 // 게시글 타입 정의
 interface Post {
   id: string;
@@ -191,9 +193,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
                 key={idx}
                 className="aspect-square bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col items-center justify-center hover:shadow-md transition"
               >
-                <div className="w-10 h-10 mb-2 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-sm">
-                  ?
-                </div>
+                <img src={AchievementIcon} alt="업적" className="w-30 h-30 mb-2 object-contain" />
                 <p className="text-xs text-gray-700 font-medium text-center">이건 머지?</p>
               </div>
             ))}

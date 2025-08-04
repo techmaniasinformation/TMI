@@ -138,7 +138,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
             onClick={() => setCurrentCommentPage(1)}  // 페이지 초기화
             >
             <IconTab2 className="w-4 h-4 mr-2 text-inherit" />
-            <span className="text-sm">작성한 댓글</span>
+            <span className="text-sm">작성한 댓글 ({comments.length})</span>
           </TabsTrigger>
         )}
 
@@ -149,7 +149,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
           onClick={() => setCurrentPostPage(1)}  // 페이지 초기화
           >
           <IconTab3 className="w-4 h-4 mr-2 text-inherit" />
-          <span className="text-sm">작성한 게시글</span>
+          <span className="text-sm">작성한 게시글 ({posts.length})</span>
         </TabsTrigger>
 
         {/* 팔로우 / 스타 게시글 (본인일 때만) */}
@@ -172,7 +172,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
               onClick={() => setCurrentStarPage(1)}
               >
               <IconTab5 className="w-4 h-4 mr-2 text-inherit" />
-              <span className="text-sm">스타 게시글</span>
+              <span className="text-sm">스타 게시글 ({starredPosts.length})</span>
             </TabsTrigger>
           </>
         )}
@@ -215,7 +215,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
             </div>
           )}
           {totalCommentPages > 1 && (
-            <Pagination currentPage={currentCommentPage} totalPages={totalCommentPages} onPageChange={setCurrentCommentPage} />
+            <Pagination currentPage={currentCommentPage} totalCount={comments.length} pageSize={5} onPageChange={setCurrentCommentPage} />
           )}
         </TabsContent>
       )}
@@ -233,7 +233,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
           </div>
         )}
         {totalPostPages > 1 && (
-          <Pagination currentPage={currentPostPage} totalPages={totalPostPages} onPageChange={setCurrentPostPage} />
+          <Pagination currentPage={currentPostPage} totalCount={posts.length} pageSize={5} onPageChange={setCurrentPostPage} />
         )}
       </TabsContent>
 
@@ -251,7 +251,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
                 followSubTab === 'company' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-500'
               }`}
             >
-              기업
+              기업 ({followedCompanies.length})
             </button>
             <button
               onClick={() => {
@@ -262,7 +262,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
                 followSubTab === 'user' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-500'
               }`}
             >
-              개인
+              개인 ({followedUsers.length})
             </button>
           </div>
 
@@ -281,7 +281,8 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
               {totalCompanyPages > 1 && (
                 <Pagination
                   currentPage={currentCompanyPage}
-                  totalPages={totalCompanyPages}
+                  totalCount={followedCompanies.length}
+                  pageSize={9}
                   onPageChange={setCurrentCompanyPage}
                 />
               )}
@@ -303,7 +304,8 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
               {totalUserPages > 1 && (
                 <Pagination
                   currentPage={currentUserPage}
-                  totalPages={totalUserPages}
+                  totalCount={followedUsers.length}
+                  pageSize={9}
                   onPageChange={setCurrentUserPage}
                 />
               )}
@@ -334,7 +336,8 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
           {totalStarPages > 1 && (
             <Pagination
               currentPage={currentStarPage}
-              totalPages={totalStarPages}
+              totalCount={starredPosts.length}
+              pageSize={5}
               onPageChange={setCurrentStarPage}
             />
           )}

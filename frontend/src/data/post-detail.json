@@ -1,0 +1,67 @@
+{
+  "status": "SUCCESS",
+  "data": {
+    "postId": 101,
+    "title": "데이터 사이언스를 입문자를 위한 python 활용법",
+    "tags": ["python", "데이터사이언스", "머신러닝", "알고리즘"],
+    "memberProfileUrl": "https://readdy.ai/api/search-image?query=professional%20tech%20developer%20profile%20photo%20with%20modern%20design%20clean%20background&width=40&height=40&seq=profile1&orientation=squarish",
+    "companyProfileUrl": null,
+    "name": "이은성",
+    "badgeUrl": "https://readdy.ai/api/search-image?query=verified%20badge%20icon%20with%20checkmark%20professional%20design&width=20&height=20&seq=badge1&orientation=squarish",
+    "createAt": "2025-07-22",
+    "viewCount": 1000,
+    "starCount": 41,
+    "commentCount": 23,
+    "thumbnailUrl": "https://readdy.ai/api/search-image?query=data%20science%20python%20machine%20learning%20workspace%20with%20code%20and%20charts%20modern%20tech%20environment&width=800&height=300&seq=thumb1&orientation=landscape",
+    "content": "데이터 사이언스는 현재 가장 주목받는 분야 중 하나입니다. Python을 활용한 데이터 분석과 머신러닝의 기초부터 실전까지 단계별로 알아보겠습니다.\n\n## 1. Python 환경 설정\n\n먼저 Anaconda나 Miniconda를 설치하여 Python 환경을 구성합니다. 데이터 사이언스에 필요한 주요 라이브러리들을 포함하고 있어 편리합니다.\n\n## 2. 기본 라이브러리 활용\n\n- **NumPy**: 수치 계산과 배열 처리\n- **Pandas**: 데이터 분석과 조작\n- **Matplotlib/Seaborn**: 데이터 시각화\n- **Scikit-learn**: 머신러닝 알고리즘\n\n## 3. 실제 프로젝트 예시\n\n주식 가격 예측, 고객 이탈 분석, 이미지 분류 등 다양한 프로젝트를 통해 실전 경험을 쌓을 수 있습니다.\n\n이 글을 통해 데이터 사이언스의 세계에 첫 발을 내딛어보세요!",
+    "link": "https://example.com/data-science-python-guide",
+    "isStar": false,
+    "bestCommentId": 13,
+    "comments": [
+      {
+        "commentId": 13,
+        "memberProfileUrl": "https://readdy.ai/api/search-image?query=professional%20tech%20developer%20profile%20photo%20with%20modern%20design%20clean%20background&width=40&height=40&seq=profile2&orientation=squarish",
+        "name": "이은성",
+        "badgeUrl": "https://readdy.ai/api/search-image?query=verified%20badge%20icon%20with%20checkmark%20professional%20design&width=20&height=20&seq=badge2&orientation=squarish",
+        "comment": "와 진짜 좋은 정보네용. 이 링크도 보세용",
+        "link": "https://example.com/additional-resource",
+        "createAt": "2025-07-22",
+        "isRecommend": true,
+        "recommendCount": 12
+      },
+      {
+        "commentId": 7,
+        "memberProfileUrl": "https://readdy.ai/api/search-image?query=professional%20tech%20developer%20profile%20photo%20with%20modern%20design%20clean%20background&width=40&height=40&seq=profile3&orientation=squarish",
+        "name": "하재민",
+        "badgeUrl": "https://readdy.ai/api/search-image?query=verified%20badge%20icon%20with%20checkmark%20professional%20design&width=20&height=20&seq=badge3&orientation=squarish",
+        "comment": "개추 드립니다.",
+        "link": "",
+        "createAt": "2025-07-22",
+        "isRecommend": true,
+        "recommendCount": 2
+      },
+      {
+        "commentId": 15,
+        "memberProfileUrl": "https://readdy.ai/api/search-image?query=professional%20tech%20developer%20profile%20photo%20with%20modern%20design%20clean%20background&width=40&height=40&seq=profile4&orientation=squarish",
+        "name": "김철수",
+        "badgeUrl": "https://readdy.ai/api/search-image?query=verified%20badge%20icon%20with%20checkmark%20professional%20design&width=20&height=20&seq=badge4&orientation=squarish",
+        "comment": "Python으로 데이터 분석 시작하려고 했는데 정말 도움이 되네요!",
+        "link": "",
+        "createAt": "2025-07-22",
+        "isRecommend": false,
+        "recommendCount": 0
+      },
+      {
+        "commentId": 22,
+        "memberProfileUrl": "https://readdy.ai/api/search-image?query=professional%20tech%20developer%20profile%20photo%20with%20modern%20design%20clean%20background&width=40&height=40&seq=profile5&orientation=squarish",
+        "name": "박영희",
+        "badgeUrl": "https://readdy.ai/api/search-image?query=verified%20badge%20icon%20with%20checkmark%20professional%20design&width=20&height=20&seq=badge5&orientation=squarish",
+        "comment": "머신러닝 부분도 더 자세히 다뤄주시면 좋겠어요!",
+        "link": "",
+        "createAt": "2025-07-22",
+        "isRecommend": false,
+        "recommendCount": 0
+      }
+    ]
+  }
+} 

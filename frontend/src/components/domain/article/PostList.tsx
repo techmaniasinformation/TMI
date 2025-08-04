@@ -60,6 +60,9 @@ export default function PostList({
               formatDate={formatDate}
               formatNumber={formatNumber}
               maxTags={maxTags}
+              keyword={searchKeyword}
+              techTags={searchTechTags}
+              companyTags={searchCompanyTags}
             />
             {showThumbnail && post.thumbnailUrl && (
               <div className="w-48 h-32 flex-shrink-0">

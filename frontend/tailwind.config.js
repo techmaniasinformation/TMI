@@ -5,6 +5,7 @@ module.exports = {
     "./src/**/*.{js,jsx,ts,tsx}", // src 폴더 내의 모든 JS, JSX, TS, TSX 파일
     "./public/index.html", // public/index.html도 포함
   ],
+  darkMode: 'class', // 다크모드 활성화
   theme: {
     extend: {
       colors: {

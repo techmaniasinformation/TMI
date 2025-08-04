@@ -40,18 +40,14 @@ export interface User extends BaseData {
  * 게시글 인터페이스
  */
 export interface Post extends BaseData {
-  postId: number;
   title: string;
   content: string;
-  name: string;
-  memberProfileUrl?: string;
-  companyProfileUrl?: string;
-  badgeUrl?: string;
+  author: User;
   tags: string[];
-  thumbnailUrl?: string;
-  createAt: string;
+  thumbnail?: string;
+  url?: string;
   viewCount: number;
-  starCount: number;
+  likeCount: number;
   commentCount: number;
   isStarred?: boolean;
   isLiked?: boolean;
@@ -80,46 +76,4 @@ export interface Notification extends BaseData {
   userAvatar?: string;
   postId?: string;
   badgeType?: string;
-}
-
-/**
- * 적용된 필터 인터페이스
- */
-export interface AppliedFilters {
-  q?: string;
-  techTags?: string[];
-  companyTags?: string[];
-  dateRange?: {
-    start: string;
-    end: string;
-  };
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-}
-
-/**
- * 페이지 정보 인터페이스
- */
-export interface PageInfo {
-  currentPage: number;
-  currPage: number;
-  totalPages: number;
-  totalItems: number;
-  totalElements: number;
-  itemsPerPage: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-  isLast: boolean;
-}
-
-/**
- * 검색 API 응답 인터페이스
- */
-export interface SearchApiResponse {
-  data: {
-    posts: Post[];
-    pageInfo: PageInfo;
-    appliedFilters?: AppliedFilters;
-  };
-  status?: string;
 } 

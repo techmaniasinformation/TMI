@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { usePostsList } from '@/hooks/posts/usePostsList';
 import HomeTabBar from './HomeTabBar';
 import PostList from './article/PostList';

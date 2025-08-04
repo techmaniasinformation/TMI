@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import FilterableCardList from '@/components/domain/FilterableCardList';
+import FilterableCardList from '@/components/domain/HomePostList';
 
 // 샘플 데이터
 const sampleArticles = [

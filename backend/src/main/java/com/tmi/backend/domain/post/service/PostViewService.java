@@ -176,10 +176,21 @@ public class PostViewService {
     );
   }
 
+  @Transactional
   public ServiceResult<DetailPostResponse> readDetailPost(Long postId) {
     log.info("PostViewService : readDetailPost() 호출");
 
-    return null;
+    Post post = postRepository.findById(postId).orElse(null);
+    if (post == null) {
+      return ServiceResult.fail(ErrorCode.POST_NOT_FOUND);
+    }
+
+    post.updateViewCount();
+
+    int commentCount = commentRepository.countByPostId(postId);
+
+    // TODO: isStar 어떻게 구현하지?
+    return ServiceResult.ok(DetailPostResponse.of(post, commentCount, false));
   }
 
   public ServiceResult<SimplePostPageResponse> readPopularPosts(int size) {

@@ -112,4 +112,8 @@ public class Post {
   public void minusStarCount() {
     this.starCount--;
   }
+
+  public void updateViewCount() {
+    this.viewCount++;
+  }
 }

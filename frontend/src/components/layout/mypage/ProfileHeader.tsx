@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Badge } from "@/components/domain/Badge";
 import UserStatsCard from './UserStatsCard';
 
@@ -7,9 +7,13 @@ import Star from '@/assets/icons/star.svg';
 import GitHub from '@/assets/icons/Github.svg';
 import Blog from '@/assets/icons/blog.svg';
 import Follow from '@/assets/icons/Follow.svg';
-import ArticleFix from '@/assets/icons/articlefix.svg'
-import UserDelete from '@/assets/icons/userdelete.svg'
-import Update from '@/assets/icons/Update.svg'
+import ArticleFix from '@/assets/icons/articlefix.svg';
+import UserDelete from '@/assets/icons/userdelete.svg';
+import Update from '@/assets/icons/Update.svg';
+
+// 회원탈퇴 모달
+import WithdrawalConfirmModal from '@/components/layout/mypage/WithdrawalConfirmModal';
+import WithdrawalCompleteModal from '@/components/layout/mypage/WithdrawalCompleteModal';
 
 // 컴포넌트 props 타입 정의
 interface ProfileHeaderProps {
@@ -26,6 +30,12 @@ interface ProfileHeaderProps {
   commentCount: number;
   followerCount: number;
   viewCount: number;
+
+  setNickname: (val: string) => void;
+  setBlogUrl: (val: string) => void;
+  setGithubUrl: (val: string) => void;
+  // 모달 열기 핸들러 (MyPage로부터 props로 전달)
+  onEditClick: () => void;
 }
 
 export default function ProfileHeader({
@@ -42,7 +52,27 @@ export default function ProfileHeader({
   commentCount,
   followerCount,
   viewCount,
+  onEditClick, // 외부에서 전달받은 모달 열기 함수
 }: ProfileHeaderProps) {
+  const [showWithdrawalConfirm, setShowWithdrawalConfirm] = useState(false);
+  const [showWithdrawalComplete, setShowWithdrawalComplete] = useState(false);
+
+
+  // 탈퇴 모달 핸들러
+  const handleWithdrawalClick = () => {
+    setShowWithdrawalConfirm(true);
+  };
+
+  const handleWithdrawalConfirm = () => {
+    setShowWithdrawalConfirm(false);
+    setShowWithdrawalComplete(true);
+    // 실제 탈퇴 API 요청은 이 안에 추가 가능
+  };
+
+  const handleWithdrawalComplete = () => {
+    window.location.href = '/'; // 또는 원하는 랜딩 페이지
+  };
+
   return (
     <div className="w-[1232px] h-[150px] bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
       <div className="flex justify-between h-full">
@@ -67,7 +97,6 @@ export default function ProfileHeader({
               <>
                 {email && <p className="text-gray-500 text-sm">{email}</p>}
                 <div className="flex space-x-6 mt-4">
-                  {/* 블로그 링크 */}
                   <a
                     href={blogUrl}
                     target="_blank"
@@ -76,7 +105,6 @@ export default function ProfileHeader({
                   >
                     <img src={Blog} alt="blog" className="w-4 h-4 mr-2" /> 블로그
                   </a>
-                  {/* GitHub 링크 (옵션) */}
                   {githubUrl && (
                     <a
                       href={githubUrl}
@@ -94,12 +122,10 @@ export default function ProfileHeader({
             {/* 기업 프로필 정보 영역 */}
             {isCompany && (
               <>
-                {/* 최근 업데이트 날짜 */}
                 <div className="flex items-center text-sm text-gray-500 mt-1">
                   <img src={Update} alt="update icon" className="w-4 h-4 mr-2" />
                   최근 업데이트: {lastUpdate}
                 </div>
-                {/* 블로그 링크 */}
                 <div className="flex items-center mt-4">
                   <a
                     href={blogUrl}
@@ -117,7 +143,7 @@ export default function ProfileHeader({
 
         {/* 우측 통계 + 팔로우 버튼 영역 */}
         <div className="flex flex-col items-end justify-between h-full space-y-5">
-          {/* 통계 카드 (게시글, 댓글, 팔로워, 조회수) */}
+          {/* 통계 카드 */}
           <UserStatsCard
             posts={postCount}
             comments={commentCount}
@@ -126,20 +152,21 @@ export default function ProfileHeader({
             isCompany={isCompany}
           />
 
-          {/* 본인 페이지인 경우: 프로필 수정 / 회원 탈퇴 버튼 */}
           {isMyPage ? (
             <div className="flex space-x-2">
-              <button className="w-[132px] bg-prime-btn text-white text-sm rounded-md py-2 px-3 hover:bg-prime-btn-hover flex items-center justify-center">
+              <button
+                className="w-[132px] bg-prime-btn text-white text-sm rounded-md py-2 px-3 hover:bg-prime-btn-hover flex items-center justify-center"
+                onClick={onEditClick} // 부모에서 전달받은 함수 실행
+              >
                 <img src={ArticleFix} alt="edit icon" className="w-4 h-4 mr-2" />
                 프로필 수정
               </button>
-              <button className="w-[120px] bg-red-500 text-white text-sm rounded-md py-2 px-3 hover:bg-red-600 flex items-center justify-center">
+              <button onClick={handleWithdrawalClick} className="w-[120px] bg-red-500 text-white text-sm rounded-md py-2 px-3 hover:bg-red-600 flex items-center justify-center">
                 <img src={UserDelete} alt="delete icon" className="w-4 h-4 mr-2" />
                 회원 탈퇴
               </button>
             </div>
           ) : (
-            // 본인 페이지가 아닌 경우에만 팔로우 버튼 표시
             <button
               onClick={onFollowToggle}
               className={`w-[120px] text-white text-sm rounded-md py-2 px-3 transition-colors flex items-center justify-center
@@ -151,6 +178,19 @@ export default function ProfileHeader({
           )}
         </div>
       </div>
+
+      {/* ✅ 여기에 반드시 포함시켜야 모달이 렌더링됩니다 */}
+      <WithdrawalConfirmModal
+        isOpen={showWithdrawalConfirm}
+        onCancel={() => setShowWithdrawalConfirm(false)}
+        onConfirm={handleWithdrawalConfirm}
+      />
+      <WithdrawalCompleteModal
+        isOpen={showWithdrawalComplete}
+        onConfirm={handleWithdrawalComplete}
+      />
+
     </div>
+    
   );
 }

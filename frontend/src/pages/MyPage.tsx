@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ProfileHeader from '@/components/layout/mypage/ProfileHeader';
 import MyPageTabs from '@/components/layout/mypage/MypageTabs';
+import ProfileEditModal from '@/components/layout/mypage/ProfileEditModal';
 
 interface MyPageProps {
   isCompany: boolean;
@@ -39,9 +40,16 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany, isMyPage }) => {
 
   const [nickname, setNickname] = useState('NAVER');
   const [email] = useState('user@example.com');
-  const [blogUrl] = useState('https://blog.example.com');
-  const [githubUrl] = useState('https://github.com/example');
+  const [blogUrl, setBlogUrl] = useState('https://blog.example.com');
+  const [githubUrl, setGithubUrl] = useState('https://github.com/example');
 
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const handleProfileSave = (newNickname: string, newBlogUrl: string, newGithubUrl?: string) => {
+    setNickname(newNickname);
+    setBlogUrl(newBlogUrl);
+    setGithubUrl(newGithubUrl || '');
+  };
   const [userStats] = useState<UserStats>({
     posts: 15,
     comments: 42,
@@ -81,6 +89,10 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany, isMyPage }) => {
           viewCount={userStats.views}
           onFollowToggle={handleFollowToggle}
           isFollowing={isFollowing}
+          setNickname={setNickname}
+          setBlogUrl={setBlogUrl}
+          setGithubUrl={setGithubUrl}
+          onEditClick={() => setIsEditModalOpen(true)}
         />
 
         <MyPageTabs
@@ -92,6 +104,19 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany, isMyPage }) => {
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
         />
+
+        {isMyPage && (
+          <ProfileEditModal
+            isOpen={isEditModalOpen}
+            onClose={() => setIsEditModalOpen(false)}
+            initialNickname={nickname}
+            initialBlogUrl={blogUrl}
+            initialGithubUrl={githubUrl}
+            onSave={handleProfileSave}
+          />
+        )}
+
+
       </div>
     </div>
   );

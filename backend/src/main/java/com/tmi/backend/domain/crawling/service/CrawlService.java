@@ -12,15 +12,17 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CrawlService {
 
   private final RestTemplate restTemplate = new RestTemplate();
 
-  @Value("${spring.jpa.api.gms-key}")
+  @Value("${api.gms-key}")
   private String OPENAI_API_KEY;
 
   public String extractContent(String url) {

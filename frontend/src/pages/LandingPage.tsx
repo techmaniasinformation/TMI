@@ -4,7 +4,6 @@ import { Button } from '@/components/foundation/button';
 import { useThemeStore } from '@/stores/themeStore'; //테마
 import LandingCard from '@/components/inter/LandingCard'; //인기 게시글 3개
 
-
 interface PostData {
   postId: number;
   memberProfileUrl?: string | null;
@@ -23,18 +22,19 @@ interface PostData {
 interface LandingPageProps {}
 
 const LandingPage: React.FC<LandingPageProps> = () => {
-   const [popularPosts, setPopularPosts] = useState<PostData[]>([]);
+  const [popularPosts, setPopularPosts] = useState<PostData[]>([]);
   const [isHovered, setIsHovered] = useState<string | null>(null);
   const navigate = useNavigate();
 
   // 테마 관련 변수 받기
   const { isDarkMode } = useThemeStore();
 
-
-    useEffect(() => {
+  useEffect(() => {
     async function fetchPopularPosts() {
       try {
-        const response = await fetch('/api/v1/post/popular?size=3');
+        const response = await fetch(
+          'https://i13a509.p.ssafy.io/api/v1/post/popular?size=3'
+        );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -217,7 +217,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
               roleColor='bg-blue-600'
               hoverBorder='hover:border-blue-500/50'
               hoverShadow='hover:shadow-blue-500/20'
-              variant={isDarkMode ? "dark" : "light"}
+              variant={isDarkMode ? 'dark' : 'light'}
             />
 
             {/* Card 2 */}
@@ -237,7 +237,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
               roleColor='bg-purple-600'
               hoverBorder='hover:border-purple-500/50'
               hoverShadow='hover:shadow-purple-500/20'
-              variant={isDarkMode ? "dark" : "light"}
+              variant={isDarkMode ? 'dark' : 'light'}
             />
 
             {/* Card 3 */}
@@ -257,17 +257,14 @@ const LandingPage: React.FC<LandingPageProps> = () => {
               roleColor='bg-green-600'
               hoverBorder='hover:border-green-500/50'
               hoverShadow='hover:shadow-green-500/20'
-              variant={isDarkMode ? "dark" : "light"}
+              variant={isDarkMode ? 'dark' : 'light'}
             />
-
-            
-
           </div>
           {/* api 연결 후 아래로 대체 */}
           {/* role color 적용은 추후에 생각해볼 것.  */}
-          {/* <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
+          <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
             {popularPosts.length > 0 ? (
-              popularPosts.map(post => (
+              popularPosts.map((post) => (
                 <LandingCard
                   key={post.postId}
                   {...post}
@@ -275,13 +272,15 @@ const LandingPage: React.FC<LandingPageProps> = () => {
                   hoverBorder='hover:border-blue-500/50'
                   hoverShadow='hover:shadow-blue-500/20'
                   onClick={() => handleCardClick(post.postId)}
-                  variant={isDarkMode ? "dark" : "light"}
-                  />
+                  variant={isDarkMode ? 'dark' : 'light'}
+                />
               ))
             ) : (
-              <p className='text-gray-400 text-center w-full'>게시글을 불러오는 중입니다...</p>
+              <p className='text-gray-400 text-center w-full'>
+                게시글을 불러오는 중입니다...
+              </p>
             )}
-          </div> */}
+          </div>
         </div>
 
         {/* Bottom Explore Button */}

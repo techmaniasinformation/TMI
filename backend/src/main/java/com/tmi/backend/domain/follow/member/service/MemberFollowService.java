@@ -7,7 +7,6 @@ import com.tmi.backend.domain.follow.member.entity.MemberFollow;
 import com.tmi.backend.domain.follow.member.repository.MemberFollowRepository;
 import com.tmi.backend.domain.member.entity.Member;
 import com.tmi.backend.domain.member.repository.MemberRepository;
-import com.tmi.backend.domain.memberBadge.repository.MemberBadgeRepository;
 import com.tmi.backend.global.common.entity.PageDetail;
 import com.tmi.backend.global.error.ErrorCode;
 import com.tmi.backend.global.error.exception.BusinessException;
@@ -25,7 +24,6 @@ public class MemberFollowService {
 
   private final MemberFollowRepository followRepository;
   private final MemberRepository memberRepository;
-  private final MemberBadgeRepository memberBadgeRepository;
 
   public MemberFollowListResponse getMemberFollows(Long followerId, int page, int size) {
     PageRequest pr = PageRequest.of(page, size, Sort.by("createdAt").descending());

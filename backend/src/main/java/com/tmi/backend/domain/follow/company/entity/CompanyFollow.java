@@ -43,6 +43,7 @@ public class CompanyFollow {
     return CompanyFollow.builder()
         .follower(follower)
         .company(company)
+        .createdAt(LocalDateTime.now())
         .build();
   }
 }

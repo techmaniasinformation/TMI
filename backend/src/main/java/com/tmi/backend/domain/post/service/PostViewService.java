@@ -5,6 +5,7 @@ import com.tmi.backend.domain.post.dto.request.PostSearchFilter;
 import com.tmi.backend.domain.post.dto.response.DetailPostResponse;
 import com.tmi.backend.domain.post.dto.response.SimplePostPageResponse;
 import com.tmi.backend.domain.post.dto.response.SimplePostSearchResponse;
+import com.tmi.backend.domain.post.entity.Post;
 import com.tmi.backend.domain.post.repository.PostRepository;
 import com.tmi.backend.global.common.response.ServiceResult;
 import com.tmi.backend.global.error.ErrorCode;
@@ -12,6 +13,10 @@ import com.tmi.backend.global.error.exception.BusinessException;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,11 +57,21 @@ public class PostViewService {
   public ServiceResult<SimplePostPageResponse> readCompanyPosts(Long companyId, int page, int size) {
     log.info("PostViewService : readCompanyPosts(" + companyId + ") 호출");
 
+    Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
+
+    Page<Post> postPage = postRepository.findByCompanyId(companyId, pageable);
+
+
     return null;
   }
 
   public ServiceResult<SimplePostPageResponse> readMemberPosts(Long memberId, int page, int size) {
     log.info("PostViewService : readMemberPosts(" + memberId + ") 호출");
+
+    Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
+
+    Page<Post> postPage = postRepository.findByMemberId(memberId, pageable);
+
 
     return null;
   }

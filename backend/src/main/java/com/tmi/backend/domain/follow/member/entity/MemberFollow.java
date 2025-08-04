@@ -44,5 +44,13 @@ public class MemberFollow {
 
   private LocalDateTime createdAt;
 
+  public static MemberFollow of(Member follower, Member followee) {
+    return MemberFollow.builder()
+        .follower(follower)
+        .followee(followee)
+        .createdAt(LocalDateTime.now())
+        .build();
+  }
+
 }
 

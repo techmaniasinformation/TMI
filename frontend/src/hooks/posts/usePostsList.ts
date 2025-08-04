@@ -78,9 +78,9 @@ export const usePostsList = () => {
       const { posts, pageInfo } = response.data;
 
       console.log('✅ [usePostsList] 게시글 목록 가져오기 완료:', {
-        totalElements: pageInfo.totalElements,
-        totalPages: pageInfo.totalPages,
-        currentPage: pageInfo.currPage,
+        totalElements: pageInfo?.totalElements ?? 0,
+        totalPages: pageInfo?.totalPages ?? 1,
+        currentPage: pageInfo?.currPage ?? 1,
         postsCount: posts.length
       });
 
@@ -88,10 +88,10 @@ export const usePostsList = () => {
         posts,
         loading: false,
         error: null,
-        currentPage: pageInfo.currPage,
-        totalPages: pageInfo.totalPages,
-        totalElements: pageInfo.totalElements,
-        isLast: pageInfo.isLast
+        currentPage: pageInfo?.currPage ?? 1,
+        totalPages: pageInfo?.totalPages ?? 1,
+        totalElements: pageInfo?.totalElements ?? 0,
+        isLast: pageInfo?.isLast ?? false
       });
 
     } catch (error) {

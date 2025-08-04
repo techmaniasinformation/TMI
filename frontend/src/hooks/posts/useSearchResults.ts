@@ -133,9 +133,9 @@ export const useSearchResults = (): SearchResults => {
         const { posts, pageInfo, appliedFilters: responseFilters } = response.data;
 
         console.log('✅ [useSearchResults] 검색 완료:', {
-          totalElements: pageInfo.totalElements,
-          totalPages: pageInfo.totalPages,
-          currentPage: pageInfo.currPage,
+          totalElements: pageInfo?.totalElements ?? 0,
+          totalPages: pageInfo?.totalPages ?? 1,
+          currentPage: pageInfo?.currPage ?? 1,
           postsCount: posts.length,
           appliedFilters: responseFilters
         });
@@ -144,7 +144,7 @@ export const useSearchResults = (): SearchResults => {
         setPosts(posts);
         
         console.log('🔍 [useSearchResults] setTotalCount 호출');
-        setTotalCount(pageInfo.totalElements);
+        setTotalCount(pageInfo?.totalElements ?? 0);
         
         console.log('🔍 [useSearchResults] setAppliedFilters 호출');
         setAppliedFilters(responseFilters || null);

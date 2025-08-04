@@ -6,6 +6,7 @@ import com.tmi.backend.domain.post.dto.response.DetailPostResponse;
 import com.tmi.backend.domain.post.dto.response.SimplePostPageResponse;
 import com.tmi.backend.domain.post.dto.response.SimplePostSearchResponse;
 import com.tmi.backend.domain.post.repository.PostRepository;
+import com.tmi.backend.global.common.response.ServiceResult;
 import com.tmi.backend.global.error.ErrorCode;
 import com.tmi.backend.global.error.exception.BusinessException;
 import jakarta.validation.constraints.Positive;
@@ -22,10 +23,10 @@ public class PostViewService {
 
   private final PostRepository postRepository;
 
-  public SimplePostPageResponse readPosts(PostFilter filter, int page, int size) {
+  public ServiceResult<SimplePostPageResponse> readPosts(PostFilter filter, int page, int size) {
 
     if (page <= 0 || size <= 0)
-      throw new BusinessException(ErrorCode.POST_INVALID_LINK);
+      return ServiceResult.fail(ErrorCode.POST_INVALID_LINK);
 
     if (filter.followMemberId() != null)
       return readFollowPosts(filter.followMemberId(), page, size);
@@ -42,49 +43,49 @@ public class PostViewService {
     return readLatest(page, size);
   }
 
-  public SimplePostPageResponse readFollowPosts(Long followMemberId, int page, int size) {
+  public ServiceResult<SimplePostPageResponse> readFollowPosts(Long followMemberId, int page, int size) {
     log.info("PostViewService : readFollowPosts(" + followMemberId + ") 호출");
 
     return null;
   }
 
-  public SimplePostPageResponse readCompanyPosts(Long companyId, int page, int size) {
+  public ServiceResult<SimplePostPageResponse> readCompanyPosts(Long companyId, int page, int size) {
     log.info("PostViewService : readCompanyPosts(" + companyId + ") 호출");
 
     return null;
   }
 
-  public SimplePostPageResponse readMemberPosts(Long memberId, int page, int size) {
+  public ServiceResult<SimplePostPageResponse> readMemberPosts(Long memberId, int page, int size) {
     log.info("PostViewService : readMemberPosts(" + memberId + ") 호출");
 
     return null;
   }
 
-  public SimplePostPageResponse readStarPosts(Long starMemberId, int page, int size) {
+  public ServiceResult<SimplePostPageResponse> readStarPosts(Long starMemberId, int page, int size) {
     log.info("PostViewService : readStarPosts(" + starMemberId + ") 호출");
 
     return null;
   }
 
-  public SimplePostPageResponse readLatest(int page, int size) {
+  public ServiceResult<SimplePostPageResponse> readLatest(int page, int size) {
     log.info("PostViewService : readLatest() 호출");
 
     return null;
   }
 
-  public SimplePostSearchResponse searchPosts(PostSearchFilter filter, int size, int page) {
+  public ServiceResult<SimplePostSearchResponse> searchPosts(PostSearchFilter filter, int size, int page) {
     log.info("PostViewService : searchPosts() 호출");
 
     return null;
   }
 
-  public DetailPostResponse readDetailPost(Long postId) {
+  public ServiceResult<DetailPostResponse> readDetailPost(Long postId) {
     log.info("PostViewService : readDetailPost() 호출");
 
     return null;
   }
 
-  public SimplePostPageResponse readPopularPosts(@Positive int size) {
+  public ServiceResult<SimplePostPageResponse> readPopularPosts(@Positive int size) {
     log.info("PostViewService : readPopularPosts() 호출");
 
     return null;

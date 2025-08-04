@@ -6,11 +6,13 @@ import com.tmi.backend.domain.post.dto.response.DetailPostResponse;
 import com.tmi.backend.domain.post.dto.response.SimplePostPageResponse;
 import com.tmi.backend.domain.post.dto.response.SimplePostSearchResponse;
 import com.tmi.backend.domain.post.service.PostViewService;
+import com.tmi.backend.global.common.controller.BaseController;
 import com.tmi.backend.global.common.response.ApiResponse;
 import com.tmi.backend.global.common.response.impl.ApiSuccessResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/post")
 @RequiredArgsConstructor
-public class PostViewController {
+public class PostViewController implements BaseController {
 
   private final PostViewService postViewService;
 
@@ -35,17 +37,13 @@ public class PostViewController {
    * @param filter 조회할 파라미터 확인
    */
   @GetMapping()
-  public ApiResponse<SimplePostPageResponse> readPosts(
+  public ResponseEntity<ApiResponse<SimplePostPageResponse>> readPosts(
       @Valid @ModelAttribute PostFilter filter,
       @Positive @RequestParam(defaultValue = "1") int page,
       @Positive @RequestParam(defaultValue = "10") int size
   ) {
 
-    return ApiSuccessResponse.success(postViewService.readPosts(
-        filter,
-        page,
-        size
-    ));
+    return handle(postViewService.readPosts(filter, page, size));
   }
 
   /**
@@ -54,13 +52,13 @@ public class PostViewController {
    * @param filter 검색어 및 검색 태그
    */
   @GetMapping("/search")
-  public ApiResponse<SimplePostSearchResponse> searchPosts(
+  public ResponseEntity<ApiResponse<SimplePostSearchResponse>> searchPosts(
       @ModelAttribute PostSearchFilter filter,
       @Positive @RequestParam(defaultValue = "1") int page,
       @Positive @RequestParam(defaultValue = "10") int size
   ) {
 
-    return ApiSuccessResponse.success(postViewService.searchPosts(filter, size, page));
+    return handle(postViewService.searchPosts(filter, size, page));
   }
 
   /**
@@ -68,18 +66,19 @@ public class PostViewController {
    * @param postId 해당 게시글 id
    */
   @GetMapping("/{postId}")
-  public ApiResponse<DetailPostResponse> readDetailPost(@Positive @PathVariable Long postId) {
+  public ResponseEntity<ApiResponse<DetailPostResponse>> readDetailPost(
+      @Positive @PathVariable Long postId) {
 
-    return ApiSuccessResponse.success(postViewService.readDetailPost(postId));
+    return handle(postViewService.readDetailPost(postId));
   }
 
   /**
    * 인기 게시글 조회 API
    */
   @GetMapping("/popular")
-  public ApiResponse<SimplePostPageResponse> readPopularPosts(
+  public ResponseEntity<ApiResponse<SimplePostPageResponse>> readPopularPosts(
       @Positive @RequestParam(defaultValue = "10") int size
   ) {
-    return ApiSuccessResponse.success(postViewService.readPopularPosts(size));
+    return handle(postViewService.readPopularPosts(size));
   }
 }

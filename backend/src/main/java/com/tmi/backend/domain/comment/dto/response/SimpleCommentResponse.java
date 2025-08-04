@@ -28,7 +28,7 @@ public record SimpleCommentResponse(
         .comment(comment.getContent())
         .link(comment.getLink())
         .createAt(comment.getCreatedAt())
-//        .isRecommend()
+        .isRecommend(false)
         .recommendCount(comment.getRecommendCount())
         .build();
   }

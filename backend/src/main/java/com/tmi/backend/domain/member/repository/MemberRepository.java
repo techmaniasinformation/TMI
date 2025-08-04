@@ -12,7 +12,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
   Optional<Member> findById(Long memberId);
 
-  //한 번의 쿼리로 MemberStats DTO를 조회.( 게시글 수, 댓글 수, 팔로워 수, 조회수 합계)
   @Query("""
         SELECT new com.tmi.backend.domain.member.dto.response.MemberStats(
           (SELECT COUNT(p)   FROM Post p          WHERE p.member.id = :memberId),
@@ -29,5 +28,4 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
   Optional<Member> findByProviderAndProviderMemberId(Provider provider, String providerMemberId);
 
-  
 }

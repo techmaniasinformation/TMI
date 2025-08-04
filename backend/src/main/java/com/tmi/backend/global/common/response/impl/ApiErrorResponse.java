@@ -8,24 +8,36 @@ import com.tmi.backend.global.error.ErrorCode;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.http.ResponseEntity;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ApiErrorResponse<T> extends ApiResponse<T> {
   private String code;
-  private String message;
 
-  public ApiErrorResponse(ResponseStatus status, T data, String code, String message) {
+  public ApiErrorResponse(ResponseStatus status, T data, String code) {
     super(status, data);
     this.code = code;
-    this.message = message;
   }
 
   public static ApiResponse<Void> error(ErrorCode errorCode) {
-    return error(errorCode.getCode(), null, errorCode.getMessage());
+    return error(errorCode.getCode(), null);
   }
 
-  public static <T> ApiResponse<T> error(String code, T data, String message) {
-    return new ApiErrorResponse<>(ERROR, data, code, message);
+  public static <T> ApiResponse<T> error(String code, T data) {
+    return new ApiErrorResponse<>(ERROR, data, code);
   }
+
+  public static <T> ResponseEntity<ApiResponse<T>> errorEntity(ErrorCode code, T data) {
+    return ResponseEntity
+        .status(code.getHttpStatus())
+        .body(error(code.getCode(), data));
+  }
+
+  public static ResponseEntity<ApiResponse<Void>> errorEntity(ErrorCode errorCode) {
+    return ResponseEntity
+        .status(errorCode.getHttpStatus())
+        .body(error(errorCode));
+  }
+
 }

@@ -31,7 +31,7 @@ public class TagService {
     log.info("TagService : searchTags(" + keyword + ") 호출");
 
     if (keyword == null) {
-      return TagSearchRequest.of(tagRepository.findAll());
+      return ServiceResult.ok(TagSearchRequest.of(tagRepository.findAll()));
     }
 
     if (keyword.isBlank()) {

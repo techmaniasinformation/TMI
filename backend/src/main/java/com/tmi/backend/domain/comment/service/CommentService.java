@@ -12,12 +12,14 @@ import com.tmi.backend.domain.member.repository.MemberRepository;
 import com.tmi.backend.domain.post.entity.Post;
 import com.tmi.backend.domain.post.repository.PostRepository;
 import com.tmi.backend.global.common.entity.PageDetail;
+import com.tmi.backend.global.common.response.ServiceResult;
 import com.tmi.backend.global.error.ErrorCode;
 import com.tmi.backend.global.error.exception.BusinessException;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -36,32 +38,39 @@ public class CommentService {
   private final PostRepository postRepository;
 
   @Transactional
-  public Map<String, Long> register(CommentRequest commentRequest) {
+  public ServiceResult<Map<String, Long>> register(CommentRequest commentRequest) {
     log.info("CommentService : register() 호출");
 
-    Member member = memberRepository.findById(commentRequest.memberId())
-        .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+    Member member = memberRepository.findById(commentRequest.memberId()).orElse(null);
+    if (member == null) {
+      return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
+    }
 
-    Post post = postRepository.findById(commentRequest.postId())
-        .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
+    Post post = postRepository.findById(commentRequest.postId()).orElse(null);
+    if (post == null) {
+      return ServiceResult.fail(ErrorCode.POST_NOT_FOUND);
+    }
 
     Comment comment = commentRepository.save(Comment.of(post, member, commentRequest.comment(),
         commentRequest.link()));
 
-    return Map.of("commentId", comment.getId());
+    return ServiceResult.ok(Map.of("commentId", comment.getId()));
   }
 
   @Transactional
-  public void delete(Long commentId) {
+  public ServiceResult<Void> delete(Long commentId) {
     log.info("CommentService : delete({}) 호출", commentId);
 
-    Comment comment = commentRepository.findById(commentId)
-        .orElseThrow(() -> new BusinessException(ErrorCode.COMMENT_NOT_FOUND));
+    try {
+      commentRepository.deleteById(commentId);
+      return ServiceResult.ok();
+    } catch (EmptyResultDataAccessException e) {
+      return ServiceResult.fail(ErrorCode.COMMENT_NOT_FOUND);
+    }
 
-    commentRepository.delete(comment);
   }
 
-  public CommentListResponse readMemberComments(Long memberId, int page, int size) {
+  public ServiceResult<CommentListResponse> readMemberComments(Long memberId, int page, int size) {
     log.info("CommentService : readMemberComments({}) 호출", memberId);
 
     if (!memberRepository.existsById(memberId)) {
@@ -72,14 +81,14 @@ public class CommentService {
 
     Page<Comment> commentPage = commentRepository.findByMemberId(memberId, pageable);
 
-    return CommentListResponse.of(commentPage, page);
+    return ServiceResult.ok(CommentListResponse.of(commentPage, page));
   }
 
-  public PostCommentListRepository readPostComments(Long postId, SortType sort) {
+  public ServiceResult<PostCommentListRepository> readPostComments(Long postId, SortType sort) {
     log.info("CommentService : readPostComments({}) 호출", postId);
 
     if (!postRepository.existsById(postId)) {
-      throw new BusinessException(ErrorCode.POST_NOT_FOUND);
+      return ServiceResult.fail(ErrorCode.POST_NOT_FOUND);
     }
 
     Comment best = commentRepository
@@ -88,7 +97,7 @@ public class CommentService {
 
     List<Comment> comments = commentRepository.findByPostId(postId, convertSort(sort));
 
-    return PostCommentListRepository.of(best, comments);
+    return ServiceResult.ok(PostCommentListRepository.of(best, comments));
   }
 
   private Sort convertSort(SortType sortType) {

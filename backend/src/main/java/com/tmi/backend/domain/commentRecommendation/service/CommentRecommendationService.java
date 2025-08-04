@@ -9,6 +9,7 @@ import com.tmi.backend.domain.commentRecommendation.respository.CommentRecommend
 import com.tmi.backend.domain.member.entity.Member;
 import com.tmi.backend.domain.member.repository.MemberRepository;
 import com.tmi.backend.domain.post.repository.PostRepository;
+import com.tmi.backend.global.common.response.ServiceResult;
 import com.tmi.backend.global.error.ErrorCode;
 import com.tmi.backend.global.error.exception.BusinessException;
 import java.util.List;
@@ -30,17 +31,21 @@ public class CommentRecommendationService {
   private final CommentRecommendationRepository commentRecommendationRepository;
 
   @Transactional
-  public Map<String, Long> recommendation(RecommendationRequest request) {
+  public ServiceResult<Map<String, Long>> recommendation(RecommendationRequest request) {
     log.info("CommentRecommendationService : recommendation() 호출");
 
-    Member member = memberRepository.findById(request.memberId())
-        .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+    Member member = memberRepository.findById(request.memberId()).orElse(null);
+    if (member == null) {
+      return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
+    }
 
-    Comment comment = commentRepository.findById(request.commentId())
-        .orElseThrow(() -> new BusinessException(ErrorCode.COMMENT_NOT_FOUND));
+    Comment comment = commentRepository.findById(request.commentId()).orElse(null);
+    if (comment == null) {
+      return ServiceResult.fail(ErrorCode.COMMENT_NOT_FOUND);
+    }
 
     if (commentRecommendationRepository.existsByMemberAndComment(member, comment)) {
-      throw new BusinessException(ErrorCode.RECOMMEND_ALREADY_RECOMMENDED);
+      return ServiceResult.fail(ErrorCode.RECOMMEND_ALREADY_RECOMMENDED);
     }
 
     CommentRecommendation recommendation = commentRecommendationRepository.save(
@@ -48,27 +53,30 @@ public class CommentRecommendationService {
     recommendation.assignToComment(comment);
     comment.plusRecommendCount();
 
-    return Map.of("recommendationId", recommendation.getId());
+    return ServiceResult.ok(Map.of("recommendationId", recommendation.getId()));
   }
 
   @Transactional
-  public void delete(Long recommendationId) {
+  public ServiceResult<Void> delete(Long recommendationId) {
     log.info("CommentRecommendationService : delete({}) 호출", recommendationId);
 
     CommentRecommendation recommendation = commentRecommendationRepository.findById(
-            recommendationId)
-        .orElseThrow(() -> new BusinessException(ErrorCode.RECOMMEND_NOT_FOUND));
+            recommendationId).orElse(null);
+    if (recommendation == null) {
+      return ServiceResult.fail(ErrorCode.RECOMMEND_NOT_FOUND);
+    }
 
     recommendation.getComment().minusRecommendCount();
     commentRecommendationRepository.delete(recommendation);
+    return ServiceResult.ok();
   }
 
-  public RecommendationListResponse getRecommendations(Long memberId, Long postId) {
+  public ServiceResult<RecommendationListResponse> getRecommendations(Long memberId, Long postId) {
     log.info("CommentRecommendationService : getRecommendations() 호출");
 
     List<CommentRecommendation> list =
         commentRecommendationRepository.findAllByMemberIdAndPostId(memberId, postId);
 
-    return RecommendationListResponse.from(list);
+    return ServiceResult.ok(RecommendationListResponse.from(list));
   }
 }

@@ -37,7 +37,6 @@ public class StarService {
       return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
     }
 
-
     Post post = postRepository.findById(postId).orElse(null);
     if (post == null) {
       return ServiceResult.fail(ErrorCode.POST_NOT_FOUND);
@@ -68,6 +67,7 @@ public class StarService {
 
   @Transactional
   public ServiceResult<Void> deleteStar(Long starId) {
+    log.info("StarService : deleteStar(" + starId + ") 호출");
 
     Star star = starRepository.findById(starId).orElse(null);
     if (star == null) {

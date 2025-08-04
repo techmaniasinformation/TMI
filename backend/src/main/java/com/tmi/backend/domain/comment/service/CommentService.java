@@ -3,15 +3,13 @@ package com.tmi.backend.domain.comment.service;
 import com.tmi.backend.domain.comment.dto.request.CommentRequest;
 import com.tmi.backend.domain.comment.dto.request.SortType;
 import com.tmi.backend.domain.comment.dto.response.CommentListResponse;
-import com.tmi.backend.domain.comment.dto.response.PostCommentListRepository;
-import com.tmi.backend.domain.comment.dto.response.SimpleCommentResponse;
+import com.tmi.backend.domain.comment.dto.response.PostCommentListResponse;
 import com.tmi.backend.domain.comment.entity.Comment;
 import com.tmi.backend.domain.comment.repository.CommentRepository;
 import com.tmi.backend.domain.member.entity.Member;
 import com.tmi.backend.domain.member.repository.MemberRepository;
 import com.tmi.backend.domain.post.entity.Post;
 import com.tmi.backend.domain.post.repository.PostRepository;
-import com.tmi.backend.global.common.entity.PageDetail;
 import com.tmi.backend.global.common.response.ServiceResult;
 import com.tmi.backend.global.error.ErrorCode;
 import com.tmi.backend.global.error.exception.BusinessException;
@@ -84,7 +82,7 @@ public class CommentService {
     return ServiceResult.ok(CommentListResponse.of(commentPage, page));
   }
 
-  public ServiceResult<PostCommentListRepository> readPostComments(Long postId, SortType sort) {
+  public ServiceResult<PostCommentListResponse> readPostComments(Long postId, SortType sort) {
     log.info("CommentService : readPostComments({}) 호출", postId);
 
     if (!postRepository.existsById(postId)) {
@@ -97,7 +95,7 @@ public class CommentService {
 
     List<Comment> comments = commentRepository.findByPostId(postId, convertSort(sort));
 
-    return ServiceResult.ok(PostCommentListRepository.of(best, comments));
+    return ServiceResult.ok(PostCommentListResponse.of(best, comments));
   }
 
   private Sort convertSort(SortType sortType) {

@@ -19,6 +19,6 @@ spring:
     database-platform: org.hibernate.dialect.MySQL8Dialect
 
 jwt:
-  secret: q0b8xJpF2Uy3V7zRrK6PbYlVgfT2Ej1i4QmHs9n0LXM=
+  secret: ${JWT_SECRET}
   access-token-expiration-minutes: 60
   refresh-token-expiration-minutes: 100

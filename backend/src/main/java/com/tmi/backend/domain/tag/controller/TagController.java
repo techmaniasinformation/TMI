@@ -27,7 +27,7 @@ public class TagController implements BaseController {
    * @param q 검색어
    */
   @GetMapping
-  public ResponseEntity<ApiResponse<TagSearchRequest>> searchTags(@RequestParam String q) {
+  public ResponseEntity<ApiResponse<TagSearchRequest>> searchTags(@RequestParam(required = false) String q) {
 
     return handle(tagService.searchTags(q));
   }

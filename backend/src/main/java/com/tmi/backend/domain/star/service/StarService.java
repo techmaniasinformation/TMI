@@ -37,7 +37,6 @@ public class StarService {
       return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
     }
 
-
     Post post = postRepository.findById(postId).orElse(null);
     if (post == null) {
       return ServiceResult.fail(ErrorCode.POST_NOT_FOUND);
@@ -47,6 +46,7 @@ public class StarService {
       return ServiceResult.fail(ErrorCode.STAR_ALREADY_STARRED);
     }
 
+    post.plusStarCount();
     Star star = starRepository.save(Star.of(member, post));
 
     return ServiceResult.ok(Map.of("starId", star.getId()));
@@ -67,12 +67,14 @@ public class StarService {
 
   @Transactional
   public ServiceResult<Void> deleteStar(Long starId) {
+    log.info("StarService : deleteStar(" + starId + ") 호출");
 
     Star star = starRepository.findById(starId).orElse(null);
     if (star == null) {
       return ServiceResult.fail(ErrorCode.STAR_ALREADY_STARRED);
     }
 
+    star.getPost().minusStarCount();
     starRepository.delete(star);
 
     return ServiceResult.ok();

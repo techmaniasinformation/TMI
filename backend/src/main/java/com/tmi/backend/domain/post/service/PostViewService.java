@@ -1,5 +1,9 @@
 package com.tmi.backend.domain.post.service;
 
+import com.tmi.backend.domain.comment.dto.CommentCount;
+import com.tmi.backend.domain.comment.repository.CommentRepository;
+import com.tmi.backend.domain.member.entity.Member;
+import com.tmi.backend.domain.member.repository.MemberRepository;
 import com.tmi.backend.domain.post.dto.request.PostFilter;
 import com.tmi.backend.domain.post.dto.request.PostSearchFilter;
 import com.tmi.backend.domain.post.dto.response.DetailPostResponse;
@@ -7,10 +11,15 @@ import com.tmi.backend.domain.post.dto.response.SimplePostPageResponse;
 import com.tmi.backend.domain.post.dto.response.SimplePostSearchResponse;
 import com.tmi.backend.domain.post.entity.Post;
 import com.tmi.backend.domain.post.repository.PostRepository;
+import com.tmi.backend.domain.star.entity.Star;
+import com.tmi.backend.domain.star.repository.StarRepository;
 import com.tmi.backend.global.common.response.ServiceResult;
 import com.tmi.backend.global.error.ErrorCode;
 import com.tmi.backend.global.error.exception.BusinessException;
 import jakarta.validation.constraints.Positive;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -27,6 +36,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class PostViewService {
 
   private final PostRepository postRepository;
+  private final StarRepository starRepository;
+  private final MemberRepository memberRepository;
+  private final CommentRepository commentRepository;
 
   public ServiceResult<SimplePostPageResponse> readPosts(PostFilter filter, int page, int size) {
 
@@ -57,35 +69,76 @@ public class PostViewService {
   public ServiceResult<SimplePostPageResponse> readCompanyPosts(Long companyId, int page, int size) {
     log.info("PostViewService : readCompanyPosts(" + companyId + ") 호출");
 
-    Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
+    Pageable pageable = PageRequest.of(page - 1, size);
 
-    Page<Post> postPage = postRepository.findByCompanyId(companyId, pageable);
+    Page<Post> postPage = postRepository.findByCompanyIdOrderByCreatedAtDesc(companyId, pageable);
 
+    List<Long> postIds = postPage.getContent().stream()
+        .map(Post::getId).toList();
 
-    return null;
+    Map<Long, Integer> countMap = commentRepository.findCountByPostIds(postIds)
+        .stream()
+        .collect(Collectors.toMap(CommentCount::postId, CommentCount::cnt));
+
+    return ServiceResult.ok(SimplePostPageResponse.of(postPage, page, countMap));
   }
 
   public ServiceResult<SimplePostPageResponse> readMemberPosts(Long memberId, int page, int size) {
     log.info("PostViewService : readMemberPosts(" + memberId + ") 호출");
 
-    Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
+    Pageable pageable = PageRequest.of(page - 1, size);
 
-    Page<Post> postPage = postRepository.findByMemberId(memberId, pageable);
+    Page<Post> postPage = postRepository.findByMemberIdOrderByCreatedAtDesc(memberId, pageable);
 
+    List<Long> postIds = postPage.getContent().stream()
+        .map(Post::getId).toList();
 
-    return null;
+    Map<Long, Integer> countMap = commentRepository.findCountByPostIds(postIds)
+        .stream()
+        .collect(Collectors.toMap(CommentCount::postId, CommentCount::cnt));
+
+    return ServiceResult.ok(SimplePostPageResponse.of(postPage, page, countMap));
   }
 
   public ServiceResult<SimplePostPageResponse> readStarPosts(Long starMemberId, int page, int size) {
     log.info("PostViewService : readStarPosts(" + starMemberId + ") 호출");
 
-    return null;
+    Pageable pageable = PageRequest.of(page - 1, size);
+
+    Member member = memberRepository.findById(starMemberId).orElse(null);
+    if (member == null) {
+      return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
+    }
+
+    Page<Star> starPage  = starRepository.findByMemberOrderByPostCreatedAtDesc(member, pageable);
+
+    Page<Post> postPage = starPage.map(Star::getPost);
+
+    List<Long> postIds = postPage.getContent().stream()
+        .map(Post::getId).toList();
+
+    Map<Long, Integer> countMap = commentRepository.findCountByPostIds(postIds)
+        .stream()
+        .collect(Collectors.toMap(CommentCount::postId, CommentCount::cnt));
+
+    return ServiceResult.ok(SimplePostPageResponse.of(postPage, page, countMap));
   }
 
   public ServiceResult<SimplePostPageResponse> readLatest(int page, int size) {
     log.info("PostViewService : readLatest() 호출");
 
-    return null;
+    Pageable pageable = PageRequest.of(page - 1, size);
+
+    Page<Post> postPage = postRepository.findAllByOrderByCreatedAtDesc(pageable);
+
+    List<Long> postIds = postPage.getContent().stream()
+        .map(Post::getId).toList();
+
+    Map<Long, Integer> countMap = commentRepository.findCountByPostIds(postIds)
+        .stream()
+        .collect(Collectors.toMap(CommentCount::postId, CommentCount::cnt));
+
+    return ServiceResult.ok(SimplePostPageResponse.of(postPage, page, countMap));
   }
 
   public ServiceResult<SimplePostSearchResponse> searchPosts(PostSearchFilter filter, int size, int page) {
@@ -100,7 +153,7 @@ public class PostViewService {
     return null;
   }
 
-  public ServiceResult<SimplePostPageResponse> readPopularPosts(@Positive int size) {
+  public ServiceResult<SimplePostPageResponse> readPopularPosts(int size) {
     log.info("PostViewService : readPopularPosts() 호출");
 
     return null;

@@ -29,8 +29,21 @@ public interface PostRepository extends JpaRepository<Post, Long> {
   })
   Optional<Post> findById(Long id);
 
-  Page<Post> findByMemberId(Long memberId, Pageable pageable);
+  @EntityGraph(attributePaths = {
+      "member",
+      "company"
+  })
+  Page<Post> findByMemberIdOrderByCreatedAtDesc(Long memberId, Pageable pageable);
 
-  Page<Post> findByCompanyId(Long companyId, Pageable pageable);
+  @EntityGraph(attributePaths = {
+      "member",
+      "company"
+  })
+  Page<Post> findByCompanyIdOrderByCreatedAtDesc(Long companyId, Pageable pageable);
 
+  @EntityGraph(attributePaths = {
+      "member",
+      "company"
+  })
+  Page<Post> findAllByOrderByCreatedAtDesc(Pageable pageable);
 }

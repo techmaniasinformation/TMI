@@ -22,7 +22,7 @@ public record SimplePostResponse(
     String thumbnailUrl
 ) {
 
-  public static SimplePostResponse of(Post post) {
+  public static SimplePostResponse of(Post post, int commentCount) {
     return SimplePostResponse.builder()
         .postId(post.getId().toString())
         .memberProfile(post.getMember().getMemberProfileUrl())
@@ -33,10 +33,10 @@ public record SimplePostResponse(
         .createAt(post.getCreatedAt())
         .viewCount(post.getViewCount())
         .starCount(post.getStarCount())
-//        .commentCount(post.getComments().size())
-//        .tags(post.getTags().stream()
-//            .map(Tag::getName)
-//            .toList())
+        .commentCount(commentCount)
+        .tags(post.getPostTags().stream()
+                .map(pt -> pt.getTag().getName())
+                .toList())
         .thumbnailUrl(post.getThumbnailUrl())
         .build();
   }

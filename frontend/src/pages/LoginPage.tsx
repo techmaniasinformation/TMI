@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useAuth } from '@/hooks/auth/useAuth';
 import SocialLoginButton from '@/components/inter/SocialLoginButton';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/utils';
+import { cn } from '@/utils/utils';
 import { useThemeStore } from '@/stores/themeStore';
 
 // 다크모드 관련

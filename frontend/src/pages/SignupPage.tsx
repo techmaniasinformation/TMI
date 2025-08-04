@@ -2,7 +2,7 @@
 import React from 'react';
 import { useSignup } from '@/hooks/auth/useSignup';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/utils';
+import { cn } from '@/utils/utils';
 import { useThemeStore } from '@/stores/themeStore';
 import { Button } from '@/components/foundation/button';
 

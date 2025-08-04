@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/utils';
+import { cn } from '@/utils/utils';
 import { useThemeStore } from '@/stores/themeStore';
 import Tag from '@/components/domain/article/Tag';
 import TagArea from '@/components/domain/article/TagArea';

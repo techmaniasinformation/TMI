@@ -3,13 +3,10 @@ export { Button, Layout, Header, Footer } from './foundation';
 
 // ===== Domain 컴포넌트들 (2개 이상 페이지에서 사용) =====
 export {
-  Textarea,
-  Tooltip,
   Input,
   Label,
   Dialog,
   Tabs,
-  Switch,
   Card,
   CardHeader,
   CardFooter,
@@ -31,7 +28,6 @@ export {
   Tag,
   TagArea,
   DateTimeComponent,
-  ArticleList,
 } from './domain/article';
 
 // ===== Layout 컴포넌트들 (한 개 페이지에서만 사용) =====

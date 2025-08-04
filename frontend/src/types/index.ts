@@ -61,15 +61,6 @@ export interface Comment {
   recommendCount: number;
 }
 
-// ===== 댓글 타입 =====
-export interface Comment extends BaseData {
-  content: string;
-  author: User;
-  postId: string | number;
-  likeCount: number;
-  isLiked?: boolean;
-}
-
 // ===== 알림 타입 =====
 export interface Notification extends BaseData {
   type: 'badge' | 'comment' | 'post' | 'follow';

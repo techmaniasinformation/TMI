@@ -78,8 +78,7 @@ public class PostService {
       return ServiceResult.fail(ErrorCode.POST_NOT_FOUND);
     }
 
-    postTagService.deletePostTags(post.getId());
-
+    //postTagService.deletePostTags(post.getId());
     postRepository.delete(post);
 
     // TODO : 게시글의 댓글까지 연쇄 삭제 필요 -> commentService 등장 이후 구현

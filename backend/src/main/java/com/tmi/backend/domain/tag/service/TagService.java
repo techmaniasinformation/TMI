@@ -30,6 +30,10 @@ public class TagService {
   public ServiceResult<TagSearchRequest> searchTags(String keyword) {
     log.info("TagService : searchTags(" + keyword + ") 호출");
 
+    if (keyword == null) {
+      return ServiceResult.ok(TagSearchRequest.of(tagRepository.findAll()));
+    }
+
     if (keyword.isBlank()) {
       return ServiceResult.fail(ErrorCode.SEARCH_TERM_MISSING);
     }

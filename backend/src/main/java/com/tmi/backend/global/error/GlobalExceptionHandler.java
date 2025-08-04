@@ -37,7 +37,7 @@ public class GlobalExceptionHandler {
     Map<String, Object> data = new HashMap<>();
     data.put("errors", errors);
     return ApiErrorResponse.error(
-        COMMON_INVALID_FORMAT.getCode(), data, COMMON_INVALID_FORMAT.getMessage());
+        COMMON_INVALID_FORMAT.getCode(), data);
   }
 
   @ExceptionHandler(value = BusinessException.class)

@@ -7,6 +7,7 @@ import com.tmi.backend.domain.tag.repository.TagRepository;
 import com.tmi.backend.global.common.response.ServiceResult;
 import com.tmi.backend.global.error.ErrorCode;
 import com.tmi.backend.global.error.exception.BusinessException;
+import jakarta.validation.constraints.Size;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,5 +40,11 @@ public class TagService {
     }
 
     return ServiceResult.ok(TagSearchResponse.of(tagRepository.findByNameContainingIgnoreCase(keyword)));
+  }
+
+  public List<String> findNames(List<Integer> tagIds) {
+    return (tagIds == null || tagIds.isEmpty())
+        ? List.of()
+        : tagRepository.findNamesByIdIn(tagIds);
   }
 }

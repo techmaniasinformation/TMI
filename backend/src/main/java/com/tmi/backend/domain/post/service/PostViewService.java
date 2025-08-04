@@ -13,6 +13,8 @@ import com.tmi.backend.domain.post.entity.Post;
 import com.tmi.backend.domain.post.repository.PostRepository;
 import com.tmi.backend.domain.star.entity.Star;
 import com.tmi.backend.domain.star.repository.StarRepository;
+import com.tmi.backend.domain.tag.service.TagService;
+import com.tmi.backend.global.common.entity.AppliedFilters;
 import com.tmi.backend.global.common.response.ServiceResult;
 import com.tmi.backend.global.error.ErrorCode;
 import com.tmi.backend.global.error.exception.BusinessException;
@@ -39,6 +41,7 @@ public class PostViewService {
   private final StarRepository starRepository;
   private final MemberRepository memberRepository;
   private final CommentRepository commentRepository;
+  private final TagService tagService;
 
   public ServiceResult<SimplePostPageResponse> readPosts(PostFilter filter, int page, int size) {
 
@@ -144,7 +147,33 @@ public class PostViewService {
   public ServiceResult<SimplePostSearchResponse> searchPosts(PostSearchFilter filter, int size, int page) {
     log.info("PostViewService : searchPosts() 호출");
 
-    return null;
+    Pageable pageable = PageRequest.of(page - 1, size);
+
+    Page<Post> postPage = postRepository.search(
+        filter.q(),
+        filter.techTags(),
+        filter.companyTags(),
+        pageable);
+
+    // 댓글 수 집계
+    List<Long> postIds = postPage.getContent()
+        .stream()
+        .map(Post::getId).toList();
+
+    Map<Long, Integer> countMap = commentRepository.findCountByPostIds(postIds)
+        .stream()
+        .collect(Collectors.toMap(CommentCount::postId, CommentCount::cnt));
+
+    // AppliedFilters 채우기 (태그 이름이 필요하다면 TagRepository 로 조회)
+    AppliedFilters applied = AppliedFilters.of(
+        filter.q(),
+        tagService.findNames(filter.techTags()),
+        tagService.findNames(filter.companyTags())
+    );
+
+    return ServiceResult.ok(
+        SimplePostSearchResponse.of(postPage, page, countMap, applied)
+    );
   }
 
   public ServiceResult<DetailPostResponse> readDetailPost(Long postId) {

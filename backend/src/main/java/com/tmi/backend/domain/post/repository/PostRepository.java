@@ -46,4 +46,21 @@ public interface PostRepository extends JpaRepository<Post, Long> {
       "company"
   })
   Page<Post> findAllByOrderByCreatedAtDesc(Pageable pageable);
+
+  @EntityGraph(attributePaths = {"member", "company"})
+  @Query("""
+  select distinct p
+    from Post p
+    left join p.postTags pt
+    left join pt.tag t
+  where lower(p.title) like lower(concat('%', :q, '%'))
+    and ( :#{#techTagIds == null || #techTagIds.isEmpty()} = true
+         or t.id in :techTagIds )
+    and ( :#{#companyTagIds == null || #companyTagIds.isEmpty()} = true
+         or p.company.id in :companyTagIds )
+  """)
+  Page<Post> search(@Param("q")             String q,
+      @Param("techTagIds")    List<Integer> techTagIds,
+      @Param("companyTagIds") List<Integer> companyTagIds,
+      Pageable pageable);
 }

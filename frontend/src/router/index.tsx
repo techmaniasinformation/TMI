@@ -5,6 +5,7 @@ import HomePage from '../pages/HomePage';
 import LandingPage from '../pages/LandingPage';
 import SearchResultsPage from '../pages/SearchResultsPage';
 import PostDetailPage from '../pages/PostDetailPage';
+import PostEditPage from '../pages/PostEditPage';
 import { ROUTES } from './routes';
 
 export const router = createBrowserRouter([
@@ -27,6 +28,10 @@ export const router = createBrowserRouter([
       {
         path: ROUTES.POST,
         element: <PostDetailPage />,
+      },
+      {
+        path: ROUTES.POST_EDIT,
+        element: <PostEditPage />,
       },
     ],
   },

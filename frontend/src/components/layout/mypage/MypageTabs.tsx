@@ -175,7 +175,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   } = usePagination<Post>(starredPosts, 5);  // 5개씩 페이지네이션
 
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className='w-[1232px]'>
+    <Tabs value={activeTab} onValueChange={setActiveTab} className='w-[1232px] mx-auto'>
       {/* 탭 목록 */}
       <TabsList className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 w-full flex justify-start p-0 h-auto">
         {/* 내 정보 (본인 또는 타 유저일 때) */}

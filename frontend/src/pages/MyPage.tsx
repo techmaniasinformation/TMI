@@ -73,8 +73,8 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany, isMyPage }) => {
   const handleFollowToggle = () => setIsFollowing((prev) => !prev);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="container">
+    <div className="max-w-[1232px] mx-auto px-4 py-8">
+      <div className="max-w-[1232px] mx-auto">
         <ProfileHeader
           nickname={nickname}
           email={email}

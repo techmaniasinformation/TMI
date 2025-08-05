@@ -1,25 +1,29 @@
 package com.tmi.backend.domain.summary.controller;
 
+import com.tmi.backend.domain.summary.dto.response.SummaryResponse;
 import com.tmi.backend.domain.summary.service.SummaryService;
+import com.tmi.backend.global.common.controller.BaseController;
+import com.tmi.backend.global.common.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/crawl")
+@RequestMapping("/api/v1/summary")
 @RequiredArgsConstructor
-public class SummaryController {
+public class SummaryController implements BaseController {
 
-  private final SummaryService crawlService;
+  private final SummaryService summaryService;
 
-  @GetMapping("/extract")
-  public ResponseEntity<String> extractAndSummarize(@RequestParam String url) {
-    try {
-      String content = crawlService.extractContent(url);
-      String summary = crawlService.summarizeWithOpenAI(content);
-      return ResponseEntity.ok(summary);
-    } catch (Exception e) {
-      return ResponseEntity.internalServerError().body("처리 실패: " + e.getMessage());
-    }
+  @PostMapping()
+  public ResponseEntity<ApiResponse<SummaryResponse>> extractAndSummarize(@RequestParam String url) {
+
+    String content = summaryService.extractContent(url);
+    return handle(summaryService.summarizeWithOpenAI(content));
+  }
+
+  @GetMapping("/test")
+  public String test(@RequestParam String url) {
+    return summaryService.extractContent(url);
   }
 }

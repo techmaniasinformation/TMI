@@ -3,7 +3,6 @@ package com.tmi.backend.domain.post.entity;
 import com.tmi.backend.domain.company.entity.Company;
 import com.tmi.backend.domain.member.entity.Member;
 import com.tmi.backend.domain.postTag.entity.PostTag;
-import com.tmi.backend.domain.tag.entity.Tag;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

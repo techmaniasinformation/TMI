@@ -19,6 +19,62 @@ import Pagination from '@/components/domain/ServerPagination';
 import usePagination from '@/hooks/mypage/usePagination';
 import useFetchJson from '@/hooks/mypage/useFetchJson';
 
+// 배지 임포트
+import badgeFirstArticle from '@/assets/images/first_article.png';
+import badgeFirstComment from '@/assets/images/first_comment.png';
+import badgeHelloWorld from '@/assets/images/helloworld.png';
+
+import badgeStar5 from '@/assets/images/star_5.png';
+import badgeStar13 from '@/assets/images/star_13.png';
+import badgeStar42 from '@/assets/images/star_42.png';
+
+import badgeAmumu from '@/assets/images/amumu.png';
+import badgeFCTMI from '@/assets/images/FCTMI.png';
+import badgeFollow from '@/assets/images/followmany.png';
+
+import badgelike10 from '@/assets/images/like_10.png';
+import badgelike100 from '@/assets/images/like_100.png';
+import badgelike1000 from '@/assets/images/like_1000.png';
+
+import badgeView50 from '@/assets/images/view1.png';
+import badgeView100 from '@/assets/images/view2.png';
+import badgeView1000 from '@/assets/images/view3.png';
+
+import badgeParis from '@/assets/images/paris.png';
+
+import badgeSpring from '@/assets/images/spring.png';
+import badgeReact from '@/assets/images/react.png';
+import badgeAI from '@/assets/images/AI.png';
+import badgeDB from '@/assets/images/DB.png';
+import badgeAWS from '@/assets/images/AWS.png';
+
+// 배지 리스트
+const badgeList = [
+  { id: 1, name: '이건 머지?', image: badgeFirstArticle },
+  { id: 2, name: '얘는 머지?', image: badgeFirstComment },
+  { id: 3, name: '헬로 월드', image: badgeHelloWorld },
+  { id: 4, name: '별이 5개', image: badgeStar5 },
+  { id: 5, name: '별이 13개', image: badgeStar13 },
+  { id: 6, name: '별이 42개', image: badgeStar42 },
+  { id: 7, name: '날선몰', image: badgeAmumu },
+  { id: 8, name: 'FC TMI', image: badgeFCTMI },
+  { id: 9, name: '인기 폭발', image: badgeFollow },
+  { id: 10, name: '추천 10개', image: badgelike10 },
+  { id: 11, name: '추천 100개', image: badgelike100 },
+  { id: 12, name: '천근추', image: badgelike1000 },
+  { id: 13, name: '웅성', image: badgeView50 },
+  { id: 14, name: '웅성웅성', image: badgeView100 },
+  { id: 15, name: '웅성웅성웅성', image: badgeView1000 },
+  { id: 16, name: '벌레잡는 파리채', image: badgeParis },
+  { id: 18, name: 'Spring', image: badgeSpring },
+  { id: 19, name: 'React', image: badgeReact },
+  { id: 20, name: 'AI', image: badgeAI},
+  { id: 21, name: 'DB', image: badgeDB },
+  { id: 22, name: 'AWS', image: badgeAWS },
+
+];
+
+
 // 게시글 타입 정의
 interface Post {
   id: string;
@@ -184,17 +240,11 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
       {(isMyPage || isOtherUser) && isPersonal && (
         <TabsContent value="profile" className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
           <h2 className="text-lg font-semibold mb-6">업적</h2>
-
-          <div className="grid grid-cols-5 gap-4">
-            {Array.from({ length: 17 }).map((_, idx) => (
-              <div
-                key={idx}
-                className="aspect-square bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col items-center justify-center hover:shadow-md transition"
-              >
-                <div className="w-10 h-10 mb-2 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-sm">
-                  ?
-                </div>
-                <p className="text-xs text-gray-700 font-medium text-center">이건 머지?</p>
+          <div className="grid grid-cols-7 gap-4">
+            {badgeList.map((badge) => (
+              <div key={badge.id} className="aspect-square bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col items-center justify-center hover:shadow-md transition">
+                <img src={badge.image} alt={badge.name} className="w-25 h-25 mb-2 rounded-lg object-cover" />
+                <p className="text-xl font-bold text-gray-700 text-center">{badge.name}</p>
               </div>
             ))}
           </div>

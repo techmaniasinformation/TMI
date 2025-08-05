@@ -4,6 +4,7 @@ import com.tmi.backend.domain.star.dto.request.StarRegisterRequest;
 import com.tmi.backend.domain.star.dto.response.SimpleStarResponse;
 import com.tmi.backend.domain.star.dto.response.StarListResponse;
 import com.tmi.backend.domain.star.service.StarService;
+import com.tmi.backend.global.common.controller.BaseController;
 import com.tmi.backend.global.common.response.ApiResponse;
 import com.tmi.backend.global.common.response.impl.ApiErrorResponse;
 import com.tmi.backend.global.common.response.impl.ApiSuccessResponse;
@@ -12,6 +13,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -25,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/star")
 @RequiredArgsConstructor
-public class StarController {
+public class StarController implements BaseController {
 
   private final StarService starService;
 
@@ -36,11 +38,11 @@ public class StarController {
    * @param request 멤버 id 와 게시글 id 를 받습니다.
    */
   @PostMapping
-  public ApiResponse<Map<String, Long>> starRegister(
+  public ResponseEntity<ApiResponse<Map<String, Long>>> starRegister(
       @Valid @RequestBody StarRegisterRequest request
   ) {
 
-    return ApiSuccessResponse.success(starService.register(request.memberId(), request.postId()));
+    return handle(starService.register(request.memberId(), request.postId()));
   }
 
   /**
@@ -49,9 +51,9 @@ public class StarController {
    * @return 스타 id 와 게시글 id 를 목록으로 반환합니다.
    */
   @GetMapping
-  public ApiResponse<StarListResponse> getStarList(@Positive @RequestParam Long memberId) {
+  public ResponseEntity<ApiResponse<StarListResponse>> getStarList(@Positive @RequestParam Long memberId) {
 
-    return ApiSuccessResponse.success(starService.readStars(memberId));
+    return handle(starService.readStars(memberId));
   }
 
   /**
@@ -59,9 +61,8 @@ public class StarController {
    * @param starId 취소하려는 스타 id
    */
   @DeleteMapping("/{starId}")
-  public ApiResponse<Void> deleteStar(@PathVariable Long starId) {
+  public ResponseEntity<ApiResponse<Void>> deleteStar(@PathVariable Long starId) {
 
-    starService.deleteStar(starId);
-    return ApiSuccessResponse.success();
+    return handle(starService.deleteStar(starId));
   }
 }

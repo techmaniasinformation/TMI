@@ -34,7 +34,8 @@ public class SecurityConfig {
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(authorize -> authorize
-            .requestMatchers(HttpMethod.GET, "/api/**")
+            .requestMatchers(HttpMethod.GET, "/api/v1/company/**", "api/v1/member/**",
+                "/api/v1/badge", "/api/v1/comment")
             .permitAll()
             .requestMatchers(HttpMethod.POST, "/api/v1/auth/refresh", "/api/v1/member/signup",
                 "api/v1/auth/logout/**")
@@ -53,7 +54,7 @@ public class SecurityConfig {
                 .baseUri("/api/v1/oauth2/authorization")
             )
             .redirectionEndpoint(endpoint -> endpoint
-                .baseUri("/api/v1/oauth2/code/*")
+                .baseUri("/login")
             )
             .userInfoEndpoint(userInfo -> userInfo
                 .oidcUserService(customOidcUserService)

@@ -1,6 +1,6 @@
 package com.tmi.backend.domain.tag.controller;
 
-import com.tmi.backend.domain.tag.dto.request.TagSearchRequest;
+import com.tmi.backend.domain.tag.dto.response.TagSearchResponse;
 import com.tmi.backend.domain.tag.service.TagService;
 import com.tmi.backend.global.common.controller.BaseController;
 import com.tmi.backend.global.common.response.ApiResponse;
@@ -27,7 +27,7 @@ public class TagController implements BaseController {
    * @param q 검색어
    */
   @GetMapping
-  public ResponseEntity<ApiResponse<TagSearchRequest>> searchTags(@RequestParam(required = false) String q) {
+  public ResponseEntity<ApiResponse<TagSearchResponse>> searchTags(@RequestParam(required = false) String q) {
 
     return handle(tagService.searchTags(q));
   }

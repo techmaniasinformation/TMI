@@ -1,5 +1,6 @@
 package com.tmi.backend.domain.comment.repository;
 
+import com.tmi.backend.domain.comment.dto.CommentCount;
 import com.tmi.backend.domain.comment.entity.Comment;
 import com.tmi.backend.domain.member.entity.Member;
 import com.tmi.backend.domain.post.entity.Post;
@@ -10,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -30,4 +33,14 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
   // 추천수를 n 개 이상 받은 댓글 중 가장 추천을 많이 받은 댓글 (추천수가 같다면 등록일 순 오름차순)
   Optional<Comment> findTopByRecommendCountGreaterThanEqualOrderByRecommendCountDescCreatedAtAsc(int minCount);
+
+  @Query("""
+    select c.post.id as postId, count(c) as cnt
+    from Comment c
+    where c.post.id in :postIds
+    group by c.post.id
+  """)
+  List<CommentCount> findCountByPostIds(@Param("postIds") List<Long> postIds);
+
+  int countByPostId(Long postId);
 }

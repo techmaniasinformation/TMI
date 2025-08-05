@@ -1,6 +1,7 @@
 package com.tmi.backend.domain.post.service;
 
 import com.tmi.backend.domain.member.entity.Member;
+import com.tmi.backend.domain.member.entity.Provider;
 import com.tmi.backend.domain.member.repository.MemberRepository;
 import com.tmi.backend.domain.post.dto.request.PostCreateRequest;
 import com.tmi.backend.domain.post.dto.request.PostUpdateRequest;
@@ -9,7 +10,6 @@ import com.tmi.backend.domain.post.repository.PostRepository;
 import com.tmi.backend.domain.postTag.service.PostTagService;
 import com.tmi.backend.global.common.response.ServiceResult;
 import com.tmi.backend.global.error.ErrorCode;
-import com.tmi.backend.global.error.exception.BusinessException;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,14 +26,18 @@ public class PostService {
   private final PostRepository postRepository;
   private final PostTagService postTagService;
 
-  // TODO : 인증 로직 구현
   @Transactional
-  public ServiceResult<Map<String, Long>> createPost(PostCreateRequest postCreateRequest) {
+  public ServiceResult<Map<String, Long>> createPost(PostCreateRequest postCreateRequest, Long userDetailId) {
     log.info("PostService : createPost() 호출");
 
     Member member = memberRepository.findById(postCreateRequest.memberId()).orElse(null);
     if (member == null) {
       return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
+    }
+
+    Member user = memberRepository.findById(userDetailId).orElse(null);
+    if (user == null || (userDetailId != member.getId() && user.getProvider() != Provider.ADMIN)) {
+      return ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED);
     }
 
     Post post = Post.of(
@@ -51,12 +55,17 @@ public class PostService {
   }
 
   @Transactional
-  public ServiceResult<Map<String, Long>> updatePost(Long postId, PostUpdateRequest postUpdateRequest) {
+  public ServiceResult<Map<String, Long>> updatePost(Long postId, PostUpdateRequest postUpdateRequest, Long userDetailId) {
     log.info("PostService : updatePost(" + postId + ") 호출");
 
     Post post = postRepository.findById(postId).orElse(null);
     if (post == null) {
       return ServiceResult.fail(ErrorCode.POST_NOT_FOUND);
+    }
+
+    Member user = memberRepository.findById(userDetailId).orElse(null);
+    if (user == null || (userDetailId != post.getMember().getId() && user.getProvider() != Provider.ADMIN)) {
+      return ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED);
     }
 
     post.change(postUpdateRequest.title(), postUpdateRequest.content(),
@@ -70,7 +79,7 @@ public class PostService {
   }
 
   @Transactional
-  public ServiceResult<Void> deletePost(Long postId) {
+  public ServiceResult<Void> deletePost(Long postId, Long userDetailId) {
     log.info("PostService : deletePost(" + postId + ") 호출");
 
     Post post = postRepository.findById(postId).orElse(null);
@@ -78,10 +87,13 @@ public class PostService {
       return ServiceResult.fail(ErrorCode.POST_NOT_FOUND);
     }
 
-    //postTagService.deletePostTags(post.getId());
+    Member user = memberRepository.findById(userDetailId).orElse(null);
+    if (user == null || (userDetailId != post.getMember().getId() && user.getProvider() != Provider.ADMIN)) {
+      return ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED);
+    }
+
     postRepository.delete(post);
 
-    // TODO : 게시글의 댓글까지 연쇄 삭제 필요 -> commentService 등장 이후 구현
     return ServiceResult.ok();
   }
 }

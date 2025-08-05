@@ -1,9 +1,9 @@
 package com.tmi.backend.domain.post.entity;
 
+import com.tmi.backend.domain.comment.entity.Comment;
 import com.tmi.backend.domain.company.entity.Company;
 import com.tmi.backend.domain.member.entity.Member;
 import com.tmi.backend.domain.postTag.entity.PostTag;
-import com.tmi.backend.domain.tag.entity.Tag;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,7 +12,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import java.time.LocalDateTime;
@@ -63,6 +62,10 @@ public class Post {
   @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, orphanRemoval = true)
   @Builder.Default
   private List<PostTag> postTags = new ArrayList<>();
+
+  @Builder.Default
+  @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, orphanRemoval = true)
+  private List<Comment> comments = new ArrayList<>();
 
   private LocalDateTime createdAt;
 

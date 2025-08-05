@@ -1,5 +1,6 @@
 package com.tmi.backend.domain.post.controller;
 
+import com.tmi.backend.domain.auth.util.CustomUserDetails;
 import com.tmi.backend.domain.post.dto.request.PostCreateRequest;
 import com.tmi.backend.domain.post.dto.request.PostUpdateRequest;
 import com.tmi.backend.domain.post.service.PostService;
@@ -10,6 +11,7 @@ import jakarta.validation.Valid;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,18 +27,17 @@ public class PostController implements BaseController {
 
   private final PostService postService;
 
-  // TODO: 권한 검증 구현하기
-
   /**
    * 게시글 등록 API
    * @param postCreateRequest 게시글 등록 정보
    */
   @PostMapping
   public ResponseEntity<ApiResponse<Map<String, Long>>> createPost(
-      @Valid @RequestBody PostCreateRequest postCreateRequest
+      @Valid @RequestBody PostCreateRequest postCreateRequest,
+      @AuthenticationPrincipal CustomUserDetails userDetails
   ) {
 
-    return handle(postService.createPost(postCreateRequest));
+    return handle(postService.createPost(postCreateRequest, userDetails.getMemberId()));
   }
 
   /**
@@ -47,10 +48,11 @@ public class PostController implements BaseController {
   @PatchMapping("/{postId}")
   public ResponseEntity<ApiResponse<Map<String, Long>>> updatePost(
       @PathVariable Long postId,
-      @Valid @RequestBody PostUpdateRequest postUpdateRequest
+      @Valid @RequestBody PostUpdateRequest postUpdateRequest,
+      @AuthenticationPrincipal CustomUserDetails userDetails
   ) {
 
-    return handle(postService.updatePost(postId, postUpdateRequest));
+    return handle(postService.updatePost(postId, postUpdateRequest, userDetails.getMemberId()));
   }
 
   /**
@@ -58,8 +60,11 @@ public class PostController implements BaseController {
    * @param postId 삭제할 게시글 id
    */
   @DeleteMapping("/{postId}")
-  public ResponseEntity<ApiResponse<Void>> deletePost(@PathVariable Long postId) {
+  public ResponseEntity<ApiResponse<Void>> deletePost(
+      @PathVariable Long postId,
+      @AuthenticationPrincipal CustomUserDetails userDetails
+  ) {
 
-    return handle(postService.deletePost(postId));
+    return handle(postService.deletePost(postId, userDetails.getMemberId()));
   }
 }

@@ -1,6 +1,7 @@
 package com.tmi.backend.domain.star.service;
 
 import com.tmi.backend.domain.member.entity.Member;
+import com.tmi.backend.domain.member.entity.Provider;
 import com.tmi.backend.domain.member.repository.MemberRepository;
 import com.tmi.backend.domain.post.entity.Post;
 import com.tmi.backend.domain.post.repository.PostRepository;
@@ -9,8 +10,6 @@ import com.tmi.backend.domain.star.entity.Star;
 import com.tmi.backend.domain.star.repository.StarRepository;
 import com.tmi.backend.global.common.response.ServiceResult;
 import com.tmi.backend.global.error.ErrorCode;
-import com.tmi.backend.global.error.exception.BusinessException;
-import jakarta.validation.constraints.Positive;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +28,13 @@ public class StarService {
   private final PostRepository postRepository;
 
   @Transactional
-  public ServiceResult<Map<String, Long>> register(Long memberId, Long postId) {
+  public ServiceResult<Map<String, Long>> register(Long memberId, Long postId, Long userDetailId) {
     log.info("StarService : register() 호출");
+
+    Member user = memberRepository.findById(userDetailId).orElse(null);
+    if (user == null || (userDetailId != memberId && user.getProvider() != Provider.ADMIN)) {
+      return ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED);
+    }
 
     Member member = memberRepository.findById(memberId).orElse(null);
     if (member == null) {
@@ -66,12 +70,18 @@ public class StarService {
   }
 
   @Transactional
-  public ServiceResult<Void> deleteStar(Long starId) {
+  public ServiceResult<Void> deleteStar(Long starId, Long userDetailId) {
     log.info("StarService : deleteStar(" + starId + ") 호출");
+
 
     Star star = starRepository.findById(starId).orElse(null);
     if (star == null) {
       return ServiceResult.fail(ErrorCode.STAR_ALREADY_STARRED);
+    }
+
+    Member user = memberRepository.findById(userDetailId).orElse(null);
+    if (user == null || (userDetailId != star.getMember().getId() && user.getProvider() != Provider.ADMIN)) {
+      return ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED);
     }
 
     star.getPost().minusStarCount();

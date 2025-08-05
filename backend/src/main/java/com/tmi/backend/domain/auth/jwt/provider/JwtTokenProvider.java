@@ -1,4 +1,4 @@
-package com.tmi.backend.domain.auth.jwt;
+package com.tmi.backend.domain.auth.jwt.provider;
 
 import com.tmi.backend.domain.auth.service.CustomUserDetailsService;
 import io.jsonwebtoken.JwtException;
@@ -8,6 +8,8 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import java.security.Key;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -107,5 +109,14 @@ public class JwtTokenProvider {
     }
   }
 
+  public LocalDateTime getTokenExpiration(String token) {
+    Date expiry = Jwts.parserBuilder()
+        .setSigningKey(key)
+        .build()
+        .parseClaimsJws(token)
+        .getBody()
+        .getExpiration();
+    return expiry.toInstant().atZone(ZoneOffset.UTC).toLocalDateTime();
+  }
 
 }

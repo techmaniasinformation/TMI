@@ -6,6 +6,9 @@ import com.tmi.backend.domain.star.entity.Star;
 import java.util.List;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -13,4 +16,8 @@ public interface StarRepository extends JpaRepository<Star, Long> {
   boolean existsByMemberAndPost(Member member, Post post);
   @EntityGraph(attributePaths = {"post"})
   List<Star> findByMember(Member member);
+
+  @Modifying
+  @Query("DELETE FROM Star s WHERE s.member.id = :memberId")
+  void deleteAllByMemberId(@Param("memberId") Long memberId);
 }

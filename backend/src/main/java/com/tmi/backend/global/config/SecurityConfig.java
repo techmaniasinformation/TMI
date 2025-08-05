@@ -1,6 +1,6 @@
 package com.tmi.backend.global.config;
 
-import com.tmi.backend.domain.auth.jwt.JwtAuthenticationFilter;
+import com.tmi.backend.domain.auth.jwt.filter.JwtAuthenticationFilter;
 import com.tmi.backend.domain.auth.oauth.handler.OAuth2FailureHandler;
 import com.tmi.backend.domain.auth.oauth.handler.OAuth2SuccessHandler;
 import com.tmi.backend.domain.auth.oauth.service.CustomOAuth2UserService;
@@ -34,17 +34,17 @@ public class SecurityConfig {
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(authorize -> authorize
-            .requestMatchers(HttpMethod.GET, "/api/v1/member/duplicate", "/api/v1/company/")
+            .requestMatchers(HttpMethod.GET, "/api/**")
             .permitAll()
-            .requestMatchers(HttpMethod.POST, "/api/v1/auth/refresh", "/api/v1/member/signup")
+            .requestMatchers(HttpMethod.POST, "/api/v1/auth/refresh", "/api/v1/member/signup",
+                "api/v1/auth/logout/**")
             .permitAll()
             .requestMatchers(
                 "/oauth2/**",         // 소셜 로그인 진입 및 콜백
                 "/api/v1/auth/refresh",
                 "/api/v1/oauth2/authorization/**",
-                "/api/v1/oauth2/code/**",
-                "/api/v1/member/signup",
-                "/api/**"
+                "/api/v1/oauth2/code/**"
+
             ).permitAll()
             .anyRequest().authenticated()
         )

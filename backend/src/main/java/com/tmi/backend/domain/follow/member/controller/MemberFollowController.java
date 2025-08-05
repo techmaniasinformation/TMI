@@ -3,6 +3,7 @@ package com.tmi.backend.domain.follow.member.controller;
 import com.tmi.backend.domain.follow.member.dto.request.MemberFollowCreateRequest;
 import com.tmi.backend.domain.follow.member.dto.response.MemberFollowListResponse;
 import com.tmi.backend.domain.follow.member.service.MemberFollowService;
+import com.tmi.backend.global.aop.RequireLogin;
 import com.tmi.backend.global.common.response.ApiResponse;
 import com.tmi.backend.global.common.response.impl.ApiSuccessResponse;
 import jakarta.validation.Valid;
@@ -27,6 +28,8 @@ public class MemberFollowController {
   /**
    * 팔로우 목록 조회 API
    */
+
+  @RequireLogin
   @GetMapping
   public ApiResponse<MemberFollowListResponse> getMemberFollows(
       @RequestParam Long followerId,

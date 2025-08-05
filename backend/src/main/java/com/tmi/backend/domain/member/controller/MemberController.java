@@ -1,6 +1,7 @@
 package com.tmi.backend.domain.member.controller;
 
-import com.tmi.backend.domain.auth.service.TokenService;
+import com.tmi.backend.domain.auth.jwt.service.RefreshTokenService;
+import com.tmi.backend.domain.auth.jwt.service.TokenService;
 import com.tmi.backend.domain.member.dto.request.MemberCreateRequest;
 import com.tmi.backend.domain.member.dto.request.MemberUpdateRequest;
 import com.tmi.backend.domain.member.dto.response.MemberResponse;
@@ -28,6 +29,8 @@ public class MemberController {
 
   private final MemberService memberService;
   private final TokenService tokenService;
+  private final RefreshTokenService refreshTokenService;
+
   /**
    * 멤버 조회 API
    */
@@ -82,8 +85,11 @@ public class MemberController {
    * 회원탈퇴(논리적 삭제) API
    */
   @PatchMapping("/{memberId}/delete")
-  public ApiResponse<Map<String, Long>> deleteMember(@PathVariable Long memberId) {
+  public ApiResponse<Map<String, Long>> deleteMember(@PathVariable Long memberId,
+      HttpServletResponse res) {
     Long deletedMemberId = memberService.deleteMember(memberId);
+    tokenService.deleteAuthCookies(res);
+    refreshTokenService.deleteByMemberId(deletedMemberId);
     return ApiSuccessResponse.success(
         Map.of("memberId", deletedMemberId)
     );

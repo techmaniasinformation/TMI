@@ -109,20 +109,20 @@ const PostEditPage: React.FC = () => {
        });
 
       if (!response.ok) {
-        throw new Error('게시글 작성에 실패했습니다.');
+        throw new Error('게시글 수정에 실패했습니다.');
       }
 
       const result = await response.json();
-      console.log('게시글 작성 성공:', result);
+      console.log('게시글 수정 성공:', result);
       
-      alert('게시글이 작성되었습니다!');
+      alert('게시글이 수정되었습니다!');
       
       // 저장 완료 후 상세 페이지로 이동
       navigate(`/post/${result.id || '1'}`);
       
     } catch (error) {
       console.error('저장 실패:', error);
-      alert('게시글 작성에 실패했습니다.');
+      alert('게시글 수정에 실패했습니다.');
     } finally {
       setIsLoading(false);
     }
@@ -156,7 +156,7 @@ const PostEditPage: React.FC = () => {
             <span className="text-xl">←</span>
             <span>돌아가기</span>
           </button>
-          <h1 className="text-xl font-semibold text-gray-900">새 게시글 작성</h1>
+          <h1 className="text-xl font-semibold text-gray-900">게시글 수정</h1>
         </div>
       </div>
 
@@ -358,10 +358,10 @@ const PostEditPage: React.FC = () => {
                          {isLoading ? (
                <>
                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                 저장 중...
+                 수정 중...
                </>
              ) : (
-               '저장하기'
+                               '수정하기'
              )}
           </button>
         </div>

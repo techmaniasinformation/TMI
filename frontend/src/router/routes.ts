@@ -4,6 +4,7 @@ export const ROUTES = {
   LOGIN: '/login',
   SEARCH: '/search',
   POST: '/post/:id',
+  POST_CREATE: '/post/create',
   POST_EDIT: '/post/:id/edit',
   MY_PAGE: '/my-page',               // 기본 사용자 마이페이지
   MY_PAGE_USER: '/my-page-user',     // 사용자용 테스트 라우트

@@ -189,8 +189,7 @@ public class PostViewService {
 
     int commentCount = commentRepository.countByPostId(postId);
 
-    // TODO: isStar 어떻게 구현하지?
-    return ServiceResult.ok(DetailPostResponse.of(post, commentCount, false));
+    return ServiceResult.ok(DetailPostResponse.of(post, commentCount));
   }
 
   public ServiceResult<SimplePostPageResponse> readPopularPosts(int size) {

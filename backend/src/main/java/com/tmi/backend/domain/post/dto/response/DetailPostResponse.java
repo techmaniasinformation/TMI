@@ -21,13 +21,11 @@ public record DetailPostResponse(
     int commentCount,
     String thumbnailUrl,
     String content,
-    String link,
-    boolean isStar          // 현재 사용자 기준 ‘즐겨찾기’ 여부
+    String link
 ) {
 
   public static DetailPostResponse of(Post post,
-      int commentCount,
-      boolean isStar) {
+      int commentCount) {
 
     return DetailPostResponse.builder()
         .postId(post.getId())
@@ -49,7 +47,6 @@ public record DetailPostResponse(
         .thumbnailUrl(post.getThumbnailUrl())
         .content(post.getContent())
         .link(post.getLink())
-        .isStar(isStar)
         .build();
   }
 }

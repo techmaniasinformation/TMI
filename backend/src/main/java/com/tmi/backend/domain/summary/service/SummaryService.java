@@ -1,4 +1,4 @@
-package com.tmi.backend.domain.crawling.service;
+package com.tmi.backend.domain.summary.service;
 
 import java.util.Comparator;
 import java.util.stream.Collectors;
@@ -13,28 +13,27 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CrawlService {
-
-  private final RestTemplate restTemplate = new RestTemplate();
+public class SummaryService {
 
   @Value("${api.gms-key}")
   private String OPENAI_API_KEY;
+  private final RestClient restClient = RestClient.create();
 
   public String extractContent(String url) {
-    HttpHeaders headers = new HttpHeaders();
-    headers.add("User-Agent", "Mozilla/5.0");
+    String html = restClient.get()
+        .uri(url)
+        .header("User-Agent", "Mozilla/5.0")
+        .retrieve()
+        .onStatus(status -> !status.is2xxSuccessful(), (req, res) -> {
+          throw new RuntimeException("크롤링 실패: 상태 코드 " + res.getStatusCode());
+        })
+        .body(String.class);
 
-    ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-    if (response.getStatusCode() != HttpStatus.OK) {
-      throw new RuntimeException("크롤링 실패: 상태 코드 " + response.getStatusCode());
-    }
-
-    String html = response.getBody();
     Document doc = Jsoup.parse(html);
 
     // 불필요한 태그 제거
@@ -43,7 +42,6 @@ public class CrawlService {
       doc.select(tag).remove();
     }
 
-    // 가장 긴 텍스트 블록(article, div)
     Elements candidates = doc.select("article, div");
     if (candidates.isEmpty()) {
       throw new RuntimeException("본문 블록을 찾을 수 없습니다.");
@@ -53,17 +51,14 @@ public class CrawlService {
         .max(Comparator.comparingInt(e -> e.text().trim().length()))
         .orElseThrow(() -> new RuntimeException("본문 추출 실패"));
 
-    String cleanedText = Arrays.stream(mainContent.text().split("\n"))
+    return Arrays.stream(mainContent.text().split("\n"))
         .map(String::trim)
         .filter(s -> !s.isEmpty())
         .collect(Collectors.joining("\n"));
-
-    return cleanedText;
   }
 
   public String summarizeWithOpenAI(String content) {
     String prompt = "다음 HTML 본문을 요약해줘:";
-
     String requestBody = """
             {
               "model": "gpt-4",
@@ -75,18 +70,17 @@ public class CrawlService {
             }
             """.formatted(prompt, content.replace("\"", "\\\""));
 
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_JSON);
-    headers.setBearerAuth(OPENAI_API_KEY);
-
-    HttpEntity<String> request = new HttpEntity<>(requestBody, headers);
-
     String OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
-    ResponseEntity<String> response = restTemplate.postForEntity(OPENAI_API_URL, request, String.class);
-    if (response.getStatusCode() != HttpStatus.OK) {
-      throw new RuntimeException("OpenAI 호출 실패: " + response.getStatusCode());
-    }
 
-    return response.getBody(); // 필요하면 JSON 파싱해서 요약 내용만 추출 가능
+    return restClient.post()
+        .uri(OPENAI_API_URL)
+        .header(HttpHeaders.AUTHORIZATION, "Bearer " + OPENAI_API_KEY)
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(requestBody)
+        .retrieve()
+        .onStatus(status -> !status.is2xxSuccessful(), (req, res) -> {
+          throw new RuntimeException("OpenAI 호출 실패: " + res.getStatusCode());
+        })
+        .body(String.class); // 필요 시 JSON 파싱하여 요약 내용만 추출
   }
 }

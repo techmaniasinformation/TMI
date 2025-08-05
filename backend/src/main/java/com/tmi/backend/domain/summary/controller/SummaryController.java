@@ -1,6 +1,6 @@
-package com.tmi.backend.domain.crawling.controller;
+package com.tmi.backend.domain.summary.controller;
 
-import com.tmi.backend.domain.crawling.service.CrawlService;
+import com.tmi.backend.domain.summary.service.SummaryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/crawl")
 @RequiredArgsConstructor
-public class CrawlController {
+public class SummaryController {
 
-  private final CrawlService crawlService;
+  private final SummaryService crawlService;
 
   @GetMapping("/extract")
   public ResponseEntity<String> extractAndSummarize(@RequestParam String url) {

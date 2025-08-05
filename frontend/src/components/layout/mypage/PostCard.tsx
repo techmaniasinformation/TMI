@@ -36,12 +36,17 @@ const PostCard: React.FC<PostCardProps> = ({ post, onClick }) => {
       onClick={onClick} // 카드 클릭 시 동작
     >
       {/* 썸네일 이미지 (오류 시 대체 이미지로 변경) */}
-      <img
-        src={thumbnail}
-        alt={title}
-        className="w-[200px] h-[120px] object-contain rounded-lg"
-        onError={handleImageError}
-      />
+      <div
+        className="w-[200px] h-[120px] rounded-xl flex items-center justify-center bg-gray-100"
+      >
+        <img
+          src={thumbnail || DefaultThumbnail}
+          alt={title}
+          onError={handleImageError}
+          className="max-w-full max-h-full object-contain rounded-xl"
+          style={{ backgroundColor: 'transparent' }}
+        />
+      </div>
 
       {/* 게시글 정보 */}
       <div className="flex-1">

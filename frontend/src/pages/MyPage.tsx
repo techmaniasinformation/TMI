@@ -3,6 +3,10 @@ import ProfileHeader from '@/components/layout/mypage/ProfileHeader';
 import MyPageTabs from '@/components/layout/mypage/MypageTabs';
 import ProfileEditModal from '@/components/layout/mypage/ProfileEditModal';
 
+// API & 타입 불러오기
+import { getCompany } from '@/api/company/company';
+import type { Company } from '@/types/company/company';
+
 interface MyPageProps {
   isCompany: boolean;
   isMyPage: boolean;
@@ -72,21 +76,42 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany, isMyPage }) => {
   const [isFollowing, setIsFollowing] = useState(false);
   const handleFollowToggle = () => setIsFollowing((prev) => !prev);
 
+  // 기업 데이터 상태
+  const [company, setCompany] = useState<Company | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  // 기업 데이터 호출
+  useEffect(() => {
+    if (isCompany) {
+      setLoading(true);
+      getCompany(9) // company 고정
+        .then((res) => setCompany(res.data))
+        .catch((err) => console.error(err))
+        .finally(() => setLoading(false));
+    }
+  }, [isCompany]);
+
   return (
     <div className="max-w-[1232px] mx-auto px-4 py-8">
       <div className="max-w-[1232px] mx-auto">
         <ProfileHeader
-          nickname={nickname}
-          email={email}
-          githubUrl={githubUrl}
-          blogUrl={blogUrl}
+          nickname={isCompany ? company?.name || '' : nickname}
+          email={isCompany ? '' : email}
+          githubUrl={isCompany ? '' : githubUrl}
+          blogUrl={isCompany ? company?.techBlogUrl || '' : blogUrl}
           isCompany={isCompany}
           isMyPage={isMyPage}
-          lastUpdate="2025-07-30"
-          postCount={userStats.posts}
-          commentCount={userStats.comments}
-          followerCount={userStats.followers}
-          viewCount={userStats.views}
+          lastUpdate={
+            isCompany
+              ? company?.lastUpdatedAt
+                ? company.lastUpdatedAt.split("T")[0] // 날짜만 추출
+                : ''
+              : '2025-07-30'
+          }
+          postCount={isCompany ? company?.stats.postCount || 0 : userStats.posts}
+          commentCount={isCompany ? 0 : userStats.comments}
+          followerCount={isCompany ? company?.stats.followerCount || 0 : userStats.followers}
+          viewCount={isCompany ? company?.stats.totalViewCount || 0 : userStats.views}
           onFollowToggle={handleFollowToggle}
           isFollowing={isFollowing}
           setNickname={setNickname}

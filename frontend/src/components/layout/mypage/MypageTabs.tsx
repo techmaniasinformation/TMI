@@ -51,6 +51,12 @@ import badgeAWS from '@/assets/images/AWS.png';
 // 배지 모달
 import BadgeModal from '@/components/layout/mypage/BadgeModal';
 
+// 기업 게시글 api
+import { useEffect } from "react";
+import { getCompanyPosts } from "@/api/company/companyPost";
+
+import type { CompanyPost } from "@/types/company/companyPost";
+
 // 배지 리스트
 const badgeList = [
   { id: 1, name: '이건 머지?', image: badgeFirstArticle, filename: 'first_article.png'},
@@ -113,6 +119,12 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   const isPersonal = !isCompany;
   const isOtherUser = isPersonal && !isMyPage;
 
+
+  // 기업 게시글 API 데이터 상태
+  const [companyPosts, setCompanyPosts] = useState<CompanyPost[]>([]);
+  const [companyPostTotalPages, setCompanyPostTotalPages] = useState(1);
+  const [companyPostTotalElements, setCompanyPostTotalElements] = useState(0);
+  
   // 팔로우 탭의 서브 탭 상태 ('company' or 'user')
   const [followSubTab, setFollowSubTab] = useState<'company' | 'user'>('company');
   
@@ -137,7 +149,20 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
     totalPages: totalPostPages,
     paginatedItems: paginatedPosts
   } = usePagination<Post>(posts, 5);
-  
+
+  // 기업 게시글 API 호출
+  useEffect(() => {
+    if (isCompany) {
+      getCompanyPosts(9, currentPostPage, 5) // companyId는 나중에 동적 전달
+        .then((res) => {
+          setCompanyPosts(res.data.posts);
+          setCompanyPostTotalPages(res.data.pageInfo.totalPages);
+          setCompanyPostTotalElements(res.data.pageInfo.totalElements); // 전체 개수 저장
+        })
+        .catch(console.error);
+    }
+  }, [isCompany, currentPostPage]);
+
   // FollowCompanyCard용 JSON 데이터 불러오기
   const { data: followedCompanies } = useFetchJson<{
     id: string;
@@ -287,17 +312,59 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
       {/* 게시글 */}
       <TabsContent value="posts" className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
         <h2 className="text-lg font-semibold mb-4">작성한 게시글</h2>
-        {paginatedPosts.length === 0 ? (
-          <p className="text-sm text-gray-500">게시글이 없습니다.</p>
+
+        {isCompany ? (
+          companyPosts.length === 0 ? (
+            <p className="text-sm text-gray-500">게시글이 없습니다.</p>
+          ) : (
+            <div className="space-y-4">
+              {companyPosts.map((post) => (
+                <PostCard
+                  key={post.postId}
+                  post={{
+                    id: post.postId,
+                    title: post.title,
+                    thumbnail: post.thumbnailUrl,
+                    tags: post.tags,
+                    views: post.viewCount,
+                    stars: post.starCount,
+                    comments: post.commentCount
+                  }}
+                  onClick={() => window.location.href = `/post/${post.postId}`}
+                />
+              ))}
+            </div>
+          )
         ) : (
-          <div className="space-y-4">
-            {paginatedPosts.map((post, idx) => (
-              <PostCard key={idx} post={post} onClick={() => window.location.href = '#'} />
-            ))}
-          </div>
+          paginatedPosts.length === 0 ? (
+            <p className="text-sm text-gray-500">게시글이 없습니다.</p>
+          ) : (
+            <div className="space-y-4">
+              {paginatedPosts.map((post, idx) => (
+                <PostCard key={idx} post={post} onClick={() => window.location.href = '#'} />
+              ))}
+            </div>
+          )
         )}
-        {totalPostPages > 1 && (
-          <Pagination currentPage={currentPostPage} totalCount={posts.length} pageSize={5} onPageChange={setCurrentPostPage} />
+
+        {isCompany ? (
+          companyPostTotalPages > 1 && (
+            <Pagination
+              currentPage={currentPostPage}
+              totalCount={companyPostTotalElements}
+              pageSize={5}
+              onPageChange={setCurrentPostPage}
+            />
+          )
+        ) : (
+          totalPostPages > 1 && (
+            <Pagination
+              currentPage={currentPostPage}
+              totalCount={posts.length}
+              pageSize={5}
+              onPageChange={setCurrentPostPage}
+            />
+          )
         )}
       </TabsContent>
 

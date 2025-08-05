@@ -1,6 +1,5 @@
 package com.tmi.backend.domain.memberBadge.repository;
 
-import com.tmi.backend.domain.memberBadge.dto.response.SimpleMemberBadge;
 import com.tmi.backend.domain.memberBadge.entity.MemberBadge;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,18 +10,13 @@ import org.springframework.data.repository.query.Param;
 public interface MemberBadgeRepository extends JpaRepository<MemberBadge, Long> {
 
   @Query("""
-        SELECT new com.tmi.backend.domain.memberBadge.dto.response.SimpleMemberBadge(
-          mb.id,
-          mb.badge.id,
-          mb.receivedAt
-        )
-        FROM MemberBadge mb
-        WHERE mb.member.id = :memberId
-        ORDER BY mb.receivedAt DESC
+          SELECT mb
+          FROM MemberBadge mb
+          JOIN FETCH mb.badge
+          WHERE mb.member.id = :memberId
+          ORDER BY mb.receivedAt DESC
       """)
-  List<SimpleMemberBadge> findAllSimpleByMemberId(
-      @Param("memberId") Long memberId
-  );
+  List<MemberBadge> findAllByMemberIdFetchBadge(@Param("memberId") Long memberId);
 
   @Query("SELECT mb.member.id FROM MemberBadge mb WHERE mb.id = :targetId")
   Long findMemberIdById(@Param("targetId") Long targetId);

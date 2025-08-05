@@ -5,7 +5,6 @@ import com.tmi.backend.domain.badge.repository.BadgeRepository;
 import com.tmi.backend.domain.member.entity.Member;
 import com.tmi.backend.domain.member.repository.MemberRepository;
 import com.tmi.backend.domain.memberBadge.dto.response.MemberBadgeListResponse;
-import com.tmi.backend.domain.memberBadge.dto.response.SimpleMemberBadge;
 import com.tmi.backend.domain.memberBadge.entity.MemberBadge;
 import com.tmi.backend.domain.memberBadge.repository.MemberBadgeRepository;
 import com.tmi.backend.global.common.response.ServiceResult;
@@ -33,8 +32,9 @@ public class MemberBadgeService {
       return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
     }
 
-    List<SimpleMemberBadge> list = memberBadgeRepository.findAllSimpleByMemberId(memberId);
-    return ServiceResult.ok(MemberBadgeListResponse.of(list));
+    List<MemberBadge> memberBadgeList = memberBadgeRepository.findAllByMemberIdFetchBadge(memberId);
+
+    return ServiceResult.ok(MemberBadgeListResponse.of(memberBadgeList));
   }
 
   @Transactional

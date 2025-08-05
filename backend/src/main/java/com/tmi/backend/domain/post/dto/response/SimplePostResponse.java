@@ -26,7 +26,7 @@ public record SimplePostResponse(
     return SimplePostResponse.builder()
         .postId(post.getId().toString())
         .memberProfile(post.getMember().getMemberProfileUrl())
-        .companyProfileUrl(post.getCompany().getCompanyProfileUrl())
+        .companyProfileUrl(post.getCompany() == null ? null : post.getCompany().getCompanyProfileUrl())
         .name(post.getMember().getNickname())
 //        .badgeUrl(post.getMember().getBadgeUrl())
         .title(post.getTitle())

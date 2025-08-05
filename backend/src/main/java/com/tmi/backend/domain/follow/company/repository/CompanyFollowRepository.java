@@ -2,6 +2,7 @@ package com.tmi.backend.domain.follow.company.repository;
 
 import com.tmi.backend.domain.follow.company.dto.response.SimpleCompanyFollow;
 import com.tmi.backend.domain.follow.company.entity.CompanyFollow;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -28,4 +29,6 @@ public interface CompanyFollowRepository extends JpaRepository<CompanyFollow, Lo
   );
 
   boolean existsByFollowerIdAndCompanyId(Long followerId, Long companyId);
+
+  List<CompanyFollow> findByFollowerId(Long followerId);
 }

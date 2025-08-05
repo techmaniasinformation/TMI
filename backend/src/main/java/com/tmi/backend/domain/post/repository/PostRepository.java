@@ -63,4 +63,10 @@ public interface PostRepository extends JpaRepository<Post, Long> {
       @Param("techTagIds")    List<Integer> techTagIds,
       @Param("companyTagIds") List<Integer> companyTagIds,
       Pageable pageable);
+
+  Page<Post> findByMember_IdInOrCompany_IdIn(
+      List<Long> memberIds,
+      List<Long> companyIds,
+      Pageable pageable
+  );
 }

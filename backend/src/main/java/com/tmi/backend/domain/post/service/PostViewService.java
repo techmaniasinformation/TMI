@@ -2,6 +2,8 @@ package com.tmi.backend.domain.post.service;
 
 import com.tmi.backend.domain.comment.dto.CommentCount;
 import com.tmi.backend.domain.comment.repository.CommentRepository;
+import com.tmi.backend.domain.follow.company.repository.CompanyFollowRepository;
+import com.tmi.backend.domain.follow.member.repository.MemberFollowRepository;
 import com.tmi.backend.domain.member.entity.Member;
 import com.tmi.backend.domain.member.repository.MemberRepository;
 import com.tmi.backend.domain.post.dto.request.PostFilter;
@@ -40,6 +42,8 @@ public class PostViewService {
   private final PostRepository postRepository;
   private final StarRepository starRepository;
   private final MemberRepository memberRepository;
+  private final MemberFollowRepository memberFollowRepository;
+  private final CompanyFollowRepository companyFollowRepository;
   private final CommentRepository commentRepository;
   private final TagService tagService;
 
@@ -66,7 +70,34 @@ public class PostViewService {
   public ServiceResult<SimplePostPageResponse> readFollowPosts(Long followMemberId, int page, int size) {
     log.info("PostViewService : readFollowPosts(" + followMemberId + ") 호출");
 
-    return null;
+    if (!memberRepository.existsById(followMemberId)) {
+      return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
+    }
+
+    List<Long> followeeIds = memberFollowRepository.findByFollowerId(followMemberId)
+        .stream()
+        .map(mf -> mf.getFollowee().getId())
+        .toList();
+
+    List<Long> companyIds = companyFollowRepository.findByFollowerId(followMemberId)
+        .stream()
+        .map(cf -> cf.getCompany().getId())
+        .toList();
+
+
+    Pageable pageable = PageRequest.of(page - 1, size, Sort.Direction.DESC, "createdAt");
+
+    Page<Post> postPage = postRepository
+        .findByMember_IdInOrCompany_IdIn(followeeIds, companyIds, pageable);
+
+    List<Long> postIds = postPage.getContent().stream()
+        .map(Post::getId).toList();
+
+    Map<Long, Integer> countMap = commentRepository.findCountByPostIds(postIds)
+        .stream()
+        .collect(Collectors.toMap(CommentCount::postId, CommentCount::cnt));
+
+    return ServiceResult.ok(SimplePostPageResponse.of(postPage, page, countMap));
   }
 
   public ServiceResult<SimplePostPageResponse> readCompanyPosts(Long companyId, int page, int size) {

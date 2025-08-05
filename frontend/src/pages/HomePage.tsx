@@ -1,4 +1,3 @@
-import React from 'react';
 import HomePostList from '@/components/domain/HomePostList';
 import PopularPosts from '@/components/domain/PopularPosts';
 

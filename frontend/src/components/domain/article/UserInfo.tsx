@@ -3,6 +3,7 @@ import React from 'react';
 interface UserInfoBoxProps {
   profileImageUrl: string;
   nickname: string;
+  badge?: React.ReactNode; // 뱃지 추가
   // 닉네임 아래에 추가 정보를 넣고 싶을 때 사용
   children?: React.ReactNode;
 
@@ -17,6 +18,7 @@ interface UserInfoBoxProps {
 export default function UserInfoBox({
   profileImageUrl,
   nickname,
+  badge,
   children,
   width,
   height,
@@ -41,9 +43,14 @@ export default function UserInfoBox({
 
       {/* 닉네임 + 하위 정보 */}
       <div className="flex flex-col">
-        <span className="font-semibold text-sm">{nickname}</span>
+        <div className="flex items-center space-x-2">
+          <span className="font-semibold text-sm">{nickname}</span>
+          {badge && badge}
+        </div>
         {/* 추가로 렌더링 될 정보 */}
-        {children}
+        <div className="mt-4">
+          {children}
+        </div>
       </div>
     </div>
   );

@@ -1,5 +1,4 @@
 // The exported code uses Tailwind CSS. Install Tailwind CSS in your dev environment to ensure all styles work.
-import React from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import SearchPostListContainer from '@/components/domain/SearchPostListContainer';
 import { useSearchResults } from '@/hooks/posts/useSearchResults';

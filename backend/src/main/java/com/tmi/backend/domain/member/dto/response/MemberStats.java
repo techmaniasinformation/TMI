@@ -7,9 +7,5 @@ public record MemberStats(
     long followerCount,
     long totalViewCount
 ) {
-
-  public static MemberStats of(long postCount, long commentCount, long followerCount,
-      long totalViewCount) {
-    return new MemberStats(postCount, commentCount, followerCount, totalViewCount);
-  }
+  
 }

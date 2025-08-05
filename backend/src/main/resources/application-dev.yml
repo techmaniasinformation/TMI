@@ -28,7 +28,7 @@ spring:
             scope:
           naver:
             client-id: ${NAVER_CLIENT_ID}
-            client-secret: ${xPrrozgMHK}
+            client-secret: ${NAVER_CLIENT_SECRET}
             client-name: NAVER
             authorization-grant-type: authorization_code
             redirect-uri: "{baseUrl}/api/v1/oauth2/code/{registrationId}"
@@ -38,7 +38,7 @@ spring:
             client-secret: ${GOOGLE_CLIENT_SECRET}
             client-name: GOOGLE
             authorization-grant-type: authorization_code
-            redirect-uri: "{baseUrl}/api/v1/oauth2/code/{registrationId}"
+            redirect-uri: "${APP_OAUTH2_BASE_URL}/api/v1/oauth2/code/google"
             scope: openid
 
         provider:
@@ -61,7 +61,8 @@ spring:
 jwt:
   secret: ${JWT_SECRET}
   access-token-expiration-minutes: 60
-  refresh-token-expiration-minutes: 100
+  refresh-token-expiration-minutes: 21060
 
 api:
   gms-key: ${GMS_KEY}
+

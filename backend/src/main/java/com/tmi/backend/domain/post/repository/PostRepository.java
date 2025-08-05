@@ -1,6 +1,7 @@
 package com.tmi.backend.domain.post.repository;
 
 import com.tmi.backend.domain.post.entity.Post;
+import com.tmi.backend.domain.post.entity.PostMetrics;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -69,4 +70,15 @@ public interface PostRepository extends JpaRepository<Post, Long> {
       List<Long> companyIds,
       Pageable pageable
   );
+
+  @Query("""
+       select p.id          as postId,
+              p.viewCount   as viewCount,
+              p.starCount   as starCount,
+              p.createdAt   as createdAt
+       from   Post p
+    """)
+  List<PostMetrics> findAllMetrics();
+
+  List<Post> findByIdIn(List<Long> ids);
 }

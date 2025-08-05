@@ -13,6 +13,7 @@ import com.tmi.backend.domain.post.dto.response.SimplePostPageResponse;
 import com.tmi.backend.domain.post.dto.response.SimplePostSearchResponse;
 import com.tmi.backend.domain.post.entity.Post;
 import com.tmi.backend.domain.post.repository.PostRepository;
+import com.tmi.backend.domain.postScore.repository.PostScoreRepository;
 import com.tmi.backend.domain.star.entity.Star;
 import com.tmi.backend.domain.star.repository.StarRepository;
 import com.tmi.backend.domain.tag.service.TagService;
@@ -23,10 +24,12 @@ import com.tmi.backend.global.error.exception.BusinessException;
 import jakarta.validation.constraints.Positive;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -44,6 +47,7 @@ public class PostViewService {
   private final MemberRepository memberRepository;
   private final MemberFollowRepository memberFollowRepository;
   private final CompanyFollowRepository companyFollowRepository;
+  private final PostScoreRepository postScoreRepository;
   private final CommentRepository commentRepository;
   private final TagService tagService;
 
@@ -226,6 +230,34 @@ public class PostViewService {
   public ServiceResult<SimplePostPageResponse> readPopularPosts(int size) {
     log.info("PostViewService : readPopularPosts() 호출");
 
-    return null;
+    // 1. 점수 테이블에서 상위 PK 목록 조회
+    Pageable limit = PageRequest.of(0, size);          // 첫 페이지만 필요
+    List<Long> topIds = postScoreRepository.findTopPostIds(limit);
+
+    if (topIds.isEmpty()) {          // 점수가 아직 없다면 최신글로 대체
+      return readLatest(1, size);
+    }
+
+    // 2. 실제 Post 엔티티 로딩
+    List<Post> posts = postRepository.findByIdIn(topIds);
+
+    // 3. 점수순 정렬 유지 (IN 쿼리는 순서 보장 X)
+    Map<Long, Post> map = posts.stream()
+        .collect(Collectors.toMap(Post::getId, p -> p));
+    List<Post> ordered = topIds.stream()
+        .map(map::get)
+        .filter(Objects::nonNull)
+        .toList();
+
+    // 4. 댓글 수 집계
+    List<Long> postIds = ordered.stream().map(Post::getId).toList();
+    Map<Long, Integer> countMap = commentRepository.findCountByPostIds(postIds)
+        .stream()
+        .collect(Collectors.toMap(CommentCount::postId, CommentCount::cnt));
+
+    // 5. Page 래핑 → 기존 DTO 그대로 재사용
+    Page<Post> page = new PageImpl<>(ordered, limit, ordered.size());
+
+    return ServiceResult.ok(SimplePostPageResponse.of(page, 1, countMap));
   }
 }

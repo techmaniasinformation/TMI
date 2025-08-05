@@ -8,6 +8,7 @@ import com.tmi.backend.domain.auth.oauth.service.CustomOidcUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -33,13 +34,17 @@ public class SecurityConfig {
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(authorize -> authorize
+            .requestMatchers(HttpMethod.GET, "/api/v1/member/duplicate", "/api/v1/company/")
+            .permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/v1/auth/refresh", "/api/v1/member/signup")
+            .permitAll()
             .requestMatchers(
                 "/oauth2/**",         // 소셜 로그인 진입 및 콜백
                 "/api/v1/auth/refresh",
                 "/api/v1/oauth2/authorization/**",
                 "/api/v1/oauth2/code/**",
                 "/api/v1/member/signup",
-                "api/v1/post/**"
+                "/api/**"
             ).permitAll()
             .anyRequest().authenticated()
         )

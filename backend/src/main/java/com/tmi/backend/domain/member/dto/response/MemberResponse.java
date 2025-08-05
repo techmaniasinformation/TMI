@@ -8,10 +8,17 @@ public record MemberResponse(
     String memberProfileUrl,
     String blogUrl,
     String githubUrl,
-    MemberStats stats) {
+    MemberStats memberStats
+) {
 
-  public static MemberResponse of(Member member, MemberStats stats) {
-    return new MemberResponse(member.getId(), member.getNickname(), member.getMemberProfileUrl(),
-        member.getBlogUrl(), member.getGithubUrl(), stats);
+  public static MemberResponse of(Member member, MemberStats memberStats) {
+    return new MemberResponse(
+        member.getId(),
+        member.getNickname(),
+        member.getMemberProfileUrl(),
+        member.getBlogUrl(),
+        member.getGithubUrl(),
+        memberStats
+    );
   }
 }

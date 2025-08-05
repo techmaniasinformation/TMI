@@ -2,10 +2,12 @@ package com.tmi.backend.domain.member.controller;
 
 import com.tmi.backend.domain.auth.jwt.service.RefreshTokenService;
 import com.tmi.backend.domain.auth.jwt.service.TokenService;
+import com.tmi.backend.domain.auth.util.CustomUserDetails;
 import com.tmi.backend.domain.member.dto.request.MemberCreateRequest;
 import com.tmi.backend.domain.member.dto.request.MemberUpdateRequest;
 import com.tmi.backend.domain.member.dto.response.MemberResponse;
 import com.tmi.backend.domain.member.service.MemberService;
+import com.tmi.backend.global.common.controller.BaseController;
 import com.tmi.backend.global.common.response.ApiResponse;
 import com.tmi.backend.global.common.response.impl.ApiSuccessResponse;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,6 +15,7 @@ import jakarta.validation.Valid;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/member")
 @RequiredArgsConstructor
-public class MemberController {
+public class MemberController implements BaseController {
 
   private final MemberService memberService;
   private final TokenService tokenService;
@@ -60,8 +63,10 @@ public class MemberController {
   @PatchMapping("/{memberId}")
   public ApiResponse<Map<String, Long>> updateMember(
       @PathVariable Long memberId,
-      @Valid @RequestBody MemberUpdateRequest req
+      @Valid @RequestBody MemberUpdateRequest req,
+      @AuthenticationPrincipal CustomUserDetails userDetail
   ) {
+
     Long updeatedMemberId = memberService.updateMember(memberId, req);
     return ApiSuccessResponse.success(Map.of("memberId", updeatedMemberId));
   }

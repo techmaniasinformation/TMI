@@ -24,18 +24,16 @@ public interface MemberBadgeRepository extends JpaRepository<MemberBadge, Long> 
       @Param("memberId") Long memberId
   );
 
+  @Query("SELECT mb.member.id FROM MemberBadge mb WHERE mb.id = :targetId")
+  Long findMemberIdById(@Param("targetId") Long targetId);
+
   @Modifying(clearAutomatically = true)
-  @Query("""
-        UPDATE MemberBadge mb
-           SET mb.isRepresentative =
-             CASE WHEN mb.id = :targetId THEN true ELSE false END
-         WHERE mb.member.id = (
-           SELECT m2.member.id
-             FROM MemberBadge m2
-            WHERE m2.id = :targetId
-         )
-      """)
-  int updateRepresentative(@Param("targetId") Long targetId);
+  @Query("UPDATE MemberBadge mb SET mb.isRepresentative = false WHERE mb.member.id = :memberId")
+  void clearRepresentative(@Param("memberId") Long memberId);
+
+  @Modifying(clearAutomatically = true)
+  @Query("UPDATE MemberBadge mb SET mb.isRepresentative = true WHERE mb.id = :targetId")
+  void setRepresentative(@Param("targetId") Long targetId);
 
   @Modifying
   @Query("DELETE FROM MemberBadge mb WHERE mb.member.id = :memberId")

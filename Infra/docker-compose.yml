@@ -1,0 +1,55 @@
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro # 볼륨 마운트 : EC2에 있는 nginx.conf
+      - ./frontend/build:/usr/share/nginx/html:ro # 볼륨 마운트 : react 빌드 결과물 저장
+      - ./nginx/certbot/conf:/etc/letsencrypt:ro # 볼륨 마운트 : TLS 인증
+      - ./nginx/certbot:/var/www/certbot # 볼륨 마운트 : TLS 인증
+    depends_on:
+      - app # app이라는 service에 의존성 추가 -> 나중에 heath check으로 바꾸고 싶음
+
+  # webroot 방식으로 certbot 인증을 받다보니 1회성으로 넣어논 certbot 관련 코드
+  #  certbot:
+  #    image: certbot/certbot:latest
+  #    command: certonly --webroot --webroot-path=/var/www/certbot --email sth9057@gmail.com  --agree-tos --no-eff-email -d i13a509.p.ssafy.io
+  #    volumes:
+  #      - ./nginx/certbot/conf:/etc/letsencrypt
+  #     - ./nginx/certbot/logs:/var/log/letsencrypt
+  #      - ./nginx/certbot:/var/www/certbot
+
+  app:
+    image: tmi-app-image:latest
+    container_name: spring-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+    environment:
+      SPRING_REDIS_HOST: redis
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  jenkins:
+    build: ./jenkins
+    container_name: jenkins
+    user: root
+    ports:
+      - "8090:8080"       # Jenkins는 내부 포트 8080을 외부 8090에 매핑
+      - "50000:50000"     # 에이전트 커넥션 포트
+    volumes:
+      - ./jenkins/jenkins_home:/var/jenkins_home  # Jenkins 데이터 유지
+      - /var/run/docker.sock:/var/run/docker.sock  # Jenkins에서 Docker 명령 사용 - DooD 방식
+      - ./frontend:/frontend # 볼륨 마운트 : Jenkins에서 빌드한 프론트 결과물을 호스트에 저장
+    #    depends_on:
+    #      - app
+    networks:
+      - default

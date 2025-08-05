@@ -1,0 +1,69 @@
+pipeline {
+    agent any
+
+    environment {
+        GIT_CLONE_DIR = '/tmp/fe'
+        REPO_URL = 'https://lab.ssafy.com/s13-webmobile2-sub1/S13P11A509.git'
+        BUILD_DIR = './frontend'
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'gitlab-user-with-password', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
+                    sh '''
+                        rm -rf $GIT_CLONE_DIR
+                        git clone -b FE $BRANCH https://$GIT_USER:$GIT_PASS@lab.ssafy.com/s13-webmobile2-sub1/S13P11A509.git $GIT_CLONE_DIR
+                    '''
+                }
+            }
+        }
+
+        stage('npm install') {
+            steps {
+                sh '''
+                    cd $GIT_CLONE_DIR/frontend
+                    npm install
+                '''
+            }
+        }
+
+        stage('npm Build') {
+            steps {
+                sh '''
+                    cd $GIT_CLONE_DIR/frontend
+                    npm run build
+                '''
+            }
+        }
+
+        stage('Deploy to Nginx Volume') {
+            steps {
+                sh '''
+                    rm -rf ./frontend/build
+                    cp -r $GIT_CLONE_DIR/frontend/build /frontend/
+                '''
+            }
+        }
+
+        stage('Restart Nginx (Optional)') {
+            when {
+                expression {
+                    return sh(script: "docker ps | grep nginx", returnStatus: true) == 0
+                }
+            }
+            steps {
+                sh "docker restart nginx"
+            }
+        }
+    }
+
+    post {
+        failure {
+            echo '🚨 빌드 또는 배포 실패'
+        }
+        success {
+            echo '✅ 배포 성공!'
+        }
+    }
+}

@@ -5,9 +5,11 @@ import com.tmi.backend.domain.commentRecommendation.entity.CommentRecommendation
 import com.tmi.backend.domain.member.entity.Member;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface CommentRecommendationRepository extends JpaRepository<CommentRecommendation, Long> {
@@ -25,4 +27,9 @@ public interface CommentRecommendationRepository extends JpaRepository<CommentRe
   List<CommentRecommendation> findAllByMemberIdAndPostId(
       @Param("memberId") Long memberId,
       @Param("postId")   Long postId);
+
+  @Modifying
+  @Transactional
+  void deleteAllByMemberId(Long memberId);
+
 }

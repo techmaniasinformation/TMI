@@ -1,5 +1,6 @@
 package com.tmi.backend.domain.member.service;
 
+import com.tmi.backend.domain.commentRecommendation.respository.CommentRecommendationRepository;
 import com.tmi.backend.domain.follow.company.repository.CompanyFollowRepository;
 import com.tmi.backend.domain.follow.member.repository.MemberFollowRepository;
 import com.tmi.backend.domain.member.dto.request.MemberCreateRequest;
@@ -30,7 +31,7 @@ public class MemberService {
   private final CompanyFollowRepository companyFollowRepository;
   private final StarRepository starRepository;
   private final NotificationRepository notificationRepository;
-//  private final CommentRecommendationRepository commentRecommendationRepository;
+  private final CommentRecommendationRepository commentRecommendationRepository;
 
   public MemberResponse getMember(Long memberId) {
     Member member = memberRepository.findById(memberId)
@@ -87,12 +88,12 @@ public class MemberService {
         .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
     member.delete();
 
-    //TODO : 댓글추천의 관련 행 삭제 구현하기.
     memberBadgeRepository.deleteAllByMemberId(memberId);
     memberFollowRepository.deleteAllByFollowerOrFollowee(memberId);
     companyFollowRepository.deleteAllByFollowerId(memberId);
     starRepository.deleteAllByMemberId(memberId);
     notificationRepository.deleteAllByMemberId(memberId);
+    commentRecommendationRepository.deleteAllByMemberId(memberId);
     return member.getId();
   }
 }

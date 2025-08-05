@@ -62,7 +62,7 @@ const Header: React.FC<HeaderProps> = ({
       alert('로그인이 필요합니다.'); // 알림 표시
       navigate('/login'); // 로그인 페이지로 이동
     } else {
-      navigate('/posts/editor'); // 게시글 작성 페이지로 이동 (예: /write)
+      navigate('/post/1/edit'); // 게시글 작성 페이지로 이동
     }
   };
 

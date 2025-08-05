@@ -3,38 +3,9 @@ import { useNavigate } from 'react-router-dom';
 
 const PostEditPage: React.FC = () => {
   const navigate = useNavigate();
-  const [linkUrl, setLinkUrl] = useState('https://example.com');
-  const [title, setTitle] = useState('Python 데이터 분석');
-  const [content, setContent] = useState(`# 데이터 사이언스 입문자를 위한 Python 활용법
-
-#1. Python이 데이터 사이언스에 적합한 이유
-- 간결하고 읽기 쉬운 문법
-- 풍부한 데이터 분석 라이브러리 생태계
-- 활발한 커뮤니티와 지속적인 업데이트
-- 다양한 분야에서의 활용 가능성
-
-##2. 필수 라이브러리 소개
-
-### 2.1 NumPy
-- 수치 계산을 위한 기본 라이브러리
-- 다차원 배열 처리 및 수학적 연산 지원
-- 다른 데이터 분석 라이브러리의 기반
-
-###2.2 Pandas
-- 데이터 조작 및 분석을 위한 강력한 도구
-- DataFrame과 Series 구조로 데이터 관리
-- CSV, Excel 등 다양한 형식의 데이터 처리
-
-### 2.3 Matplotlib & Seaborn
-- 데이터 시각화를 위한 라이브러리
-- 다양한 차트와 그래프 생성 가능
-- 통계적 분석 결과의 직관적 표현
-
-#3. 실전 예제
-- 데이터 로딩 및 전처리
-- 기본 통계 분석
-- 시각화를 통한 인사이트 도출
-- 머신러닝 모델 적용`);
+  const [linkUrl, setLinkUrl] = useState('');
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
 
   const [tags, setTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -61,11 +32,7 @@ const PostEditPage: React.FC = () => {
       }
       
       // AI 요약 내용 생성 (실제로는 AI API에서 받아옴)
-      const summary = `이 게시글은 데이터 사이언스와 Python에 관한 내용으로, 
-      NumPy, Pandas, Matplotlib, Seaborn 등의 라이브러리를 활용한 
-      데이터 분석 방법을 다루고 있습니다. 특히 Python의 간결한 문법과 
-      풍부한 라이브러리 생태계를 통해 데이터 분석의 기초부터 실전 예제까지 
-      체계적으로 설명하고 있습니다.`;
+      const summary = `AI가 생성한 요약 내용이 여기에 표시됩니다.`;
       setAiSummary(summary);
     } catch (error) {
       console.error('AI 요약 실패:', error);
@@ -90,21 +57,9 @@ const PostEditPage: React.FC = () => {
       const contentLower = content.toLowerCase();
       const possibleTags = [];
       
-      // 키워드 기반 태그 생성
-      if (contentLower.includes('python')) possibleTags.push('Python');
-      if (contentLower.includes('데이터') || contentLower.includes('data')) possibleTags.push('데이터분석');
-      if (contentLower.includes('머신러닝') || contentLower.includes('machine learning')) possibleTags.push('머신러닝');
-      if (contentLower.includes('numpy')) possibleTags.push('NumPy');
-      if (contentLower.includes('pandas')) possibleTags.push('Pandas');
-      if (contentLower.includes('matplotlib')) possibleTags.push('Matplotlib');
-      if (contentLower.includes('seaborn')) possibleTags.push('Seaborn');
-      if (contentLower.includes('시각화') || contentLower.includes('visualization')) possibleTags.push('시각화');
-      if (contentLower.includes('분석') || contentLower.includes('analysis')) possibleTags.push('분석');
-      if (contentLower.includes('입문') || contentLower.includes('beginner')) possibleTags.push('입문');
-      if (contentLower.includes('라이브러리') || contentLower.includes('library')) possibleTags.push('라이브러리');
-      if (contentLower.includes('실전') || contentLower.includes('실습')) possibleTags.push('실전예제');
-      if (contentLower.includes('통계')) possibleTags.push('통계');
-      if (contentLower.includes('알고리즘')) possibleTags.push('알고리즘');
+             // 키워드 기반 태그 생성 (실제로는 AI API에서 받아옴)
+       // TODO: 실제 AI 태그 생성 로직 구현
+       possibleTags.push('python', '데이터사이언스', '머신러닝', '알고리즘');
       
       // AI 태그 저장 (재사용을 위해)
       setAiGeneratedTags(possibleTags);
@@ -127,34 +82,47 @@ const PostEditPage: React.FC = () => {
     setIsLoading(true);
     
     try {
-      let finalTags = tags;
+      // 현재 태그 상태를 그대로 사용
+      const finalTags = tags;
       
-      // 태그가 없을 때만 AI 태그 생성
-      if (tags.length === 0) {
-        const aiTags = await generateAITags(content);
-        if (aiTags.length > 0) {
-          finalTags = aiTags.slice(0, 5);
-          setTags(finalTags);
-        }
+             // API 요청 데이터 준비
+       const requestData = {
+         memberId: 1, // TODO: 실제 로그인된 사용자 ID로 변경
+         link: linkUrl,
+         title: title,
+         thumbnailUrl: imagePreview || '', // TODO: 실제 이미지 업로드 후 URL로 변경
+         content: content,
+         tags: finalTags
+       };
+
+       // 전송할 JSON 데이터 콘솔에 출력
+       console.log('전송할 JSON 데이터:', JSON.stringify(requestData, null, 2));
+
+       // API 호출
+       const response = await fetch('/api/v1/posts', {
+         method: 'POST',
+         headers: {
+           'Content-Type': 'application/json',
+           'Authorization': 'Bearer accessToken' // TODO: 실제 accessToken으로 변경
+         },
+         body: JSON.stringify(requestData)
+       });
+
+      if (!response.ok) {
+        throw new Error('게시글 작성에 실패했습니다.');
       }
+
+      const result = await response.json();
+      console.log('게시글 작성 성공:', result);
       
-      // 실제 저장 API 호출
-      // TODO: API 호출 로직 구현
-      console.log('저장하기 클릭됨', {
-        linkUrl,
-        title,
-        content,
-        tags: finalTags
-      });
-      
-      alert('저장 완료!');
+      alert('게시글이 작성되었습니다!');
       
       // 저장 완료 후 상세 페이지로 이동
-      navigate('/post/1');
+      navigate(`/post/${result.id || '1'}`);
       
     } catch (error) {
       console.error('저장 실패:', error);
-      alert('저장에 실패했습니다.');
+      alert('게시글 작성에 실패했습니다.');
     } finally {
       setIsLoading(false);
     }
@@ -188,7 +156,7 @@ const PostEditPage: React.FC = () => {
             <span className="text-xl">←</span>
             <span>돌아가기</span>
           </button>
-          <h1 className="text-xl font-semibold text-gray-900">게시글 수정</h1>
+          <h1 className="text-xl font-semibold text-gray-900">새 게시글 작성</h1>
         </div>
       </div>
 
@@ -237,46 +205,43 @@ const PostEditPage: React.FC = () => {
                썸네일 이미지
              </label>
              
-             {/* Default Image */}
-             <div className="w-48 h-32 bg-gray-100 rounded-md border border-gray-300 flex items-center justify-center mb-3">
-               <div className="text-center">
-                 <div className="w-12 h-12 bg-gray-200 rounded-full mx-auto mb-2"></div>
-                 <p className="text-sm text-gray-500">디폴트 이미지</p>
-               </div>
-             </div>
-             
-             {/* Image Upload */}
-             <div className="flex items-center gap-3">
-               <input
-                 type="file"
-                 accept="image/*"
-                 onChange={handleImageUpload}
-                 className="hidden"
-                 id="image-upload"
-               />
-               <label
-                 htmlFor="image-upload"
-                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 cursor-pointer text-sm"
-               >
-                 이미지 업로드
-               </label>
-               {selectedImage && (
-                 <span className="text-sm text-gray-600">
-                   {selectedImage.name}
-                 </span>
-               )}
-             </div>
-             
-             {/* Uploaded Image Preview */}
-             {imagePreview && (
-               <div className="mt-3">
-                 <img
-                   src={imagePreview}
-                   alt="업로드된 이미지"
-                   className="w-48 h-32 object-cover rounded-md border border-gray-300"
-                 />
-               </div>
-             )}
+                           {/* Image Display Area */}
+              <div className="w-48 h-32 bg-gray-100 rounded-md border border-gray-300 flex items-center justify-center mb-3 overflow-hidden">
+                {imagePreview ? (
+                  <img
+                    src={imagePreview}
+                    alt="업로드된 이미지"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-gray-200 rounded-full mx-auto mb-2"></div>
+                    <p className="text-sm text-gray-500">디폴트 이미지</p>
+                  </div>
+                )}
+              </div>
+              
+              {/* Image Upload */}
+              <div className="flex items-center gap-3">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                  id="image-upload"
+                />
+                <label
+                  htmlFor="image-upload"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 cursor-pointer text-sm"
+                >
+                  {imagePreview ? '이미지 변경' : '이미지 업로드'}
+                </label>
+                {selectedImage && (
+                  <span className="text-sm text-gray-600">
+                    {selectedImage.name}
+                  </span>
+                )}
+              </div>
            </div>
 
           {/* Content */}

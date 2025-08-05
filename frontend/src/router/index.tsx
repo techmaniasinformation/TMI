@@ -6,7 +6,7 @@ import LandingPage from '../pages/LandingPage';
 import MyPage from '../pages/MyPage';
 import NotificationsPage from '../pages/NotificationsPage';
 import PostDetailPage from '../pages/PostDetailPage';
-import PostEditorPage from '../pages/PostEditorPage';
+import PostEditPage from '../pages/PostEditPage';
 import SearchResultsPage from '../pages/SearchResultsPage';
 import SignupPage from '../pages/SignupPage';
 import { ROUTES } from './routes';
@@ -33,12 +33,12 @@ export const router = createBrowserRouter([
         element: <SignupPage />,
       },
       {
-        path: ROUTES.POST_DETAIL,
+        path: ROUTES.POST,
         element: <PostDetailPage />,
       },
       {
-        path: ROUTES.POST_EDITOR,
-        element: <PostEditorPage />,
+        path: ROUTES.POST_EDIT,
+        element: <PostEditPage />,
       },
       {
         path: ROUTES.SEARCH,

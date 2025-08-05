@@ -193,7 +193,7 @@ Python은 다음과 같은 이유로 데이터 사이언스 분야에서 널리 
         {/* 게시글 헤더 */}
         {/* 상단 수정/삭제 버튼 */}
         <div className="flex justify-end gap-2 mb-4">
-          <Link to="/posts/editor">
+          <Link to="/post/1/edit">
             <Button
               variant="outline"
               className="!rounded-button cursor-pointer whitespace-nowrap"

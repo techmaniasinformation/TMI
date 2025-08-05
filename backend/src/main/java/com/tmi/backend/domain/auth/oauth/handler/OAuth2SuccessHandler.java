@@ -1,8 +1,8 @@
 package com.tmi.backend.domain.auth.oauth.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tmi.backend.domain.auth.jwt.service.TokenService;
 import com.tmi.backend.domain.auth.oauth.util.CustomOauthUser;
-import com.tmi.backend.domain.auth.service.TokenService;
 import com.tmi.backend.global.common.response.ApiResponse;
 import com.tmi.backend.global.common.response.impl.ApiSuccessResponse;
 import jakarta.servlet.http.HttpServletRequest;

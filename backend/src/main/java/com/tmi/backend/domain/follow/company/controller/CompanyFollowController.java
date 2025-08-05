@@ -3,6 +3,7 @@ package com.tmi.backend.domain.follow.company.controller;
 import com.tmi.backend.domain.follow.company.dto.request.CompanyFollowCreateRequest;
 import com.tmi.backend.domain.follow.company.dto.response.CompanyFollowListResponse;
 import com.tmi.backend.domain.follow.company.service.CompanyFollowService;
+import com.tmi.backend.global.aop.RequireLogin;
 import com.tmi.backend.global.common.response.ApiResponse;
 import com.tmi.backend.global.common.response.impl.ApiSuccessResponse;
 import jakarta.validation.Valid;
@@ -24,6 +25,7 @@ public class CompanyFollowController {
 
   private final CompanyFollowService companyFollowService;
 
+  @RequireLogin
   @GetMapping
   public ApiResponse<CompanyFollowListResponse> getCompanyFollows(
       @RequestParam Long followerId,

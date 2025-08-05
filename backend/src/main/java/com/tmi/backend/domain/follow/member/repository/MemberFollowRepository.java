@@ -5,6 +5,7 @@ import com.tmi.backend.domain.follow.member.entity.MemberFollow;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -33,4 +34,8 @@ public interface MemberFollowRepository extends JpaRepository<MemberFollow, Long
   );
 
   boolean existsByFollowerIdAndFolloweeId(Long followerId, Long followeeId);
+
+  @Modifying
+  @Query("DELETE FROM MemberFollow mf WHERE mf.follower.id = :memberId OR mf.followee.id = :memberId")
+  void deleteAllByFollowerOrFollowee(@Param("memberId") Long memberId);
 }

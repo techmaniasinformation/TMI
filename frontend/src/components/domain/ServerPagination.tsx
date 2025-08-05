@@ -30,14 +30,25 @@ function ServerPagination({
     return null;
   }
 
+  // 데이터가 있지만 한 페이지에 모두 들어가는 경우에도 페이지 1 표시
+  if (totalPages === 1) {
+    return (
+      <div className="flex justify-center items-center space-x-2 mt-8">
+        <button
+          className="px-3 py-2 text-sm font-medium bg-blue-600 text-white rounded-md"
+          aria-current="page"
+        >
+          1
+        </button>
+      </div>
+    );
+  }
+
   // 페이지 번호들을 계산하는 함수
   const getPageNumbers = () => {
     const pages: (number | string)[] = [];
     
-    // 항상 최소 1페이지는 표시
-    if (totalPages === 1) {
-      pages.push(1);
-    } else if (totalPages <= 5) {
+    if (totalPages <= 5) {
       // 5페이지 이하면 모두 표시
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);

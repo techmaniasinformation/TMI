@@ -32,6 +32,6 @@ public interface CompanyFollowRepository extends JpaRepository<CompanyFollow, Lo
   
   @Modifying
   @Query("DELETE FROM CompanyFollow cf WHERE cf.follower.id = :memberId")
-  void deleteAllByFollowerId(@Param("memberId") Long memberId);
+  void deleteByFollowerId(@Param("memberId") Long memberId);
 
 }

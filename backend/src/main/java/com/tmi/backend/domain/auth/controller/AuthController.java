@@ -9,11 +9,14 @@ import com.tmi.backend.global.common.response.impl.ApiErrorResponse;
 import com.tmi.backend.global.common.response.impl.ApiSuccessResponse;
 import com.tmi.backend.global.error.ErrorCode;
 import com.tmi.backend.global.error.exception.BusinessException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,7 +41,13 @@ public class AuthController {
       HttpServletResponse response) {
 
     //쿠키에서 리프레시 토큰 추출
-    String refreshToken = tokenService.getRefreshTokenFromCookie(request);
+    String refreshToken = Optional.ofNullable(request.getCookies())
+        .stream()
+        .flatMap(Arrays::stream)
+        .filter(c -> "REFRESH_TOKEN".equals(c.getName()))
+        .map(Cookie::getValue)
+        .findFirst()
+        .orElse(null);
 
     // 쿠키에 없거나 유효하지 않으면 에러
     if (refreshToken == null || !jwtTokenProvider.validateToken(refreshToken)) {
@@ -75,10 +84,8 @@ public class AuthController {
       HttpServletResponse response) {
     // DB에서 리프레시 토큰 제거
     refreshTokenService.deleteByMemberId(memberId);
-
     // 쿠키에서 리프레시 토큰 삭제 ( = 유효기간 0으로 설정)
     tokenService.deleteAuthCookies(response);
-
     return ApiSuccessResponse.success(Map.of("isLoggedOut", true));
   }
 

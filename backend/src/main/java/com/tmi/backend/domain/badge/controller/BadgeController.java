@@ -1,11 +1,9 @@
 package com.tmi.backend.domain.badge.controller;
 
-import com.tmi.backend.domain.badge.dto.response.SimpleBadge;
+import com.tmi.backend.domain.badge.dto.response.BadgeListResponse;
 import com.tmi.backend.domain.badge.service.BadgeService;
 import com.tmi.backend.global.common.controller.BaseController;
 import com.tmi.backend.global.common.response.ApiResponse;
-import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +18,7 @@ public class BadgeController implements BaseController {
   private final BadgeService badgeService;
 
   @GetMapping
-  public ResponseEntity<ApiResponse<Map<String, List<SimpleBadge>>>> getBadges() {
+  public ResponseEntity<ApiResponse<BadgeListResponse>> getBadges() {
     return handle(badgeService.getAllBadges());
   }
 }

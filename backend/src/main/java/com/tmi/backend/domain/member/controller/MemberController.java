@@ -38,8 +38,8 @@ public class MemberController implements BaseController {
    * 멤버 조회 API
    */
   @GetMapping("/{memberId}")
-  public ApiResponse<MemberResponse> getMember(@PathVariable Long memberId) {
-    return ApiSuccessResponse.success(memberService.getMember(memberId));
+  public ResponseEntity<ApiResponse<MemberResponse>> getMember(@PathVariable Long memberId) {
+    return handle(memberService.getMember(memberId));
   }
 
   /**
@@ -47,13 +47,11 @@ public class MemberController implements BaseController {
    * @RequestParam : 사용하려는 닉네임
    */
   @GetMapping("/duplicate")
-  public ApiResponse<Map<String, Boolean>> checkNicknameDuplicate(
+  public ResponseEntity<ApiResponse<Map<String, Boolean>>> checkNicknameDuplicate(
       @RequestParam String nickname
   ) {
-    boolean isDuplicated = memberService.existsByNickname(nickname);
-    return ApiSuccessResponse.success(
-        Map.of("isDuplicated", isDuplicated)
-    );
+    return handle(memberService.existsByNickname(nickname));
+
   }
 
   /**
@@ -61,14 +59,13 @@ public class MemberController implements BaseController {
    * @RequestBody : 수정된 멤버의 정보
    */
   @PatchMapping("/{memberId}")
-  public ApiResponse<Map<String, Long>> updateMember(
+  public ResponseEntity<ApiResponse<Map<String, Long>>> updateMember(
       @PathVariable Long memberId,
       @Valid @RequestBody MemberUpdateRequest req,
       @AuthenticationPrincipal CustomUserDetails userDetail
   ) {
 
-    Long updeatedMemberId = memberService.updateMember(memberId, req);
-    return ApiSuccessResponse.success(Map.of("memberId", updeatedMemberId));
+    return handle(memberService.updateMember(memberId, req));
   }
 
   /**

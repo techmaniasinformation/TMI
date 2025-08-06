@@ -36,6 +36,5 @@ public interface MemberFollowRepository extends JpaRepository<MemberFollow, Long
   boolean existsByFollowerIdAndFolloweeId(Long followerId, Long followeeId);
 
   @Modifying
-  @Query("DELETE FROM MemberFollow mf WHERE mf.follower.id = :memberId OR mf.followee.id = :memberId")
-  void deleteAllByFollowerOrFollowee(@Param("memberId") Long memberId);
+  void deleteByFollowerIdOrFolloweeId(Long memberId, Long memberId2);
 }

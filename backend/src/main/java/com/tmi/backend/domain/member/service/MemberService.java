@@ -12,10 +12,12 @@ import com.tmi.backend.domain.member.repository.MemberRepository;
 import com.tmi.backend.domain.memberBadge.repository.MemberBadgeRepository;
 import com.tmi.backend.domain.notification.repository.NotificationRepository;
 import com.tmi.backend.domain.star.repository.StarRepository;
+import com.tmi.backend.global.common.response.ServiceResult;
 import com.tmi.backend.global.error.ErrorCode;
 import com.tmi.backend.global.error.exception.BusinessException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,26 +35,31 @@ public class MemberService {
   private final NotificationRepository notificationRepository;
   private final CommentRecommendationRepository commentRecommendationRepository;
 
-  public MemberResponse getMember(Long memberId) {
+  public ServiceResult<MemberResponse> getMember(Long memberId) {
     Member member = memberRepository.findById(memberId)
-        .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        .orElse(null);
+    if (member == null) {
+      return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
+    }
 
     MemberStats stats = memberRepository.fetchStatsById(memberId);
 
-    return MemberResponse.of(member, stats);
+    return ServiceResult.ok(MemberResponse.of(member, stats));
   }
 
-  public boolean existsByNickname(String nickname) {
-    return memberRepository.existsByNickname(nickname);
+  public ServiceResult<Map<String, Boolean>> existsByNickname(String nickname) {
+    return ServiceResult.ok(Map.of("isDuplicated", memberRepository.existsByNickname(nickname)));
   }
 
   @Transactional
-  public Long updateMember(Long memberId, MemberUpdateRequest req) {
+  public ServiceResult<Map<String, Long>> updateMember(Long memberId, MemberUpdateRequest req) {
     Member member = memberRepository.findById(memberId)
-        .orElseThrow(() -> new BusinessException(ErrorCode.COMMON_INTERNAL_ERROR));
-
+        .orElse(null);
+    if (member == null) {
+      return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
+    }
     member.change(req);
-    return member.getId();
+    return ServiceResult.ok(Map.of("memberId", member.getId()));
   }
 
   @Transactional
@@ -88,10 +95,10 @@ public class MemberService {
         .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
     member.delete();
 
-    memberBadgeRepository.deleteAllByMemberId(memberId);
-    memberFollowRepository.deleteAllByFollowerOrFollowee(memberId);
-    companyFollowRepository.deleteAllByFollowerId(memberId);
-    starRepository.deleteAllByMemberId(memberId);
+    memberBadgeRepository.deleteByMemberId(memberId);
+    memberFollowRepository.deleteByFollowerIdOrFolloweeId(memberId, memberId);
+    companyFollowRepository.deleteByFollowerId(memberId);
+    starRepository.deleteByMemberId(memberId);
     notificationRepository.deleteAllByMemberId(memberId);
     commentRecommendationRepository.deleteAllByMemberId(memberId);
     return member.getId();

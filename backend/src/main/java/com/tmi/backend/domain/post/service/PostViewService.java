@@ -74,10 +74,6 @@ public class PostViewService {
   public ServiceResult<SimplePostPageResponse> readFollowPosts(Long followMemberId, int page, int size) {
     log.info("PostViewService : readFollowPosts(" + followMemberId + ") 호출");
 
-    if (!memberRepository.existsById(followMemberId)) {
-      return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
-    }
-
     List<Long> followeeIds = memberFollowRepository.findByFollowerId(followMemberId)
         .stream()
         .map(mf -> mf.getFollowee().getId())
@@ -144,9 +140,6 @@ public class PostViewService {
     Pageable pageable = PageRequest.of(page - 1, size);
 
     Member member = memberRepository.findById(starMemberId).orElse(null);
-    if (member == null) {
-      return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
-    }
 
     Page<Star> starPage  = starRepository.findByMemberOrderByPostCreatedAtDesc(member, pageable);
 

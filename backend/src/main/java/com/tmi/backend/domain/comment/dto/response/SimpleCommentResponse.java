@@ -15,7 +15,6 @@ public record SimpleCommentResponse(
     String comment,
     String link,
     LocalDateTime createAt,
-    Boolean isRecommend,
     int recommendCount
 ) {
 
@@ -28,7 +27,6 @@ public record SimpleCommentResponse(
         .comment(comment.getContent())
         .link(comment.getLink())
         .createAt(comment.getCreatedAt())
-        .isRecommend(false)
         .recommendCount(comment.getRecommendCount())
         .build();
   }

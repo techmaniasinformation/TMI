@@ -2,6 +2,7 @@ package com.tmi.backend.domain.follow.member.repository;
 
 import com.tmi.backend.domain.follow.member.dto.response.SimpleMemberFollow;
 import com.tmi.backend.domain.follow.member.entity.MemberFollow;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -37,4 +38,5 @@ public interface MemberFollowRepository extends JpaRepository<MemberFollow, Long
 
   @Modifying
   void deleteByFollowerIdOrFolloweeId(Long memberId, Long memberId2);
+
 }

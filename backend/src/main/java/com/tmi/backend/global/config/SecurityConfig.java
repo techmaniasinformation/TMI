@@ -25,7 +25,7 @@ public class SecurityConfig {
   private final OAuth2FailureHandler oAuth2FailureHandler;
   private final CustomOAuth2UserService customOAuth2UserService;
   private final CustomOidcUserService customOidcUserService;
-  
+
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

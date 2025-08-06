@@ -7,6 +7,7 @@ import com.tmi.backend.domain.comment.dto.response.PostCommentListResponse;
 import com.tmi.backend.domain.comment.entity.Comment;
 import com.tmi.backend.domain.comment.repository.CommentRepository;
 import com.tmi.backend.domain.member.entity.Member;
+import com.tmi.backend.domain.member.entity.Provider;
 import com.tmi.backend.domain.member.repository.MemberRepository;
 import com.tmi.backend.domain.post.entity.Post;
 import com.tmi.backend.domain.post.repository.PostRepository;
@@ -36,12 +37,17 @@ public class CommentService {
   private final PostRepository postRepository;
 
   @Transactional
-  public ServiceResult<Map<String, Long>> register(CommentRequest commentRequest) {
+  public ServiceResult<Map<String, Long>> register(CommentRequest commentRequest, Long userDetailId) {
     log.info("CommentService : register() 호출");
 
     Member member = memberRepository.findById(commentRequest.memberId()).orElse(null);
     if (member == null) {
       return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
+    }
+
+    Member user = memberRepository.findById(userDetailId).orElse(null);
+    if (user == null || (userDetailId != member.getId() && user.getProvider() != Provider.ADMIN)) {
+      return ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED);
     }
 
     Post post = postRepository.findById(commentRequest.postId()).orElse(null);
@@ -56,24 +62,25 @@ public class CommentService {
   }
 
   @Transactional
-  public ServiceResult<Void> delete(Long commentId) {
+  public ServiceResult<Void> delete(Long commentId, Long userDetailId) {
     log.info("CommentService : delete({}) 호출", commentId);
 
-    try {
-      commentRepository.deleteById(commentId);
-      return ServiceResult.ok();
-    } catch (EmptyResultDataAccessException e) {
+    Comment comment = commentRepository.findById(commentId).orElse(null);
+    if (comment == null) {
       return ServiceResult.fail(ErrorCode.COMMENT_NOT_FOUND);
     }
 
+    Member user = memberRepository.findById(userDetailId).orElse(null);
+    if (user == null || (userDetailId != comment.getMember().getId() && user.getProvider() != Provider.ADMIN)) {
+      return ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED);
+    }
+
+    commentRepository.deleteById(commentId);
+    return ServiceResult.ok();
   }
 
   public ServiceResult<CommentListResponse> readMemberComments(Long memberId, int page, int size) {
     log.info("CommentService : readMemberComments({}) 호출", memberId);
-
-    if (!memberRepository.existsById(memberId)) {
-      throw new BusinessException(ErrorCode.USER_NOT_FOUND);
-    }
 
     Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
 
@@ -84,10 +91,6 @@ public class CommentService {
 
   public ServiceResult<PostCommentListResponse> readPostComments(Long postId, SortType sort) {
     log.info("CommentService : readPostComments({}) 호출", postId);
-
-    if (!postRepository.existsById(postId)) {
-      return ServiceResult.fail(ErrorCode.POST_NOT_FOUND);
-    }
 
     Comment best = commentRepository
         .findTopByRecommendCountGreaterThanEqualOrderByRecommendCountDescCreatedAtAsc(5)

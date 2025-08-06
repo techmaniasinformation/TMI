@@ -1,5 +1,6 @@
 package com.tmi.backend.domain.commentRecommendation.controller;
 
+import com.tmi.backend.domain.auth.util.CustomUserDetails;
 import com.tmi.backend.domain.commentRecommendation.dto.request.RecommendationRequest;
 import com.tmi.backend.domain.commentRecommendation.dto.response.RecommendationListResponse;
 import com.tmi.backend.domain.commentRecommendation.service.CommentRecommendationService;
@@ -10,6 +11,7 @@ import jakarta.validation.Valid;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,20 +28,22 @@ public class CommentRecommendationController implements BaseController {
 
   private final CommentRecommendationService commentRecommendationService;
 
-  // TODO: 권한 검증 필요
-
   @PostMapping
   public ResponseEntity<ApiResponse<Map<String, Long>>> recommendation(
-      @Valid @RequestBody RecommendationRequest request
+      @Valid @RequestBody RecommendationRequest request,
+      @AuthenticationPrincipal CustomUserDetails userDetails
   ){
 
-    return handle(commentRecommendationService.recommendation(request));
+    return handle(commentRecommendationService.recommendation(request, userDetails.getMemberId()));
   }
 
   @DeleteMapping("/{recommendationId}")
-  public ResponseEntity<ApiResponse<Void>> recommendationDelete(@PathVariable Long recommendationId) {
+  public ResponseEntity<ApiResponse<Void>> recommendationDelete(
+      @PathVariable Long recommendationId,
+      @AuthenticationPrincipal CustomUserDetails userDetails
+  ) {
 
-    return handle(commentRecommendationService.delete(recommendationId));
+    return handle(commentRecommendationService.delete(recommendationId, userDetails.getMemberId()));
   }
 
   @GetMapping()

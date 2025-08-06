@@ -7,6 +7,7 @@ import com.tmi.backend.domain.commentRecommendation.dto.response.RecommendationL
 import com.tmi.backend.domain.commentRecommendation.entity.CommentRecommendation;
 import com.tmi.backend.domain.commentRecommendation.respository.CommentRecommendationRepository;
 import com.tmi.backend.domain.member.entity.Member;
+import com.tmi.backend.domain.member.entity.Provider;
 import com.tmi.backend.domain.member.repository.MemberRepository;
 import com.tmi.backend.domain.post.repository.PostRepository;
 import com.tmi.backend.global.common.response.ServiceResult;
@@ -31,25 +32,26 @@ public class CommentRecommendationService {
   private final CommentRecommendationRepository commentRecommendationRepository;
 
   @Transactional
-  public ServiceResult<Map<String, Long>> recommendation(RecommendationRequest request) {
+  public ServiceResult<Map<String, Long>> recommendation(RecommendationRequest request, Long userDetailId) {
     log.info("CommentRecommendationService : recommendation() 호출");
 
-    Member member = memberRepository.findById(request.memberId()).orElse(null);
-    if (member == null) {
-      return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
-    }
 
     Comment comment = commentRepository.findById(request.commentId()).orElse(null);
     if (comment == null) {
       return ServiceResult.fail(ErrorCode.COMMENT_NOT_FOUND);
     }
 
-    if (commentRecommendationRepository.existsByMemberAndComment(member, comment)) {
+    Member user = memberRepository.findById(userDetailId).orElse(null);
+    if (user == null || (userDetailId != comment.getMember().getId() && user.getProvider() != Provider.ADMIN)) {
+      return ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED);
+    }
+
+    if (commentRecommendationRepository.existsByMemberAndComment(comment.getMember(), comment)) {
       return ServiceResult.fail(ErrorCode.RECOMMEND_ALREADY_RECOMMENDED);
     }
 
     CommentRecommendation recommendation = commentRecommendationRepository.save(
-        CommentRecommendation.of(member, comment));
+        CommentRecommendation.of(comment.getMember(), comment));
     recommendation.assignToComment(comment);
     comment.plusRecommendCount();
 
@@ -57,13 +59,18 @@ public class CommentRecommendationService {
   }
 
   @Transactional
-  public ServiceResult<Void> delete(Long recommendationId) {
+  public ServiceResult<Void> delete(Long recommendationId, Long userDetailId) {
     log.info("CommentRecommendationService : delete({}) 호출", recommendationId);
 
     CommentRecommendation recommendation = commentRecommendationRepository.findById(
             recommendationId).orElse(null);
     if (recommendation == null) {
       return ServiceResult.fail(ErrorCode.RECOMMEND_NOT_FOUND);
+    }
+
+    Member user = memberRepository.findById(userDetailId).orElse(null);
+    if (user == null || (userDetailId != recommendation.getMember().getId() && user.getProvider() != Provider.ADMIN)) {
+      return ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED);
     }
 
     recommendation.getComment().minusRecommendCount();

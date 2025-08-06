@@ -1,5 +1,6 @@
 package com.tmi.backend.domain.comment.controller;
 
+import com.tmi.backend.domain.auth.util.CustomUserDetails;
 import com.tmi.backend.domain.comment.dto.request.CommentRequest;
 import com.tmi.backend.domain.comment.dto.request.SortType;
 import com.tmi.backend.domain.comment.dto.response.CommentListResponse;
@@ -12,6 +13,7 @@ import jakarta.validation.constraints.Positive;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,15 +31,21 @@ public class CommentController implements BaseController {
   private final CommentService commentService;
 
   @PostMapping
-  public ResponseEntity<ApiResponse<Map<String, Long>>> registerComment(@Valid @RequestBody CommentRequest commentRequest) {
+  public ResponseEntity<ApiResponse<Map<String, Long>>> registerComment(
+      @Valid @RequestBody CommentRequest commentRequest,
+      @AuthenticationPrincipal CustomUserDetails userDetails
+  ) {
 
-    return handle(commentService.register(commentRequest));
+    return handle(commentService.register(commentRequest, userDetails.getMemberId()));
   }
 
   @DeleteMapping("/{commentId}")
-  public ResponseEntity<ApiResponse<Void>> deleteComment(@PathVariable Long commentId) {
+  public ResponseEntity<ApiResponse<Void>> deleteComment(
+      @PathVariable Long commentId,
+      @AuthenticationPrincipal CustomUserDetails userDetails
+  ) {
 
-    return handle(commentService.delete(commentId));
+    return handle(commentService.delete(commentId, userDetails.getMemberId()));
   }
 
   @GetMapping(params = "memberId")

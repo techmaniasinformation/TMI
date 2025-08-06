@@ -1,8 +1,38 @@
 import { useState, useEffect } from 'react';
-import { Post } from '@/types';
+import { SearchApiResponse, Post } from '@/types';
 
-// JSON 파일을 직접 import
-import popularPostsData from '../../../public/popular-posts.json';
+// 실제 API 호출 함수
+const fetchPopularPostsFromAPI = async (): Promise<SearchApiResponse> => {
+  console.log('🔍 [fetchPopularPostsFromAPI] 인기 게시글 API 호출 시작');
+  
+  const apiUrl = 'https://i13a509.p.ssafy.io/api/v1/post/popular';
+  
+  try {
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        // TODO: 실제 인증 토큰이 있다면 추가
+        // 'Authorization': `Bearer ${accessToken}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data: SearchApiResponse = await response.json();
+    
+    console.log('✅ [fetchPopularPostsFromAPI] 인기 게시글 API 호출 성공:', {
+      postsCount: data.data.posts.length
+    });
+
+    return data;
+  } catch (error) {
+    console.error('❌ [fetchPopularPostsFromAPI] 인기 게시글 API 호출 실패:', error);
+    throw error;
+  }
+};
 
 export const usePopularPosts = () => {
   const [popularPosts, setPopularPosts] = useState<Post[]>([]);
@@ -11,13 +41,13 @@ export const usePopularPosts = () => {
 
   // 인기 게시글 가져오기
   useEffect(() => {
-    const fetchPopularPosts = () => {
+    const fetchPopularPosts = async () => {
       try {
         console.log('🔍 [usePopularPosts] 인기 게시글 가져오기 시작');
         setLoading(true);
         
-        // JSON 파일에서 데이터 가져오기
-        const response = popularPostsData as any;
+        // 실제 API에서 데이터 가져오기
+        const response: SearchApiResponse = await fetchPopularPostsFromAPI();
         const posts = response.data.posts;
         
         console.log('✅ [usePopularPosts] 인기 게시글 가져오기 완료:', {

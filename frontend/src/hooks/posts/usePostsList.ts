@@ -1,9 +1,6 @@
 import { useState, useEffect } from 'react';
 import { SearchApiResponse, Post, PageInfo } from '@/types';
 
-// JSON 파일을 직접 import
-import allPostsData from '../../../public/all-posts.json';
-
 interface PostsListState {
   posts: Post[];
   loading: boolean;
@@ -14,38 +11,41 @@ interface PostsListState {
   isLast: boolean;
 }
 
-// JSON 데이터를 가져오는 함수
-const getPostsFromJson = (params: { page: number; size: number; sort: string }): SearchApiResponse => {
-  console.log('🔍 [getPostsFromJson] 파라미터:', params);
+// 실제 API 호출 함수
+const fetchPostsFromAPI = async (params: { page: number; size: number; sort: string }): Promise<SearchApiResponse> => {
+  console.log('🔍 [fetchPostsFromAPI] API 호출 시작:', params);
   
   const { page, size } = params;
-  const allPosts = (allPostsData as unknown as SearchApiResponse).data.posts;
+  const apiUrl = `https://i13a509.p.ssafy.io/api/v1/post?page=${page}&size=${size}`;
   
-  // 페이지네이션 적용
-  const startIndex = (page - 1) * size;
-  const endIndex = startIndex + size;
-  const paginatedPosts = allPosts.slice(startIndex, endIndex);
-  
-  console.log('🔍 [getPostsFromJson] 페이지네이션:', {
-    totalPosts: allPosts.length,
-    startIndex,
-    endIndex,
-    paginatedPostsCount: paginatedPosts.length
-  });
-  
-  return {
-    status: 'SUCCESS',
-    data: {
-      posts: paginatedPosts,
-      pageInfo: {
-        totalElements: allPosts.length,
-        totalPages: Math.ceil(allPosts.length / size),
-        isLast: endIndex >= allPosts.length,
-        currPage: page
-      },
-      appliedFilters: undefined
+  try {
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        // TODO: 실제 인증 토큰이 있다면 추가
+        // 'Authorization': `Bearer ${accessToken}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-  };
+
+    const data: SearchApiResponse = await response.json();
+    
+    console.log('✅ [fetchPostsFromAPI] API 호출 성공:', {
+      totalElements: data.data.pageInfo?.totalElements ?? 0,
+      totalPages: data.data.pageInfo?.totalPages ?? 1,
+      currentPage: data.data.pageInfo?.currPage ?? 1,
+      postsCount: data.data.posts.length
+    });
+
+    return data;
+  } catch (error) {
+    console.error('❌ [fetchPostsFromAPI] API 호출 실패:', error);
+    throw error;
+  }
 };
 
 export const usePostsList = () => {
@@ -68,8 +68,8 @@ export const usePostsList = () => {
     try {
       console.log('🔍 [usePostsList] 게시글 목록 가져오기 시작:', { page, sort });
       
-      // JSON 파일에서 데이터 가져오기
-      const response: SearchApiResponse = getPostsFromJson({ 
+      // 실제 API에서 데이터 가져오기
+      const response: SearchApiResponse = await fetchPostsFromAPI({ 
         page, 
         size: 10, 
         sort 
@@ -104,9 +104,17 @@ export const usePostsList = () => {
     }
   };
 
-  // 탭 변경 시 게시글 다시 가져오기
+  // 컴포넌트 마운트 시 초기 데이터 로드
   useEffect(() => {
     fetchPosts(1, activeTab);
+  }, []); // 빈 의존성 배열로 마운트 시 한 번만 실행
+
+  // 탭 변경 시 게시글 다시 가져오기
+  useEffect(() => {
+    // 초기 로드가 아닌 경우에만 탭 변경 시 API 호출
+    if (state.posts.length > 0) {
+      fetchPosts(1, activeTab);
+    }
   }, [activeTab]);
 
   // 페이지 변경 핸들러

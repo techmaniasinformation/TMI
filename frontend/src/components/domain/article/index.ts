@@ -5,4 +5,8 @@ export { default as UserInfo } from './UserInfo';
 export { default as DateTimeComponent } from './DateTimeComponent';
 export { default as CardInfoCount } from './CardInfoCount';
 export { default as TagArea } from './TagArea';
-export { default as Tag } from './Tag'; 
+export { default as Tag } from './Tag';
+
+// 새로운 공통 컴포넌트들
+export { PostItem } from './PostItem';
+export { PopularPostItem } from './PopularPostItem'; 

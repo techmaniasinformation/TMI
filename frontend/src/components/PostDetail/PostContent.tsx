@@ -23,7 +23,7 @@ export const PostContent: React.FC<PostContentProps> = ({ post, onStarClick, onS
 
       {/* 본문 텍스트 */}
       <div className="prose max-w-none mb-6">
-        <div className="whitespace-pre-wrap text-gray-700 leading-relaxed text-lg">
+        <div className="text-gray-700 leading-relaxed text-lg">
           {post.content}
         </div>
       </div>
@@ -35,16 +35,19 @@ export const PostContent: React.FC<PostContentProps> = ({ post, onStarClick, onS
         {/* 3-1. Action Buttons Section (액션 버튼 영역) */}
         <div className="flex items-center justify-center space-x-4 mb-6">
           {/* 원문 가기 버튼 */}
-          <Button
-            variant="dark"
-            size="sm"
-            className="bg-black text-white px-4 py-2 rounded-md flex items-center space-x-2"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-            </svg>
-            <span>원문 가기</span>
-          </Button>
+          {post.link && (
+            <Button
+              variant="dark"
+              size="sm"
+              className="bg-black text-white px-4 py-2 rounded-md flex items-center space-x-2"
+              onClick={() => window.open(post.link, '_blank')}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+              <span>원문 가기</span>
+            </Button>
+          )}
 
           {/* 공유하기 버튼 */}
           <Button

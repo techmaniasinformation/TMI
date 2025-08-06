@@ -1,5 +1,4 @@
 import React from "react";
-import DefaultThumbnail from "@/assets/icons/star.svg"; // 기본 썸네일로 사용할 아이콘
 import CardInfoCount from "@/components/domain/article/CardInfoCount"; // 조회수, 좋아요, 댓글 수 뱃지 컴포넌트
 
 // 게시글(Post) 객체의 타입 정의
@@ -19,38 +18,34 @@ interface PostCardProps {
   onClick?: () => void; // 카드 클릭 시 실행할 함수 (선택적)
 }
 
-// 게시글 정보를 카드 형식으로 표시하는 컴포넌트
 const PostCard: React.FC<PostCardProps> = ({ post, onClick }) => {
-  // 구조 분해 할당으로 post 객체 내부 값 추출
   const { id, title, thumbnail, tags, views, stars, comments } = post;
 
-  // 이미지 로딩 오류 시 fallback 이미지로 대체
+  // 이미지 로딩 실패 시 이미지 숨기기
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    e.currentTarget.src = DefaultThumbnail;
+    e.currentTarget.style.display = "none";
   };
 
   return (
     <div
       key={id}
       className="flex items-start space-x-4 p-4 border border-gray-100 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors duration-200"
-      onClick={onClick} // 카드 클릭 시 동작
+      onClick={onClick}
     >
-      {/* 썸네일 이미지 (오류 시 대체 이미지로 변경) */}
-      <div
-        className="w-[200px] h-[120px] rounded-xl flex items-center justify-center bg-gray-100"
-      >
-        <img
-          src={thumbnail || DefaultThumbnail}
-          alt={title}
-          onError={handleImageError}
-          className="max-w-full max-h-full object-contain rounded-xl"
-          style={{ backgroundColor: 'transparent' }}
-        />
+      {/* 썸네일 영역 */}
+      <div className="w-[200px] h-[120px] rounded-xl flex items-center justify-center bg-gray-100 overflow-hidden">
+        {thumbnail && (
+          <img
+            src={thumbnail}
+            alt={title}
+            onError={handleImageError}
+            className="max-w-full max-h-full object-contain rounded-xl"
+          />
+        )}
       </div>
 
       {/* 게시글 정보 */}
       <div className="flex-1">
-        {/* 제목 */}
         <h3 className="font-medium text-gray-900 mb-2">{title}</h3>
 
         {/* 태그 목록 */}
@@ -65,7 +60,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, onClick }) => {
           ))}
         </div>
 
-        {/* 조회수, 좋아요, 댓글 수 뱃지로 표시 */}
+        {/* 조회수, 좋아요, 댓글 수 */}
         <CardInfoCount
           viewCount={views}
           starCount={stars}

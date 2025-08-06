@@ -63,6 +63,10 @@ import type { Post as StarPost } from "@/types/mypage/star";
 import { fetchMemberComments } from "@/api/mypage/commentService";
 import type { Comment } from "@/types/mypage/comment";
 
+// 작성한 게시글 api
+import { fetchMemberPosts } from "@/api/mypage/postService";
+import type { MyPagePost } from "@/types/mypage/post";
+
 // 배지 리스트
 const badgeList = [
   { id: 1, name: '이건 머지?', image: badgeFirstArticle, filename: 'first_article.png'},
@@ -160,14 +164,27 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
     }
   }, [isMyPage, isPersonal, currentCommentPage]);
 
-  // 게시글 데이터 로딩
-  const { data: posts } = useFetchJson<Post>('/mypage_posts.json');
-  const {
-    currentPage: currentPostPage,
-    setCurrentPage: setCurrentPostPage,
-    totalPages: totalPostPages,
-    paginatedItems: paginatedPosts
-  } = usePagination<Post>(posts, 5);
+  // 작성한 게시글 API 상태
+  const [memberPosts, setMemberPosts] = useState<MyPagePost[]>([]);
+  const [postTotalPages, setPostTotalPages] = useState(1);
+  const [postTotalElements, setPostTotalElements] = useState(0);
+  const [postLoading, setPostLoading] = useState(true);
+  const [postError, setPostError] = useState<string | null>(null);
+  const [currentPostPage, setCurrentPostPage] = useState(1);
+
+  useEffect(() => {
+    if (isPersonal) {
+      setPostLoading(true);
+      fetchMemberPosts(2, currentPostPage, 5) // TODO: memberId 동적 처리
+        .then((res) => {
+          setMemberPosts(res.data.posts);
+          setPostTotalPages(res.data.pageInfo.totalPages);
+          setPostTotalElements(res.data.pageInfo.totalElements);
+        })
+        .catch((err) => setPostError(err.message))
+        .finally(() => setPostLoading(false));
+    }
+  }, [isPersonal, currentPostPage]);
 
   // 기업 게시글 API 호출
   useEffect(() => {
@@ -268,7 +285,9 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
           onClick={() => setCurrentPostPage(1)}  // 페이지 초기화
           >
           <IconTab3 className="w-4 h-4 mr-2 text-inherit" />
-          <span className="text-sm">작성한 게시글 ({posts.length})</span>
+          <span className="text-sm">
+            작성한 게시글 ({isCompany ? companyPostTotalElements : postTotalElements})
+          </span>
         </TabsTrigger>
 
         {/* 팔로우 / 스타 게시글 (본인일 때만) */}
@@ -359,58 +378,39 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
       <TabsContent value="posts" className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
         <h2 className="text-lg font-semibold mb-4">작성한 게시글</h2>
 
-        {isCompany ? (
-          companyPosts.length === 0 ? (
-            <p className="text-sm text-gray-500">게시글이 없습니다.</p>
-          ) : (
-            <div className="space-y-4">
-              {companyPosts.map((post) => (
-                <PostCard
-                  key={post.postId}
-                  post={{
-                    id: post.postId,
-                    title: post.title,
-                    thumbnail: post.thumbnailUrl,
-                    tags: post.tags,
-                    views: post.viewCount,
-                    stars: post.starCount,
-                    comments: post.commentCount
-                  }}
-                  onClick={() => window.location.href = `/post/${post.postId}`}
-                />
-              ))}
-            </div>
-          )
+        {postLoading ? (
+          <p className="text-sm text-gray-500">불러오는 중...</p>
+        ) : postError ? (
+          <p className="text-sm text-red-500">에러: {postError}</p>
+        ) : memberPosts.length === 0 ? (
+          <p className="text-sm text-gray-500">게시글이 없습니다.</p>
         ) : (
-          paginatedPosts.length === 0 ? (
-            <p className="text-sm text-gray-500">게시글이 없습니다.</p>
-          ) : (
-            <div className="space-y-4">
-              {paginatedPosts.map((post, idx) => (
-                <PostCard key={idx} post={post} onClick={() => window.location.href = '#'} />
-              ))}
-            </div>
-          )
+          <div className="space-y-4">
+            {memberPosts.map((post) => (
+              <PostCard
+                key={post.postId}
+                post={{
+                  id: post.postId,
+                  title: post.title,
+                  thumbnail: post.thumbnailUrl,
+                  tags: post.tags,
+                  views: post.viewCount,
+                  stars: post.starCount,
+                  comments: post.commentCount
+                }}
+                onClick={() => window.location.href = `/post/${post.postId}`}
+              />
+            ))}
+          </div>
         )}
 
-        {isCompany ? (
-          companyPostTotalPages > 1 && (
-            <Pagination
-              currentPage={currentPostPage}
-              totalCount={companyPostTotalElements}
-              pageSize={5}
-              onPageChange={setCurrentPostPage}
-            />
-          )
-        ) : (
-          totalPostPages > 1 && (
-            <Pagination
-              currentPage={currentPostPage}
-              totalCount={posts.length}
-              pageSize={5}
-              onPageChange={setCurrentPostPage}
-            />
-          )
+        {postTotalPages > 1 && (
+          <Pagination
+            currentPage={currentPostPage}
+            totalCount={postTotalElements}
+            pageSize={5}
+            onPageChange={setCurrentPostPage}
+          />
         )}
       </TabsContent>
 

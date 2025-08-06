@@ -48,29 +48,38 @@ import badgeAI from '@/assets/images/AI.png';
 import badgeDB from '@/assets/images/DB.png';
 import badgeAWS from '@/assets/images/AWS.png';
 
+// 배지 모달
+import BadgeModal from '@/components/layout/mypage/BadgeModal';
+
+// 기업 게시글 api
+import { useEffect } from "react";
+import { getCompanyPosts } from "@/api/company/companyPost";
+
+import type { CompanyPost } from "@/types/company/companyPost";
+
 // 배지 리스트
 const badgeList = [
-  { id: 1, name: '이건 머지?', image: badgeFirstArticle },
-  { id: 2, name: '얘는 머지?', image: badgeFirstComment },
-  { id: 3, name: '헬로 월드', image: badgeHelloWorld },
-  { id: 4, name: '별이 5개', image: badgeStar5 },
-  { id: 5, name: '별이 13개', image: badgeStar13 },
-  { id: 6, name: '별이 42개', image: badgeStar42 },
-  { id: 7, name: '날선몰', image: badgeAmumu },
-  { id: 8, name: 'FC TMI', image: badgeFCTMI },
-  { id: 9, name: '인기 폭발', image: badgeFollow },
-  { id: 10, name: '추천 10개', image: badgelike10 },
-  { id: 11, name: '추천 100개', image: badgelike100 },
-  { id: 12, name: '천근추', image: badgelike1000 },
-  { id: 13, name: '웅성', image: badgeView50 },
-  { id: 14, name: '웅성웅성', image: badgeView100 },
-  { id: 15, name: '웅성웅성웅성', image: badgeView1000 },
-  { id: 16, name: '벌레잡는 파리채', image: badgeParis },
-  { id: 18, name: 'Spring', image: badgeSpring },
-  { id: 19, name: 'React', image: badgeReact },
-  { id: 20, name: 'AI', image: badgeAI},
-  { id: 21, name: 'DB', image: badgeDB },
-  { id: 22, name: 'AWS', image: badgeAWS },
+  { id: 1, name: '이건 머지?', image: badgeFirstArticle, filename: 'first_article.png'},
+  { id: 2, name: '얘는 머지?', image: badgeFirstComment, filename: 'first_comment.png'},
+  { id: 3, name: '헬로 월드', image: badgeHelloWorld, filename: 'helloworld.png'},
+  { id: 4, name: '별이 5개', image: badgeStar5, filename: 'star_5.png'},
+  { id: 5, name: '별이 13개', image: badgeStar13, filename: 'star_13.png'},
+  { id: 6, name: '별이 42개', image: badgeStar42, filename: 'star_42.png'},
+  { id: 7, name: '날선몰', image: badgeAmumu, filename: 'amumu.png'},
+  { id: 8, name: 'FC TMI', image: badgeFCTMI, filename: 'fctmi.png'},
+  { id: 9, name: '인기 폭발', image: badgeFollow, filename: 'followmany.png'},
+  { id: 10, name: '추천 10개', image: badgelike10, filename: 'like_10.png'},
+  { id: 11, name: '추천 100개', image: badgelike100, filename: 'like_100.png'},
+  { id: 12, name: '천근추', image: badgelike1000, filename: 'like_1000.png'},
+  { id: 13, name: '웅성', image: badgeView50, filename: 'view_50.png'},
+  { id: 14, name: '웅성웅성', image: badgeView100, filename: 'view_100.png'},
+  { id: 15, name: '웅성웅성웅성', image: badgeView1000, filename: 'view_1000.png'},
+  { id: 16, name: '벌레잡는 파리채', image: badgeParis, filename: 'paris.png'},
+  { id: 18, name: 'Spring', image: badgeSpring, filename: 'spring.png'},
+  { id: 19, name: 'React', image: badgeReact, filename: 'react.png'},
+  { id: 20, name: 'AI', image: badgeAI, filename: 'ai.png'},
+  { id: 21, name: 'DB', image: badgeDB, filename: 'db.png'},
+  { id: 22, name: 'AWS', image: badgeAWS, filename: 'aws.png'},
 
 ];
 
@@ -110,8 +119,18 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   const isPersonal = !isCompany;
   const isOtherUser = isPersonal && !isMyPage;
 
+
+  // 기업 게시글 API 데이터 상태
+  const [companyPosts, setCompanyPosts] = useState<CompanyPost[]>([]);
+  const [companyPostTotalPages, setCompanyPostTotalPages] = useState(1);
+  const [companyPostTotalElements, setCompanyPostTotalElements] = useState(0);
+  
   // 팔로우 탭의 서브 탭 상태 ('company' or 'user')
   const [followSubTab, setFollowSubTab] = useState<'company' | 'user'>('company');
+  
+  // 배지 모달 상태
+  const [isBadgeModalOpen, setIsBadgeModalOpen] = useState(false);
+  const [selectedBadge, setSelectedBadge] = useState<typeof badgeList[0] | null>(null);
 
   // 댓글 데이터 로딩
   const { data: comments } = useFetchJson<CommentCardProps>('/mypage_comments.json');
@@ -130,7 +149,20 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
     totalPages: totalPostPages,
     paginatedItems: paginatedPosts
   } = usePagination<Post>(posts, 5);
-  
+
+  // 기업 게시글 API 호출
+  useEffect(() => {
+    if (isCompany) {
+      getCompanyPosts(9, currentPostPage, 5) // companyId는 나중에 동적 전달
+        .then((res) => {
+          setCompanyPosts(res.data.posts);
+          setCompanyPostTotalPages(res.data.pageInfo.totalPages);
+          setCompanyPostTotalElements(res.data.pageInfo.totalElements); // 전체 개수 저장
+        })
+        .catch(console.error);
+    }
+  }, [isCompany, currentPostPage]);
+
   // FollowCompanyCard용 JSON 데이터 불러오기
   const { data: followedCompanies } = useFetchJson<{
     id: string;
@@ -175,7 +207,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   } = usePagination<Post>(starredPosts, 5);  // 5개씩 페이지네이션
 
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className='w-[1232px]'>
+    <Tabs value={activeTab} onValueChange={setActiveTab} className='w-[1232px] mx-auto'>
       {/* 탭 목록 */}
       <TabsList className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 w-full flex justify-start p-0 h-auto">
         {/* 내 정보 (본인 또는 타 유저일 때) */}
@@ -242,7 +274,14 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
           <h2 className="text-lg font-semibold mb-6">업적</h2>
           <div className="grid grid-cols-7 gap-4">
             {badgeList.map((badge) => (
-              <div key={badge.id} className="aspect-square bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col items-center justify-center hover:shadow-md transition">
+              <div
+                key={badge.id}
+                onClick={() => {
+                  setSelectedBadge(badge);
+                  setIsBadgeModalOpen(true);
+                }}
+                className="aspect-square bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col items-center justify-center hover:shadow-md transition"
+              >
                 <img src={badge.image} alt={badge.name} className="w-25 h-25 mb-2 rounded-lg object-cover" />
                 <p className="text-xl font-bold text-gray-700 text-center">{badge.name}</p>
               </div>
@@ -273,17 +312,59 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
       {/* 게시글 */}
       <TabsContent value="posts" className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
         <h2 className="text-lg font-semibold mb-4">작성한 게시글</h2>
-        {paginatedPosts.length === 0 ? (
-          <p className="text-sm text-gray-500">게시글이 없습니다.</p>
+
+        {isCompany ? (
+          companyPosts.length === 0 ? (
+            <p className="text-sm text-gray-500">게시글이 없습니다.</p>
+          ) : (
+            <div className="space-y-4">
+              {companyPosts.map((post) => (
+                <PostCard
+                  key={post.postId}
+                  post={{
+                    id: post.postId,
+                    title: post.title,
+                    thumbnail: post.thumbnailUrl,
+                    tags: post.tags,
+                    views: post.viewCount,
+                    stars: post.starCount,
+                    comments: post.commentCount
+                  }}
+                  onClick={() => window.location.href = `/post/${post.postId}`}
+                />
+              ))}
+            </div>
+          )
         ) : (
-          <div className="space-y-4">
-            {paginatedPosts.map((post, idx) => (
-              <PostCard key={idx} post={post} onClick={() => window.location.href = '#'} />
-            ))}
-          </div>
+          paginatedPosts.length === 0 ? (
+            <p className="text-sm text-gray-500">게시글이 없습니다.</p>
+          ) : (
+            <div className="space-y-4">
+              {paginatedPosts.map((post, idx) => (
+                <PostCard key={idx} post={post} onClick={() => window.location.href = '#'} />
+              ))}
+            </div>
+          )
         )}
-        {totalPostPages > 1 && (
-          <Pagination currentPage={currentPostPage} totalCount={posts.length} pageSize={5} onPageChange={setCurrentPostPage} />
+
+        {isCompany ? (
+          companyPostTotalPages > 1 && (
+            <Pagination
+              currentPage={currentPostPage}
+              totalCount={companyPostTotalElements}
+              pageSize={5}
+              onPageChange={setCurrentPostPage}
+            />
+          )
+        ) : (
+          totalPostPages > 1 && (
+            <Pagination
+              currentPage={currentPostPage}
+              totalCount={posts.length}
+              pageSize={5}
+              onPageChange={setCurrentPostPage}
+            />
+          )
         )}
       </TabsContent>
 
@@ -393,6 +474,13 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
           )}
         </TabsContent>
       )}
+
+      {/* 배지 모달 */}
+      <BadgeModal
+        isOpen={isBadgeModalOpen}
+        badge={selectedBadge}
+        onClose={() => setIsBadgeModalOpen(false)}
+      />
     </Tabs>
   );
 };

@@ -387,8 +387,45 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
           ) : companyPosts.length === 0 ? (
             <p className="text-sm text-gray-500">게시글이 없습니다.</p>
           ) : (
+            <>
+              <div className="space-y-4">
+                {companyPosts.map((post) => (
+                  <PostCard
+                    key={post.postId}
+                    post={{
+                      id: post.postId,
+                      title: post.title,
+                      thumbnail: post.thumbnailUrl,
+                      tags: post.tags,
+                      views: post.viewCount,
+                      stars: post.starCount,
+                      comments: post.commentCount
+                    }}
+                    onClick={() => window.location.href = `/post/${post.postId}`}
+                  />
+                ))}
+              </div>
+
+              {companyPostTotalPages > 1 && (
+                <Pagination
+                  currentPage={currentPostPage}
+                  totalCount={companyPostTotalElements}
+                  pageSize={5}
+                  onPageChange={setCurrentPostPage}
+                />
+              )}
+            </>
+          )
+        ) : postLoading ? (
+          <p className="text-sm text-gray-500">불러오는 중...</p>
+        ) : postError ? (
+          <p className="text-sm text-red-500">에러: {postError}</p>
+        ) : memberPosts.length === 0 ? (
+          <p className="text-sm text-gray-500">게시글이 없습니다.</p>
+        ) : (
+          <>
             <div className="space-y-4">
-              {companyPosts.map((post) => (
+              {memberPosts.map((post) => (
                 <PostCard
                   key={post.postId}
                   post={{
@@ -404,32 +441,18 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
                 />
               ))}
             </div>
-          )
-        ) : postLoading ? (
-          <p className="text-sm text-gray-500">불러오는 중...</p>
-        ) : postError ? (
-          <p className="text-sm text-red-500">에러: {postError}</p>
-        ) : memberPosts.length === 0 ? (
-          <p className="text-sm text-gray-500">게시글이 없습니다.</p>
-        ) : (
-          <div className="space-y-4">
-            {memberPosts.map((post) => (
-              <PostCard
-                key={post.postId}
-                post={{
-                  id: post.postId,
-                  title: post.title,
-                  thumbnail: post.thumbnailUrl,
-                  tags: post.tags,
-                  views: post.viewCount,
-                  stars: post.starCount,
-                  comments: post.commentCount
-                }}
-                onClick={() => window.location.href = `/post/${post.postId}`}
+
+            {postTotalPages > 1 && (
+              <Pagination
+                currentPage={currentPostPage}
+                totalCount={postTotalElements}
+                pageSize={5}
+                onPageChange={setCurrentPostPage}
               />
-            ))}
-          </div>
+            )}
+          </>
         )}
+
       </TabsContent>
 
       {/* 팔로우 */} 

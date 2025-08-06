@@ -35,7 +35,6 @@ public class CommentRecommendationService {
   public ServiceResult<Map<String, Long>> recommendation(RecommendationRequest request, Long userDetailId) {
     log.info("CommentRecommendationService : recommendation() 호출");
 
-
     Comment comment = commentRepository.findById(request.commentId()).orElse(null);
     if (comment == null) {
       return ServiceResult.fail(ErrorCode.COMMENT_NOT_FOUND);
@@ -52,6 +51,7 @@ public class CommentRecommendationService {
 
     CommentRecommendation recommendation = commentRecommendationRepository.save(
         CommentRecommendation.of(comment.getMember(), comment));
+
     recommendation.assignToComment(comment);
     comment.plusRecommendCount();
 
@@ -75,6 +75,7 @@ public class CommentRecommendationService {
 
     recommendation.getComment().minusRecommendCount();
     commentRecommendationRepository.delete(recommendation);
+
     return ServiceResult.ok();
   }
 

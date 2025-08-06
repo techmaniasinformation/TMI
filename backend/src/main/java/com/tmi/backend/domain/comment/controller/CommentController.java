@@ -30,6 +30,11 @@ public class CommentController implements BaseController {
 
   private final CommentService commentService;
 
+  /**
+   * 댓글 등록 API
+   * @param commentRequest 댓글 등록 dto
+   * @param userDetails 로그인 유저만 가능
+   */
   @PostMapping
   public ResponseEntity<ApiResponse<Map<String, Long>>> registerComment(
       @Valid @RequestBody CommentRequest commentRequest,
@@ -39,6 +44,11 @@ public class CommentController implements BaseController {
     return handle(commentService.register(commentRequest, userDetails.getMemberId()));
   }
 
+  /**
+   * 댓글 삭제 API
+   * @param commentId 삭제 댓글 ID
+   * @param userDetails 본인만 가능
+   */
   @DeleteMapping("/{commentId}")
   public ResponseEntity<ApiResponse<Void>> deleteComment(
       @PathVariable Long commentId,
@@ -48,6 +58,10 @@ public class CommentController implements BaseController {
     return handle(commentService.delete(commentId, userDetails.getMemberId()));
   }
 
+  /**
+   * 멤버 댓글 조회 API
+   * @param memberId 멤버 ID
+   */
   @GetMapping(params = "memberId")
   public ResponseEntity<ApiResponse<MyCommentListResponse>> readMemberComments(
       @RequestParam Long memberId,
@@ -57,6 +71,11 @@ public class CommentController implements BaseController {
     return handle(commentService.readMemberComments(memberId, page, size));
   }
 
+  /**
+   * 게시글 댓글 조회 API
+   * @param postId 게시글 ID
+   * @param sort 정렬 기준 : oldest, popular
+   */
   @GetMapping(params = "postId")
   public ResponseEntity<ApiResponse<PostCommentListResponse>> readPostComments(
       @RequestParam Long postId,

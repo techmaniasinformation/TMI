@@ -28,6 +28,11 @@ public class CommentRecommendationController implements BaseController {
 
   private final CommentRecommendationService commentRecommendationService;
 
+  /**
+   * 댓글 추천 API
+   * @param request 댓글 추천 DTO
+   * @param userDetails 로그인 유저만 가능
+   */
   @PostMapping
   public ResponseEntity<ApiResponse<Map<String, Long>>> recommendation(
       @Valid @RequestBody RecommendationRequest request,
@@ -37,6 +42,11 @@ public class CommentRecommendationController implements BaseController {
     return handle(commentRecommendationService.recommendation(request, userDetails.getMemberId()));
   }
 
+  /**
+   * 댓글 추천 취소
+   * @param recommendationId 추천 ID
+   * @param userDetails 본인만 가능
+   */
   @DeleteMapping("/{recommendationId}")
   public ResponseEntity<ApiResponse<Void>> recommendationDelete(
       @PathVariable Long recommendationId,
@@ -46,6 +56,11 @@ public class CommentRecommendationController implements BaseController {
     return handle(commentRecommendationService.delete(recommendationId, userDetails.getMemberId()));
   }
 
+  /**
+   * 댓글 추천 조회 API
+   * @param memberId 멤버 ID
+   * @param postId 게시글 ID
+   */
   @GetMapping()
   public ResponseEntity<ApiResponse<RecommendationListResponse>> getRecommendations(
       @RequestParam(required = false) Long memberId,

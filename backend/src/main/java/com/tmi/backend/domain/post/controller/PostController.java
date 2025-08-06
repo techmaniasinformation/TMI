@@ -30,6 +30,7 @@ public class PostController implements BaseController {
   /**
    * 게시글 등록 API
    * @param postCreateRequest 게시글 등록 정보
+   * @param userDetails 로그인 유저만 가능
    */
   @PostMapping
   public ResponseEntity<ApiResponse<Map<String, Long>>> createPost(
@@ -44,6 +45,7 @@ public class PostController implements BaseController {
    * 게시글 수정 API
    * @param postId 수정할 게시글 id
    * @param postUpdateRequest 게시글 수정 정보
+   * @param userDetails 본인만 수정 가능
    */
   @PatchMapping("/{postId}")
   public ResponseEntity<ApiResponse<Map<String, Long>>> updatePost(
@@ -58,6 +60,7 @@ public class PostController implements BaseController {
   /**
    * 게시글 삭제 API
    * @param postId 삭제할 게시글 id
+   * @param userDetails 본인만 삭제 가능
    */
   @DeleteMapping("/{postId}")
   public ResponseEntity<ApiResponse<Void>> deletePost(

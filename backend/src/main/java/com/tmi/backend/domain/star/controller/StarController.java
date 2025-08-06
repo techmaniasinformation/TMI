@@ -31,6 +31,7 @@ public class StarController implements BaseController {
   /**
    * 스타 등록 API
    * @param request 멤버 id 와 게시글 id 를 받습니다.
+   * @param userDetails 로그인 유저만 가능
    */
   @PostMapping
   public ResponseEntity<ApiResponse<Map<String, Long>>> starRegister(
@@ -55,6 +56,7 @@ public class StarController implements BaseController {
   /**
    * 스타 취소 API
    * @param starId 취소하려는 스타 id
+   * @param userDetails 본인만 취소 가능
    */
   @DeleteMapping("/{starId}")
   public ResponseEntity<ApiResponse<Void>> deleteStar(

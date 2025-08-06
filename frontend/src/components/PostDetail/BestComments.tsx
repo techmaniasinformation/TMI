@@ -3,18 +3,22 @@ import { DateTimeComponent } from '@/components/domain/article';
 
 interface BestCommentsProps {
   comments: any[]; // Comment 타입을 사용하지만 여기서는 any로 간단히 처리
+  bestCommentId: number;
   formatDate: (date: string) => string;
   formatNumber: (num: number) => string;
 }
 
-export const BestComments: React.FC<BestCommentsProps> = ({ comments, formatDate, formatNumber }) => {
-  const bestComments = comments?.filter(comment => comment.isRecommend) || [];
-  
-  if (bestComments.length === 0) {
+export const BestComments: React.FC<BestCommentsProps> = ({ comments, bestCommentId, formatDate, formatNumber }) => {
+  // 베스트 댓글이 없으면 (-1) 렌더링하지 않음
+  if (bestCommentId === -1) {
     return null;
   }
 
-  const bestComment = bestComments.sort((a, b) => b.recommendCount - a.recommendCount)[0];
+  const bestComment = comments?.find(comment => comment.commentId === bestCommentId);
+  
+  if (!bestComment) {
+    return null;
+  }
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">

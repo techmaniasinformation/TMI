@@ -356,7 +356,7 @@ const PostCreatePage: React.FC = () => {
                 저장 중...
               </>
             ) : (
-              '저장하기'
+              '작성하기'
             )}
           </button>
         </div>

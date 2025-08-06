@@ -59,6 +59,10 @@ import type { CompanyPost } from "@/types/company/companyPost";
 import { fetchStarredPosts } from "@/api/mypage/starService";
 import type { Post as StarPost } from "@/types/mypage/star";
 
+// 작성한 댓글 api
+import { fetchMemberComments } from "@/api/mypage/commentService";
+import type { Comment } from "@/types/mypage/comment";
+
 // 배지 리스트
 const badgeList = [
   { id: 1, name: '이건 머지?', image: badgeFirstArticle, filename: 'first_article.png'},
@@ -134,14 +138,27 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   const [isBadgeModalOpen, setIsBadgeModalOpen] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState<typeof badgeList[0] | null>(null);
 
-  // 댓글 데이터 로딩
-  const { data: comments } = useFetchJson<CommentCardProps>('/mypage_comments.json');
-  const {
-    currentPage: currentCommentPage,
-    setCurrentPage: setCurrentCommentPage,
-    totalPages: totalCommentPages,
-    paginatedItems: paginatedComments
-  } = usePagination<CommentCardProps>(comments, 5);
+  // 댓글 API 상태
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [commentTotalPages, setCommentTotalPages] = useState(1);
+  const [commentTotalElements, setCommentTotalElements] = useState(0);
+  const [commentLoading, setCommentLoading] = useState(true);
+  const [commentError, setCommentError] = useState<string | null>(null);
+  const [currentCommentPage, setCurrentCommentPage] = useState(1);
+
+  useEffect(() => {
+    if (isMyPage && isPersonal) {
+      setCommentLoading(true);
+      fetchMemberComments(1, currentCommentPage, 5) // TODO: memberId 동적
+        .then((res) => {
+          setComments(res.data.comments);
+          setCommentTotalPages(res.data.pageInfo.totalPages);
+          setCommentTotalElements(res.data.pageInfo.totalElements);
+        })
+        .catch((err) => setCommentError(err.message))
+        .finally(() => setCommentLoading(false));
+    }
+  }, [isMyPage, isPersonal, currentCommentPage]);
 
   // 게시글 데이터 로딩
   const { data: posts } = useFetchJson<Post>('/mypage_posts.json');
@@ -308,17 +325,32 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
       {isMyPage && isPersonal && (
         <TabsContent value="comments" className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
           <h2 className="text-lg font-semibold mb-4">작성한 댓글</h2>
-          {comments.length === 0 ? (
+          {commentLoading ? (
+            <p className="text-sm text-gray-500">불러오는 중...</p>
+          ) : commentError ? (
+            <p className="text-sm text-red-500">에러: {commentError}</p>
+          ) : comments.length === 0 ? (
             <p className="text-sm text-gray-500">작성한 댓글이 없습니다.</p>
           ) : (
             <div className="space-y-4">
-              {paginatedComments.map((comment, idx) => (
-                <CommentCard key={idx} {...comment} onClick={() => window.location.href = '#'} />
+              {comments.map((comment) => (
+                <CommentCard
+                  key={comment.commentId}
+                  postTitle={comment.name} // 여기서 postTitle로 변환
+                  comment={comment.comment}
+                  date={comment.createAt}
+                  onClick={() => window.location.href = comment.link}
+                />
               ))}
             </div>
           )}
-          {totalCommentPages > 1 && (
-            <Pagination currentPage={currentCommentPage} totalCount={comments.length} pageSize={5} onPageChange={setCurrentCommentPage} />
+          {commentTotalPages > 1 && (
+            <Pagination
+              currentPage={currentCommentPage}
+              totalCount={commentTotalElements}
+              pageSize={5}
+              onPageChange={setCurrentCommentPage}
+            />
           )}
         </TabsContent>
       )}

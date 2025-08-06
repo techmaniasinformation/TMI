@@ -100,7 +100,7 @@ public class CommentService {
 
   private Sort convertSort(SortType sortType) {
     return switch (sortType) {
-      case earliest -> Sort.by("createdAt").ascending();           // 오래된 순
+      case oldest -> Sort.by("createdAt").ascending();           // 오래된 순
       case popular  -> Sort.by("recommendCount").descending()      // 추천 ↑
           .and(Sort.by("createdAt").ascending());
     };

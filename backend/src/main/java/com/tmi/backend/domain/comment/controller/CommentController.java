@@ -52,7 +52,7 @@ public class CommentController implements BaseController {
   @GetMapping(params = "postId")
   public ResponseEntity<ApiResponse<PostCommentListResponse>> readPostComments(
       @RequestParam Long postId,
-      @RequestParam(defaultValue = "earliest") SortType sort
+      @RequestParam(defaultValue = "oldest") SortType sort
   ) {
     return handle(commentService.readPostComments(postId, sort));
   }

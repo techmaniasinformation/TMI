@@ -1,5 +1,5 @@
 import React from 'react';
-import { TagArea } from '@/components/domain/article';
+import { Badge } from '@/components/domain/Badge';
 
 interface PostTitleProps {
   post: any; // Post 타입을 사용하지만 여기서는 any로 간단히 처리
@@ -25,10 +25,13 @@ export const PostTitle: React.FC<PostTitleProps> = ({ post, onStarClick }) => {
 
       {/* 태그들 */}
       {post.tags && post.tags.length > 0 && (
-        <TagArea 
-          tags={post.tags}
-          maxTags={post.tags.length}
-        />
+        <div className="flex flex-wrap gap-2">
+          {post.tags.map((tag: string, index: number) => (
+            <Badge key={index} variant="outline" className="cursor-pointer hover:bg-blue-50" imgSrc="">
+              #{tag}
+            </Badge>
+          ))}
+        </div>
       )}
     </div>
   );

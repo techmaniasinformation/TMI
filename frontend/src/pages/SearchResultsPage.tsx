@@ -20,8 +20,8 @@ const SearchResultsPage = () => {
 
   // 게시글 클릭 핸들러
   const handlePostClick = (postId: number) => {
-    // 상세 페이지 대신 홈페이지로 이동
-    navigate('/home');
+    // 상세 페이지로 이동
+    navigate(`/post/${postId}`);
   };
 
   return (

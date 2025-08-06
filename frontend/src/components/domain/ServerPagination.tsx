@@ -46,7 +46,7 @@ function ServerPagination({
 
   // 페이지 번호들을 계산하는 함수
   const getPageNumbers = () => {
-    const pages: (number | string)[] = [];
+    const pages: number[] = [];
     
     if (totalPages <= 5) {
       // 5페이지 이하면 모두 표시
@@ -54,11 +54,23 @@ function ServerPagination({
         pages.push(i);
       }
     } else {
-      // 5페이지 초과면 현재 페이지 ±2 기준으로 표시
-      const startPage = Math.max(1, currentPage - 2);
-      const endPage = Math.min(totalPages, currentPage + 2);
+      // 5페이지 초과면 현재 페이지 중심으로 5개 표시
+      let startPage = currentPage - 2;
+      let endPage = currentPage + 2;
       
-      // 현재 페이지 ±2 범위만 추가
+      // 시작 페이지가 1보다 작으면 조정
+      if (startPage < 1) {
+        startPage = 1;
+        endPage = Math.min(5, totalPages);
+      }
+      
+      // 끝 페이지가 totalPages보다 크면 조정
+      if (endPage > totalPages) {
+        endPage = totalPages;
+        startPage = Math.max(1, totalPages - 4);
+      }
+      
+      // 페이지 번호들 추가
       for (let i = startPage; i <= endPage; i++) {
         pages.push(i);
       }
@@ -82,20 +94,17 @@ function ServerPagination({
       </button>
 
       {/* 페이지 번호 버튼들 */}
-      {pageNumbers.map((page, index) => (
+      {pageNumbers.map((page) => (
         <button
-          key={index}
-          onClick={() => typeof page === 'number' ? onPageChange(page) : undefined}
-          disabled={typeof page === 'string'}
+          key={page}
+          onClick={() => onPageChange(page)}
           className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-            typeof page === 'number' && currentPage === page
+            currentPage === page
               ? 'bg-blue-600 text-white'
-              : typeof page === 'string'
-              ? 'text-gray-400 bg-white border border-gray-300 cursor-default'
               : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
           }`}
-          aria-label={typeof page === 'number' ? `페이지 ${page}로 이동` : undefined}
-          aria-current={typeof page === 'number' && currentPage === page ? 'page' : undefined}
+          aria-label={`페이지 ${page}로 이동`}
+          aria-current={currentPage === page ? 'page' : undefined}
         >
           {page}
         </button>

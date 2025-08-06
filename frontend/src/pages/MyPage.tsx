@@ -42,18 +42,12 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany, isMyPage }) => {
   const [activeTab, setActiveTab] = useState(getInitialTab);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const [nickname, setNickname] = useState('NAVER');
-  const [email] = useState('user@example.com');
-  const [blogUrl, setBlogUrl] = useState('https://blog.example.com');
-  const [githubUrl, setGithubUrl] = useState('https://github.com/example');
-
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const handleProfileSave = (newNickname: string, newBlogUrl: string, newGithubUrl?: string) => {
-    setNickname(newNickname);
-    setBlogUrl(newBlogUrl);
-    setGithubUrl(newGithubUrl || '');
+    console.log('프로필 저장:', newNickname, newBlogUrl, newGithubUrl);
   };
+
   const [userStats] = useState<UserStats>({
     posts: 15,
     comments: 42,
@@ -95,10 +89,6 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany, isMyPage }) => {
     <div className="max-w-[1232px] mx-auto px-4 py-8">
       <div className="max-w-[1232px] mx-auto">
         <ProfileHeader
-          nickname={isCompany ? company?.name || '' : nickname}
-          email={isCompany ? '' : email}
-          githubUrl={isCompany ? '' : githubUrl}
-          blogUrl={isCompany ? company?.techBlogUrl || '' : blogUrl}
           isCompany={isCompany}
           isMyPage={isMyPage}
           lastUpdate={
@@ -108,15 +98,8 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany, isMyPage }) => {
                 : ''
               : '2025-07-30'
           }
-          postCount={isCompany ? company?.stats.postCount || 0 : userStats.posts}
-          commentCount={isCompany ? 0 : userStats.comments}
-          followerCount={isCompany ? company?.stats.followerCount || 0 : userStats.followers}
-          viewCount={isCompany ? company?.stats.totalViewCount || 0 : userStats.views}
           onFollowToggle={handleFollowToggle}
           isFollowing={isFollowing}
-          setNickname={setNickname}
-          setBlogUrl={setBlogUrl}
-          setGithubUrl={setGithubUrl}
           onEditClick={() => setIsEditModalOpen(true)}
         />
 
@@ -134,14 +117,12 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany, isMyPage }) => {
           <ProfileEditModal
             isOpen={isEditModalOpen}
             onClose={() => setIsEditModalOpen(false)}
-            initialNickname={nickname}
-            initialBlogUrl={blogUrl}
-            initialGithubUrl={githubUrl}
+            initialNickname="" // API에서 가져오기 때문에 빈 값
+            initialBlogUrl=""
+            initialGithubUrl=""
             onSave={handleProfileSave}
           />
         )}
-
-
       </div>
     </div>
   );

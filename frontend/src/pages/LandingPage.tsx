@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/foundation/button';
 import { useThemeStore } from '@/stores/themeStore'; //테마
+import { useUserStore } from '@/stores/userStore';  //로그인 상태 정보
 import LandingCard from '@/components/inter/LandingCard'; //인기 게시글 3개
+
 
 
 interface PostData {
@@ -23,15 +25,17 @@ interface PostData {
 interface LandingPageProps {}
 
 const LandingPage: React.FC<LandingPageProps> = () => {
-   const [popularPosts, setPopularPosts] = useState<PostData[]>([]);
+  const [popularPosts, setPopularPosts] = useState<PostData[]>([]);
   const [isHovered, setIsHovered] = useState<string | null>(null);
   const navigate = useNavigate();
 
   // 테마 관련 변수 받기
   const { isDarkMode } = useThemeStore();
 
+  // ##### 현재 로그인 여부, 로그인 했을 시 memberId(로그인 안 한 상태면 -1) 
+  const { isLogin, memberId } = useUserStore();
 
-    useEffect(() => {
+  useEffect(() => {
     async function fetchPopularPosts() {
       try {
         const response = await fetch('/api/v1/post/popular?size=3');
@@ -58,7 +62,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
     console.log('메인 페이지로 이동');
   };
 
-  // 카드 클릭시 게시글 상세 페이지로 이동
+  // ######## 카드 클릭시 게시글 상세 페이지로 이동 
   const handleCardClick = (postId: number) => {
     navigate(`/post/${postId}`);
     console.log(`게시글 상세 페이지로 이동: post/${postId}`);
@@ -132,22 +136,23 @@ const LandingPage: React.FC<LandingPageProps> = () => {
 
           {/* Navigation Buttons */}
           <div className='flex flex-col sm:flex-row gap-6 justify-center items-center'>
-            <Button
-              variant={'primary'}
-              onMouseEnter={() => setIsHovered('signup')}
-              onMouseLeave={() => setIsHovered(null)}
-              onClick={handleSignupClick}
-              className={`group relative px-8 py-4 cursor-pointer whitespace-nowrap border-0.5 border-transparent transform ${
-                isHovered === 'signup' ? 'scale-105' : 'scale-100'
-              } w-[200px]`}
-            >
-              <div className='flex items-center justify-center space-x-2'>
-                {/* 로켓 아이콘 건의  */}
-                <i className='fa-solid fa-rocket w-5 h-5 flex items-center justify-center border border-blue-500'></i>
-                <span>로그인/회원가입</span>
-              </div>
-            </Button>
-
+            {!isLogin && (
+              <Button
+                variant={'primary'}
+                onMouseEnter={() => setIsHovered('signup')}
+                onMouseLeave={() => setIsHovered(null)}
+                onClick={handleSignupClick}
+                className={`group relative px-8 py-4 cursor-pointer whitespace-nowrap border-0.5 border-transparent transform ${
+                  isHovered === 'signup' ? 'scale-105' : 'scale-100'
+                } w-[200px]`}
+              >
+                <div className='flex items-center justify-center space-x-2'>
+                  {/* 로켓 아이콘 건의 */}
+                  <i className='fa-solid fa-rocket w-5 h-5 flex items-center justify-center border border-blue-500'></i>
+                  <span>로그인/회원가입</span>
+                </div>
+              </Button>
+            )}
             <Button
               variant={isDarkMode ? 'dark' : 'default'}
               onMouseEnter={() => setIsHovered('explore')}
@@ -217,7 +222,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
               roleColor='bg-blue-600'
               hoverBorder='hover:border-blue-500/50'
               hoverShadow='hover:shadow-blue-500/20'
-              variant={isDarkMode ? "dark" : "light"}
+              variant={isDarkMode ? 'dark' : 'light'}
             />
 
             {/* Card 2 */}
@@ -237,7 +242,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
               roleColor='bg-purple-600'
               hoverBorder='hover:border-purple-500/50'
               hoverShadow='hover:shadow-purple-500/20'
-              variant={isDarkMode ? "dark" : "light"}
+              variant={isDarkMode ? 'dark' : 'light'}
             />
 
             {/* Card 3 */}
@@ -257,11 +262,8 @@ const LandingPage: React.FC<LandingPageProps> = () => {
               roleColor='bg-green-600'
               hoverBorder='hover:border-green-500/50'
               hoverShadow='hover:shadow-green-500/20'
-              variant={isDarkMode ? "dark" : "light"}
+              variant={isDarkMode ? 'dark' : 'light'}
             />
-
-            
-
           </div>
           {/* api 연결 후 아래로 대체 */}
           {/* role color 적용은 추후에 생각해볼 것.  */}

@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import SearchBar from "./Searchbar"; // 검색바 컴포넌트 분리
 import { Button } from "./button";
 import { useThemeStore } from "@/stores/themeStore"; // 테마 불러오기
+import { useUserStore } from "@/stores/userStore"; // 로그인 관련 전역변수
 
 const headerVariants = cva('text-white', {
   variants: {
@@ -30,17 +31,15 @@ const Header: React.FC<HeaderProps> = ({
   variant = 'light',
   size = 'default',
 }) => {
-  // 로그인 여부 확인
-  // const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const {isLogin, memberId, toggleIsLogin} = useUserStore(); // 로그인 상태 확인 
   const { isDarkMode, toggleTheme } = useThemeStore(); // 전역 상태 사용
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(true);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const navigate = useNavigate();
 
-  const handleLogin = () => setIsLoggedIn(!isLoggedIn);
-  // const handleThemeToggle = () => setIsDarkMode(!isDarkMode);
+  // #### 희망사항 - 로그아웃만 
+  const handleLogin = () => toggleIsLogin();
 
   const addToRecentSearches = (term: string) => {
     setRecentSearches((prev) =>
@@ -58,7 +57,7 @@ const Header: React.FC<HeaderProps> = ({
 
   // ✅ 게시글 작성 버튼 클릭시 로그인 여부에 따라 반응
   const handleWritePost = () => {
-    if (!isLoggedIn) {
+    if (!isLogin) {
       alert('로그인이 필요합니다.'); // 알림 표시
       navigate('/login'); // 로그인 페이지로 이동
     } else {
@@ -107,7 +106,7 @@ const Header: React.FC<HeaderProps> = ({
               />
             </button>
             {/* 로그인 여부에 따라 다르게 */}
-            {isLoggedIn ? (
+            {isLogin ? (
               <div className='relative flex'>
                 {/* 프로필 */}
                 <button

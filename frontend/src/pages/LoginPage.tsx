@@ -10,7 +10,7 @@ import useSocialLogin from '@/hooks/auth/useSocialLogin'; // 새 훅 임포트
 const loginPageVariants = cva(
   'flex items-center justify-center transition-colors duration-300 py-8',
   {
-    variants: {
+    variants: { 
       variant: {
         light: 'bg-light-bg text-dark-bg ',
         dark: 'bg-dark-bg text-white ',
@@ -72,6 +72,7 @@ const LoginPage: React.FC<LoginPageProps> = () => {
             hovered={hoveredButton === 'naver'}
             onHover={(isHover) => setHoveredButton(isHover ? 'naver' : null)}
             onClick={() => handleSocialLoginWithLocation('naver')} // 로케이션 방식
+            // onClick={() => {window.location.href =`https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=L000gCRdLnKJ0o11XI5j&&redirect_uri=http://localhost:3000/login`}}
           />
 
           {/* 구글 */}

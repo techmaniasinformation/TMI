@@ -30,9 +30,10 @@ public interface CompanyFollowRepository extends JpaRepository<CompanyFollow, Lo
   );
 
   boolean existsByFollowerIdAndCompanyId(Long followerId, Long companyId);
-  
+
   @Modifying
   @Query("DELETE FROM CompanyFollow cf WHERE cf.follower.id = :memberId")
   void deleteByFollowerId(@Param("memberId") Long memberId);
 
+  List<CompanyFollow> findByFollowerId(Long followerId);
 }

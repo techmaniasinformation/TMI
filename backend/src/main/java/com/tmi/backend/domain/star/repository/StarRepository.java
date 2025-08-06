@@ -19,4 +19,10 @@ public interface StarRepository extends JpaRepository<Star, Long> {
 
   void deleteByMemberId(@Param("memberId") Long memberId);
 
+  @EntityGraph(attributePaths = {
+      "post",
+      "post.member",
+      "post.company"
+  })
+  Page<Star> findByMemberOrderByPostCreatedAtDesc(Member m, Pageable p);
 }

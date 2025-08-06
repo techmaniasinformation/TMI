@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 // 기본 UI 및 컴포넌트 임포트
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/domain/Tabs";
 import PostCard from './PostCard';
-import CommentCard, { CommentCardProps } from './CommentCard';
+import CommentCard from './CommentCard';
 import FollowCompanyCard from './FollowCompanyCard';
 import FollowUserCard from './FollowUserCard';
 
@@ -51,20 +51,16 @@ import badgeAWS from '@/assets/images/AWS.png';
 // 배지 모달
 import BadgeModal from '@/components/layout/mypage/BadgeModal';
 
-// 기업 게시글 api
+// API
 import { getCompanyPosts } from "@/api/company/companyPost";
-import type { CompanyPost } from "@/types/company/companyPost";
-
-// 스타 게시글 api
 import { fetchStarredPosts } from "@/api/mypage/starService";
-import type { Post as StarPost } from "@/types/mypage/star";
-
-// 작성한 댓글 api
 import { fetchMemberComments } from "@/api/mypage/commentService";
-import type { Comment } from "@/types/mypage/comment";
-
-// 작성한 게시글 api
 import { fetchMemberPosts } from "@/api/mypage/postService";
+
+// 타입
+import type { CompanyPost } from "@/types/company/companyPost";
+import type { Post as StarPost } from "@/types/mypage/star";
+import type { Comment, CommentResponse } from "@/types/mypage/comment";
 import type { MyPagePost } from "@/types/mypage/post";
 
 // 배지 리스트
@@ -93,18 +89,6 @@ const badgeList = [
 
 ];
 
-
-// 게시글 타입 정의
-interface Post {
-  id: string;
-  title: string;
-  thumbnail: string;
-  tags: string[];
-  views: number;
-  stars: number;
-  comments: number;
-}
-
 // props 타입 정의
 interface MyPageTabsProps {
   isCompany: boolean;
@@ -121,7 +105,6 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   isMyPage,
   activeTab,
   setActiveTab,
-  userStats,
   currentPage,
   setCurrentPage
 }) => {
@@ -154,11 +137,11 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   useEffect(() => {
     if (isMyPage && isPersonal) {
       setCommentLoading(true);
-      fetchMemberComments(1, currentCommentPage, 5) // TODO: memberId 동적
-        .then((res) => {
-          setComments(res.data.comments);
-          setCommentTotalPages(res.data.pageInfo.totalPages);
-          setCommentTotalElements(res.data.pageInfo.totalElements);
+      fetchMemberComments(1, currentCommentPage, 5)
+        .then(({ comments, pageInfo }) => {
+          setComments(comments);
+          setCommentTotalPages(pageInfo.totalPages);
+          setCommentTotalElements(pageInfo.totalElements);
         })
         .catch((err) => setCommentError(err.message))
         .finally(() => setCommentLoading(false));
@@ -277,7 +260,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
             onClick={() => setCurrentCommentPage(1)}  // 페이지 초기화
             >
             <IconTab2 className="w-4 h-4 mr-2 text-inherit" />
-            <span className="text-sm">작성한 댓글 ({comments.length})</span>
+            <span className="text-sm">작성한 댓글 ({commentTotalElements})</span>
           </TabsTrigger>
         )}
 
@@ -356,13 +339,13 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
           ) : (
             <div className="space-y-4">
               {comments.map((comment) => (
-                <CommentCard
-                  key={comment.commentId}
-                  postTitle={comment.name} // 여기서 postTitle로 변환
-                  comment={comment.comment}
-                  date={comment.createAt}
-                  onClick={() => window.location.href = comment.link}
-                />
+              <CommentCard
+                key={comment.commentId}
+                postTitle={comment.title} // 게시글 제목
+                comment={comment.comment}
+                date={comment.createAt}
+                onClick={() => comment.link && (window.location.href = comment.link)}
+              />
               ))}
             </div>
           )}

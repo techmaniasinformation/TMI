@@ -2,7 +2,7 @@ import React from 'react';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useThemeStore } from '@/stores/themeStore';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/utils';
+import { cn } from '@/utils/utils';
 import SocialLoginButton from '@/components/inter/SocialLoginButton';
 import useSocialLogin from '@/hooks/auth/useSocialLogin'; // 새 훅 임포트
 
@@ -105,4 +105,3 @@ const LoginPage: React.FC<LoginPageProps> = () => {
 
 export default LoginPage;
 
-export default LoginPage;

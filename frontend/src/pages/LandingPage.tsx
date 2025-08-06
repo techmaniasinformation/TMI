@@ -26,7 +26,6 @@ interface LandingPageProps {}
 
 const LandingPage: React.FC<LandingPageProps> = () => {
   const [popularPosts, setPopularPosts] = useState<PostData[]>([]);
-  const [popularPosts, setPopularPosts] = useState<PostData[]>([]);
   const [isHovered, setIsHovered] = useState<string | null>(null);
   const navigate = useNavigate();
 
@@ -36,7 +35,6 @@ const LandingPage: React.FC<LandingPageProps> = () => {
   // ##### 현재 로그인 여부, 로그인 했을 시 memberId(로그인 안 한 상태면 -1) 
   const { isLogin, memberId } = useUserStore();
 
-  useEffect(() => {
   useEffect(() => {
     async function fetchPopularPosts() {
       try {
@@ -227,7 +225,6 @@ const LandingPage: React.FC<LandingPageProps> = () => {
               hoverBorder='hover:border-blue-500/50'
               hoverShadow='hover:shadow-blue-500/20'
               variant={isDarkMode ? 'dark' : 'light'}
-              variant={isDarkMode ? 'dark' : 'light'}
             />
 
             {/* Card 2 */}
@@ -248,7 +245,6 @@ const LandingPage: React.FC<LandingPageProps> = () => {
               hoverBorder='hover:border-purple-500/50'
               hoverShadow='hover:shadow-purple-500/20'
               variant={isDarkMode ? 'dark' : 'light'}
-              variant={isDarkMode ? 'dark' : 'light'}
             />
 
             {/* Card 3 */}
@@ -268,7 +264,6 @@ const LandingPage: React.FC<LandingPageProps> = () => {
               roleColor='bg-green-600'
               hoverBorder='hover:border-green-500/50'
               hoverShadow='hover:shadow-green-500/20'
-              variant={isDarkMode ? 'dark' : 'light'}
               variant={isDarkMode ? 'dark' : 'light'}
             />
           </div>

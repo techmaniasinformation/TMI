@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 // import { useSignup } from '@/hooks/auth/useSignup';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/utils';
+import { cn } from '@/utils/utils';
 import { useThemeStore } from '@/stores/themeStore';
 
 // ####### useUserStore 보류!!!
@@ -268,7 +268,5 @@ const handleNicknameCheck = async () => {
     </div>
   );
 };
-
-export default SignupPage;
 
 export default SignupPage;

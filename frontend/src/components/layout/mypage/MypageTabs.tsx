@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 // 기본 UI 및 컴포넌트 임포트
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/domain/Tabs";
@@ -52,10 +52,12 @@ import badgeAWS from '@/assets/images/AWS.png';
 import BadgeModal from '@/components/layout/mypage/BadgeModal';
 
 // 기업 게시글 api
-import { useEffect } from "react";
 import { getCompanyPosts } from "@/api/company/companyPost";
-
 import type { CompanyPost } from "@/types/company/companyPost";
+
+// 스타 게시글 api
+import { fetchStarredPosts } from "@/api/mypage/starService";
+import type { Post as StarPost } from "@/types/mypage/star";
 
 // 배지 리스트
 const badgeList = [
@@ -194,17 +196,29 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
     paginatedItems: paginatedUsers
   } = usePagination(followedUsers, 9);  // 한 페이지당 9개
 
-  // 스타 게시글 데이터 로딩
-  const { data: starredPosts, loading: starLoading, error: starError } =
-  useFetchJson<Post>('/mypage_starred_posts.json');
+  // 스타 게시글 API 상태
+  const [starredPosts, setStarredPosts] = useState<StarPost[]>([]);
+  const [starTotalPages, setStarTotalPages] = useState(1);
+  const [starTotalElements, setStarTotalElements] = useState(0);
+  const [starLoading, setStarLoading] = useState(true);
+  const [starError, setStarError] = useState<string | null>(null);
+  const [currentStarPage, setCurrentStarPage] = useState(1);
 
-  // 스타게시글 페이지네이션
-  const {
-    currentPage: currentStarPage,
-    setCurrentPage: setCurrentStarPage,
-    totalPages: totalStarPages,
-    paginatedItems: paginatedStarredPosts,
-  } = usePagination<Post>(starredPosts, 5);  // 5개씩 페이지네이션
+  // 스타 게시글 API 호출
+  useEffect(() => {
+    if (isMyPage && isPersonal) {
+      setStarLoading(true);
+      fetchStarredPosts(1, currentStarPage, 5) // TODO: memberId 동적 전달
+        .then((res) => {
+          setStarredPosts(res.data.posts);
+          setStarTotalPages(res.data.pageInfo.totalPages);
+          setStarTotalElements(res.data.pageInfo.totalElements);
+        })
+        .catch((err) => setStarError(err.message))
+        .finally(() => setStarLoading(false));
+    }
+  }, [isMyPage, isPersonal, currentStarPage]);
+
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className='w-[1232px] mx-auto'>
@@ -454,20 +468,32 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
             <p className="text-sm text-gray-500">불러오는 중...</p>
           ) : starError ? (
             <p className="text-sm text-red-500">에러: {starError}</p>
-          ) : paginatedStarredPosts.length === 0 ? (
+          ) : starredPosts.length === 0 ? (
             <p className="text-sm text-gray-500">스타한 게시글이 없습니다.</p>
           ) : (
             <div className="space-y-4">
-              {paginatedStarredPosts.map((post) => (
-                <PostCard key={post.id} post={post} onClick={() => window.location.href = '#'} />
+              {starredPosts.map((post) => (
+                <PostCard
+                  key={post.postId}
+                  post={{
+                    id: post.postId,
+                    title: post.title,
+                    thumbnail: post.thumbnailUrl,
+                    tags: post.tags,
+                    views: post.viewCount,
+                    stars: post.starCount,
+                    comments: post.commentCount
+                  }}
+                  onClick={() => window.location.href = `/post/${post.postId}`}
+                />
               ))}
             </div>
           )}
 
-          {totalStarPages > 1 && (
+          {starTotalPages > 1 && (
             <Pagination
               currentPage={currentStarPage}
-              totalCount={starredPosts.length}
+              totalCount={starTotalElements}
               pageSize={5}
               onPageChange={setCurrentStarPage}
             />

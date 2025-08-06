@@ -1,18 +1,35 @@
 package com.tmi.backend.domain.memberBadge.repository;
 
 import com.tmi.backend.domain.memberBadge.entity.MemberBadge;
-import java.util.Optional;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface MemberBadgeRepository extends JpaRepository<MemberBadge, Long> {
 
   @Query("""
-        SELECT mb.badge.badgeUrl
+          SELECT mb
           FROM MemberBadge mb
-         WHERE mb.member.id = :memberId
-           AND mb.isRepresentative = true
+          JOIN FETCH mb.badge
+          WHERE mb.member.id = :memberId
+          ORDER BY mb.receivedAt DESC
       """)
-  Optional<String> findRepresentativeBadgeUrlByMemberId(@Param("memberId") Long memberId);
+  List<MemberBadge> findAllByMemberIdFetchBadge(@Param("memberId") Long memberId);
+
+  @Query("SELECT mb.member.id FROM MemberBadge mb WHERE mb.id = :targetId")
+  Long findMemberIdById(@Param("targetId") Long targetId);
+
+  @Modifying(clearAutomatically = true)
+  @Query("UPDATE MemberBadge mb SET mb.isRepresentative = false WHERE mb.member.id = :memberId")
+  void clearRepresentative(@Param("memberId") Long memberId);
+
+  @Modifying(clearAutomatically = true)
+  @Query("UPDATE MemberBadge mb SET mb.isRepresentative = true WHERE mb.id = :targetId")
+  void setRepresentative(@Param("targetId") Long targetId);
+
+  void deleteByMemberId(@Param("memberId") Long memberId);
+
 }
+

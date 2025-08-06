@@ -1,14 +1,10 @@
 package com.tmi.backend.domain.star.controller;
 
 import com.tmi.backend.domain.star.dto.request.StarRegisterRequest;
-import com.tmi.backend.domain.star.dto.response.SimpleStarResponse;
 import com.tmi.backend.domain.star.dto.response.StarListResponse;
 import com.tmi.backend.domain.star.service.StarService;
 import com.tmi.backend.global.common.controller.BaseController;
 import com.tmi.backend.global.common.response.ApiResponse;
-import com.tmi.backend.global.common.response.impl.ApiErrorResponse;
-import com.tmi.backend.global.common.response.impl.ApiSuccessResponse;
-import com.tmi.backend.global.error.ErrorCode;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import java.util.Map;
@@ -16,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

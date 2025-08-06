@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -67,8 +68,8 @@ public class Member {
         .providerMemberId(req.providerMemberId())
         .nickname(req.nickname())
         .memberProfileUrl(req.memberProfileUrl())
-        .createdAt(LocalDateTime.now())
-        .updatedAt(LocalDateTime.now())
+        .createdAt(LocalDateTime.now(ZoneOffset.UTC))
+        .updatedAt(LocalDateTime.now(ZoneOffset.UTC))
         .build();
   }
 
@@ -77,20 +78,20 @@ public class Member {
     Optional.ofNullable(req.memberProfileUrl()).ifPresent(url -> this.memberProfileUrl = url);
     Optional.ofNullable(req.blogUrl()).ifPresent(url -> this.blogUrl = url);
     Optional.ofNullable(req.githubUrl()).ifPresent(url -> this.githubUrl = url);
-    this.updatedAt = LocalDateTime.now();
+    this.updatedAt = LocalDateTime.now(ZoneOffset.UTC);
   }
 
   //TODO : 메서드명 명확히 바꾸기
   public void delete() {
-    deletedAt = LocalDateTime.now();
+    deletedAt = LocalDateTime.now(ZoneOffset.UTC);
   }
 
   public void reviveAndUpdate(MemberCreateRequest req) {
     nickname = req.nickname();
     memberProfileUrl = req.memberProfileUrl();
     deletedAt = null;
-    createdAt = LocalDateTime.now();
-    updatedAt = LocalDateTime.now();
+    createdAt = LocalDateTime.now(ZoneOffset.UTC);
+    updatedAt = LocalDateTime.now(ZoneOffset.UTC);
 
 
   }

@@ -95,7 +95,7 @@ public class PostViewService {
 
     Map<Long, Integer> countMap = commentRepository.findCountByPostIds(postIds)
         .stream()
-        .collect(Collectors.toMap(CommentCount::postId, CommentCount::cnt));
+        .collect(Collectors.toMap(CommentCount::getPostId, CommentCount::getCnt));
 
     return ServiceResult.ok(SimplePostPageResponse.of(postPage, page, countMap));
   }
@@ -112,7 +112,7 @@ public class PostViewService {
 
     Map<Long, Integer> countMap = commentRepository.findCountByPostIds(postIds)
         .stream()
-        .collect(Collectors.toMap(CommentCount::postId, CommentCount::cnt));
+        .collect(Collectors.toMap(CommentCount::getPostId, CommentCount::getCnt));
 
     return ServiceResult.ok(SimplePostPageResponse.of(postPage, page, countMap));
   }
@@ -129,7 +129,7 @@ public class PostViewService {
 
     Map<Long, Integer> countMap = commentRepository.findCountByPostIds(postIds)
         .stream()
-        .collect(Collectors.toMap(CommentCount::postId, CommentCount::cnt));
+        .collect(Collectors.toMap(CommentCount::getPostId, CommentCount::getCnt));
 
     return ServiceResult.ok(SimplePostPageResponse.of(postPage, page, countMap));
   }
@@ -150,7 +150,7 @@ public class PostViewService {
 
     Map<Long, Integer> countMap = commentRepository.findCountByPostIds(postIds)
         .stream()
-        .collect(Collectors.toMap(CommentCount::postId, CommentCount::cnt));
+        .collect(Collectors.toMap(CommentCount::getPostId, CommentCount::getCnt));
 
     return ServiceResult.ok(SimplePostPageResponse.of(postPage, page, countMap));
   }
@@ -167,7 +167,7 @@ public class PostViewService {
 
     Map<Long, Integer> countMap = commentRepository.findCountByPostIds(postIds)
         .stream()
-        .collect(Collectors.toMap(CommentCount::postId, CommentCount::cnt));
+        .collect(Collectors.toMap(CommentCount::getPostId, CommentCount::getCnt));
 
     return ServiceResult.ok(SimplePostPageResponse.of(postPage, page, countMap));
   }
@@ -190,7 +190,7 @@ public class PostViewService {
 
     Map<Long, Integer> countMap = commentRepository.findCountByPostIds(postIds)
         .stream()
-        .collect(Collectors.toMap(CommentCount::postId, CommentCount::cnt));
+        .collect(Collectors.toMap(CommentCount::getPostId, CommentCount::getCnt));
 
     // AppliedFilters 채우기 (태그 이름이 필요하다면 TagRepository 로 조회)
     AppliedFilters applied = AppliedFilters.of(
@@ -246,7 +246,7 @@ public class PostViewService {
     List<Long> postIds = ordered.stream().map(Post::getId).toList();
     Map<Long, Integer> countMap = commentRepository.findCountByPostIds(postIds)
         .stream()
-        .collect(Collectors.toMap(CommentCount::postId, CommentCount::cnt));
+        .collect(Collectors.toMap(CommentCount::getPostId, CommentCount::getCnt));
 
     // 5. Page 래핑 → 기존 DTO 그대로 재사용
     Page<Post> page = new PageImpl<>(ordered, limit, ordered.size());

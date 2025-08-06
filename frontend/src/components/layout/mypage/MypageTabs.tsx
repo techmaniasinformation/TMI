@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 // 기본 UI 및 컴포넌트 임포트
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/domain/Tabs";
@@ -52,10 +52,20 @@ import badgeAWS from '@/assets/images/AWS.png';
 import BadgeModal from '@/components/layout/mypage/BadgeModal';
 
 // 기업 게시글 api
-import { useEffect } from "react";
 import { getCompanyPosts } from "@/api/company/companyPost";
-
 import type { CompanyPost } from "@/types/company/companyPost";
+
+// 스타 게시글 api
+import { fetchStarredPosts } from "@/api/mypage/starService";
+import type { Post as StarPost } from "@/types/mypage/star";
+
+// 작성한 댓글 api
+import { fetchMemberComments } from "@/api/mypage/commentService";
+import type { Comment } from "@/types/mypage/comment";
+
+// 작성한 게시글 api
+import { fetchMemberPosts } from "@/api/mypage/postService";
+import type { MyPagePost } from "@/types/mypage/post";
 
 // 배지 리스트
 const badgeList = [
@@ -132,23 +142,49 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   const [isBadgeModalOpen, setIsBadgeModalOpen] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState<typeof badgeList[0] | null>(null);
 
-  // 댓글 데이터 로딩
-  const { data: comments } = useFetchJson<CommentCardProps>('/mypage_comments.json');
-  const {
-    currentPage: currentCommentPage,
-    setCurrentPage: setCurrentCommentPage,
-    totalPages: totalCommentPages,
-    paginatedItems: paginatedComments
-  } = usePagination<CommentCardProps>(comments, 5);
+  // 댓글 API 상태
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [commentTotalPages, setCommentTotalPages] = useState(1);
+  const [commentTotalElements, setCommentTotalElements] = useState(0);
+  const [commentLoading, setCommentLoading] = useState(true);
+  const [commentError, setCommentError] = useState<string | null>(null);
+  const [currentCommentPage, setCurrentCommentPage] = useState(1);
 
-  // 게시글 데이터 로딩
-  const { data: posts } = useFetchJson<Post>('/mypage_posts.json');
-  const {
-    currentPage: currentPostPage,
-    setCurrentPage: setCurrentPostPage,
-    totalPages: totalPostPages,
-    paginatedItems: paginatedPosts
-  } = usePagination<Post>(posts, 5);
+  useEffect(() => {
+    if (isMyPage && isPersonal) {
+      setCommentLoading(true);
+      fetchMemberComments(1, currentCommentPage, 5) // TODO: memberId 동적
+        .then((res) => {
+          setComments(res.data.comments);
+          setCommentTotalPages(res.data.pageInfo.totalPages);
+          setCommentTotalElements(res.data.pageInfo.totalElements);
+        })
+        .catch((err) => setCommentError(err.message))
+        .finally(() => setCommentLoading(false));
+    }
+  }, [isMyPage, isPersonal, currentCommentPage]);
+
+  // 작성한 게시글 API 상태
+  const [memberPosts, setMemberPosts] = useState<MyPagePost[]>([]);
+  const [postTotalPages, setPostTotalPages] = useState(1);
+  const [postTotalElements, setPostTotalElements] = useState(0);
+  const [postLoading, setPostLoading] = useState(true);
+  const [postError, setPostError] = useState<string | null>(null);
+  const [currentPostPage, setCurrentPostPage] = useState(1);
+
+  useEffect(() => {
+    if (isPersonal) {
+      setPostLoading(true);
+      fetchMemberPosts(2, currentPostPage, 5) // TODO: memberId 동적 처리
+        .then((res) => {
+          setMemberPosts(res.data.posts);
+          setPostTotalPages(res.data.pageInfo.totalPages);
+          setPostTotalElements(res.data.pageInfo.totalElements);
+        })
+        .catch((err) => setPostError(err.message))
+        .finally(() => setPostLoading(false));
+    }
+  }, [isPersonal, currentPostPage]);
 
   // 기업 게시글 API 호출
   useEffect(() => {
@@ -194,17 +230,29 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
     paginatedItems: paginatedUsers
   } = usePagination(followedUsers, 9);  // 한 페이지당 9개
 
-  // 스타 게시글 데이터 로딩
-  const { data: starredPosts, loading: starLoading, error: starError } =
-  useFetchJson<Post>('/mypage_starred_posts.json');
+  // 스타 게시글 API 상태
+  const [starredPosts, setStarredPosts] = useState<StarPost[]>([]);
+  const [starTotalPages, setStarTotalPages] = useState(1);
+  const [starTotalElements, setStarTotalElements] = useState(0);
+  const [starLoading, setStarLoading] = useState(true);
+  const [starError, setStarError] = useState<string | null>(null);
+  const [currentStarPage, setCurrentStarPage] = useState(1);
 
-  // 스타게시글 페이지네이션
-  const {
-    currentPage: currentStarPage,
-    setCurrentPage: setCurrentStarPage,
-    totalPages: totalStarPages,
-    paginatedItems: paginatedStarredPosts,
-  } = usePagination<Post>(starredPosts, 5);  // 5개씩 페이지네이션
+  // 스타 게시글 API 호출
+  useEffect(() => {
+    if (isMyPage && isPersonal) {
+      setStarLoading(true);
+      fetchStarredPosts(1, currentStarPage, 5) // TODO: memberId 동적 전달
+        .then((res) => {
+          setStarredPosts(res.data.posts);
+          setStarTotalPages(res.data.pageInfo.totalPages);
+          setStarTotalElements(res.data.pageInfo.totalElements);
+        })
+        .catch((err) => setStarError(err.message))
+        .finally(() => setStarLoading(false));
+    }
+  }, [isMyPage, isPersonal, currentStarPage]);
+
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className='w-[1232px] mx-auto'>
@@ -237,7 +285,9 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
           onClick={() => setCurrentPostPage(1)}  // 페이지 초기화
           >
           <IconTab3 className="w-4 h-4 mr-2 text-inherit" />
-          <span className="text-sm">작성한 게시글 ({posts.length})</span>
+          <span className="text-sm">
+            작성한 게시글 ({isCompany ? companyPostTotalElements : postTotalElements})
+          </span>
         </TabsTrigger>
 
         {/* 팔로우 / 스타 게시글 (본인일 때만) */}
@@ -294,17 +344,32 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
       {isMyPage && isPersonal && (
         <TabsContent value="comments" className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
           <h2 className="text-lg font-semibold mb-4">작성한 댓글</h2>
-          {comments.length === 0 ? (
+          {commentLoading ? (
+            <p className="text-sm text-gray-500">불러오는 중...</p>
+          ) : commentError ? (
+            <p className="text-sm text-red-500">에러: {commentError}</p>
+          ) : comments.length === 0 ? (
             <p className="text-sm text-gray-500">작성한 댓글이 없습니다.</p>
           ) : (
             <div className="space-y-4">
-              {paginatedComments.map((comment, idx) => (
-                <CommentCard key={idx} {...comment} onClick={() => window.location.href = '#'} />
+              {comments.map((comment) => (
+                <CommentCard
+                  key={comment.commentId}
+                  postTitle={comment.name} // 여기서 postTitle로 변환
+                  comment={comment.comment}
+                  date={comment.createAt}
+                  onClick={() => window.location.href = comment.link}
+                />
               ))}
             </div>
           )}
-          {totalCommentPages > 1 && (
-            <Pagination currentPage={currentCommentPage} totalCount={comments.length} pageSize={5} onPageChange={setCurrentCommentPage} />
+          {commentTotalPages > 1 && (
+            <Pagination
+              currentPage={currentCommentPage}
+              totalCount={commentTotalElements}
+              pageSize={5}
+              onPageChange={setCurrentCommentPage}
+            />
           )}
         </TabsContent>
       )}
@@ -313,58 +378,39 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
       <TabsContent value="posts" className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
         <h2 className="text-lg font-semibold mb-4">작성한 게시글</h2>
 
-        {isCompany ? (
-          companyPosts.length === 0 ? (
-            <p className="text-sm text-gray-500">게시글이 없습니다.</p>
-          ) : (
-            <div className="space-y-4">
-              {companyPosts.map((post) => (
-                <PostCard
-                  key={post.postId}
-                  post={{
-                    id: post.postId,
-                    title: post.title,
-                    thumbnail: post.thumbnailUrl,
-                    tags: post.tags,
-                    views: post.viewCount,
-                    stars: post.starCount,
-                    comments: post.commentCount
-                  }}
-                  onClick={() => window.location.href = `/post/${post.postId}`}
-                />
-              ))}
-            </div>
-          )
+        {postLoading ? (
+          <p className="text-sm text-gray-500">불러오는 중...</p>
+        ) : postError ? (
+          <p className="text-sm text-red-500">에러: {postError}</p>
+        ) : memberPosts.length === 0 ? (
+          <p className="text-sm text-gray-500">게시글이 없습니다.</p>
         ) : (
-          paginatedPosts.length === 0 ? (
-            <p className="text-sm text-gray-500">게시글이 없습니다.</p>
-          ) : (
-            <div className="space-y-4">
-              {paginatedPosts.map((post, idx) => (
-                <PostCard key={idx} post={post} onClick={() => window.location.href = '#'} />
-              ))}
-            </div>
-          )
+          <div className="space-y-4">
+            {memberPosts.map((post) => (
+              <PostCard
+                key={post.postId}
+                post={{
+                  id: post.postId,
+                  title: post.title,
+                  thumbnail: post.thumbnailUrl,
+                  tags: post.tags,
+                  views: post.viewCount,
+                  stars: post.starCount,
+                  comments: post.commentCount
+                }}
+                onClick={() => window.location.href = `/post/${post.postId}`}
+              />
+            ))}
+          </div>
         )}
 
-        {isCompany ? (
-          companyPostTotalPages > 1 && (
-            <Pagination
-              currentPage={currentPostPage}
-              totalCount={companyPostTotalElements}
-              pageSize={5}
-              onPageChange={setCurrentPostPage}
-            />
-          )
-        ) : (
-          totalPostPages > 1 && (
-            <Pagination
-              currentPage={currentPostPage}
-              totalCount={posts.length}
-              pageSize={5}
-              onPageChange={setCurrentPostPage}
-            />
-          )
+        {postTotalPages > 1 && (
+          <Pagination
+            currentPage={currentPostPage}
+            totalCount={postTotalElements}
+            pageSize={5}
+            onPageChange={setCurrentPostPage}
+          />
         )}
       </TabsContent>
 
@@ -454,20 +500,32 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
             <p className="text-sm text-gray-500">불러오는 중...</p>
           ) : starError ? (
             <p className="text-sm text-red-500">에러: {starError}</p>
-          ) : paginatedStarredPosts.length === 0 ? (
+          ) : starredPosts.length === 0 ? (
             <p className="text-sm text-gray-500">스타한 게시글이 없습니다.</p>
           ) : (
             <div className="space-y-4">
-              {paginatedStarredPosts.map((post) => (
-                <PostCard key={post.id} post={post} onClick={() => window.location.href = '#'} />
+              {starredPosts.map((post) => (
+                <PostCard
+                  key={post.postId}
+                  post={{
+                    id: post.postId,
+                    title: post.title,
+                    thumbnail: post.thumbnailUrl,
+                    tags: post.tags,
+                    views: post.viewCount,
+                    stars: post.starCount,
+                    comments: post.commentCount
+                  }}
+                  onClick={() => window.location.href = `/post/${post.postId}`}
+                />
               ))}
             </div>
           )}
 
-          {totalStarPages > 1 && (
+          {starTotalPages > 1 && (
             <Pagination
               currentPage={currentStarPage}
-              totalCount={starredPosts.length}
+              totalCount={starTotalElements}
               pageSize={5}
               onPageChange={setCurrentStarPage}
             />

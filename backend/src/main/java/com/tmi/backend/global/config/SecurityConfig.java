@@ -41,6 +41,7 @@ public class SecurityConfig {
                 "api/v1/auth/logout/**")
             .permitAll()
             .requestMatchers(
+                "/api/**",
                 "/oauth2/**",         // 소셜 로그인 진입 및 콜백
                 "/api/v1/auth/refresh",
                 "/api/v1/oauth2/authorization/**",
@@ -54,7 +55,7 @@ public class SecurityConfig {
                 .baseUri("/api/v1/oauth2/authorization")
             )
             .redirectionEndpoint(endpoint -> endpoint
-                .baseUri("/login")
+                .baseUri("/login/oauth2/code/")
             )
             .userInfoEndpoint(userInfo -> userInfo
                 .oidcUserService(customOidcUserService)

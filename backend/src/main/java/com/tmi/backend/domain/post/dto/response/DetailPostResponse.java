@@ -9,6 +9,8 @@ import lombok.Builder;
 @Builder(access = AccessLevel.PRIVATE)
 public record DetailPostResponse(
     Long postId,
+    Long memberId,
+    Long companyId,
     String title,
     List<String> tags,
     String memberProfileUrl,
@@ -29,6 +31,8 @@ public record DetailPostResponse(
 
     return DetailPostResponse.builder()
         .postId(post.getId())
+        .memberId(post.getMember() == null ? null : post.getMember().getId())
+        .companyId(post.getCompany() == null ? null : post.getCompany().getId())
         .title(post.getTitle())
         .tags(post.getPostTags().stream()
             .map(pt -> pt.getTag().getName())

@@ -2,7 +2,7 @@ package com.tmi.backend.domain.comment.controller;
 
 import com.tmi.backend.domain.comment.dto.request.CommentRequest;
 import com.tmi.backend.domain.comment.dto.request.SortType;
-import com.tmi.backend.domain.comment.dto.response.CommentListResponse;
+import com.tmi.backend.domain.comment.dto.response.MyCommentListResponse;
 import com.tmi.backend.domain.comment.dto.response.PostCommentListResponse;
 import com.tmi.backend.domain.comment.service.CommentService;
 import com.tmi.backend.global.common.controller.BaseController;
@@ -41,7 +41,7 @@ public class CommentController implements BaseController {
   }
 
   @GetMapping(params = "memberId")
-  public ResponseEntity<ApiResponse<CommentListResponse>> readMemberComments(
+  public ResponseEntity<ApiResponse<MyCommentListResponse>> readMemberComments(
       @RequestParam Long memberId,
       @Positive @RequestParam(defaultValue = "1") int page,
       @Positive @RequestParam(defaultValue = "10") int size

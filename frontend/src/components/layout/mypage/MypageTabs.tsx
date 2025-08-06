@@ -134,7 +134,8 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   const [companyPosts, setCompanyPosts] = useState<CompanyPost[]>([]);
   const [companyPostTotalPages, setCompanyPostTotalPages] = useState(1);
   const [companyPostTotalElements, setCompanyPostTotalElements] = useState(0);
-  
+  const [companyPostLoading, setCompanyPostLoading] = useState(true);
+
   // 팔로우 탭의 서브 탭 상태 ('company' or 'user')
   const [followSubTab, setFollowSubTab] = useState<'company' | 'user'>('company');
   
@@ -189,13 +190,15 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   // 기업 게시글 API 호출
   useEffect(() => {
     if (isCompany) {
-      getCompanyPosts(9, currentPostPage, 5) // companyId는 나중에 동적 전달
+      setCompanyPostLoading(true); // 호출 전 로딩 시작
+      getCompanyPosts(3, currentPostPage, 5) // companyId는 나중에 동적 전달
         .then((res) => {
           setCompanyPosts(res.data.posts);
           setCompanyPostTotalPages(res.data.pageInfo.totalPages);
-          setCompanyPostTotalElements(res.data.pageInfo.totalElements); // 전체 개수 저장
+          setCompanyPostTotalElements(res.data.pageInfo.totalElements);
         })
-        .catch(console.error);
+        .catch(console.error)
+        .finally(() => setCompanyPostLoading(false)); // 종료
     }
   }, [isCompany, currentPostPage]);
 
@@ -378,7 +381,31 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
       <TabsContent value="posts" className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
         <h2 className="text-lg font-semibold mb-4">작성한 게시글</h2>
 
-        {postLoading ? (
+        {isCompany ? (
+          companyPostLoading ? (
+            <p className="text-sm text-gray-500">불러오는 중...</p>
+          ) : companyPosts.length === 0 ? (
+            <p className="text-sm text-gray-500">게시글이 없습니다.</p>
+          ) : (
+            <div className="space-y-4">
+              {companyPosts.map((post) => (
+                <PostCard
+                  key={post.postId}
+                  post={{
+                    id: post.postId,
+                    title: post.title,
+                    thumbnail: post.thumbnailUrl,
+                    tags: post.tags,
+                    views: post.viewCount,
+                    stars: post.starCount,
+                    comments: post.commentCount
+                  }}
+                  onClick={() => window.location.href = `/post/${post.postId}`}
+                />
+              ))}
+            </div>
+          )
+        ) : postLoading ? (
           <p className="text-sm text-gray-500">불러오는 중...</p>
         ) : postError ? (
           <p className="text-sm text-red-500">에러: {postError}</p>
@@ -402,15 +429,6 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
               />
             ))}
           </div>
-        )}
-
-        {postTotalPages > 1 && (
-          <Pagination
-            currentPage={currentPostPage}
-            totalCount={postTotalElements}
-            pageSize={5}
-            onPageChange={setCurrentPostPage}
-          />
         )}
       </TabsContent>
 

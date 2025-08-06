@@ -13,6 +13,7 @@ export * from './Tabs';
 // Default export 컴포넌트들
 export { default as HomePostList } from './HomePostList';
 export { default as ServerPagination } from './ServerPagination';
+export { default as ClientPagination } from './ClientPagination';
 
 // Article 관련 컴포넌트들
 export * from './article';

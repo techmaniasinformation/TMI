@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/router/routes';
 
 // 만든 다른 컴포넌트들
-import Pagination from '@/components/domain/ServerPagination';
+import ClientPagination from '@/components/domain/ClientPagination';
 import NotificationItem from '@/components/layout/notifications/NotifiactionItem';
 import NotificationToolbar from '@/components/layout/notifications/NotifiactionToolbar';
 import NoNotifications from '@/components/layout/notifications/NoNotifications';
@@ -69,13 +69,6 @@ const NotificationsPage: React.FC = () => {
     ? notifications.filter(n => !n.isRead)
     : notifications;
 
-  // 몇 페이지가 필요한지 계산
-  const totalPages = Math.ceil(filteredNotifications.length / itemsPerPage);
-  // 현재 페이지에서 보여줄 알림 시작 번호
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  // 현재 페이지에 보여줄 알림만 잘라서 저장
-  const currentNotifications = filteredNotifications.slice(startIndex, startIndex + itemsPerPage);
-
   // 알림을 클릭했을 때 읽음 처리
   const handleNotificationClick = (notification: Notification) => {
     setNotifications(prev =>
@@ -113,28 +106,20 @@ const NotificationsPage: React.FC = () => {
       />
 
       {/* 알림 목록 */}
-      <div className="space-y-4">
-        {currentNotifications.map((notification) => (
+      <ClientPagination
+        data={filteredNotifications}
+        currentPage={currentPage}
+        pageSize={itemsPerPage}
+        onPageChange={setCurrentPage}
+        renderItem={(notification) => (
           <NotificationItem
             key={notification.id}
             notification={notification}
             onClick={handleNotificationClick}
             onDelete={handleDeleteNotification}
           />
-        ))}
-      </div>
-      
-      {/* 페이지 넘기기 */}
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
+        )}
       />
-
-      {/* 알림이 하나도 없을 때 메시지 */}
-      {currentNotifications.length === 0 && (
-        <NoNotifications showUnreadOnly={showUnreadOnly} />
-      )}
 
       {/* 지울 것들       */}
       {/* ✅ 마이페이지 이동 버튼 */}

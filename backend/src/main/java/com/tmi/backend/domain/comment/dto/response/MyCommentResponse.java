@@ -7,8 +7,10 @@ import lombok.AccessLevel;
 import lombok.Builder;
 
 @Builder(access = AccessLevel.PRIVATE)
-public record SimpleCommentResponse(
+public record MyCommentResponse(
     Long commentId,
+    Long postId,
+    String title,
     String memberProfileUrl,
     String name,
     String badgeUrl,
@@ -18,9 +20,11 @@ public record SimpleCommentResponse(
     int recommendCount
 ) {
 
-  public static SimpleCommentResponse of(Member member, Comment comment) {
-    return SimpleCommentResponse.builder()
+  public static MyCommentResponse of(Member member, Comment comment) {
+    return MyCommentResponse.builder()
         .commentId(comment.getId())
+        .postId(comment.getPost() == null ? null : comment.getPost().getId())
+        .title(comment.getPost() == null ? null : comment.getPost().getTitle())
         .memberProfileUrl(member.getMemberProfileUrl())
         .name(member.getNickname())
 //        .badgeUrl()

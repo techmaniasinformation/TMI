@@ -27,6 +27,7 @@ public class MemberFollowController {
   /**
    * 팔로우 목록 조회 API
    */
+
   @GetMapping
   public ApiResponse<MemberFollowListResponse> getMemberFollows(
       @RequestParam Long followerId,

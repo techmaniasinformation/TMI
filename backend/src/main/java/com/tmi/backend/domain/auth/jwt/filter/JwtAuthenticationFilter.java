@@ -1,6 +1,7 @@
-package com.tmi.backend.domain.auth.jwt;
+package com.tmi.backend.domain.auth.jwt.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tmi.backend.domain.auth.jwt.provider.JwtTokenProvider;
 import com.tmi.backend.global.common.response.ApiResponse;
 import com.tmi.backend.global.common.response.impl.ApiErrorResponse;
 import com.tmi.backend.global.error.ErrorCode;
@@ -39,8 +40,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     if (token != null) {
       if (jwtTokenProvider.validateToken(token)) {
         Authentication auth = jwtTokenProvider.getAuthentication(token);
+
+        // 토큰을 기반으로 인증 객체 저장
         SecurityContextHolder.getContext().setAuthentication(auth);
       } else {
+
         ApiResponse<Void> errorResponse = ApiErrorResponse.error(ErrorCode.AUTH_INVALID_TOKEN);
 
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

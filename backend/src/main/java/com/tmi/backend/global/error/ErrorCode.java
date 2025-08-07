@@ -24,6 +24,7 @@ public enum ErrorCode {
   USER_NICKNAME_CHANGE_LIMITED (HttpStatus.FORBIDDEN,             "USER-003"),
   USER_RE_REGISTRATION_FORBIDDEN(HttpStatus.FORBIDDEN,            "USER-004"),
   USER_LOGIN_FAIL              (HttpStatus.UNAUTHORIZED,          "USER-005"),
+  USER_SIGN_UP_FAIL(HttpStatus.UNAUTHORIZED, "USER-006"),
 
   /* 4. POST – 게시글 */
   POST_NOT_FOUND               (HttpStatus.NOT_FOUND,             "POST-001"),

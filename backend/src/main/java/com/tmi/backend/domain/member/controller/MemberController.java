@@ -1,5 +1,6 @@
 package com.tmi.backend.domain.member.controller;
 
+import com.tmi.backend.domain.auth.jwt.provider.JwtTokenProvider;
 import com.tmi.backend.domain.auth.jwt.service.RefreshTokenService;
 import com.tmi.backend.domain.auth.jwt.service.TokenService;
 import com.tmi.backend.domain.auth.util.CustomUserDetails;
@@ -9,13 +10,16 @@ import com.tmi.backend.domain.member.dto.response.MemberResponse;
 import com.tmi.backend.domain.member.service.MemberService;
 import com.tmi.backend.global.common.controller.BaseController;
 import com.tmi.backend.global.common.response.ApiResponse;
+import com.tmi.backend.global.common.response.ServiceResult;
 import com.tmi.backend.global.common.response.impl.ApiSuccessResponse;
+import com.tmi.backend.global.error.ErrorCode;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,6 +37,7 @@ public class MemberController implements BaseController {
   private final MemberService memberService;
   private final TokenService tokenService;
   private final RefreshTokenService refreshTokenService;
+  private final JwtTokenProvider jwtTokenProvider;
 
   /**
    * 멤버 조회 API
@@ -74,13 +79,15 @@ public class MemberController implements BaseController {
    */
   @PostMapping("/signup")
   public ResponseEntity<ApiResponse<Map<String, Long>>> signup(
-      @RequestBody MemberCreateRequest req, HttpServletResponse res) {
+      @RequestBody MemberCreateRequest req, HttpServletResponse res,
+      @CookieValue(name = "regToken", required = true) String regToken) {
+    if (!jwtTokenProvider.validateToken(regToken)) {
+      return handle(ServiceResult.fail(ErrorCode.USER_SIGN_UP_FAIL));
+    }
     Long memberId = memberService.createOrReviveMember(req);
     tokenService.createAndAddAuthCookies(res, memberId);
 
-    return ResponseEntity.ok(
-        ApiSuccessResponse.success(Map.of("memberId", memberId))
-    );
+    return handle(ServiceResult.ok(Map.of("memberId", memberId)));
   }
 
   /**

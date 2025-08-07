@@ -42,7 +42,7 @@ public class TokenService {
     //TODO : 배포전 활성화
     ResponseCookie accessCookie = ResponseCookie.from("ACCESS_TOKEN", accessToken)
         .httpOnly(true)
-        .secure(true)
+//        .secure(true)
         .path("/")
         .maxAge(Duration.ofDays(1))
         .sameSite("Strict")
@@ -50,8 +50,8 @@ public class TokenService {
 
     ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", refreshToken)
         .httpOnly(true)                   // JavaScript에서 접근 불가 → XSS(크로스사이트스크립팅) 방지
-        .secure(true)                     // HTTPS 환경에서만 쿠키 전송 → MITM 방지
-        .path("/api/v1/auth/refresh")     // 해당 경로로 요청할 때만 쿠키가 함께 전송됨 → 리프레시 전용 API에만 사용
+//        .secure(true)                     // HTTPS 환경에서만 쿠키 전송 → MITM 방지
+        .path("/")
         .maxAge(Duration.ofDays(14))      // 쿠키의 유효기간 설정 (14일 동안 브라우저 종료와 무관하게 유지됨)
         .sameSite("Strict")               // 다른 도메인에서 요청할 경우 쿠키 전송 안 함 → CSRF 공격 방어
         .build();

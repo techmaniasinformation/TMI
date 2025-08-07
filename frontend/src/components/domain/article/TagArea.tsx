@@ -1,31 +1,6 @@
 import React from 'react';
 import Tag from './Tag';
 
-// 하드코딩된 태그 데이터
-const techTags = [
-  { name: 'React', type: 'tech' },
-  { name: 'Vue.js', type: 'tech' },
-  { name: 'Angular', type: 'tech' },
-  { name: 'JavaScript', type: 'tech' },
-  { name: 'TypeScript', type: 'tech' },
-  { name: 'Node.js', type: 'tech' },
-  { name: 'Python', type: 'tech' },
-  { name: 'Java', type: 'tech' },
-  { name: 'Spring', type: 'tech' },
-  { name: 'Django', type: 'tech' }
-];
-
-const companyTags = [
-  { name: '네이버', type: 'company' },
-  { name: '카카오', type: 'company' },
-  { name: '구글', type: 'company' },
-  { name: '애플', type: 'company' },
-  { name: '마이크로소프트', type: 'company' },
-  { name: '아마존', type: 'company' },
-  { name: '메타', type: 'company' },
-  { name: '넷플릭스', type: 'company' }
-];
-
 interface TagAreaProps {
   tags: string[];
   maxTags?: number;
@@ -47,25 +22,32 @@ export default function TagArea({
   searchTechTags = [],
   searchCompanyTags = []
 }: TagAreaProps) {
-  // 태그가 검색 조건과 일치하는지 확인하는 함수
+  // 디버깅용 로그
+  console.log('🔍 [TagArea] 검색 조건:', {
+    searchKeyword,
+    searchTechTags,
+    searchCompanyTags,
+    tags
+  });
+  // 태그가 검색 조건과 완전히 일치하는지 확인하는 함수
   const isTagMatched = (tagName: string): boolean => {
     const lowerTagName = tagName.toLowerCase();
     
-    // 키워드 검색과 일치하는지 확인
-    if (searchKeyword && lowerTagName.includes(searchKeyword.toLowerCase())) {
+    // 키워드 검색과 완전히 일치하는지 확인
+    if (searchKeyword && lowerTagName === searchKeyword.toLowerCase()) {
       return true;
     }
     
-    // 기술 태그 검색과 일치하는지 확인
+    // 기술 태그 검색과 완전히 일치하는지 확인
     if (searchTechTags.some(searchTag => 
-      lowerTagName.includes(searchTag.toLowerCase())
+      lowerTagName === searchTag.toLowerCase()
     )) {
       return true;
     }
     
-    // 회사 태그 검색과 일치하는지 확인
+    // 회사 태그 검색과 완전히 일치하는지 확인
     if (searchCompanyTags.some(searchCompany => 
-      lowerTagName.includes(searchCompany.toLowerCase())
+      lowerTagName === searchCompany.toLowerCase()
     )) {
       return true;
     }
@@ -74,24 +56,38 @@ export default function TagArea({
   };
 
   // 태그 타입을 결정하는 함수
-  const getTagVariant = (tagName: string): 'default' | 'company' | 'tech' => {
-    // 검색 조건과 일치하지 않으면 기본 스타일
-    if (!isTagMatched(tagName)) {
+  const getTagVariant = (tagName: string): 'default' | 'company' | 'tech' | 'search' => {
+    const lowerTagName = tagName.toLowerCase();
+    
+    // 검색 조건과 완전히 일치하는지 확인
+    const isMatched = isTagMatched(tagName);
+    
+    // 검색 조건과 완전히 일치하지 않으면 기본 스타일
+    if (!isMatched) {
       return 'default';
     }
     
-    // 기술 태그인지 확인
-    const isTechTag = techTags.some((techTag: { name: string; type: string }) => 
-      techTag.name.toLowerCase() === tagName.toLowerCase()
-    );
+    // 우선순위 1: 기술 태그 검색과 완전히 일치하는 경우 tech 스타일 적용 (최우선)
+    if (searchTechTags.some(searchTag => 
+      lowerTagName === searchTag.toLowerCase()
+    )) {
+      return 'tech';
+    }
     
-    // 회사 태그인지 확인
-    const isCompanyTag = companyTags.some((companyTag: { name: string; type: string }) => 
-      companyTag.name.toLowerCase() === tagName.toLowerCase()
-    );
+    // 우선순위 2: 회사 태그 검색과 완전히 일치하는 경우 company 스타일 적용
+    if (searchCompanyTags.some(searchCompany => 
+      lowerTagName === searchCompany.toLowerCase()
+    )) {
+      return 'company';
+    }
     
-    if (isTechTag) return 'tech';
-    if (isCompanyTag) return 'company';
+    // 키워드 검색만 있는 경우는 색상 변경하지 않음 (기본 스타일 유지)
+    // 우선순위 3: 키워드 검색과 완전히 일치하는 경우 search 스타일 적용 (최후순위)
+    if (searchKeyword && lowerTagName === searchKeyword.toLowerCase()) {
+      return 'default'; // 키워드 검색만 있을 때는 기본 스타일
+    }
+    
+    // 기본값 (실제로는 위 조건들로 모두 처리됨)
     return 'default';
   };
 

@@ -14,6 +14,7 @@ export interface Post {
   date: string;
   views: number;
   stars: number;
+  comments: number; // commentCount 추가
   thumbnail: string;
   isFollowing?: boolean;
 } 

@@ -15,6 +15,7 @@ interface PostData {
   date: string;
   views: number;
   stars: number;
+  comments: number; // 댓글 수 추가
 }
 
 // 검색 하이라이트 타입
@@ -47,6 +48,7 @@ export default function ArticleInfo({
   date,
   views,
   stars,
+  comments,
   formatDate,
   formatNumber,
   maxTags = 5,
@@ -81,6 +83,7 @@ export default function ArticleInfo({
         <CardInfoCount 
           viewCount={views}
           starCount={stars}
+          commentCount={comments}
         />
       </div>
       

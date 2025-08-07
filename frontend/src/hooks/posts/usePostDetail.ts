@@ -1,35 +1,13 @@
 import { useState, useEffect } from 'react';
 import { PostDetail } from '@/types';
 
-// JSON 파일을 직접 import
-import postDetailData from '@/data/post-detail.json';
-
 interface PostDetailState {
   post: PostDetail | null;
   loading: boolean;
   error: string | null;
 }
 
-// JSON 데이터에서 게시글 상세 정보를 가져오는 함수
-const getPostDetailFromJson = (postId: string): PostDetail | null => {
-  try {
-    console.log('🔍 [getPostDetailFromJson] 게시글 ID:', postId);
-    
-    // 현재는 고정된 데이터를 반환 (실제로는 postId에 따라 다른 데이터를 반환해야 함)
-    const postDetail = (postDetailData as any).data;
-    
-    if (postDetail && postDetail.postId.toString() === postId) {
-      console.log('✅ [getPostDetailFromJson] 게시글 상세 정보 찾음:', postDetail.title);
-      return postDetail;
-    } else {
-      console.log('❌ [getPostDetailFromJson] 게시글을 찾을 수 없음');
-      return null;
-    }
-  } catch (error) {
-    console.error('❌ [getPostDetailFromJson] 에러:', error);
-    return null;
-  }
-};
+
 
 export const usePostDetail = (postId: string) => {
   const [state, setState] = useState<PostDetailState>({
@@ -54,29 +32,16 @@ export const usePostDetail = (postId: string) => {
         console.log('🔍 [usePostDetail] 게시글 상세 정보 가져오기 시작:', postId);
         setState(prev => ({ ...prev, loading: true, error: null }));
 
-        // JSON 파일에서 게시글 상세 정보 찾기
-        const post = getPostDetailFromJson(postId);
+        // 실제 API 호출로 대체 예정
+        const post = null;
 
-        if (post) {
-          console.log('✅ [usePostDetail] 게시글 상세 정보 가져오기 완료:', {
-            postId: post.postId,
-            title: post.title,
-            author: post.name
-          });
-
-          setState({
-            post,
-            loading: false,
-            error: null,
-          });
-        } else {
-          console.log('❌ [usePostDetail] 게시글을 찾을 수 없음');
-          setState({
-            post: null,
-            loading: false,
-            error: '게시글을 찾을 수 없습니다.',
-          });
-        }
+        // 현재는 게시글을 찾을 수 없다고 설정 (실제 API 구현 시 수정)
+        console.log('❌ [usePostDetail] 게시글을 찾을 수 없음');
+        setState({
+          post: null,
+          loading: false,
+          error: '게시글을 찾을 수 없습니다.',
+        });
       } catch (error) {
         console.error('❌ [usePostDetail] 에러:', error);
         setState({

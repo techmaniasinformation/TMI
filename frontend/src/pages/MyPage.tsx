@@ -7,6 +7,8 @@ import ProfileEditModal from '@/components/layout/mypage/ProfileEditModal';
 import { getCompany } from '@/api/company/company';
 import type { Company } from '@/types/company/company';
 
+import { useParams } from 'react-router-dom';
+
 interface MyPageProps {
   isCompany: boolean;
   isMyPage: boolean;
@@ -32,6 +34,10 @@ interface UserStats {
 }
 
 const MyPage: React.FC<MyPageProps> = ({ isCompany, isMyPage }) => {
+
+  const { id } = useParams();
+  const companyId = Number(id);
+
   // 진입 시 탭 설정: 본인 -> profile / 기업 -> posts / 타인 -> profile
   const getInitialTab = () => {
     if (isMyPage) return 'profile';
@@ -78,7 +84,7 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany, isMyPage }) => {
   useEffect(() => {
     if (isCompany) {
       setLoading(true);
-      getCompany(9) // company 고정
+      getCompany(companyId) // company 고정
         .then((res) => setCompany(res.data))
         .catch((err) => console.error(err))
         .finally(() => setLoading(false));

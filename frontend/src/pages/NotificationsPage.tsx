@@ -130,20 +130,41 @@ const NotificationsPage: React.FC = () => {
         >
           🙋 내 마이페이지
         </button>
+      </div>
+      
+
+      {/* ✅ 테스트용 유저 페이지 이동 버튼 */}
+      <div className="flex justify-center gap-4 mt-4">
         <button
-          onClick={() => navigate(ROUTES.MY_PAGE_COMPANY)}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+          onClick={() => navigate('/member/1')}
+          className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900 transition"
         >
-          🏢 기업 마이페이지
+          1번 유저 페이지로 이동
         </button>
         <button
-          onClick={() => navigate(ROUTES.MY_PAGE_USER)}
-          className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition"
+          onClick={() => navigate('/member/2')}
+          className="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800 transition"
         >
-          👤 타인 마이페이지
+          2번 유저 페이지로 이동
         </button>
       </div>
 
+
+      {/* ✅ 테스트용 기업 페이지 이동 버튼 */}
+      <div className="flex justify-center gap-4 mt-4">
+        <button
+          onClick={() => navigate('/company/1')}
+          className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 transition"
+        >
+          1번 기업 페이지로 이동
+        </button>
+        <button
+          onClick={() => navigate('/company/2')}
+          className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition"
+        >
+          2번 기업 페이지로 이동
+        </button>
+      </div>
     </div>
   );
 };

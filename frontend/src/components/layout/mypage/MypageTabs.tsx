@@ -63,6 +63,8 @@ import type { Post as StarPost } from "@/types/mypage/star";
 import type { Comment, CommentResponse } from "@/types/mypage/comment";
 import type { MyPagePost } from "@/types/mypage/post";
 
+import { useParams } from 'react-router-dom';
+
 // 배지 리스트
 const badgeList = [
   { id: 1, name: '이건 머지?', image: badgeFirstArticle, filename: 'first_article.png'},
@@ -81,11 +83,11 @@ const badgeList = [
   { id: 14, name: '웅성웅성', image: badgeView100, filename: 'view_100.png'},
   { id: 15, name: '웅성웅성웅성', image: badgeView1000, filename: 'view_1000.png'},
   { id: 16, name: '벌레잡는 파리채', image: badgeParis, filename: 'paris.png'},
-  { id: 18, name: 'Spring', image: badgeSpring, filename: 'spring.png'},
-  { id: 19, name: 'React', image: badgeReact, filename: 'react.png'},
-  { id: 20, name: 'AI', image: badgeAI, filename: 'ai.png'},
-  { id: 21, name: 'DB', image: badgeDB, filename: 'db.png'},
-  { id: 22, name: 'AWS', image: badgeAWS, filename: 'aws.png'},
+  { id: 17, name: 'Spring', image: badgeSpring, filename: 'spring.png'},
+  { id: 18, name: 'React', image: badgeReact, filename: 'react.png'},
+  { id: 19, name: 'AI', image: badgeAI, filename: 'ai.png'},
+  { id: 20, name: 'DB', image: badgeDB, filename: 'db.png'},
+  { id: 21, name: 'AWS', image: badgeAWS, filename: 'aws.png'},
 
 ];
 
@@ -134,10 +136,18 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   const [commentError, setCommentError] = useState<string | null>(null);
   const [currentCommentPage, setCurrentCommentPage] = useState(1);
 
+  // 유저
+  const { id } = useParams();
+  const memberId = id ? Number(id) : 1;
+
+  // 기업
+  const { id: companyIdParam } = useParams();
+  const companyId = companyIdParam ? Number(companyIdParam) : null;
+
   useEffect(() => {
     if (isMyPage && isPersonal) {
       setCommentLoading(true);
-      fetchMemberComments(1, currentCommentPage, 5)
+      fetchMemberComments(memberId, currentCommentPage, 5)
         .then(({ comments, pageInfo }) => {
           setComments(comments);
           setCommentTotalPages(pageInfo.totalPages);
@@ -157,9 +167,9 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   const [currentPostPage, setCurrentPostPage] = useState(1);
 
   useEffect(() => {
-    if (isPersonal) {
+    if (isPersonal && memberId) {
       setPostLoading(true);
-      fetchMemberPosts(2, currentPostPage, 5) // TODO: memberId 동적 처리
+      fetchMemberPosts(memberId, currentPostPage, 5)
         .then((res) => {
           setMemberPosts(res.data.posts);
           setPostTotalPages(res.data.pageInfo.totalPages);
@@ -168,13 +178,14 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
         .catch((err) => setPostError(err.message))
         .finally(() => setPostLoading(false));
     }
-  }, [isPersonal, currentPostPage]);
+  }, [isPersonal, memberId, currentPostPage]);
+
 
   // 기업 게시글 API 호출
   useEffect(() => {
     if (isCompany) {
       setCompanyPostLoading(true); // 호출 전 로딩 시작
-      getCompanyPosts(3, currentPostPage, 5) // companyId는 나중에 동적 전달
+      getCompanyPosts(companyId!, currentPostPage, 5)
         .then((res) => {
           setCompanyPosts(res.data.posts);
           setCompanyPostTotalPages(res.data.pageInfo.totalPages);
@@ -228,7 +239,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   useEffect(() => {
     if (isMyPage && isPersonal) {
       setStarLoading(true);
-      fetchStarredPosts(1, currentStarPage, 5) // TODO: memberId 동적 전달
+      fetchStarredPosts(memberId, currentStarPage, 5)
         .then((res) => {
           setStarredPosts(res.data.posts);
           setStarTotalPages(res.data.pageInfo.totalPages);

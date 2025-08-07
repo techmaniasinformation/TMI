@@ -54,6 +54,9 @@ dependencies {
 
     // Validation 연관관계 추가
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // jsoup HTML parser library @ https://jsoup.org/
+    implementation 'org.jsoup:jsoup:1.21.1'
 }
 
 tasks.named('test') {

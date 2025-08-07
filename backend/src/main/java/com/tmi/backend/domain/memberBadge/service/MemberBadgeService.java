@@ -32,25 +32,19 @@ public class MemberBadgeService {
       return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
     }
 
-    List<MemberBadge> memberBadgeList = memberBadgeRepository.findAllByMember_IdOrderByReceivedAtDesc(
-        memberId);
+    List<MemberBadge> memberBadgeList = memberBadgeRepository.findAllByMemberIdFetchBadge(memberId);
 
     return ServiceResult.ok(MemberBadgeListResponse.of(memberBadgeList));
   }
 
   @Transactional
   public ServiceResult<Map<String, Long>> updateRepresentative(Long memberBadgeId) {
-    MemberBadge memberBadge = memberBadgeRepository.findById(memberBadgeId).orElse(null);
-    if (memberBadge == null) {
-      return ServiceResult.fail(ErrorCode.BADGE_NOT_FOUND);
-    }
-
     Long memberId = memberBadgeRepository.findMemberIdById(memberBadgeId);
     if (memberId == null) {
-      return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
+      return ServiceResult.fail(ErrorCode.USER_NOT_FOUND); // or custom error
     }
 
-    memberBadgeRepository.cancleRepresentative(memberId);
+    memberBadgeRepository.clearRepresentative(memberId);
     memberBadgeRepository.setRepresentative(memberBadgeId);
 
     return ServiceResult.ok(Map.of("memberBadgeId", memberBadgeId));

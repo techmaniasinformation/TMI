@@ -2,18 +2,14 @@ package com.tmi.backend.domain.follow.member.service;
 
 import com.tmi.backend.domain.follow.member.dto.request.MemberFollowCreateRequest;
 import com.tmi.backend.domain.follow.member.dto.response.MemberFollowListResponse;
+import com.tmi.backend.domain.follow.member.dto.response.SimpleMemberFollow;
 import com.tmi.backend.domain.follow.member.entity.MemberFollow;
 import com.tmi.backend.domain.follow.member.repository.MemberFollowRepository;
 import com.tmi.backend.domain.member.entity.Member;
 import com.tmi.backend.domain.member.repository.MemberRepository;
-import com.tmi.backend.domain.memberBadge.repository.MemberBadgeRepository;
-import com.tmi.backend.global.common.response.ServiceResult;
+import com.tmi.backend.global.common.entity.PageDetail;
 import com.tmi.backend.global.error.ErrorCode;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import com.tmi.backend.global.error.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,71 +24,53 @@ public class MemberFollowService {
 
   private final MemberFollowRepository followRepository;
   private final MemberRepository memberRepository;
-  private final MemberBadgeRepository memberBadgeRepository;  // ← 수정
 
-  public ServiceResult<MemberFollowListResponse> getMemberFollows(
-      Long followerId,
-      int page,
-      int size
-  ) {
+  public MemberFollowListResponse getMemberFollows(Long followerId, int page, int size) {
     PageRequest pr = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
-    Page<MemberFollow> p = followRepository.findByFollowerId(followerId, pr);
+    Page<SimpleMemberFollow> p = followRepository.findSimpleByFollowerId(followerId, pr);
 
-    List<Long> followeeIds = p.stream()
-        .map(mf -> mf.getFollowee().getId())
-        .toList();
-
-    Map<Long, String> badgeMap = followeeIds.isEmpty()
-        ? Collections.emptyMap()
-        : memberBadgeRepository.findAllByMemberIdInAndIsRepresentativeTrue(followeeIds).stream()
-            .collect(Collectors.toMap(
-                mb -> mb.getMember().getId(),
-                mb -> mb.getBadge().getBadgeUrl()
-            ));
-
-    return ServiceResult.ok(
-        MemberFollowListResponse.from(p, badgeMap)
+    PageDetail pageInfo = PageDetail.of(
+        p.getTotalElements(),
+        p.getTotalPages(),
+        p.isLast(),
+        p.getNumber()
     );
+
+    return MemberFollowListResponse.of(p.getContent(), pageInfo);
   }
 
   @Transactional
-  public ServiceResult<Map<String, Long>> createFollow(MemberFollowCreateRequest req) {
+  public Long createFollow(MemberFollowCreateRequest req) {
     Long followerId = req.followerId();
     Long followeeId = req.followeeId();
 
-    if (followerId.equals(followeeId)) {
-      return ServiceResult.fail(ErrorCode.FOLLOW_INVALID_REQUEST);
+    Member follower = memberRepository.findById(followerId)
+        .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+    if (follower.getDeletedAt() != null) {
+      throw new BusinessException(ErrorCode.USER_NOT_FOUND);
     }
-    List<Member> members = memberRepository.findAllById(List.of(followerId, followeeId));
 
-    Map<Long, Member> memberMap = members.stream()
-        .collect(Collectors.toMap(Member::getId, Function.identity()));
-
-    Member follower = memberMap.get(followerId);
-    Member followee = memberMap.get(followeeId);
-
-    if (members.size() != 2 || follower.getDeletedAt() != null
-        || followee.getDeletedAt() != null) {
-      return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
+    Member followee = memberRepository.findById(followeeId)
+        .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+    if (followee.getDeletedAt() != null) {
+      throw new BusinessException(ErrorCode.USER_NOT_FOUND);
     }
     
     if (followRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
-      return ServiceResult.fail(ErrorCode.FOLLOW_ALREADY_FOLLOWING);
+      throw new BusinessException(ErrorCode.FOLLOW_ALREADY_FOLLOWING);
     }
 
     MemberFollow memberFollow = MemberFollow.of(follower, followee);
     followRepository.save(memberFollow);
-    return ServiceResult.ok(Map.of("memberFollowId", memberFollow.getId()));
+    return memberFollow.getId();
   }
 
   @Transactional
-  public ServiceResult<Map<String, Long>> deleteFollow(Long memberFollowId) {
-    int deleted = followRepository.removeById(memberFollowId);
-    if (deleted == 0) {
-      return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
-    }
-    return ServiceResult.ok(Map.of("memberFollowId", memberFollowId));
+  public Long deleteFollow(Long memberFollowId) {
+    MemberFollow mf = followRepository.findById(memberFollowId)
+        .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+    followRepository.delete(mf);
+    return memberFollowId;
   }
-
 }

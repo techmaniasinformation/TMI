@@ -21,8 +21,13 @@ interface AuthStore {
 
 export const useUserStore = create<AuthStore>((set, get) => ({
   // 실제 인증 상태로 초기화
-  isAuthenticated: false,
-  user: null,
+  isAuthenticated: true,
+  user: {
+    memberId: 1,
+    name: 'test',
+    email: 'test@test.com',
+    profileUrl: 'https://i13a509.p.ssafy.io/api/v1/member/me',
+  },
   isLoading: false,
   
   setLoading: (loading: boolean) => set({ isLoading: loading }),

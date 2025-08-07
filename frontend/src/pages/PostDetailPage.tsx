@@ -525,7 +525,8 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
       <PostTitle 
         post={{
           ...postData,
-          isStar: isStarred
+          isStar: isStarred,
+          tags: postData.tags || []
         }}
         onStarClick={handleStar}
       />

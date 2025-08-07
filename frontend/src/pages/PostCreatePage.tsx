@@ -1,10 +1,22 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '@/stores/userStore';
+import { useTagAutocomplete } from '@/hooks/tags/useTagAutocomplete';
+import MDEditor from '@uiw/react-md-editor';
+import '@uiw/react-md-editor/markdown-editor.css';
+import '@uiw/react-markdown-preview/markdown.css';
 
 const PostCreatePage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useUserStore();
+  
+  // 태그 자동완성 훅 사용
+  const {
+    suggestions: tagSuggestions,
+    loading: tagLoading,
+    searchTags,
+    clearSuggestions
+  } = useTagAutocomplete();
   const [linkUrl, setLinkUrl] = useState('');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -14,11 +26,14 @@ const PostCreatePage: React.FC = () => {
   const [aiGeneratedTags, setAiGeneratedTags] = useState<string[]>([]);
   const [hasGeneratedAITags, setHasGeneratedAITags] = useState(false);
   const [aiSummary, setAiSummary] = useState('');
-  const [isEditingSummary, setIsEditingSummary] = useState(false); // AI 요약 편집 모드
+
+  // contentTextareaRef는 더 이상 필요없음 (MD Editor가 자체 참조 관리)
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [urlError, setUrlError] = useState<string>('');
   const [newTag, setNewTag] = useState(''); // 새로운 태그 입력을 위한 상태
+  const [showTagSuggestions, setShowTagSuggestions] = useState(false); // 태그 제안 표시 여부
+  const [isPreviewMode, setIsPreviewMode] = useState(false); // 미리보기 모드 상태
 
   const handleAISummary = async () => {
     if (!linkUrl) {
@@ -29,66 +44,17 @@ const PostCreatePage: React.FC = () => {
          // URL 에러 초기화
      setUrlError('');
      
-     // URL 필터링 - 태그블로그 글만 허용
-     const allowedDomains = [
-      'tistory.com',
-      'blog.naver.com',
-      'blog.daum.net',
-      'brunch.co.kr',
-      'medium.com',
-      'velog.io',
-      'github.io',
-      'notion.so'
-    ];
-    
-    try {
-      const url = new URL(linkUrl);
-      const domain = url.hostname.toLowerCase();
-      
-      const isAllowedDomain = allowedDomains.some(allowed => 
-        domain === allowed || domain.endsWith('.' + allowed)
-      );
-      
-             if (!isAllowedDomain) {
-         setUrlError('지원하지 않는 URL입니다. 블로그 글 URL만 입력해주세요.');
+     // URL 기본 유효성 검사만 수행
+     try {
+       const url = new URL(linkUrl);
+       
+       // URL의 기본적인 구조만 확인
+       if (!url.protocol || (!url.protocol.startsWith('http'))) {
+         setUrlError('http 또는 https URL을 입력해주세요.');
          return;
        }
        
-       // 경로 세그먼트 분석
-       const pathSegments = url.pathname.split('/').filter(segment => segment.length > 0);
-       
-       // 최소한의 경로가 있어야 함 (루트 경로는 거부)
-       if (pathSegments.length === 0 || url.pathname === '/') {
-         setUrlError('올바른 블로그 글 URL을 입력해주세요. 메인 페이지가 아닌 실제 글 링크를 입력해주세요.');
-         return;
-       }
-       
-       // 플랫폼별 URL 패턴 검증
-       if (domain.includes('tistory.com')) {
-         // 티스토리: /숫자 또는 /entry/... 패턴 허용
-         const firstSegment = pathSegments[0];
-         const isValidTistory = /^\d+$/.test(firstSegment) || firstSegment === 'entry';
-         
-         if (!isValidTistory) {
-           setUrlError('올바른 티스토리 글 URL을 입력해주세요. (예: https://blog.tistory.com/123 또는 https://blog.tistory.com/entry/제목)');
-           return;
-         }
-       } else if (domain.includes('blog.naver.com')) {
-         // 네이버 블로그: /아이디/글번호 패턴
-         if (pathSegments.length < 2) {
-           setUrlError('올바른 네이버 블로그 글 URL을 입력해주세요. (예: https://blog.naver.com/user_id/123456789)');
-           return;
-         }
-       } else if (domain.includes('velog.io')) {
-         // velog: /@사용자명/글제목 패턴
-         if (pathSegments.length < 2 || !pathSegments[0].startsWith('@')) {
-           setUrlError('올바른 velog 글 URL을 입력해주세요. (예: https://velog.io/@username/post-title)');
-           return;
-         }
-       }
-       // 다른 플랫폼들은 기본적으로 경로만 있으면 허용
-      
-         } catch (error) {
+     } catch (error) {
        setUrlError('올바른 URL 형식을 입력해주세요.');
        return;
      }
@@ -120,10 +86,10 @@ const PostCreatePage: React.FC = () => {
       console.log('AI 요약 API 응답 데이터:', result);
       
       if (result.status === 'SUCCESS' && result.data) {
-        // AI 요약 내용 설정
-        const summary = result.data.summary || '';
-        setAiSummary(summary);
-        setContent(summary); // content에도 AI 요약 내용 설정
+                 // AI 요약 내용 설정
+         const summary = result.data.summary || '';
+         setAiSummary(summary);
+         setContent(summary); // content에도 AI 요약 내용 설정
         
         // AI 태그 설정 (최대 5개)
         if (result.data.tags && Array.isArray(result.data.tags)) {
@@ -236,12 +202,38 @@ const PostCreatePage: React.FC = () => {
     }
   };
 
-  const handleAddTag = () => {
-    const trimmedTag = newTag.trim();
-    if (trimmedTag && !tags.includes(trimmedTag)) {
-      setTags([...tags, trimmedTag]);
+  const handleAddTag = (tagName?: string) => {
+    const tagToAdd = tagName || newTag.trim();
+    if (tagToAdd && !tags.includes(tagToAdd)) {
+      if (tags.length >= 5) {
+        alert('태그는 최대 5개까지 추가할 수 있습니다.');
+        return;
+      }
+      setTags([...tags, tagToAdd]);
       setNewTag('');
+      setShowTagSuggestions(false);
+      clearSuggestions();
     }
+  };
+  
+  const handleTagInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setNewTag(value);
+    
+    if (value.trim()) {
+      searchTags(value.trim());
+      setShowTagSuggestions(true);
+    } else {
+      setShowTagSuggestions(false);
+      clearSuggestions();
+    }
+  };
+  
+  const handleTagInputBlur = () => {
+    // 잠시 후에 숨기기 (클릭 이벤트 처리 시간 확보)
+    setTimeout(() => {
+      setShowTagSuggestions(false);
+    }, 200);
   };
 
   const handleRemoveTag = (tagToRemove: string) => {
@@ -252,12 +244,19 @@ const PostCreatePage: React.FC = () => {
     if (e.key === 'Enter') {
       e.preventDefault();
       handleAddTag();
+    } else if (e.key === 'Escape') {
+      setShowTagSuggestions(false);
+      clearSuggestions();
     }
   };
 
-  const handleToggleSummaryEdit = () => {
-    setIsEditingSummary(!isEditingSummary);
+  const handleTogglePreview = () => {
+    setIsPreviewMode(!isPreviewMode);
   };
+  
+
+  
+  // react-md-editor에는 자체 툴바가 있으므로 커스텀 에디터 기능 제거
 
   const handleCancel = () => {
     navigate(-1);
@@ -265,21 +264,18 @@ const PostCreatePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
-          >
-            <span className="text-xl">←</span>
-            <span>돌아가기</span>
-          </button>
-          <h1 className="text-xl font-semibold text-gray-900">새 게시글 작성</h1>
-        </div>
-      </div>
-
-      <div className="max-w-4xl mx-auto p-6">
+             <div className="max-w-4xl mx-auto p-6">
+         {/* Header */}
+         <div className="mb-6">
+           <h1 className="text-xl font-semibold text-gray-900 mb-4">게시글 작성</h1>
+           <button 
+             onClick={() => navigate(-1)}
+             className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
+           >
+             <span className="text-xl">←</span>
+             <span>돌아가기</span>
+           </button>
+         </div>
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-6">
           
           {/* Link URL */}
@@ -304,7 +300,7 @@ const PostCreatePage: React.FC = () => {
                       <p className="font-medium text-red-800 mb-1">URL 필터링 알림</p>
                       <p className="text-red-700">{urlError}</p>
                       <p className="text-red-600 text-xs mt-2 opacity-90">
-                        💡 지원 플랫폼: 티스토리, 네이버블로그, 다음블로그, 브런치, 미디움, velog, GitHub Pages, Notion
+                        💡 모든 웹사이트 URL을 지원합니다
                       </p>
                     </div>
                   </div>
@@ -394,82 +390,51 @@ const PostCreatePage: React.FC = () => {
 
           {/* Content */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              내용
-            </label>
-            <div className="border border-gray-300 rounded-md">
-              {/* Editor Toolbar */}
-              <div className="flex items-center gap-2 p-3 border-b border-gray-300 bg-gray-50">
-                <button className="w-8 h-8 flex items-center justify-center text-sm font-bold border border-gray-300 rounded hover:bg-gray-200">
-                  H
-                </button>
-                <button className="w-8 h-8 flex items-center justify-center text-sm font-bold border border-gray-300 rounded hover:bg-gray-200">
-                  B
-                </button>
-                <button className="w-8 h-8 flex items-center justify-center text-sm italic border border-gray-300 rounded hover:bg-gray-200">
-                  I
-                </button>
-                <button className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-200">
-                  🔗
-                </button>
-                <button className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-200">
-                  {'</>'}
-                </button>
-                <button className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-200">
-                  •
-                </button>
-              </div>
-
-              {/* Content Editor */}
-              {isAILoading ? (
-                <div className="flex items-center justify-center h-64">
-                  <div className="text-center">
-                    <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-gray-600">AI가 내용을 분석하고 있습니다...</p>
-                  </div>
-                </div>
-              ) : aiSummary ? (
-                <div className="p-4 h-64 overflow-y-auto">
-                  <div className="prose max-w-none">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold">AI 요약</h3>
-                      <button
-                        type="button"
-                        onClick={handleToggleSummaryEdit}
-                        className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
-                      >
-                        {isEditingSummary ? '저장' : '수정'}
-                      </button>
-                    </div>
-                    {isEditingSummary ? (
-                      <textarea
-                        value={aiSummary}
-                        onChange={(e) => setAiSummary(e.target.value)}
-                        className="w-full h-48 p-3 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="AI 요약 내용을 수정하세요..."
-                      />
-                    ) : (
-                      <p className="text-gray-700 leading-relaxed">
-                        {aiSummary}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div className="relative">
-                  <textarea
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    maxLength={65536}
-                    className="w-full h-64 p-4 resize-none focus:outline-none"
-                    placeholder="내용을 입력하세요..."
-                  />
-                  <div className="absolute bottom-2 right-2 text-sm text-gray-500">
-                    {content.length}/65,536
-                  </div>
-                </div>
-              )}
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-gray-700">
+                내용
+              </label>
+              <button
+                type="button"
+                onClick={handleTogglePreview}
+                className="px-3 py-1 text-sm bg-gray-600 text-white rounded-md hover:bg-gray-700"
+              >
+                {isPreviewMode ? '편집 모드' : '미리보기'}
+              </button>
             </div>
+            {/* AI 로딩 상태 */}
+            {isAILoading ? (
+              <div className="flex items-center justify-center h-64 border border-gray-300 rounded-md">
+                <div className="text-center">
+                  <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className="text-gray-600">AI가 내용을 분석하고 있습니다...</p>
+                </div>
+              </div>
+                                                   ) : aiSummary ? (
+                                 /* AI 요약 후 에디터 */
+                 <div data-color-mode="light">
+                  <MDEditor
+                    value={content}
+                    onChange={(val) => setContent(val || '')}
+                    preview={isPreviewMode ? "preview" : "edit"}
+                    hideToolbar={isPreviewMode}
+                    height={300}
+                    data-color-mode="light"
+                  />
+                </div>
+                         ) : (
+                               /* 기본 MD Editor */
+                <div data-color-mode="light">
+                 <MDEditor
+                   value={content}
+                   onChange={(val) => setContent(val || '')}
+                   preview={isPreviewMode ? "preview" : "edit"}
+                   hideToolbar={isPreviewMode}
+                   height={300}
+                   data-color-mode="light"
+                 />
+               </div>
+             )}
             <div className="flex justify-end mt-2">
               <button 
                 onClick={handleAISummary}
@@ -496,23 +461,57 @@ const PostCreatePage: React.FC = () => {
             ) : (
               <>
                 {/* 태그 입력 영역 */}
-                <div className="flex items-center gap-2 mb-3">
-                  <input
-                    type="text"
-                    value={newTag}
-                    onChange={(e) => setNewTag(e.target.value)}
-                    onKeyPress={handleTagKeyPress}
-                    placeholder="태그를 입력하세요"
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleAddTag}
-                    disabled={!newTag.trim()}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm"
-                  >
-                    추가
-                  </button>
+                <div className="relative">
+                  <div className="flex items-center gap-2 mb-3">
+                    <input
+                      type="text"
+                      value={newTag}
+                      onChange={handleTagInputChange}
+                      onKeyPress={handleTagKeyPress}
+                      onBlur={handleTagInputBlur}
+                      onFocus={() => newTag.trim() && setShowTagSuggestions(true)}
+                      placeholder="태그를 입력하세요 (기존 태그 검색 가능)"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                                         <button
+                       type="button"
+                       onClick={() => handleAddTag()}
+                       disabled={!newTag.trim() || tags.length >= 5}
+                       className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm"
+                     >
+                       추가
+                     </button>
+                  </div>
+                  
+                  {/* 태그 제안 드롭다운 */}
+                  {showTagSuggestions && (tagLoading || tagSuggestions.length > 0) && (
+                    <div className="absolute top-full left-0 right-12 bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
+                      {tagLoading && (
+                        <div className="flex items-center justify-center py-4">
+                          <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mr-2"></div>
+                          <span className="text-sm text-gray-600">검색 중...</span>
+                        </div>
+                      )}
+                                             {tagSuggestions.map((suggestion) => (
+                         <button
+                           key={`${suggestion.type}-${suggestion.id}`}
+                           type="button"
+                           onClick={() => handleAddTag(suggestion.name)}
+                           disabled={tags.length >= 5}
+                           className="w-full px-4 py-2 text-left hover:bg-gray-100 disabled:bg-gray-50 disabled:text-gray-400"
+                         >
+                           <span className="text-sm">{suggestion.name}</span>
+                         </button>
+                       ))}
+                      {!tagLoading && tagSuggestions.length === 0 && newTag.trim() && (
+                        <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                          '
+                          <span className="font-medium">{newTag.trim()}</span>
+                          '에 대한 검색 결과가 없습니다.
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
                 
                 {/* 태그 목록 */}

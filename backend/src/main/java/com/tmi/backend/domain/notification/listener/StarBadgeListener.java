@@ -1,12 +1,13 @@
 package com.tmi.backend.domain.notification.listener;
 
-import com.tmi.backend.domain.notification.event.CommentCreatedEvent;
-import com.tmi.backend.domain.notification.event.PostEvent;
+import com.tmi.backend.domain.badge.entity.BadgeType;
+import com.tmi.backend.domain.memberBadge.service.MemberBadgeService;
+import com.tmi.backend.domain.notification.event.PostCreatedEvent;
+import com.tmi.backend.domain.notification.event.StarAddedEvent;
 import com.tmi.backend.domain.notification.service.NotificationService;
-import com.tmi.backend.domain.post.entity.Post;
 import com.tmi.backend.domain.post.repository.PostRepository;
 import com.tmi.backend.domain.star.repository.StarRepository;
-import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
@@ -18,6 +19,7 @@ public class StarBadgeListener {
 
   private final PostRepository postRepository;
   private final StarRepository starRepository;
+  private final MemberBadgeService memberBadgeService;
   private final NotificationService notificationService;
 
   /**
@@ -25,25 +27,26 @@ public class StarBadgeListener {
    * 1. 누적 스타 개수에 따른 뱃지 획득 알림
    */
 
+  Map<Integer, BadgeType> starBadgeMap = Map.of(
+      5, BadgeType.STAR_5,
+      13, BadgeType.STAR_13,
+      42, BadgeType.STAR_42
+  );
+
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-  public void on(PostEvent e) {
+  public void on(StarAddedEvent e) {
 
-//    List<Post> posts = postRepository.findAllByMemberId(e.postMemberId());
-//
-//    long sum = 0;
-//    for (Post post : posts) {
-//      sum += post.getStarCount();
-//    }
-//
-//    if (sum == 5) {
-//
-//    }
-//    if (sum == 13) {
-//
-//    }
-//    if (sum == 42) {
-//
-//    }
+    Integer sum = postRepository.sumStarCountByMemberId(e.postMemberId());
+    sum = sum == null ? 0 : sum;
 
+    if (starBadgeMap.containsKey(sum)) {
+      BadgeType badge = starBadgeMap.get(sum);
+      boolean result = memberBadgeService.acceptedBadge(e.postMemberId(), badge.getId());
+      if (!result) {
+        return;
+      }
+
+      notificationService.broadcast(e.postMemberId(), "뱃지 획득 : " + badge.getName());
+    }
   }
 }

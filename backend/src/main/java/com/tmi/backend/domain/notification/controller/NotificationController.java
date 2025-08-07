@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @RestController
 @RequestMapping("/api/v1/notification")
@@ -25,6 +26,21 @@ import org.springframework.web.bind.annotation.RestController;
 public class NotificationController implements BaseController {
 
   private final NotificationService notificationService;
+
+  /**
+   * 구독 수락 API
+   * @param userId 구독 유저 ID
+   * @return SseEmitter
+   */
+  @GetMapping(value = "/subscribe/{userId}", produces = "text/event-stream")
+  public SseEmitter subscribe(@PathVariable Long userId) {
+    return notificationService.subscribe(userId);
+  }
+
+  @PostMapping("/broadcast/{userId}")
+  public void broadcast(@PathVariable Long userId, @RequestBody String eventPayload) {
+    notificationService.broadcast(userId, eventPayload);
+  }
 
   /**
    * 전체 알림 조회 API

@@ -7,6 +7,7 @@ import com.tmi.backend.domain.follow.member.repository.MemberFollowRepository;
 import com.tmi.backend.domain.member.entity.Member;
 import com.tmi.backend.domain.member.repository.MemberRepository;
 import com.tmi.backend.domain.memberBadge.repository.MemberBadgeRepository;
+import com.tmi.backend.domain.notification.event.FollowAddedEvent;
 import com.tmi.backend.global.common.response.ServiceResult;
 import com.tmi.backend.global.error.ErrorCode;
 import java.util.Collections;
@@ -15,6 +16,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -29,6 +31,7 @@ public class MemberFollowService {
   private final MemberFollowRepository followRepository;
   private final MemberRepository memberRepository;
   private final MemberBadgeRepository memberBadgeRepository;  // ← 수정
+  private final ApplicationEventPublisher publisher;
 
   public ServiceResult<MemberFollowListResponse> getMemberFollows(
       Long followerId,
@@ -83,6 +86,9 @@ public class MemberFollowService {
 
     MemberFollow memberFollow = MemberFollow.of(follower, followee);
     followRepository.save(memberFollow);
+
+    publisher.publishEvent(new FollowAddedEvent(followeeId));
+
     return ServiceResult.ok(Map.of("memberFollowId", memberFollow.getId()));
   }
 

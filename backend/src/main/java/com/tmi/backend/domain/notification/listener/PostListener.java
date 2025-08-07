@@ -1,12 +1,11 @@
 package com.tmi.backend.domain.notification.listener;
 
+import com.tmi.backend.domain.follow.company.repository.CompanyFollowRepository;
+import com.tmi.backend.domain.follow.member.repository.MemberFollowRepository;
 import com.tmi.backend.domain.notification.event.CommentCreatedEvent;
 import com.tmi.backend.domain.notification.event.PostEvent;
 import com.tmi.backend.domain.notification.service.NotificationService;
-import com.tmi.backend.domain.post.entity.Post;
 import com.tmi.backend.domain.post.repository.PostRepository;
-import com.tmi.backend.domain.star.repository.StarRepository;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
@@ -14,36 +13,25 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 @RequiredArgsConstructor
-public class StarBadgeListener {
+public class PostListener {
 
   private final PostRepository postRepository;
-  private final StarRepository starRepository;
+  private final MemberFollowRepository memberFollowRepository;
+  private final CompanyFollowRepository companyFollowRepository;
   private final NotificationService notificationService;
 
   /**
-   * 스타 알림 발생 조건
-   * 1. 누적 스타 개수에 따른 뱃지 획득 알림
+   * 게시글 알림 발생 조건
+   * 1. 첫 게시글 등록
+   * 2. 사용자 게시글 누적 조회수에 따른 뱃지 획득 알림
+   * 3. 내가 팔로우한 기업/사용자 게시글 작성시
    */
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void on(PostEvent e) {
 
-//    List<Post> posts = postRepository.findAllByMemberId(e.postMemberId());
-//
-//    long sum = 0;
-//    for (Post post : posts) {
-//      sum += post.getStarCount();
-//    }
-//
-//    if (sum == 5) {
-//
-//    }
-//    if (sum == 13) {
-//
-//    }
-//    if (sum == 42) {
-//
-//    }
+//    postRepository.existsByMemberId(e.postMemberId());
 
   }
+
 }

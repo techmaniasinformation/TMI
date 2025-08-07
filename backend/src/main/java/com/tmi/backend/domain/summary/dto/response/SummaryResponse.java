@@ -1,10 +1,13 @@
 package com.tmi.backend.domain.summary.dto.response;
 
-import com.tmi.backend.domain.tag.entity.Tag;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.Builder;
 
-public record SummaryResponse (
-    String summary,
-    List<Tag> tags
-) {
+@Builder(access = AccessLevel.PRIVATE)
+public record SummaryResponse(String summary, List<String> tags) {
+
+  public static SummaryResponse of(String summary, List<String> tags) {
+    return SummaryResponse.builder().summary(summary).tags(tags).build();
+  }
 }

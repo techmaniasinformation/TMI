@@ -1,11 +1,19 @@
 package com.tmi.backend.domain.summary.dto.response;
 
-import java.awt.Choice;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 
-public record SummaryOpenAiResponse(
-    List<Choice> choices
-) {
-  public record Choice(Message message) {}
-  public record Message(String role, String content) {}
+@JsonIgnoreProperties(ignoreUnknown = true)
+public record SummaryOpenAiResponse(List<Choice> choices) {
+
+  @JsonIgnoreProperties(ignoreUnknown = true)
+  public record Choice(Message message) {
+
+  }
+
+  @JsonIgnoreProperties(ignoreUnknown = true) // 알 수 없는 필드 무시 (e.g., refusal, annotations)
+  public record Message(String content, String role) {
+
+  }
 }

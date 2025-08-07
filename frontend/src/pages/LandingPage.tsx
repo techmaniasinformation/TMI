@@ -32,8 +32,8 @@ const LandingPage: React.FC<LandingPageProps> = () => {
   // 테마 관련 변수 받기
   const { isDarkMode } = useThemeStore();
 
-  // ##### 현재 로그인 여부, 로그인 했을 시 memberId(로그인 안 한 상태면 -1) 
-  const { isLogin, memberId } = useUserStore();
+  // ##### 현재 로그인 여부, 로그인 했을 시 user 정보
+  const { isAuthenticated, user } = useUserStore();
 
   useEffect(() => {
     async function fetchPopularPosts() {
@@ -138,7 +138,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
 
           {/* Navigation Buttons */}
           <div className='flex flex-col sm:flex-row gap-6 justify-center items-center'>
-            {!isLogin && (
+            {!isAuthenticated && (
               <Button
                 variant={'primary'}
                 onMouseEnter={() => setIsHovered('signup')}

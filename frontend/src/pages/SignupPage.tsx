@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 // import { useSignup } from '@/hooks/auth/useSignup';
 import { cva, type VariantProps } from 'class-variance-authority';
@@ -142,12 +141,6 @@ const handleNicknameCheck = async () => {
         <h1 className='text-3xl font-bold mb-4'>회원가입</h1>
         <p>새로운 계정을 만들어보세요</p>
       </div>
-    <div className='max-w-md mx-auto px-6 py-16'>
-      {/* Header */}
-      <div className='text-center mb-16'>
-        <h1 className='text-3xl font-bold mb-4'>회원가입</h1>
-        <p>새로운 계정을 만들어보세요</p>
-      </div>
 
       {/* Form Container */}
       <div className='bg-white rounded-2xl shadow-lg p-10'>
@@ -182,24 +175,6 @@ const handleNicknameCheck = async () => {
             </button>
           </div>
 
-          {/* Validation Message Container */}
-          <div className='h-5 mt-1'>
-            {/* Error Message */}
-            {isNicknameChecked && isNicknameTaken && (
-              <div className='flex items-center text-red-600 text-xs'>
-                <i className='fas fa-exclamation-circle mr-1'></i>
-                이미 사용 중인 닉네임입니다.
-              </div>
-            )}
-            {/* Success Message */}
-            {isNicknameChecked && !isNicknameTaken && (
-              <div className='flex items-center text-green-600 text-xs'>
-                <i className='fas fa-check-circle mr-1'></i>
-                사용 가능한 닉네임입니다.
-              </div>
-            )}
-          </div>
-        </div>
           {/* Validation Message Container */}
           <div className='h-5 mt-1'>
             {/* Error Message */}
@@ -269,4 +244,4 @@ const handleNicknameCheck = async () => {
   );
 };
 
-export default SignupPage;
+export default SignupPage; 

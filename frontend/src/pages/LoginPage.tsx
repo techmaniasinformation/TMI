@@ -1,10 +1,9 @@
 import React from 'react';
-import { useAuth } from '@/hooks/auth/useAuth';
 import { useThemeStore } from '@/stores/themeStore';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/utils/utils';
 import SocialLoginButton from '@/components/inter/SocialLoginButton';
-import useSocialLogin from '@/hooks/auth/useSocialLogin'; // 새 훅 임포트
+import useSocialLogin from '@/hooks/auth/useSocialLogin';
 
 // 다크모드 관련
 const loginPageVariants = cva(
@@ -25,12 +24,11 @@ const loginPageVariants = cva(
 interface LoginPageProps extends VariantProps<typeof loginPageVariants> {}
 
 const LoginPage: React.FC<LoginPageProps> = () => {
-  const { hoveredButton, setHoveredButton } = useAuth();
   const { isDarkMode } = useThemeStore();
   const variant = isDarkMode ? 'dark' : 'light';
 
   // useSocialLogin 훅 사용
-  const { handleSocialLoginWithLocation } = useSocialLogin();
+  const { handleSocialLogin, handleHover, hoveredButton, isLoading } = useSocialLogin();
 
   return (
     <div className={cn(loginPageVariants({ variant }))}>
@@ -58,8 +56,8 @@ const LoginPage: React.FC<LoginPageProps> = () => {
             textColor="black"
             icon={<i className="fas fa-comment text-lg"></i>}
             hovered={hoveredButton === 'kakao'}
-            onHover={(isHover) => setHoveredButton(isHover ? 'kakao' : null)}
-            onClick={() => handleSocialLoginWithLocation('kakao')} // 로케이션 방식
+                         onHover={(isHover: boolean) => handleHover(isHover, 'kakao')}
+                         onClick={() => handleSocialLogin('kakao')} disabled={isLoading}
           />
 
           {/* 네이버 */}
@@ -70,8 +68,8 @@ const LoginPage: React.FC<LoginPageProps> = () => {
             textColor="white"
             icon={<span className="text-lg font-bold">N</span>}
             hovered={hoveredButton === 'naver'}
-            onHover={(isHover) => setHoveredButton(isHover ? 'naver' : null)}
-            onClick={() => handleSocialLoginWithLocation('naver')} // 로케이션 방식
+                         onHover={(isHover: boolean) => handleHover(isHover, 'naver')}
+                         onClick={() => handleSocialLogin('naver')} disabled={isLoading}
             // onClick={() => {window.location.href =`https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=L000gCRdLnKJ0o11XI5j&&redirect_uri=http://localhost:3000/login`}}
           />
 
@@ -94,8 +92,8 @@ const LoginPage: React.FC<LoginPageProps> = () => {
               ></i>
             }
             hovered={hoveredButton === 'google'}
-            onHover={(isHover) => setHoveredButton(isHover ? 'google' : null)}
-            onClick={() => handleSocialLoginWithLocation('google')} // 로케이션 방식
+                         onHover={(isHover: boolean) => handleHover(isHover, 'google')}
+                         onClick={() => handleSocialLogin('google')} disabled={isLoading}
           />
         </div>
       </div>
@@ -103,5 +101,4 @@ const LoginPage: React.FC<LoginPageProps> = () => {
   );
 };
 
-export default LoginPage;
-
+export default LoginPage; 

@@ -1,18 +1,30 @@
 // hooks/auth/useSocialLogin.ts
-import { useNavigate } from 'react-router-dom';
+import { useUserStore } from '@/stores/userStore';
+import { useAuth } from '@/hooks/auth/useAuth';
 
 const useSocialLogin = () => {
-  const navigate = useNavigate();
+  const { login, isLoading } = useUserStore();
+  const { hoveredButton, setHoveredButton } = useAuth();
 
-  // 로케이션 방식으로 소셜 로그인 처리
-  const handleSocialLoginWithLocation = (provider: 'kakao' | 'naver' | 'google') => {
-    window.location.href = `https://i13a509.p.ssafy.io/api/v1/oauth2/authorization/${provider}`;
-    
-  
+  // 소셜 로그인 처리
+  const handleSocialLogin = async (provider: 'kakao' | 'naver' | 'google') => {
+    try {
+      await login(provider);
+    } catch (error) {
+      console.error(`${provider} 로그인 오류:`, error);
+    }
+  };
+
+  // 호버 상태 관리
+  const handleHover = (isHover: boolean, provider: 'kakao' | 'naver' | 'google') => {
+    setHoveredButton(isHover ? provider : null);
   };
 
   return {
-    handleSocialLoginWithLocation,
+    handleSocialLogin,
+    handleHover,
+    hoveredButton,
+    isLoading,
   };
 };
 

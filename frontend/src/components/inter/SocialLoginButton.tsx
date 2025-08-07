@@ -1,16 +1,16 @@
-// components/auth/SocialLoginButton.tsx
 import React from 'react';
 
 interface SocialLoginButtonProps {
-  provider: 'Kakao' | 'Naver' | 'Google';
+  provider: string;
   label: string;
   bgColor: string;
   textColor: string;
-  icon?: React.ReactNode;
+  borderColor?: string;
+  icon: React.ReactNode;
   hovered: boolean;
   onHover: (isHover: boolean) => void;
   onClick: () => void;
-  borderColor?: string;
+  disabled?: boolean;
 }
 
 const SocialLoginButton: React.FC<SocialLoginButtonProps> = ({
@@ -18,27 +18,34 @@ const SocialLoginButton: React.FC<SocialLoginButtonProps> = ({
   label,
   bgColor,
   textColor,
+  borderColor,
   icon,
   hovered,
   onHover,
   onClick,
-  borderColor,
+  disabled = false,
 }) => {
   return (
     <button
-      className={`w-full h-12 font-medium rounded-lg flex items-center justify-center relative transition-all duration-200 whitespace-nowrap cursor-pointer
-        ${hovered ? 'opacity-90 transform scale-[0.98]' : ''}`}
+      className={`w-full h-12 font-medium rounded-lg flex items-center justify-center relative transition-all duration-200 whitespace-nowrap ${
+        disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+      } ${
+        hovered && !disabled ? 'opacity-90 transform scale-[0.98]' : ''
+      }`}
       style={{
         backgroundColor: bgColor,
         color: textColor,
-        border: borderColor ? `1px solid ${borderColor}` : undefined,
+        border: borderColor ? `1px solid ${borderColor}` : 'none',
       }}
-      onMouseEnter={() => onHover(true)}
-      onMouseLeave={() => onHover(false)}
-      onClick={onClick}
+      onMouseEnter={() => !disabled && onHover(true)}
+      onMouseLeave={() => !disabled && onHover(false)}
+      onClick={disabled ? undefined : onClick}
+      disabled={disabled}
     >
-      {icon && <span className="mr-2">{icon}</span>}
-      <span>{label}</span>
+      <div className="flex items-center justify-center">
+        <span className="mr-2">{icon}</span>
+        <span>{label}</span>
+      </div>
     </button>
   );
 };

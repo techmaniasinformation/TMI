@@ -31,15 +31,18 @@ const Header: React.FC<HeaderProps> = ({
   variant = 'light',
   size = 'default',
 }) => {
-  const {isLogin, memberId, toggleIsLogin} = useUserStore(); // 로그인 상태 확인 
+  const {isAuthenticated, user, logout} = useUserStore(); // 로그인 상태 확인 
   const { isDarkMode, toggleTheme } = useThemeStore(); // 전역 상태 사용
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(true);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const navigate = useNavigate();
 
-  // #### 희망사항 - 로그아웃만 
-  const handleLogin = () => toggleIsLogin();
+  // 로그아웃 처리
+  const handleLogout = async () => {
+    await logout();
+    setShowProfileMenu(false);
+  };
 
   const addToRecentSearches = (term: string) => {
     setRecentSearches((prev) =>
@@ -57,7 +60,7 @@ const Header: React.FC<HeaderProps> = ({
 
   // ✅ 게시글 작성 버튼 클릭시 로그인 여부에 따라 반응
   const handleWritePost = () => {
-    if (!isLogin) {
+    if (!isAuthenticated) {
       alert('로그인이 필요합니다.'); // 알림 표시
       navigate('/login'); // 로그인 페이지로 이동
     } else {
@@ -106,7 +109,7 @@ const Header: React.FC<HeaderProps> = ({
               />
             </button>
             {/* 로그인 여부에 따라 다르게 */}
-            {isLogin ? (
+            {isAuthenticated ? (
               <div className='relative flex'>
                 {/* 프로필 */}
                 <button
@@ -188,7 +191,7 @@ const Header: React.FC<HeaderProps> = ({
                       <hr className='my-1' />
                       {/* api 나오면 로그아웃도 함수로 연결하기 */}
                       <button
-                        onClick={handleLogin}
+                        onClick={() => navigate('/login')}
                         className='block w-full text-left px-4 py-2 text-sm text-warning font-bold hover:bg-gray-100 hover:font-bold'
                       >
                         로그아웃

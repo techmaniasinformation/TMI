@@ -33,12 +33,7 @@ public class NotificationController implements BaseController {
   public ResponseEntity<ApiResponse<NotificationListResponse>> getNotifications(
       @RequestParam Long memberId,
       @RequestParam(defaultValue = "all") String status) {
-
-    System.out.println("0000000000000");
-
     return handle(notificationService.getNotifications(memberId, status));
-
-
   }
 
   /**

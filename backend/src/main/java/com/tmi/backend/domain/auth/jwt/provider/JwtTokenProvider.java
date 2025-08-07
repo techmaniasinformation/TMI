@@ -32,6 +32,9 @@ public class JwtTokenProvider {
   @Value("${jwt.refresh-token-expiration-minutes}")
   private long refreshTokenExpiryMinutes;
 
+  @Value("${jwt.registration-token-expiration-minutes}")
+  private long registrationTokenExpirationMinutes;
+
   private Key key;
   private final CustomUserDetailsService userDetailsService;
 
@@ -40,6 +43,7 @@ public class JwtTokenProvider {
     byte[] keyBytes = Decoders.BASE64.decode(secretKeyBase64);
     this.key = Keys.hmacShaKeyFor(keyBytes);
   }
+
 
   /**
    * Access Token 생성
@@ -67,6 +71,21 @@ public class JwtTokenProvider {
         .setExpiration(expiry)
         .signWith(key, SignatureAlgorithm.HS256)
         .compact();
+  }
+
+  public String createRegistToken(String provider, String providerMemberId) {
+    Date now = new Date();
+    Date expiry = new Date(now.getTime() + registrationTokenExpirationMinutes * 60 * 1000);
+    return Jwts.builder()
+        .setSubject("registration")
+        .claim("provider", provider)
+        .claim("providerMemberId", providerMemberId)
+        .setIssuedAt(now)
+        .setExpiration(expiry)
+        .signWith(key, SignatureAlgorithm.HS256)
+        .compact();
+
+
   }
 
   /**

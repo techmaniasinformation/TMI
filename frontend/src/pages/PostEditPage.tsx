@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useUserStore } from '@/stores/userStore';
 
 const PostEditPage: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useUserStore();
   const [linkUrl, setLinkUrl] = useState('');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -15,63 +17,111 @@ const PostEditPage: React.FC = () => {
   const [aiSummary, setAiSummary] = useState<string>('');
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
-
-
-
-
-
+  const [urlError, setUrlError] = useState<string>('');
 
   const handleAISummary = async () => {
+    if (!linkUrl) {
+      alert('링크 URL을 먼저 입력해주세요.');
+      return;
+    }
+
+         // URL 에러 초기화
+     setUrlError('');
+     
+     // URL 필터링 - 태그블로그 글만 허용
+     const allowedDomains = [
+      'tistory.com',
+      'blog.naver.com',
+      'blog.daum.net',
+      'brunch.co.kr',
+      'medium.com',
+      'velog.io',
+      'github.io',
+      'notion.so'
+    ];
+    
+    try {
+      const url = new URL(linkUrl);
+      const domain = url.hostname.toLowerCase();
+      
+      const isAllowedDomain = allowedDomains.some(allowed => 
+        domain === allowed || domain.endsWith('.' + allowed)
+      );
+      
+             if (!isAllowedDomain) {
+         setUrlError('지원하지 않는 URL입니다. 블로그 글 URL만 입력해주세요.');
+         return;
+       }
+       
+       // URL 경로가 너무 짧으면 거부 (예: https://example.tistory.com/12)
+       if (url.pathname.length < 5) {
+         setUrlError('올바른 블로그 글 URL을 입력해주세요. (예: https://example.tistory.com/entry/글제목)');
+         return;
+       }
+       
+       // URL에 숫자만 있거나 너무 단순한 경로는 거부
+       const pathSegments = url.pathname.split('/').filter(segment => segment.length > 0);
+       if (pathSegments.length < 2) {
+         setUrlError('올바른 블로그 글 URL을 입력해주세요. (예: https://example.tistory.com/entry/글제목)');
+         return;
+       }
+      
+         } catch (error) {
+       setUrlError('올바른 URL 형식을 입력해주세요.');
+       return;
+     }
+
     setIsAILoading(true);
     try {
-      // AI 요약하면서 태그 자동 생성
-      const aiTags = await generateAITags(content);
-      if (aiTags.length > 0) {
-        const tagsToSet = aiTags.slice(0, 5);
-        setTags(tagsToSet);
+      // API 요청 - 백엔드 서버 URL 사용
+      const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/summary?url=${encodeURIComponent(linkUrl)}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({})
+      });
+
+      if (!response.ok) {
+        throw new Error(`AI 요약 요청에 실패했습니다. (${response.status})`);
       }
+
+      const result = await response.json();
       
-      // AI 요약 내용 생성 (실제로는 AI API에서 받아옴)
-      const summary = `AI가 생성한 요약 내용이 여기에 표시됩니다.`;
-      setAiSummary(summary);
-    } catch (error) {
-      console.error('AI 요약 실패:', error);
-      alert('AI 요약에 실패했습니다.');
-    } finally {
+      if (result.status === 'SUCCESS' && result.data) {
+        // AI 요약 내용 설정
+        const summary = result.data.summary || '';
+        setAiSummary(summary);
+        setContent(summary); // content에도 AI 요약 내용 설정
+        
+        // AI 태그 설정 (최대 5개)
+        if (result.data.tags && Array.isArray(result.data.tags)) {
+          const tagsToSet = result.data.tags.slice(0, 5);
+          setTags(tagsToSet);
+          setAiGeneratedTags(tagsToSet);
+          setHasGeneratedAITags(true);
+        }
+        
+        alert('AI 요약이 완료되었습니다!');
+      } else if (result.status === 'ERROR' && result.code === 'AI-001') {
+        // 유효하지 않은 URL 에러 처리
+        alert('입력하신 URL이 유효하지 않습니다. 올바른 웹사이트 주소를 입력해주세요.');
+             } else {
+         throw new Error('AI 요약 응답 형식이 올바르지 않습니다.');
+       }
+     } catch (error) {
+       console.error('AI 요약 실패:', error);
+       if (error instanceof Error && error.message.includes('502')) {
+         alert('AI 요약에 실패했습니다.');
+       } else {
+         alert('AI 요약에 실패했습니다: ' + (error instanceof Error ? error.message : '알 수 없는 오류'));
+       }
+     } finally {
       setIsAILoading(false);
     }
   };
 
-  const generateAITags = async (content: string) => {
-    try {
-      // 이미 AI 태그를 생성했다면 재사용
-      if (hasGeneratedAITags && aiGeneratedTags.length > 0) {
-        return aiGeneratedTags;
-      }
 
-      // TODO: 실제 AI 태그 생성 API 호출
-      // 임시로 시뮬레이션
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // 본문 내용을 분석해서 관련 태그 생성 (실제로는 AI API에서 받아옴)
-      const contentLower = content.toLowerCase();
-      const possibleTags = [];
-      
-             // 키워드 기반 태그 생성 (실제로는 AI API에서 받아옴)
-       // TODO: 실제 AI 태그 생성 로직 구현
-       possibleTags.push('python', '데이터사이언스', '머신러닝', '알고리즘');
-      
-      // AI 태그 저장 (재사용을 위해)
-      setAiGeneratedTags(possibleTags);
-      setHasGeneratedAITags(true);
-      
-      return possibleTags;
-    } catch (error) {
-      console.error('AI 태그 생성 실패:', error);
-      alert('AI 태그 생성에 실패했습니다.');
-      return [];
-    }
-  };
 
   const handleSave = async () => {
     if (!linkUrl || !title) {
@@ -87,7 +137,7 @@ const PostEditPage: React.FC = () => {
       
              // API 요청 데이터 준비
        const requestData = {
-         memberId: 1, // TODO: 실제 로그인된 사용자 ID로 변경
+         memberId: user?.memberId || 1, // 실제 로그인된 사용자 ID 사용
          link: linkUrl,
          title: title,
          thumbnailUrl: imagePreview || '', // TODO: 실제 이미지 업로드 후 URL로 변경
@@ -96,29 +146,34 @@ const PostEditPage: React.FC = () => {
        };
 
        // 전송할 JSON 데이터 콘솔에 출력
-       console.log('전송할 JSON 데이터:', JSON.stringify(requestData, null, 2));
+   
 
-       // API 호출
-       const response = await fetch('/api/v1/posts', {
-         method: 'POST',
-         headers: {
-           'Content-Type': 'application/json',
-           'Authorization': 'Bearer accessToken' // TODO: 실제 accessToken으로 변경
-         },
-         body: JSON.stringify(requestData)
-       });
+                      // API 호출
+       const response = await fetch('https://i13a509.p.ssafy.io/api/v1/post', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer accessToken' // TODO: 실제 accessToken으로 변경
+          },
+          body: JSON.stringify(requestData)
+        });
 
       if (!response.ok) {
         throw new Error('게시글 수정에 실패했습니다.');
       }
 
-      const result = await response.json();
-      console.log('게시글 수정 성공:', result);
-      
-      alert('게시글이 수정되었습니다!');
-      
-      // 저장 완료 후 상세 페이지로 이동
-      navigate(`/post/${result.id || '1'}`);
+             const result = await response.json();
+       console.log('게시글 수정 응답:', result);
+
+       
+       alert('게시글이 수정되었습니다!');
+       
+       // 저장 완료 후 상세 페이지로 이동 - 응답에서 받은 게시글 ID 사용
+       if (result.data && result.data.postId) {
+         navigate(`/post/${result.data.postId}`);
+       } else {
+         navigate('/'); // ID가 없으면 홈으로 이동
+       }
       
     } catch (error) {
       console.error('저장 실패:', error);
@@ -175,9 +230,12 @@ const PostEditPage: React.FC = () => {
               placeholder="https://example.com"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
-            {!linkUrl && (
-              <p className="text-red-500 text-sm mt-1">링크 URL을 입력해주세요</p>
-            )}
+                         {!linkUrl && (
+               <p className="text-red-500 text-sm mt-1">링크 URL을 입력해주세요</p>
+             )}
+             {urlError && (
+               <p className="text-red-500 text-sm mt-1">{urlError}</p>
+             )}
           </div>
 
           {/* Title */}

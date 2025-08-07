@@ -34,19 +34,7 @@ export default function SearchPostListContainer({
   const companyTags = searchParams.get('companyTags')?.split(',').filter(Boolean) ?? [];
 
   // 검색 조건이 있는지 확인
-  const hasSearchConditions = keyword.trim() || techTags.length > 0 || companyTags.length > 0;
-
-  // 디버깅을 위한 콘솔 로그
-  console.log('🔍 SearchPostListContainer Debug:', {
-    currentPage,
-    totalCount,
-    postsLength: posts.length,
-    hasSearchConditions,
-    appliedFilters,
-    keyword,
-    techTags,
-    companyTags
-  });
+    const hasSearchConditions = keyword.trim() || techTags.length > 0 || companyTags.length > 0;
 
   // 키워드 제거
   const handleRemoveKeyword = () => {

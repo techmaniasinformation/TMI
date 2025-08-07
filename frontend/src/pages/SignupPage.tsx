@@ -122,7 +122,7 @@ const handleNicknameCheck = async () => {
       }
 
       const data = await res.json();
-      console.log('회원가입 성공:', data);
+
 
       alert('회원가입이 완료되었습니다!');
       // &&& 회원가입 후 페이지 이동 로직 추가 (예: 로그인 페이지로 이동)

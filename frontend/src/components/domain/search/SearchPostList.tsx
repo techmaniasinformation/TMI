@@ -26,20 +26,11 @@ export default function SearchPostList({
   // 검색 조건이 있는지 확인 (빈 문자열이 아닌 경우도 포함)
   const hasSearchConditions = searchKeyword.trim() || searchTechTags.length > 0 || searchCompanyTags.length > 0;
 
-  console.log('🔍 [SearchPostList] 렌더링:', {
-    postsLength: posts.length,
-    loading,
-    error,
-    totalCount,
-    hasSearchConditions,
-    searchKeyword,
-    searchTechTags,
-    searchCompanyTags
-  });
+
 
   // 로딩 상태 (검색 조건이 있을 때만)
   if (loading && hasSearchConditions) {
-    console.log('🔍 [SearchPostList] 로딩 상태 렌더링');
+
     return (
       <div className="text-center py-12">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
@@ -50,7 +41,7 @@ export default function SearchPostList({
 
   // 에러 상태
   if (error) {
-    console.log('🔍 [SearchPostList] 에러 상태 렌더링');
+
     return (
       <div className="text-center py-12">
         <i className="fas fa-exclamation-triangle text-6xl text-red-300 mb-4"></i>
@@ -68,7 +59,7 @@ export default function SearchPostList({
 
   // 검색 조건이 없는 경우 또는 검색 결과가 없는 경우
   if (!hasSearchConditions || totalCount === 0) {
-    console.log('🔍 [SearchPostList] 검색 결과 없음 상태 렌더링');
+
     return (
       <div className="text-center py-12">
         <i className="fas fa-search text-6xl text-gray-300 mb-4"></i>
@@ -88,7 +79,7 @@ export default function SearchPostList({
     return num.toLocaleString('ko-KR');
   };
 
-  console.log('🔍 [SearchPostList] 게시글 목록 렌더링');
+
   return (
     <PostList
       formatDate={formatDate}

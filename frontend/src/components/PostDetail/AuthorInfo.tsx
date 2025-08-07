@@ -16,7 +16,7 @@ export const AuthorInfo: React.FC<AuthorInfoProps> = ({ post, formatDate, onFoll
       <div className="flex items-center justify-between">
         <UserInfoBox
           profileImageUrl={post.memberProfileUrl}
-          nickname="데이터랩"
+          nickname={post.name}
           imageSize="64px"
           badge={
             <Badge className="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">

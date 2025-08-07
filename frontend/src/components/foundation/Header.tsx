@@ -6,6 +6,8 @@ import SearchBar from "./SearchBar"; // 검색바 컴포넌트 분리
 import { Button } from "./button";
 import { useThemeStore } from "@/stores/themeStore"; // 테마 불러오기
 import { useUserStore } from "@/stores/userStore"; // 로그인 관련 전역변수
+import tmiLogo from "@/assets/icons/tmiLogo.svg";
+import { getSafeProfileUrl } from "@/utils/defaultImages";
 
 const headerVariants = cva('text-white', {
   variants: {
@@ -82,7 +84,7 @@ const Header: React.FC<HeaderProps> = ({
           <div className='flex items-center'>
             <Link to='/' className='flex items-center space-x-2'>
               <img
-                src='src/assets/icons/tmiLogo.svg'
+                src={tmiLogo}
                 alt='TMI Logo'
                 className='w-20 h-20'
               />
@@ -122,7 +124,7 @@ const Header: React.FC<HeaderProps> = ({
                 >
                   <div className='relative'>
                     <img
-                      src='https://readdy.ai/api/search-image?query=professional%20headshot%20developer&width=32&height=32&orientation=squarish'
+                      src={getSafeProfileUrl('https://readdy.ai/api/search-image?query=professional%20headshot%20developer&width=32&height=32&orientation=squarish')}
                       alt='Profile'
                       className='w-8 h-8 rounded-full'
                     />

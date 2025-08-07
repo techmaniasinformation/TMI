@@ -16,6 +16,7 @@ import Follow from '@/assets/icons/Follow.svg';
 import ArticleFix from '@/assets/icons/articlefix.svg';
 import UserDelete from '@/assets/icons/userdelete.svg';
 import Update from '@/assets/icons/Update.svg';
+import { getSafeProfileUrl } from '@/utils/defaultImages';
 
 // 모달
 import WithdrawalConfirmModal from '@/components/layout/mypage/WithdrawalConfirmModal';
@@ -75,8 +76,7 @@ export default function ProfileHeader({
   };
 
   const getProfileImage = (url: string | null | undefined) => {
-    if (!url || url.includes('cdn.example.com')) return Star;
-    return url;
+    return getSafeProfileUrl(url);
   };
 
   if (loading) {

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 // 기본 UI 및 컴포넌트 임포트
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/domain/Tabs";
 import PostCard from './PostCard';
-import CommentCard, { CommentCardProps } from './CommentCard';
+import CommentCard from './CommentCard';
 import FollowCompanyCard from './FollowCompanyCard';
 import FollowUserCard from './FollowUserCard';
 
@@ -51,21 +51,19 @@ import badgeAWS from '@/assets/images/AWS.png';
 // 배지 모달
 import BadgeModal from '@/components/layout/mypage/BadgeModal';
 
-// 기업 게시글 api
+// API
 import { getCompanyPosts } from "@/api/company/companyPost";
-import type { CompanyPost } from "@/types/company/companyPost";
-
-// 스타 게시글 api
 import { fetchStarredPosts } from "@/api/mypage/starService";
-import type { Post as StarPost } from "@/types/mypage/star";
-
-// 작성한 댓글 api
 import { fetchMemberComments } from "@/api/mypage/commentService";
-import type { Comment } from "@/types/mypage/comment";
-
-// 작성한 게시글 api
 import { fetchMemberPosts } from "@/api/mypage/postService";
+
+// 타입
+import type { CompanyPost } from "@/types/company/companyPost";
+import type { Post as StarPost } from "@/types/mypage/star";
+import type { Comment, CommentResponse } from "@/types/mypage/comment";
 import type { MyPagePost } from "@/types/mypage/post";
+
+import { useParams } from 'react-router-dom';
 
 // 배지 리스트
 const badgeList = [
@@ -85,25 +83,13 @@ const badgeList = [
   { id: 14, name: '웅성웅성', image: badgeView100, filename: 'view_100.png'},
   { id: 15, name: '웅성웅성웅성', image: badgeView1000, filename: 'view_1000.png'},
   { id: 16, name: '벌레잡는 파리채', image: badgeParis, filename: 'paris.png'},
-  { id: 18, name: 'Spring', image: badgeSpring, filename: 'spring.png'},
-  { id: 19, name: 'React', image: badgeReact, filename: 'react.png'},
-  { id: 20, name: 'AI', image: badgeAI, filename: 'ai.png'},
-  { id: 21, name: 'DB', image: badgeDB, filename: 'db.png'},
-  { id: 22, name: 'AWS', image: badgeAWS, filename: 'aws.png'},
+  { id: 17, name: 'Spring', image: badgeSpring, filename: 'spring.png'},
+  { id: 18, name: 'React', image: badgeReact, filename: 'react.png'},
+  { id: 19, name: 'AI', image: badgeAI, filename: 'ai.png'},
+  { id: 20, name: 'DB', image: badgeDB, filename: 'db.png'},
+  { id: 21, name: 'AWS', image: badgeAWS, filename: 'aws.png'},
 
 ];
-
-
-// 게시글 타입 정의
-interface Post {
-  id: string;
-  title: string;
-  thumbnail: string;
-  tags: string[];
-  views: number;
-  stars: number;
-  comments: number;
-}
 
 // props 타입 정의
 interface MyPageTabsProps {
@@ -121,7 +107,6 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   isMyPage,
   activeTab,
   setActiveTab,
-  userStats,
   currentPage,
   setCurrentPage
 }) => {
@@ -151,14 +136,22 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   const [commentError, setCommentError] = useState<string | null>(null);
   const [currentCommentPage, setCurrentCommentPage] = useState(1);
 
+  // 유저
+  const { id } = useParams();
+  const memberId = id ? Number(id) : 1;
+
+  // 기업
+  const { id: companyIdParam } = useParams();
+  const companyId = companyIdParam ? Number(companyIdParam) : null;
+
   useEffect(() => {
     if (isMyPage && isPersonal) {
       setCommentLoading(true);
-      fetchMemberComments(1, currentCommentPage, 5) // TODO: memberId 동적
-        .then((res) => {
-          setComments(res.data.comments);
-          setCommentTotalPages(res.data.pageInfo.totalPages);
-          setCommentTotalElements(res.data.pageInfo.totalElements);
+      fetchMemberComments(memberId, currentCommentPage, 5)
+        .then(({ comments, pageInfo }) => {
+          setComments(comments);
+          setCommentTotalPages(pageInfo.totalPages);
+          setCommentTotalElements(pageInfo.totalElements);
         })
         .catch((err) => setCommentError(err.message))
         .finally(() => setCommentLoading(false));
@@ -174,9 +167,9 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   const [currentPostPage, setCurrentPostPage] = useState(1);
 
   useEffect(() => {
-    if (isPersonal) {
+    if (isPersonal && memberId) {
       setPostLoading(true);
-      fetchMemberPosts(2, currentPostPage, 5) // TODO: memberId 동적 처리
+      fetchMemberPosts(memberId, currentPostPage, 5)
         .then((res) => {
           setMemberPosts(res.data.posts);
           setPostTotalPages(res.data.pageInfo.totalPages);
@@ -185,13 +178,14 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
         .catch((err) => setPostError(err.message))
         .finally(() => setPostLoading(false));
     }
-  }, [isPersonal, currentPostPage]);
+  }, [isPersonal, memberId, currentPostPage]);
+
 
   // 기업 게시글 API 호출
   useEffect(() => {
     if (isCompany) {
       setCompanyPostLoading(true); // 호출 전 로딩 시작
-      getCompanyPosts(3, currentPostPage, 5) // companyId는 나중에 동적 전달
+      getCompanyPosts(companyId!, currentPostPage, 5)
         .then((res) => {
           setCompanyPosts(res.data.posts);
           setCompanyPostTotalPages(res.data.pageInfo.totalPages);
@@ -245,7 +239,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   useEffect(() => {
     if (isMyPage && isPersonal) {
       setStarLoading(true);
-      fetchStarredPosts(1, currentStarPage, 5) // TODO: memberId 동적 전달
+      fetchStarredPosts(memberId, currentStarPage, 5)
         .then((res) => {
           setStarredPosts(res.data.posts);
           setStarTotalPages(res.data.pageInfo.totalPages);
@@ -277,7 +271,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
             onClick={() => setCurrentCommentPage(1)}  // 페이지 초기화
             >
             <IconTab2 className="w-4 h-4 mr-2 text-inherit" />
-            <span className="text-sm">작성한 댓글 ({comments.length})</span>
+            <span className="text-sm">작성한 댓글 ({commentTotalElements})</span>
           </TabsTrigger>
         )}
 
@@ -356,13 +350,13 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
           ) : (
             <div className="space-y-4">
               {comments.map((comment) => (
-                <CommentCard
-                  key={comment.commentId}
-                  postTitle={comment.name} // 여기서 postTitle로 변환
-                  comment={comment.comment}
-                  date={comment.createAt}
-                  onClick={() => window.location.href = comment.link}
-                />
+              <CommentCard
+                key={comment.commentId}
+                postTitle={comment.title} // 게시글 제목
+                comment={comment.comment}
+                date={comment.createAt}
+                onClick={() => comment.link && (window.location.href = comment.link)}
+              />
               ))}
             </div>
           )}

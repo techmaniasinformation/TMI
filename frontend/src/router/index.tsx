@@ -50,17 +50,20 @@ export const router = createBrowserRouter([
         element: <SearchResultsPage />,
       },
       {
-        path: ROUTES.MY_PAGE,
+        path: ROUTES.MY_PAGE, // 내 사용자 마이페이지
         element: <MyPage isCompany={false} isMyPage={true} />,
       },
+      
       {
-        path: ROUTES.MY_PAGE_COMPANY,
-        element: <MyPage isCompany={true} isMyPage={false} />,
-      },
-      {
-        path: ROUTES.MY_PAGE_USER,
+        path: '/member/:id', // 동적 유저 페이지 라우트 추가
         element: <MyPage isCompany={false} isMyPage={false} />,
       },
+
+      {
+        path: '/company/:id', // 동적 기업 페이지 라우트 추가
+        element: <MyPage isCompany={true} isMyPage={false} />,
+      },
+
       {
         path: ROUTES.NOTIFICATIONS,
         element: <NotificationsPage />,

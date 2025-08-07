@@ -2,7 +2,7 @@ package com.tmi.backend.domain.comment.service;
 
 import com.tmi.backend.domain.comment.dto.request.CommentRequest;
 import com.tmi.backend.domain.comment.dto.request.SortType;
-import com.tmi.backend.domain.comment.dto.response.CommentListResponse;
+import com.tmi.backend.domain.comment.dto.response.MyCommentListResponse;
 import com.tmi.backend.domain.comment.dto.response.PostCommentListResponse;
 import com.tmi.backend.domain.comment.entity.Comment;
 import com.tmi.backend.domain.comment.repository.CommentRepository;
@@ -68,7 +68,7 @@ public class CommentService {
 
   }
 
-  public ServiceResult<CommentListResponse> readMemberComments(Long memberId, int page, int size) {
+  public ServiceResult<MyCommentListResponse> readMemberComments(Long memberId, int page, int size) {
     log.info("CommentService : readMemberComments({}) 호출", memberId);
 
     if (!memberRepository.existsById(memberId)) {
@@ -79,7 +79,7 @@ public class CommentService {
 
     Page<Comment> commentPage = commentRepository.findByMemberId(memberId, pageable);
 
-    return ServiceResult.ok(CommentListResponse.of(commentPage, page));
+    return ServiceResult.ok(MyCommentListResponse.of(commentPage, page));
   }
 
   public ServiceResult<PostCommentListResponse> readPostComments(Long postId, SortType sort) {
@@ -100,7 +100,7 @@ public class CommentService {
 
   private Sort convertSort(SortType sortType) {
     return switch (sortType) {
-      case earliest -> Sort.by("createdAt").ascending();           // 오래된 순
+      case oldest -> Sort.by("createdAt").ascending();           // 오래된 순
       case popular  -> Sort.by("recommendCount").descending()      // 추천 ↑
           .and(Sort.by("createdAt").ascending());
     };

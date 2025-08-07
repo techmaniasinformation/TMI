@@ -1,0 +1,101 @@
+package com.tmi.backend.domain.auth.jwt.service;
+
+import com.tmi.backend.domain.auth.jwt.provider.JwtTokenProvider;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletResponse;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import javax.crypto.SecretKey;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class TokenService {
+
+  private final JwtTokenProvider jwtTokenProvider;
+  private final RefreshTokenService refreshTokenService;
+
+  @Value("${app.registration-token-secret}")
+  private String registrationTokenSecret;
+
+  @Value("${app.registration-token-expiration-minutes}")
+  private long registrationTokenExpirationMinutes;
+
+
+  public void createAndAddAuthCookies(HttpServletResponse response, Long memberId) {
+    String accessToken = jwtTokenProvider.createAccessToken(memberId);
+    String refreshToken = jwtTokenProvider.createRefreshToken(memberId);
+    LocalDateTime expiresAt = jwtTokenProvider.getTokenExpiration(refreshToken);
+
+    refreshTokenService.saveOrUpdateRefreshToken(memberId, refreshToken, expiresAt);
+
+    //TODO : 배포전 활성화
+    ResponseCookie accessCookie = ResponseCookie.from("ACCESS_TOKEN", accessToken)
+        .httpOnly(true)
+//        .secure(true)
+        .path("/")
+        .maxAge(Duration.ofDays(1))
+        .sameSite("Strict")
+        .build();
+
+    ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", refreshToken)
+        .httpOnly(true)                   // JavaScript에서 접근 불가 → XSS(크로스사이트스크립팅) 방지
+//        .secure(true)                     // HTTPS 환경에서만 쿠키 전송 → MITM 방지
+        .path("/")
+        .maxAge(Duration.ofDays(14))      // 쿠키의 유효기간 설정 (14일 동안 브라우저 종료와 무관하게 유지됨)
+        .sameSite("Strict")               // 다른 도메인에서 요청할 경우 쿠키 전송 안 함 → CSRF 공격 방어
+        .build();
+
+    response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+    response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+  }
+
+
+  // 로그아웃시 토큰 삭제(= 유효기간 0)
+  public void deleteAuthCookies(HttpServletResponse response) {
+    ResponseCookie accessCookie = ResponseCookie.from("ACCESS_TOKEN", "")
+        .httpOnly(true)
+        .path("/")
+        .maxAge(0)
+        .sameSite("Strict")
+        .build();
+
+    ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", "")
+        .httpOnly(true)
+        .path("/api/v1/auth/refresh")
+        .maxAge(0)
+        .sameSite("Strict")
+        .build();
+
+    response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+    response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+  }
+
+  public String createRegistrationToken(String provider, String providerMemberId) {
+    Instant now = Instant.now();
+    Instant expiry = now.plus(registrationTokenExpirationMinutes, ChronoUnit.MINUTES);
+
+    SecretKey key = Keys.hmacShaKeyFor(
+        Decoders.BASE64.decode(registrationTokenSecret)
+    );
+
+    return Jwts.builder()
+        .setSubject("registration")
+        .claim("provider", provider)
+        .claim("providerMemberId", providerMemberId)
+        .setIssuedAt(Date.from(now))
+        .setExpiration(Date.from(expiry))
+        .signWith(key, SignatureAlgorithm.HS256)
+        .compact();
+  }
+}

@@ -47,10 +47,12 @@ public class MemberBadge {
 
   private Boolean isRepresentative;
 
-  public static MemberBadge of(Member member, Badge badge) {
+  public static MemberBadge of(Member member, Badge badge, LocalDateTime receivedAt) {
     return MemberBadge.builder()
         .member(member)
         .badge(badge)
+        .receivedAt(receivedAt)
+        .isRepresentative(false)
         .build();
   }
 }

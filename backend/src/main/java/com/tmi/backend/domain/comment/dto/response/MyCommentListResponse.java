@@ -8,15 +8,15 @@ import lombok.Builder;
 import org.springframework.data.domain.Page;
 
 @Builder(access = AccessLevel.PRIVATE)
-public record CommentListResponse(
-    List<SimpleCommentResponse> comments,
+public record MyCommentListResponse(
+    List<MyCommentResponse> comments,
     PageDetail pageInfo
 ) {
 
-  public static CommentListResponse of (Page<Comment> commentPage, int page) {
-    List<SimpleCommentResponse> comments = commentPage.getContent()
+  public static MyCommentListResponse of (Page<Comment> commentPage, int page) {
+    List<MyCommentResponse> comments = commentPage.getContent()
         .stream()
-        .map(c -> SimpleCommentResponse.of(c.getMember(), c))
+        .map(c -> MyCommentResponse.of(c.getMember(), c))
         .toList();
 
     PageDetail pageInfo = PageDetail.of(
@@ -26,7 +26,7 @@ public record CommentListResponse(
         page
     );
 
-    return CommentListResponse.builder()
+    return MyCommentListResponse.builder()
         .comments(comments)
         .pageInfo(pageInfo)
         .build();

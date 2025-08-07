@@ -3,6 +3,7 @@ package com.tmi.backend.domain.auth.oauth.util;
 import com.tmi.backend.domain.member.entity.Provider;
 import com.tmi.backend.domain.member.repository.MemberRepository;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Map;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ public class OAuthUserProcessor {
           }
 
           // 탈퇴한지 7일 이상 경과되지 않은 회원
-          if (m.getDeletedAt().plusDays(7).isAfter(LocalDateTime.now())) {
+          if (m.getDeletedAt().plusDays(7).isAfter(LocalDateTime.now(ZoneOffset.UTC))) {
             throw new OAuth2AuthenticationException("탈퇴한 회원입니다.");
           }
 

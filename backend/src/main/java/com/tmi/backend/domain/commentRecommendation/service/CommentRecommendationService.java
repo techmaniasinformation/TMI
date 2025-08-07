@@ -8,6 +8,7 @@ import com.tmi.backend.domain.commentRecommendation.entity.CommentRecommendation
 import com.tmi.backend.domain.commentRecommendation.respository.CommentRecommendationRepository;
 import com.tmi.backend.domain.member.entity.Member;
 import com.tmi.backend.domain.member.repository.MemberRepository;
+import com.tmi.backend.domain.post.entity.Post;
 import com.tmi.backend.domain.post.repository.PostRepository;
 import com.tmi.backend.global.common.response.ServiceResult;
 import com.tmi.backend.global.error.ErrorCode;
@@ -26,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class CommentRecommendationService {
 
   private final MemberRepository memberRepository;
-  private final PostRepository postRepository;
   private final CommentRepository commentRepository;
   private final CommentRecommendationRepository commentRecommendationRepository;
 

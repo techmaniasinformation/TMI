@@ -43,6 +43,12 @@ export default function UserInfoBox({
           height: imageSize,
         }}
         className="rounded-full object-cover"
+        onError={(e) => {
+          const target = e.target as HTMLImageElement;
+          if (target.src !== safeProfileUrl) {
+            target.src = safeProfileUrl;
+          }
+        }}
       />
 
       {/* 닉네임 + 하위 정보 */}

@@ -12,8 +12,7 @@ const OAuthCallbackPage: React.FC = () => {
   useEffect(() => {
     const handleOAuthCallback = async () => {
       try {
-        console.log('[OAUTH_CALLBACK] OAuth 콜백 페이지 로드됨');
-        console.log('[OAUTH_CALLBACK] URL 파라미터:', Object.fromEntries(searchParams.entries()));
+        
 
         // URL에서 에러 파라미터 확인
         const error = searchParams.get('error');
@@ -35,14 +34,14 @@ const OAuthCallbackPage: React.FC = () => {
           return;
         }
 
-        console.log('[OAUTH_CALLBACK] 인증 코드 확인됨:', code);
+
 
         // 잠시 대기 후 인증 상태 확인
         setTimeout(async () => {
           try {
-            console.log('[OAUTH_CALLBACK] 인증 상태 확인 시작');
+    
             await checkAuth();
-            console.log('[OAUTH_CALLBACK] 인증 상태 확인 완료');
+            
             
             setStatus('success');
             setMessage('로그인 성공! 메인 페이지로 이동합니다.');

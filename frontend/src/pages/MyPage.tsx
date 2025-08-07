@@ -51,7 +51,7 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany, isMyPage }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const handleProfileSave = (newNickname: string, newBlogUrl: string, newGithubUrl?: string) => {
-    console.log('프로필 저장:', newNickname, newBlogUrl, newGithubUrl);
+
   };
 
   const [userStats] = useState<UserStats>({

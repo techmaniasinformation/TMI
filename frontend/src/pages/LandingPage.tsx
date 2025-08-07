@@ -54,20 +54,16 @@ const LandingPage: React.FC<LandingPageProps> = () => {
   }, []);
 
   const handleSignupClick = (): void => {
-    // TODO: 로그인/회원가입 페이지로 이동 로직 구현
     navigate('/login');
-    console.log('로그인/회원가입 페이지로 이동');
   };
 
   const handleExploreClick = (): void => {
     navigate('/home');
-    console.log('메인 페이지로 이동');
   };
 
   // ######## 카드 클릭시 게시글 상세 페이지로 이동 
   const handleCardClick = (postId: number) => {
     navigate(`/post/${postId}`);
-    console.log(`게시글 상세 페이지로 이동: post/${postId}`);
   };
 
   return (

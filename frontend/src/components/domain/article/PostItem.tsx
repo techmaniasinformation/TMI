@@ -1,5 +1,6 @@
 import React from 'react';
 import { Post } from '@/types';
+import { getSafeProfileUrl, getSafeThumbnailUrl } from '@/utils/defaultImages';
 
 interface PostItemProps {
   post: Post;
@@ -26,6 +27,10 @@ export const PostItem: React.FC<PostItemProps> = ({
     }
   };
 
+  // 안전한 이미지 URL 사용
+  const safeProfileUrl = getSafeProfileUrl(post.memberProfileUrl);
+  const safeThumbnailUrl = getSafeThumbnailUrl(post.thumbnailUrl);
+
   return (
     <div 
       className={`bg-white rounded-lg border border-gray-200 shadow-sm p-4 mb-6 hover:shadow-lg transition-all duration-300 cursor-pointer ${className}`}
@@ -35,7 +40,7 @@ export const PostItem: React.FC<PostItemProps> = ({
         {/* 프로필 이미지 */}
         <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden">
           <img
-            src={post.memberProfileUrl}
+            src={safeProfileUrl}
             alt={post.name}
             className="w-full h-full object-cover"
           />
@@ -78,10 +83,10 @@ export const PostItem: React.FC<PostItemProps> = ({
         </div>
         
         {/* 썸네일 */}
-        {showThumbnail && post.thumbnailUrl && (
+        {showThumbnail && (
           <div className="w-48 h-32 flex-shrink-0">
             <img
-              src={post.thumbnailUrl}
+              src={safeThumbnailUrl}
               alt={post.title}
               className="w-full h-full object-cover rounded-lg"
             />

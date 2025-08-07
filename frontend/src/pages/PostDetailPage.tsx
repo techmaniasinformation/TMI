@@ -8,6 +8,12 @@ import { PostContent } from "@/components/PostDetail/PostContent";
 import { AuthorInfo } from "@/components/PostDetail/AuthorInfo";
 import { CommentSection } from "@/components/PostDetail/CommentSection";
 import { BestComments } from "@/components/PostDetail/BestComments";
+import { 
+  getSafeProfileUrl, 
+  getSafeThumbnailUrl, 
+  getSafeBadgeUrl, 
+  getSafeCompanyUrl 
+} from "@/utils/defaultImages";
 
 
 interface PostDetailPageProps {}
@@ -67,24 +73,17 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
   const [toastMessage, setToastMessage] = useState('');
 
   // 댓글 관련 상태
-  const [comments, setComments] = useState<any[]>([]);
-  const [bestCommentId, setBestCommentId] = useState<number>(-1);
-  const [commentText, setCommentText] = useState('');
-  const [showLinkInput, setShowLinkInput] = useState(false);
-  const [linkUrl, setLinkUrl] = useState('');
-
-  // 게시글 데이터 상태
-  const [postData, setPostData] = useState<PostDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // 댓글 관련 상태
   const [comments, setComments] = useState<Comment[]>([]);
   const [bestCommentId, setBestCommentId] = useState<number>(-1);
   const [commentText, setCommentText] = useState('');
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
   const [commentLoading, setCommentLoading] = useState(false);
+
+  // 게시글 데이터 상태
+  const [postData, setPostData] = useState<PostDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // 게시글 상세 정보 가져오기
   useEffect(() => {
@@ -98,8 +97,6 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
       try {
         setLoading(true);
         setError(null);
-        
-        console.log('🔍 [PostDetailPage] 게시글 상세 정보 가져오기 시작:', id);
         
         const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/post/${id}`, {
           method: 'GET',
@@ -116,9 +113,15 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
 
         const data: PostDetailResponse = await response.json();
         
-        console.log('✅ [PostDetailPage] 게시글 상세 정보 가져오기 완료:', data);
+        const postWithDefaultImages = {
+          ...data.data,
+          memberProfileUrl: getSafeProfileUrl(data.data.memberProfileUrl),
+          companyProfileUrl: getSafeCompanyUrl(data.data.companyProfileUrl),
+          badgeUrl: getSafeBadgeUrl(data.data.badgeUrl),
+          thumbnailUrl: getSafeThumbnailUrl(data.data.thumbnailUrl),
+        };
         
-        setPostData(data.data);
+        setPostData(postWithDefaultImages);
       } catch (err) {
         console.error('❌ [PostDetailPage] 게시글 상세 정보 가져오기 실패:', err);
         setError('게시글을 불러오는데 실패했습니다.');
@@ -136,8 +139,6 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
       if (!postData?.postId) return;
 
       try {
-        console.log('🔍 [PostDetailPage] 댓글 목록 가져오기 시작:', postData.postId);
-        
         const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/comment?postId=${postData.postId}`, {
           method: 'GET',
           headers: {
@@ -150,9 +151,15 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         }
 
         const data = await response.json();
-        console.log('✅ [PostDetailPage] 댓글 목록 가져오기 완료:', data);
         
-        setComments(data.data?.comments || []);
+        // 댓글에 기본 이미지 적용
+        const commentsWithDefaultImages = (data.data?.comments || []).map((comment: Comment) => ({
+          ...comment,
+          memberProfileUrl: getSafeProfileUrl(comment.memberProfileUrl),
+          badgeUrl: getSafeBadgeUrl(comment.badgeUrl),
+        }));
+        
+        setComments(commentsWithDefaultImages);
         setBestCommentId(data.data?.bestCommentId || -1);
       } catch (err) {
         console.error('❌ [PostDetailPage] 댓글 가져오기 실패:', err);
@@ -196,8 +203,6 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
           return;
         }
 
-        console.log('⭐ [PostDetailPage] 스타 취소 요청 (starId):', starId);
-
         const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/star/${starId}`, {
           method: 'DELETE',
           headers: {
@@ -207,8 +212,6 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
           },
           body: JSON.stringify({}) // 빈 객체를 body로 전송
         });
-
-        console.log('🔍 [PostDetailPage] 스타 취소 응답 상태:', response.status);
 
         if (!response.ok) {
           const errorText = await response.text();
@@ -229,7 +232,6 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
           result = { success: true };
         }
 
-        console.log('✅ [PostDetailPage] 스타 취소 성공:', result);
         showToastMessage('스타를 취소했습니다');
       } else {
         // 스타 추가 (POST 요청)
@@ -237,8 +239,6 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
           memberId: 1, // 임시로 1로 설정 (로그인 기능 완료 후 실제 memberId로 변경)
           postId: postData.postId
         };
-
-        console.log('⭐ [PostDetailPage] 스타 추가 요청:', requestBody);
 
         const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/star`, {
           method: 'POST',
@@ -255,12 +255,10 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         }
 
         const result = await response.json();
-        console.log('✅ [PostDetailPage] 스타 추가 성공:', result);
         
         // starId 저장
         if (result.data?.starId) {
           setStarId(result.data.starId);
-          console.log('💾 [PostDetailPage] starId 저장:', result.data.starId);
         }
         
         showToastMessage('스타했습니다');
@@ -342,8 +340,6 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         requestBody.link = linkUrl.trim();
       }
 
-      console.log('📝 [PostDetailPage] 댓글 작성 요청:', requestBody);
-
       const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/comment`, {
         method: 'POST',
         headers: {
@@ -359,7 +355,6 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
       }
 
       const result = await response.json();
-      console.log('✅ [PostDetailPage] 댓글 작성 성공:', result);
 
       // 댓글 작성 성공 후 댓글 목록과 게시글 정보 새로고침
       if (postData.postId) {
@@ -373,7 +368,13 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
 
         if (commentsResponse.ok) {
           const commentsData = await commentsResponse.json();
-          setComments(commentsData.data.comments || []);
+          // 댓글에 기본 이미지 적용
+          const commentsWithDefaultImages = (commentsData.data.comments || []).map((comment: Comment) => ({
+            ...comment,
+            memberProfileUrl: getSafeProfileUrl(comment.memberProfileUrl),
+            badgeUrl: getSafeBadgeUrl(comment.badgeUrl),
+          }));
+          setComments(commentsWithDefaultImages);
           setBestCommentId(commentsData.data.bestCommentId || -1);
         }
 
@@ -387,7 +388,15 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
 
         if (postResponse.ok) {
           const postData = await postResponse.json();
-          setPostData(postData.data);
+          // 기본 이미지 적용
+          const postWithDefaultImages = {
+            ...postData.data,
+            memberProfileUrl: getSafeProfileUrl(postData.data.memberProfileUrl),
+            companyProfileUrl: getSafeCompanyUrl(postData.data.companyProfileUrl),
+            badgeUrl: getSafeBadgeUrl(postData.data.badgeUrl),
+            thumbnailUrl: getSafeThumbnailUrl(postData.data.thumbnailUrl),
+          };
+          setPostData(postWithDefaultImages);
         }
       }
 
@@ -545,7 +554,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         comments={comments}
         commentCount={postData.commentCount}
         postId={postData.postId}
-        memberProfileUrl="https://via.placeholder.com/40x40/cccccc/666666?text=U"
+        memberProfileUrl={postData.memberProfileUrl}
         commentText={commentText}
         showLinkInput={showLinkInput}
         linkUrl={linkUrl}

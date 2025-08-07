@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/foundation/button';
+import { getSafeThumbnailUrl } from '@/utils/defaultImages';
 
 interface PostContentProps {
   post: any; // Post 타입을 사용하지만 여기서는 any로 간단히 처리
@@ -8,18 +9,19 @@ interface PostContentProps {
 }
 
 export const PostContent: React.FC<PostContentProps> = ({ post, onStarClick, onShareClick }) => {
+  // 안전한 썸네일 이미지 URL 사용
+  const safeThumbnailUrl = getSafeThumbnailUrl(post.thumbnailUrl);
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
       {/* 썸네일 이미지 */}
-      {post.thumbnailUrl && (
-        <div className="mb-6">
-          <img
-            src={post.thumbnailUrl}
-            alt="게시글 썸네일"
-            className="w-full h-64 object-cover rounded-lg"
-          />
-        </div>
-      )}
+      <div className="mb-6">
+        <img
+          src={safeThumbnailUrl}
+          alt="게시글 썸네일"
+          className="w-full h-64 object-cover rounded-lg"
+        />
+      </div>
 
       {/* 본문 텍스트 */}
       <div className="prose max-w-none mb-6">

@@ -1,4 +1,5 @@
 import React from 'react';
+import { getSafeProfileUrl } from '@/utils/defaultImages';
 
 interface UserInfoBoxProps {
   profileImageUrl: string;
@@ -24,6 +25,9 @@ export default function UserInfoBox({
   height,
   imageSize = '40px', // 기본값 설정
 }: UserInfoBoxProps) {
+  // 안전한 프로필 이미지 URL 사용
+  const safeProfileUrl = getSafeProfileUrl(profileImageUrl);
+
   return (
     <div
       // 수평 정렬
@@ -32,7 +36,7 @@ export default function UserInfoBox({
     >
       {/* 프로필 이미지 (크기 지정 가능) */}
       <img
-        src={profileImageUrl}
+        src={safeProfileUrl}
         alt="profile"
         style={{
           width: imageSize,

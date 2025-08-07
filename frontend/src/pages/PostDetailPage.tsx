@@ -8,11 +8,15 @@ import { PostContent } from "@/components/PostDetail/PostContent";
 import { AuthorInfo } from "@/components/PostDetail/AuthorInfo";
 import { CommentSection } from "@/components/PostDetail/CommentSection";
 import { BestComments } from "@/components/PostDetail/BestComments";
+import { 
+  getSafeProfileUrl, 
+  getSafeThumbnailUrl, 
+  getSafeBadgeUrl, 
+  getSafeCompanyUrl 
+} from "@/utils/defaultImages";
 
 
 interface PostDetailPageProps {}
-
-
 
 interface PostDetail {
   postId: number;
@@ -36,10 +40,29 @@ interface PostDetailResponse {
   data: PostDetail;
 }
 
+interface Comment {
+  commentId: number;
+  comment: string;
+  name: string;
+  memberProfileUrl: string;
+  badgeUrl?: string;
+  createAt: string;
+  isRecommend: boolean;
+  recommendCount: number;
+  link?: string;
+}
+
+interface CommentResponse {
+  status: string;
+  data: {
+    comments: Comment[];
+    bestCommentId: number;
+  };
+}
+
 const PostDetailPage: React.FC<PostDetailPageProps> = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
 
   const [isFollowing, setIsFollowing] = useState(false);
   const [isStarred, setIsStarred] = useState(false);
@@ -50,11 +73,12 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
   const [toastMessage, setToastMessage] = useState('');
 
   // 댓글 관련 상태
-  const [comments, setComments] = useState<any[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [bestCommentId, setBestCommentId] = useState<number>(-1);
   const [commentText, setCommentText] = useState('');
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
+  const [commentLoading, setCommentLoading] = useState(false);
 
   // 게시글 데이터 상태
   const [postData, setPostData] = useState<PostDetail | null>(null);
@@ -74,8 +98,6 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         setLoading(true);
         setError(null);
         
-        console.log('🔍 [PostDetailPage] 게시글 상세 정보 가져오기 시작:', id);
-        
         const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/post/${id}`, {
           method: 'GET',
           headers: {
@@ -91,9 +113,15 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
 
         const data: PostDetailResponse = await response.json();
         
-        console.log('✅ [PostDetailPage] 게시글 상세 정보 가져오기 완료:', data);
+        const postWithDefaultImages = {
+          ...data.data,
+          memberProfileUrl: getSafeProfileUrl(data.data.memberProfileUrl),
+          companyProfileUrl: getSafeCompanyUrl(data.data.companyProfileUrl),
+          badgeUrl: getSafeBadgeUrl(data.data.badgeUrl),
+          thumbnailUrl: getSafeThumbnailUrl(data.data.thumbnailUrl),
+        };
         
-        setPostData(data.data);
+        setPostData(postWithDefaultImages);
       } catch (err) {
         console.error('❌ [PostDetailPage] 게시글 상세 정보 가져오기 실패:', err);
         setError('게시글을 불러오는데 실패했습니다.');
@@ -111,8 +139,6 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
       if (!postData?.postId) return;
 
       try {
-        console.log('🔍 [PostDetailPage] 댓글 목록 가져오기 시작:', postData.postId);
-        
         const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/comment?postId=${postData.postId}`, {
           method: 'GET',
           headers: {
@@ -125,9 +151,15 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         }
 
         const data = await response.json();
-        console.log('✅ [PostDetailPage] 댓글 목록 가져오기 완료:', data);
         
-        setComments(data.data?.comments || []);
+        // 댓글에 기본 이미지 적용
+        const commentsWithDefaultImages = (data.data?.comments || []).map((comment: Comment) => ({
+          ...comment,
+          memberProfileUrl: getSafeProfileUrl(comment.memberProfileUrl),
+          badgeUrl: getSafeBadgeUrl(comment.badgeUrl),
+        }));
+        
+        setComments(commentsWithDefaultImages);
         setBestCommentId(data.data?.bestCommentId || -1);
       } catch (err) {
         console.error('❌ [PostDetailPage] 댓글 가져오기 실패:', err);
@@ -147,11 +179,9 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
     setTimeout(() => setShowToast(false), 3000);
   };
 
-
-
   const handleFollow = () => {
     setIsFollowing(!isFollowing);
-    showToastMessage(isFollowing ? '팔로우를 취소했습니다' : '팔로우했습니다');
+    showToastMessage(isFollowing ? '팔로우를 취소했습니다.' : '팔로우했습니다.');
   };
 
   const handleStar = async () => {
@@ -173,8 +203,6 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
           return;
         }
 
-        console.log('⭐ [PostDetailPage] 스타 취소 요청 (starId):', starId);
-
         const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/star/${starId}`, {
           method: 'DELETE',
           headers: {
@@ -184,8 +212,6 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
           },
           body: JSON.stringify({}) // 빈 객체를 body로 전송
         });
-
-        console.log('🔍 [PostDetailPage] 스타 취소 응답 상태:', response.status);
 
         if (!response.ok) {
           const errorText = await response.text();
@@ -206,7 +232,6 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
           result = { success: true };
         }
 
-        console.log('✅ [PostDetailPage] 스타 취소 성공:', result);
         showToastMessage('스타를 취소했습니다');
       } else {
         // 스타 추가 (POST 요청)
@@ -214,8 +239,6 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
           memberId: 1, // 임시로 1로 설정 (로그인 기능 완료 후 실제 memberId로 변경)
           postId: postData.postId
         };
-
-        console.log('⭐ [PostDetailPage] 스타 추가 요청:', requestBody);
 
         const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/star`, {
           method: 'POST',
@@ -232,12 +255,10 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         }
 
         const result = await response.json();
-        console.log('✅ [PostDetailPage] 스타 추가 성공:', result);
         
         // starId 저장
         if (result.data?.starId) {
           setStarId(result.data.starId);
-          console.log('💾 [PostDetailPage] starId 저장:', result.data.starId);
         }
         
         showToastMessage('스타했습니다');
@@ -271,11 +292,16 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
     }
   };
 
-
-
   const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
-    showToastMessage('링크가 복사되었습니다');
+    if (navigator.share) {
+      navigator.share({
+        title: postData?.title || 'TMI 게시글',
+        url: window.location.href,
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      showToastMessage('링크가 클립보드에 복사되었습니다.');
+    }
   };
 
   // 댓글 관련 함수들
@@ -314,8 +340,6 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         requestBody.link = linkUrl.trim();
       }
 
-      console.log('📝 [PostDetailPage] 댓글 작성 요청:', requestBody);
-
       const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/comment`, {
         method: 'POST',
         headers: {
@@ -331,7 +355,6 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
       }
 
       const result = await response.json();
-      console.log('✅ [PostDetailPage] 댓글 작성 성공:', result);
 
       // 댓글 작성 성공 후 댓글 목록과 게시글 정보 새로고침
       if (postData.postId) {
@@ -345,7 +368,13 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
 
         if (commentsResponse.ok) {
           const commentsData = await commentsResponse.json();
-          setComments(commentsData.data.comments || []);
+          // 댓글에 기본 이미지 적용
+          const commentsWithDefaultImages = (commentsData.data.comments || []).map((comment: Comment) => ({
+            ...comment,
+            memberProfileUrl: getSafeProfileUrl(comment.memberProfileUrl),
+            badgeUrl: getSafeBadgeUrl(comment.badgeUrl),
+          }));
+          setComments(commentsWithDefaultImages);
           setBestCommentId(commentsData.data.bestCommentId || -1);
         }
 
@@ -359,7 +388,15 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
 
         if (postResponse.ok) {
           const postData = await postResponse.json();
-          setPostData(postData.data);
+          // 기본 이미지 적용
+          const postWithDefaultImages = {
+            ...postData.data,
+            memberProfileUrl: getSafeProfileUrl(postData.data.memberProfileUrl),
+            companyProfileUrl: getSafeCompanyUrl(postData.data.companyProfileUrl),
+            badgeUrl: getSafeBadgeUrl(postData.data.badgeUrl),
+            thumbnailUrl: getSafeThumbnailUrl(postData.data.thumbnailUrl),
+          };
+          setPostData(postWithDefaultImages);
         }
       }
 
@@ -379,63 +416,46 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    if (diffDays === 1) return '오늘';
-    if (diffDays === 2) return '어제';
-    if (diffDays <= 7) return `${diffDays}일 전`;
-    return date.toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    const diffInMs = now.getTime() - date.getTime();
+    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+    if (diffInMinutes < 1) return '방금 전';
+    if (diffInMinutes < 60) return `${diffInMinutes}분 전`;
+    if (diffInHours < 24) return `${diffInHours}시간 전`;
+    if (diffInDays < 7) return `${diffInDays}일 전`;
+    
+    return date.toLocaleDateString('ko-KR');
   };
 
   const formatNumber = (num: number) => {
-    if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'k';
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(1) + 'M';
+    } else if (num >= 1000) {
+      return (num / 1000).toFixed(1) + 'K';
     }
     return num.toString();
   };
 
   const renderMarkdown = (content: string) => {
-    return content.split('\n').map((line, index) => {
-      if (line.startsWith('# ')) {
-        return <h1 key={index} className="text-3xl font-bold text-gray-900 mb-6 mt-8">{line.substring(2)}</h1>;
-      }
-      if (line.startsWith('## ')) {
-        return <h2 key={index} className="text-2xl font-semibold text-gray-800 mb-4 mt-6">{line.substring(3)}</h2>;
-      }
-      if (line.startsWith('### ')) {
-        return <h3 key={index} className="text-xl font-medium text-gray-700 mb-3 mt-4">{line.substring(4)}</h3>;
-      }
-      if (line.startsWith('- ')) {
-        return <li key={index} className="text-gray-600 mb-2 ml-4">{line.substring(2)}</li>;
-      }
-      if (line.trim() === '') {
-        return <br key={index} />;
-      }
-      return <p key={index} className="text-gray-600 mb-4 leading-relaxed">{line}</p>;
-    });
+    // 간단한 마크다운 렌더링 (필요시 확장)
+    return content
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/`(.*?)`/g, '<code>$1</code>')
+      .replace(/\n/g, '<br>');
   };
 
   // 로딩 상태
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto">
-        <div className="mb-6">
-          <Link
-            to="/home"
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors cursor-pointer"
-          >
-            <i className="fas fa-arrow-left"></i>
-            <span>목록으로</span>
-          </Link>
-        </div>
-        
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-500">게시글을 불러오는 중...</p>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <i className="fas fa-spinner fa-spin text-4xl text-blue-500 mb-4"></i>
+            <p className="text-gray-500">게시글을 불러오는 중...</p>
+          </div>
         </div>
       </div>
     );
@@ -534,7 +554,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         comments={comments}
         commentCount={postData.commentCount}
         postId={postData.postId}
-        memberProfileUrl="https://via.placeholder.com/40x40/cccccc/666666?text=U"
+        memberProfileUrl={postData.memberProfileUrl}
         commentText={commentText}
         showLinkInput={showLinkInput}
         linkUrl={linkUrl}

@@ -9,6 +9,7 @@ import { Button } from '@/components/foundation/button';
 import { Post } from '@/types';
 import { PostItem } from '@/components/domain/article/PostItem';
 import { useNavigate } from 'react-router-dom';
+import { getSafeThumbnailUrl } from '@/utils/defaultImages';
 
 // 탭 설정
 const HOME_TABS = [
@@ -160,13 +161,13 @@ export default function HomePostList() {
           {!isInitialLoad && (
             <div className="hidden">
               {posts.map((post) => (
-                <img
-                  key={post.postId}
-                  src={post.thumbnailUrl || ''}
-                  alt=""
-                  onLoad={() => handleImageLoad(post.postId)}
-                  onError={() => handleImageLoad(post.postId)} // 에러 시에도 로드 완료로 처리
-                />
+                                 <img
+                   key={post.postId}
+                   src={getSafeThumbnailUrl(post.thumbnailUrl)}
+                   alt=""
+                   onLoad={() => handleImageLoad(post.postId)}
+                   onError={() => handleImageLoad(post.postId)} // 에러 시에도 로드 완료로 처리
+                 />
               ))}
             </div>
           )}

@@ -444,7 +444,13 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.*?)\*/g, '<em>$1</em>')
       .replace(/`(.*?)`/g, '<code>$1</code>')
-      .replace(/\n/g, '<br>');
+      .replace(/\n/g, '<br>')
+      // XSS 방지를 위한 기본적인 이스케이프 처리
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      // 허용된 태그들만 다시 복원
+      .replace(/&lt;(strong|em|code|br)&gt;/g, '<$1>')
+      .replace(/&lt;\/(strong|em|code)&gt;/g, '</$1>');
   };
 
   // 로딩 상태

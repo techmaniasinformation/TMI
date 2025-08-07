@@ -22,11 +22,7 @@ interface UserStats {
   views: number;
   bugReports: number;
   tagCounts: {
-    SPRING: number;
-    REACT: number;
-    AI: number;
-    DB: number;
-    AWS: number;
+    [key: string]: number; // 동적 태그 카운트
   };
   hasFirstPost: boolean;
   hasFirstComment: boolean;
@@ -61,13 +57,7 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany, isMyPage }) => {
     likes: 256,
     views: 3200,
     bugReports: 5,
-    tagCounts: {
-      SPRING: 12,
-      REACT: 8,
-      AI: 4,
-      DB: 15,
-      AWS: 11,
-    },
+    tagCounts: {}, // 빈 객체로 초기화 - 실제 API에서 가져올 예정
     hasFirstPost: true,
     hasFirstComment: true,
     isRegistered: true,

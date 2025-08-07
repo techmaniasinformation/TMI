@@ -34,9 +34,10 @@ export const PostContent: React.FC<PostContentProps> = ({ post, onStarClick, onS
 
       {/* 본문 텍스트 */}
       <div className="prose max-w-none mb-6">
-        <div className="text-gray-700 leading-relaxed text-lg">
-          {post.content}
-        </div>
+        <div 
+          className="text-gray-700 leading-relaxed text-lg"
+          dangerouslySetInnerHTML={{ __html: post.content }}
+        />
       </div>
 
         {/* 상호작용 버튼들 */}

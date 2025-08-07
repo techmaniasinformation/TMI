@@ -58,6 +58,7 @@ export default function PostList({
               date={post.createAt}
               views={post.viewCount}
               stars={post.starCount}
+              comments={post.commentCount}
               formatDate={formatDate}
               formatNumber={formatNumber}
               maxTags={maxTags}

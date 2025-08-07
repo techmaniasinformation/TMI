@@ -8,16 +8,17 @@ const PostCreatePage: React.FC = () => {
   const [linkUrl, setLinkUrl] = useState('');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-
   const [tags, setTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isAILoading, setIsAILoading] = useState(false);
   const [aiGeneratedTags, setAiGeneratedTags] = useState<string[]>([]);
   const [hasGeneratedAITags, setHasGeneratedAITags] = useState(false);
-  const [aiSummary, setAiSummary] = useState<string>('');
+  const [aiSummary, setAiSummary] = useState('');
+  const [isEditingSummary, setIsEditingSummary] = useState(false); // AI 요약 편집 모드
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [urlError, setUrlError] = useState<string>('');
+  const [newTag, setNewTag] = useState(''); // 새로운 태그 입력을 위한 상태
 
   const handleAISummary = async () => {
     if (!linkUrl) {
@@ -225,6 +226,39 @@ const PostCreatePage: React.FC = () => {
     }
   };
 
+  const handleImageCancel = () => {
+    setSelectedImage(null);
+    setImagePreview('');
+    // 파일 입력 필드 초기화
+    const fileInput = document.getElementById('image-upload') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  };
+
+  const handleAddTag = () => {
+    const trimmedTag = newTag.trim();
+    if (trimmedTag && !tags.includes(trimmedTag)) {
+      setTags([...tags, trimmedTag]);
+      setNewTag('');
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setTags(tags.filter(tag => tag !== tagToRemove));
+  };
+
+  const handleTagKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddTag();
+    }
+  };
+
+  const handleToggleSummaryEdit = () => {
+    setIsEditingSummary(!isEditingSummary);
+  };
+
   const handleCancel = () => {
     navigate(-1);
   };
@@ -341,6 +375,15 @@ const PostCreatePage: React.FC = () => {
               >
                 {imagePreview ? '이미지 변경' : '이미지 업로드'}
               </label>
+              {imagePreview && (
+                <button
+                  type="button"
+                  onClick={handleImageCancel}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 cursor-pointer text-sm"
+                >
+                  이미지 취소
+                </button>
+              )}
               {selectedImage && (
                 <span className="text-sm text-gray-600">
                   {selectedImage.name}
@@ -388,10 +431,28 @@ const PostCreatePage: React.FC = () => {
               ) : aiSummary ? (
                 <div className="p-4 h-64 overflow-y-auto">
                   <div className="prose max-w-none">
-                    <h3 className="text-lg font-semibold mb-4">AI 요약</h3>
-                    <p className="text-gray-700 leading-relaxed">
-                      {aiSummary}
-                    </p>
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold">AI 요약</h3>
+                      <button
+                        type="button"
+                        onClick={handleToggleSummaryEdit}
+                        className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
+                      >
+                        {isEditingSummary ? '저장' : '수정'}
+                      </button>
+                    </div>
+                    {isEditingSummary ? (
+                      <textarea
+                        value={aiSummary}
+                        onChange={(e) => setAiSummary(e.target.value)}
+                        className="w-full h-48 p-3 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="AI 요약 내용을 수정하세요..."
+                      />
+                    ) : (
+                      <p className="text-gray-700 leading-relaxed">
+                        {aiSummary}
+                      </p>
+                    )}
                   </div>
                 </div>
               ) : (
@@ -433,16 +494,46 @@ const PostCreatePage: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <div className="flex flex-wrap gap-2 mb-3">
-                {tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+              <>
+                {/* 태그 입력 영역 */}
+                <div className="flex items-center gap-2 mb-3">
+                  <input
+                    type="text"
+                    value={newTag}
+                    onChange={(e) => setNewTag(e.target.value)}
+                    onKeyPress={handleTagKeyPress}
+                    placeholder="태그를 입력하세요"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddTag}
+                    disabled={!newTag.trim()}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm"
                   >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
+                    추가
+                  </button>
+                </div>
+                
+                {/* 태그 목록 */}
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                    >
+                      #{tag}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveTag(tag)}
+                        className="text-blue-600 hover:text-blue-800 text-lg font-bold"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </>
             )}
           </div>
         </div>

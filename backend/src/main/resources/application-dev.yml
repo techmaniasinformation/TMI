@@ -56,6 +56,10 @@ jwt:
   access-token-expiration-minutes: 60
   refresh-token-expiration-minutes: 21060
 
+app:
+  registration-token-secret: ${JWT_SECRET}
+  registration-token-expiration-minutes: 5
+
 api:
   gms-key: ${GMS_KEY}
 

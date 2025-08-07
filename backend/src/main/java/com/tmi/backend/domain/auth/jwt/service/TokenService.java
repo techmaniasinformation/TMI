@@ -1,10 +1,19 @@
 package com.tmi.backend.domain.auth.jwt.service;
 
 import com.tmi.backend.domain.auth.jwt.provider.JwtTokenProvider;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
@@ -15,6 +24,12 @@ public class TokenService {
 
   private final JwtTokenProvider jwtTokenProvider;
   private final RefreshTokenService refreshTokenService;
+
+  @Value("${app.registration-token-secret}")
+  private String registrationTokenSecret;
+
+  @Value("${app.registration-token-expiration-minutes}")
+  private long registrationTokenExpirationMinutes;
 
 
   public void createAndAddAuthCookies(HttpServletResponse response, Long memberId) {
@@ -64,5 +79,23 @@ public class TokenService {
 
     response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
     response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+  }
+
+  public String createRegistrationToken(String provider, String providerMemberId) {
+    Instant now = Instant.now();
+    Instant expiry = now.plus(registrationTokenExpirationMinutes, ChronoUnit.MINUTES);
+
+    SecretKey key = Keys.hmacShaKeyFor(
+        Decoders.BASE64.decode(registrationTokenSecret)
+    );
+
+    return Jwts.builder()
+        .setSubject("registration")
+        .claim("provider", provider)
+        .claim("providerMemberId", providerMemberId)
+        .setIssuedAt(Date.from(now))
+        .setExpiration(Date.from(expiry))
+        .signWith(key, SignatureAlgorithm.HS256)
+        .compact();
   }
 }

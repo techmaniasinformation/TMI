@@ -11,12 +11,12 @@ public record MemberFollowListResponse(
     PageDetail pageInfo
 ) {
 
-  public static MemberFollowListResponse from(
+  public static MemberFollowListResponse of(
       Page<MemberFollow> page,
       Map<Long, String> badgeMap
   ) {
     List<SimpleMemberFollow> dtos = page.getContent().stream()
-        .map(mf -> SimpleMemberFollow.from(
+        .map(mf -> SimpleMemberFollow.of(
             mf,
             badgeMap.get(mf.getFollowee().getId())
         ))

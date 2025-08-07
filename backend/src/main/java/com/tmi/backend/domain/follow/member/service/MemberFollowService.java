@@ -52,7 +52,7 @@ public class MemberFollowService {
             ));
 
     return ServiceResult.ok(
-        MemberFollowListResponse.from(p, badgeMap)
+        MemberFollowListResponse.of(p, badgeMap)
     );
   }
 

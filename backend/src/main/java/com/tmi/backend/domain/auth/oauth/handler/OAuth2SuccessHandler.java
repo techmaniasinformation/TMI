@@ -35,6 +35,12 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
       addCookie(response, "provider", customUser.getProvider().name(), false);
       addCookie(response, "providerMemberId", customUser.getProviderMemberId(), false);
 
+      String regToken = tokenService.createRegistrationToken(
+          customUser.getProvider().name(),
+          customUser.getProviderMemberId()
+      );
+      addCookie(response, "regToken", regToken, false);
+
     } else {
       // 기존 회원 - JWT 쿠키 설정
       tokenService.createAndAddAuthCookies(response, customUser.getMemberId());
@@ -60,7 +66,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         .secure(true)                     // HTTPS에서만 전송 (배포 시 필수)
         .sameSite("Strict")               // CSRF 방지
         .path("/")
-        .maxAge(Duration.ofMinutes(10))  // 임시 쿠키, 짧게 유지
+        .maxAge(Duration.ofMinutes(5))  // 임시 쿠키, 짧게 유지
         .build();
     response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
   }

@@ -1,76 +1,100 @@
-// The exported code uses Tailwind CSS. Install Tailwind CSS in your dev environment to ensure all styles work.
 import React from 'react';
-import { useAuth } from '@/hooks/auth/useAuth';
+import { useThemeStore } from '@/stores/themeStore';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '@/utils/utils';
+import SocialLoginButton from '@/components/inter/SocialLoginButton';
+import useSocialLogin from '@/hooks/auth/useSocialLogin';
 
-interface LoginPageProps {}
+// 다크모드 관련
+const loginPageVariants = cva(
+  'flex items-center justify-center transition-colors duration-300 py-8',
+  {
+    variants: { 
+      variant: {
+        light: 'bg-light-bg text-dark-bg ',
+        dark: 'bg-dark-bg text-white ',
+      },
+    },
+    defaultVariants: {
+      variant: 'light',
+    },
+  }
+);
+
+interface LoginPageProps extends VariantProps<typeof loginPageVariants> {}
 
 const LoginPage: React.FC<LoginPageProps> = () => {
-  const { hoveredButton, setHoveredButton, handleSocialLogin } = useAuth();
+  const { isDarkMode } = useThemeStore();
+  const variant = isDarkMode ? 'dark' : 'light';
+
+  // useSocialLogin 훅 사용
+  const { handleSocialLogin, handleHover, hoveredButton, isLoading } = useSocialLogin();
 
   return (
-    <div className="flex items-center justify-center px-4 py-8">
+    <div className={cn(loginPageVariants({ variant }))}>
       <div className="w-full max-w-md">
         {/* Logo Section */}
         <div className="text-center mb-12">
           <div className="mb-8">
-            <h1 className="text-7xl font-bold text-gray-800">TMI</h1>
+            <h1 className="text-7xl font-bold">TMI</h1>
           </div>
           {/* Section Label with Lines */}
           <div className="flex items-center mb-10">
             <div className="flex-1 h-px bg-gray-300"></div>
-            <span className="px-4 text-sm text-gray-500">로그인/회원가입</span>
+            <span className="px-4 text-sm">로그인/회원가입</span>
             <div className="flex-1 h-px bg-gray-300"></div>
           </div>
         </div>
 
         {/* Login Buttons */}
         <div className="space-y-3">
-          {/* Kakao Login */}
-          <button
-            className={`w-full h-12 bg-yellow-400 text-black font-medium rounded-lg flex items-center justify-center relative transition-all duration-200 whitespace-nowrap cursor-pointer ${
-              hoveredButton === 'kakao' ? 'opacity-90 transform scale-[0.98]' : ''
-            }`}
-            style={{ backgroundColor: '#FEE500' }}
-            onMouseEnter={() => setHoveredButton('kakao')}
-            onMouseLeave={() => setHoveredButton(null)}
-            onClick={() => handleSocialLogin('Kakao')}
-          >
-            <i className="fas fa-comment text-lg mr-2"></i>
-            <span>카카오로 시작하기</span>
-          </button>
+          {/* 카카오 */}
+          <SocialLoginButton
+            provider="Kakao"
+            label="카카오로 시작하기"
+            bgColor="#FEE500"
+            textColor="black"
+            icon={<i className="fas fa-comment text-lg"></i>}
+            hovered={hoveredButton === 'kakao'}
+                         onHover={(isHover: boolean) => handleHover(isHover, 'kakao')}
+                         onClick={() => handleSocialLogin('kakao')} disabled={isLoading}
+          />
 
-          {/* Naver Login */}
-          <button
-            className={`w-full h-12 bg-green-500 text-white font-medium rounded-lg flex items-center justify-center relative transition-all duration-200 whitespace-nowrap cursor-pointer ${
-              hoveredButton === 'naver' ? 'opacity-90 transform scale-[0.98]' : ''
-            }`}
-            style={{ backgroundColor: '#03C75A' }}
-            onMouseEnter={() => setHoveredButton('naver')}
-            onMouseLeave={() => setHoveredButton(null)}
-            onClick={() => handleSocialLogin('Naver')}
-          >
-            <span className="text-lg font-bold mr-2">N</span>
-            <span>네이버로 시작하기</span>
-          </button>
+          {/* 네이버 */}
+          <SocialLoginButton
+            provider="Naver"
+            label="네이버로 시작하기"
+            bgColor="#03C75A"
+            textColor="white"
+            icon={<span className="text-lg font-bold">N</span>}
+            hovered={hoveredButton === 'naver'}
+                         onHover={(isHover: boolean) => handleHover(isHover, 'naver')}
+                         onClick={() => handleSocialLogin('naver')} disabled={isLoading}
+            // onClick={() => {window.location.href =`https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=L000gCRdLnKJ0o11XI5j&&redirect_uri=http://localhost:3000/login`}}
+          />
 
-          {/* Google Login */}
-          <button
-            className={`w-full h-12 bg-white text-gray-700 font-medium rounded-lg border border-gray-300 flex items-center justify-center relative transition-all duration-200 whitespace-nowrap cursor-pointer ${
-              hoveredButton === 'google' ? 'opacity-90 transform scale-[0.98]' : ''
-            }`}
-            onMouseEnter={() => setHoveredButton('google')}
-            onMouseLeave={() => setHoveredButton(null)}
-            onClick={() => handleSocialLogin('Google')}
-          >
-            <div className="flex items-center justify-center">
-              <i className="fab fa-google text-lg mr-2" style={{
-                background: 'conic-gradient(from -45deg, #ea4335 110deg, #4285f4 110deg 200deg, #34a853 200deg 290deg, #fbbc05 290deg)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent'
-              }}></i>
-              <span>구글로 시작하기</span>
-            </div>
-          </button>
+          {/* 구글 */}
+          <SocialLoginButton
+            provider="Google"
+            label="구글로 시작하기"
+            bgColor="white"
+            textColor="gray"
+            borderColor="#ccc"
+            icon={
+              <i
+                className="fab fa-google text-lg"
+                style={{
+                  background:
+                    'conic-gradient(from -45deg, #ea4335 110deg, #4285f4 110deg 200deg, #34a853 200deg 290deg, #fbbc05 290deg)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}
+              ></i>
+            }
+            hovered={hoveredButton === 'google'}
+                         onHover={(isHover: boolean) => handleHover(isHover, 'google')}
+                         onClick={() => handleSocialLogin('google')} disabled={isLoading}
+          />
         </div>
       </div>
     </div>

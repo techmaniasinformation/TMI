@@ -1,6 +1,5 @@
 import { createBrowserRouter } from 'react-router-dom';
 import Layout from '../components/foundation/Layout';
-import LoginPage from '../pages/LoginPage';
 import HomePage from '../pages/HomePage';
 import LandingPage from '../pages/LandingPage';
 import MyPage from '../pages/MyPage';
@@ -9,6 +8,7 @@ import PostDetailPage from '../pages/PostDetailPage';
 import PostCreatePage from '../pages/PostCreatePage';
 import PostEditPage from '../pages/PostEditPage';
 import SearchResultsPage from '../pages/SearchResultsPage';
+import LoginPage from '../pages/LoginPage';
 import SignupPage from '../pages/SignupPage';
 import { ROUTES } from './routes';
 
@@ -70,7 +70,7 @@ export const router = createBrowserRouter([
       },
     ],
   },
-])
+]);
 
-export { ROUTES }
-export type { RouteKeys } from './routes'
+export { ROUTES };
+export type { RouteKeys } from './routes';

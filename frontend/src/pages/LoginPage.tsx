@@ -30,6 +30,8 @@ const LoginPage: React.FC<LoginPageProps> = () => {
   // useSocialLogin 훅 사용
   const { handleSocialLogin, handleHover, hoveredButton, isLoading } = useSocialLogin();
 
+  console.log('[LOGIN_PAGE] LoginPage 렌더링, 로딩 상태:', isLoading);
+
   return (
     <div className={cn(loginPageVariants({ variant }))}>
       <div className="w-full max-w-md">

@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class NotificationService {
 
   private final NotificationRepository notificationRepository;
@@ -30,10 +31,7 @@ public class NotificationService {
   private final BadgeRepository badgeRepository;
   private final PostRepository postRepository;
 
-  public ServiceResult<NotificationListResponse> getNotifications(
-      Long memberId,
-      String status
-  ) {
+  public ServiceResult<NotificationListResponse> getNotifications(Long memberId, String status) {
     List<Notification> notifications;
 
     if ("unread".equalsIgnoreCase(status)) {
@@ -46,8 +44,7 @@ public class NotificationService {
 
   @Transactional
   public ServiceResult<Map<String, Long>> readNotification(Long notificationId) {
-    Notification notification = notificationRepository.findById(notificationId)
-        .orElse(null);
+    Notification notification = notificationRepository.findById(notificationId).orElse(null);
     if (notification == null) {
       return ServiceResult.fail(ErrorCode.NOTIFICATION_NOT_FOUND);
     }
@@ -59,9 +56,9 @@ public class NotificationService {
     return ServiceResult.ok(Map.of("notificationId", notificationId));
   }
 
+  @Transactional
   public ServiceResult<Map<String, List<Long>>> readAllNotifications(Long memberId) {
-    List<Notification> unreadNotifications =
-        notificationRepository.findUnreadByMemberId(memberId);
+    List<Notification> unreadNotifications = notificationRepository.findUnreadByMemberId(memberId);
 
     List<Long> updatedIds = new ArrayList<>();
     for (Notification notification : unreadNotifications) {
@@ -76,8 +73,7 @@ public class NotificationService {
 
   @Transactional
   public ServiceResult<Map<String, Long>> deleteNotification(Long notificationId, Long memberId) {
-    Notification notification = notificationRepository.findById(notificationId)
-        .orElse(null);
+    Notification notification = notificationRepository.findById(notificationId).orElse(null);
     if (notification == null) {
       return ServiceResult.fail(ErrorCode.NOTIFICATION_NOT_FOUND);
     }
@@ -101,9 +97,7 @@ public class NotificationService {
   }
 
   @Transactional
-  public ServiceResult<Map<String, Long>> createNotification(
-      NotificationCreateRequest req
-  ) {
+  public ServiceResult<Map<String, Long>> createNotification(NotificationCreateRequest req) {
     Member receiver = memberRepository.findById(req.memberId()).orElse(null);
     if (receiver == null) {
       return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
@@ -124,16 +118,8 @@ public class NotificationService {
         return ServiceResult.fail(ErrorCode.BADGE_NOT_FOUND);
       }
     }
-    Notification notif = Notification.of(
-        receiver,
-        req.type(),
-        req.content(),
-        post,
-        badge
-    );
-
+    Notification notif = Notification.of(receiver, req.type(), req.content(), post, badge);
     Notification newNotif = notificationRepository.save(notif);
-
     return ServiceResult.ok(Map.of("notificationId", newNotif.getId()));
   }
 }

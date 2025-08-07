@@ -1,7 +1,12 @@
 package com.tmi.backend.domain.notification.entity;
 
+import lombok.Getter;
+
+@Getter
 public enum NotificationType {
-  BADGE_ACQUIRED,
   NEW_COMMENT,
-  NEW_POST
+  BADGE_ACQUIRED,
+  COMPANY_NEW_POST,
+  MEMBER_NEW_POST
+
 }

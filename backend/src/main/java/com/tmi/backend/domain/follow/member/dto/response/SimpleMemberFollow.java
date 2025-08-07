@@ -9,7 +9,7 @@ public record SimpleMemberFollow(Long memberFollowId,
                                  String memberProfileUrl,
                                  String badgeUrl) {
 
-  public static SimpleMemberFollow from(MemberFollow mf, String badgeUrl) {
+  public static SimpleMemberFollow of(MemberFollow mf, String badgeUrl) {
     Member member = mf.getFollowee();
     return new SimpleMemberFollow(
         mf.getId(),

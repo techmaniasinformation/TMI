@@ -30,19 +30,8 @@ export const useUserStore = create<AuthStore>((set, get) => ({
     set({ isLoading: true });
     
     try {
-      // 소셜 로그인 API 호출 - 쿠키 자동 포함
-      const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/oauth2/authorization/${provider}`, {
-        method: 'GET',
-        credentials: 'include', // 쿠키 포함 필수
-      });
-      
-      if (response.ok) {
-        // 로그인 성공 후 사용자 정보 가져오기
-        await get().checkAuth();
-      } else {
-        console.error('로그인 실패:', response.status);
-        set({ isLoading: false });
-      }
+      // OAuth 2.0 인증을 위해 사용자를 리다이렉트
+      window.location.href = `https://i13a509.p.ssafy.io/api/v1/oauth2/authorization/${provider}`;
     } catch (error) {
       console.error('로그인 오류:', error);
       set({ isLoading: false });

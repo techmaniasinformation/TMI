@@ -19,34 +19,56 @@ import Pagination from '@/components/domain/ServerPagination';
 import usePagination from '@/hooks/mypage/usePagination';
 import useFetchJson from '@/hooks/mypage/useFetchJson';
 
-// 배지 임포트
-import badgeFirstArticle from '@/assets/images/first_article.png';
-import badgeFirstComment from '@/assets/images/first_comment.png';
-import badgeHelloWorld from '@/assets/images/helloworld.png';
+// 배지
+import ai from '@/assets/images/ai.png';
+import amumu from '@/assets/images/amumu.png';
+import aws from '@/assets/images/aws.png';
+import db from '@/assets/images/db.png';
+import fctmi from '@/assets/images/FCTMI.png';
+import first_article from '@/assets/images/first_article.png';
+import first_comment from '@/assets/images/first_comment.png';
+import followmany from '@/assets/images/followmany.png';
+import helloworld from '@/assets/images/helloworld.png';
+import like10 from '@/assets/images/like10.png';
+import like100 from '@/assets/images/like100.png';
+import like1000 from '@/assets/images/like1000.png';
+import paris from '@/assets/images/paris.png';
+import react from '@/assets/images/react.png';
+import spring from '@/assets/images/spring.png';
+import star_5 from '@/assets/images/star_5.png';
+import star_13 from '@/assets/images/star_13.png';
+import star_42 from '@/assets/images/star_42.png';
+import view_50 from '@/assets/images/view1.png';   // view_50.png → view1.png
+import view_100 from '@/assets/images/view2.png';  // view_100.png → view2.png
+import view_1000 from '@/assets/images/view3.png'; // view_1000.png → view3.png
 
-import badgeStar5 from '@/assets/images/star_5.png';
-import badgeStar13 from '@/assets/images/star_13.png';
-import badgeStar42 from '@/assets/images/star_42.png';
+import lockedIcon from '@/assets/images/locked.png';
 
-import badgeAmumu from '@/assets/images/amumu.png';
-import badgeFCTMI from '@/assets/images/FCTMI.png';
-import badgeFollow from '@/assets/images/followmany.png';
-
-import badgelike10 from '@/assets/images/like_10.png';
-import badgelike100 from '@/assets/images/like_100.png';
-import badgelike1000 from '@/assets/images/like_1000.png';
-
-import badgeView50 from '@/assets/images/view1.png';
-import badgeView100 from '@/assets/images/view2.png';
-import badgeView1000 from '@/assets/images/view3.png';
-
-import badgeParis from '@/assets/images/paris.png';
-
-import badgeSpring from '@/assets/images/spring.png';
-import badgeReact from '@/assets/images/react.png';
-import badgeAI from '@/assets/images/AI.png';
-import badgeDB from '@/assets/images/DB.png';
-import badgeAWS from '@/assets/images/AWS.png';
+// badgeUrl 문자열과 실제 import한 이미지 객체를 매핑
+export const badgeImageMap: Record<string, string> = {
+  'ai.png': ai,
+  'amumu.png': amumu,
+  'aws.png': aws,
+  'db.png': db,
+  'fctmi.png': fctmi,
+  'first_article.png': first_article,
+  'first_comment.png': first_comment,
+  'followmany.png': followmany,
+  'helloworld.png': helloworld,
+  'like10.png': like10,
+  'like100.png': like100,
+  'like1000.png': like1000,
+  'paris.png': paris,
+  'react.png': react,
+  'spring.png': spring,
+  'star_5.png': star_5,
+  'star_13.png': star_13,
+  'star_42.png': star_42,
+  'view_50.png': view_50,
+  'view_100.png': view_100,
+  'view_1000.png': view_1000,
+  'locked.png': lockedIcon,
+};
 
 // 배지 모달
 import BadgeModal from '@/components/layout/mypage/BadgeModal';
@@ -65,31 +87,8 @@ import type { MyPagePost } from "@/types/mypage/post";
 
 import { useParams } from 'react-router-dom';
 
-// 배지 리스트
-const badgeList = [
-  { id: 1, name: '이건 머지?', image: badgeFirstArticle, filename: 'first_article.png'},
-  { id: 2, name: '얘는 머지?', image: badgeFirstComment, filename: 'first_comment.png'},
-  { id: 3, name: '헬로 월드', image: badgeHelloWorld, filename: 'helloworld.png'},
-  { id: 4, name: '별이 5개', image: badgeStar5, filename: 'star_5.png'},
-  { id: 5, name: '별이 13개', image: badgeStar13, filename: 'star_13.png'},
-  { id: 6, name: '별이 42개', image: badgeStar42, filename: 'star_42.png'},
-  { id: 7, name: '날선몰', image: badgeAmumu, filename: 'amumu.png'},
-  { id: 8, name: 'FC TMI', image: badgeFCTMI, filename: 'fctmi.png'},
-  { id: 9, name: '인기 폭발', image: badgeFollow, filename: 'followmany.png'},
-  { id: 10, name: '추천 10개', image: badgelike10, filename: 'like_10.png'},
-  { id: 11, name: '추천 100개', image: badgelike100, filename: 'like_100.png'},
-  { id: 12, name: '천근추', image: badgelike1000, filename: 'like_1000.png'},
-  { id: 13, name: '웅성', image: badgeView50, filename: 'view_50.png'},
-  { id: 14, name: '웅성웅성', image: badgeView100, filename: 'view_100.png'},
-  { id: 15, name: '웅성웅성웅성', image: badgeView1000, filename: 'view_1000.png'},
-  { id: 16, name: '벌레잡는 파리채', image: badgeParis, filename: 'paris.png'},
-  { id: 17, name: 'Spring', image: badgeSpring, filename: 'spring.png'},
-  { id: 18, name: 'React', image: badgeReact, filename: 'react.png'},
-  { id: 19, name: 'AI', image: badgeAI, filename: 'ai.png'},
-  { id: 20, name: 'DB', image: badgeDB, filename: 'db.png'},
-  { id: 21, name: 'AWS', image: badgeAWS, filename: 'aws.png'},
-
-];
+import { fetchAllBadges, fetchMemberBadges } from "@/api/mypage/badgeService";
+import type { MemberBadge } from "@/types/mypage/badge";
 
 // props 타입 정의
 interface MyPageTabsProps {
@@ -126,7 +125,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   
   // 배지 모달 상태
   const [isBadgeModalOpen, setIsBadgeModalOpen] = useState(false);
-  const [selectedBadge, setSelectedBadge] = useState<typeof badgeList[0] | null>(null);
+  const [selectedBadge, setSelectedBadge] = useState<any>(null);
 
   // 댓글 API 상태
   const [comments, setComments] = useState<Comment[]>([]);
@@ -143,6 +142,24 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   // 기업
   const { id: companyIdParam } = useParams();
   const companyId = companyIdParam ? Number(companyIdParam) : null;
+
+  // 배지 상태 추가
+  const [allBadges, setAllBadges] = useState<any[]>([]);
+  const [memberBadges, setMemberBadges] = useState<MemberBadge[]>([]);
+
+  // 배지
+  useEffect(() => {
+    // 내 정보 탭용 전체 배지 + 유저 보유 배지 불러오기
+    if ((isMyPage || isOtherUser) && isPersonal && memberId) {
+      fetchAllBadges()
+        .then(setAllBadges)
+        .catch(console.error);
+
+      fetchMemberBadges(memberId)
+        .then(setMemberBadges)
+        .catch(console.error);
+    }
+  }, [isMyPage, isOtherUser, isPersonal, memberId]);
 
   useEffect(() => {
     if (isMyPage && isPersonal) {
@@ -319,21 +336,52 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
       {(isMyPage || isOtherUser) && isPersonal && (
         <TabsContent value="profile" className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
           <h2 className="text-lg font-semibold mb-6">업적</h2>
-          <div className="grid grid-cols-7 gap-4">
-            {badgeList.map((badge) => (
-              <div
-                key={badge.id}
-                onClick={() => {
-                  setSelectedBadge(badge);
-                  setIsBadgeModalOpen(true);
-                }}
-                className="aspect-square bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col items-center justify-center hover:shadow-md transition"
-              >
-                <img src={badge.image} alt={badge.name} className="w-25 h-25 mb-2 rounded-lg object-cover" />
-                <p className="text-xl font-bold text-gray-700 text-center">{badge.name}</p>
-              </div>
-            ))}
-          </div>
+            <div className="grid grid-cols-7 gap-4">
+              {[...allBadges]
+                .sort((a, b) => {
+                  const aHas = memberBadges.some((mb) => mb.badgeId === a.badgeId);
+                  const bHas = memberBadges.some((mb) => mb.badgeId === b.badgeId);
+
+                  // 획득 여부 우선 정렬
+                  if (aHas && !bHas) return -1;
+                  if (!aHas && bHas) return 1;
+
+                  // 둘 다 획득했거나, 둘 다 미획득 → badgeId 기준 오름차순
+                  return a.badgeId - b.badgeId;
+                })
+                .map((badge) => {
+                  const hasBadge = memberBadges.some((mb) => mb.badgeId === badge.badgeId);
+
+                  return (
+                  <div
+                    key={badge.badgeId}
+                    onClick={hasBadge ? () => {
+                      // ✨ 여기에서 memberBadges에서 해당 badge의 achievedAt을 찾아서 함께 넘겨야 함
+                      const matchedBadge = memberBadges.find(mb => mb.badgeId === badge.badgeId);
+                      setSelectedBadge({
+                        ...badge,
+                        memberBadgeId: matchedBadge?.memberBadgeId, // 추가
+                        receivedAt: matchedBadge?.receivedAt || null,
+                      });
+                      setIsBadgeModalOpen(true);
+                    } : undefined}
+                      className={`aspect-square border rounded-xl shadow-sm flex flex-col items-center justify-center transition 
+                        ${hasBadge ? 'cursor-pointer hover:shadow-md border-purple-600' : 'cursor-not-allowed border-gray-300 opacity-50'}`}
+                    >
+                      <img
+                        src={
+                          hasBadge
+                            ? badgeImageMap[badge.badgeUrl] || '/fallback.png'
+                            : badgeImageMap['locked.png']
+                        }
+                        alt={badge.name}
+                        className="w-20 h-20 mb-2 rounded-lg object-cover"
+                      />
+                      <p className="text-sm font-medium text-center text-gray-700">{badge.name}</p>
+                    </div>
+                  );
+                })}
+            </div>
         </TabsContent>
       )}
 
@@ -573,6 +621,10 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
         isOpen={isBadgeModalOpen}
         badge={selectedBadge}
         onClose={() => setIsBadgeModalOpen(false)}
+        onRepresentativeSet={async () => {
+          const updated = await fetchMemberBadges(memberId);
+          setMemberBadges(updated);
+        }}
       />
     </Tabs>
   );

@@ -10,6 +10,7 @@ import PostEditPage from '../pages/PostEditPage';
 import SearchResultsPage from '../pages/SearchResultsPage';
 import LoginPage from '../pages/LoginPage';
 import SignupPage from '../pages/SignupPage';
+import OAuthCallbackPage from '../pages/OAuthCallbackPage';
 import { ROUTES } from './routes';
 
 export const router = createBrowserRouter([
@@ -32,6 +33,10 @@ export const router = createBrowserRouter([
       {
         path: '/signup',
         element: <SignupPage />,
+      },
+      {
+        path: '/oauth/callback',
+        element: <OAuthCallbackPage />,
       },
       {
         path: ROUTES.POST,

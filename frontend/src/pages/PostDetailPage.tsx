@@ -9,6 +9,7 @@ import { AuthorInfo } from "@/components/PostDetail/AuthorInfo";
 import { CommentSection } from "@/components/PostDetail/CommentSection";
 import { BestComments } from "@/components/PostDetail/BestComments";
 
+
 interface PostDetailPageProps {}
 
 interface PostDetail {
@@ -59,8 +60,18 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
 
   const [isFollowing, setIsFollowing] = useState(false);
   const [isStarred, setIsStarred] = useState(false);
+  const [isStarLoading, setIsStarLoading] = useState(false);
+  const [starId, setStarId] = useState<number | null>(null);
+
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+
+  // 댓글 관련 상태
+  const [comments, setComments] = useState<any[]>([]);
+  const [bestCommentId, setBestCommentId] = useState<number>(-1);
+  const [commentText, setCommentText] = useState('');
+  const [showLinkInput, setShowLinkInput] = useState(false);
+  const [linkUrl, setLinkUrl] = useState('');
 
   // 게시글 데이터 상태
   const [postData, setPostData] = useState<PostDetail | null>(null);
@@ -120,42 +131,40 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
   }, [id]);
 
   // 댓글 목록 가져오기
-  const fetchComments = async () => {
-    if (!postData) return;
+  useEffect(() => {
+    const fetchComments = async () => {
+      if (!postData?.postId) return;
 
-    try {
-      setCommentLoading(true);
-      const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/comment?postId=${postData.postId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
+      try {
+        console.log('🔍 [PostDetailPage] 댓글 목록 가져오기 시작:', postData.postId);
+        
+        const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/comment?postId=${postData.postId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
-      });
 
-      if (response.ok) {
-        const data: CommentResponse = await response.json();
+        const data = await response.json();
+        console.log('✅ [PostDetailPage] 댓글 목록 가져오기 완료:', data);
+        
         setComments(data.data?.comments || []);
         setBestCommentId(data.data?.bestCommentId || -1);
-      } else {
-        console.error('댓글 목록 가져오기 실패');
+      } catch (err) {
+        console.error('❌ [PostDetailPage] 댓글 가져오기 실패:', err);
         setComments([]);
         setBestCommentId(-1);
       }
-    } catch (error) {
-      console.error('댓글 목록 가져오기 오류:', error);
-      setComments([]);
-      setBestCommentId(-1);
-    } finally {
-      setCommentLoading(false);
-    }
-  };
+    };
 
-  // 게시글 데이터가 로드되면 댓글도 가져오기
-  useEffect(() => {
-    if (postData) {
-      fetchComments();
-    }
-  }, [postData]);
+    fetchComments();
+  }, [postData?.postId]);
+
+
 
   const showToastMessage = (message: string) => {
     setToastMessage(message);
@@ -168,9 +177,121 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
     showToastMessage(isFollowing ? '팔로우를 취소했습니다.' : '팔로우했습니다.');
   };
 
-  const handleStar = () => {
-    setIsStarred(!isStarred);
-    showToastMessage(isStarred ? '스타를 취소했습니다.' : '스타를 눌렀습니다.');
+  const handleStar = async () => {
+    if (isStarLoading) return; // 이미 요청 중이면 무시
+    
+    if (!postData?.postId) {
+      alert('게시글 정보를 찾을 수 없습니다.');
+      return;
+    }
+
+    setIsStarLoading(true);
+    try {
+      // 현재 스타 상태에 따라 API 요청 결정
+      if (isStarred) {
+        // 스타 취소 (DELETE 요청) - starId 사용
+        if (!starId) {
+          console.error('❌ [PostDetailPage] starId가 없습니다.');
+          alert('스타 정보를 찾을 수 없습니다.');
+          return;
+        }
+
+        console.log('⭐ [PostDetailPage] 스타 취소 요청 (starId):', starId);
+
+        const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/star/${starId}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            // TODO: 로그인 기능 완료 후 Authorization 헤더 추가
+            // 'Authorization': `Bearer ${accessToken}`
+          },
+          body: JSON.stringify({}) // 빈 객체를 body로 전송
+        });
+
+        console.log('🔍 [PostDetailPage] 스타 취소 응답 상태:', response.status);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('❌ [PostDetailPage] 스타 취소 실패 - 응답:', errorText);
+          throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+        }
+
+        // DELETE 요청은 응답 본문이 없을 수 있으므로 확인
+        let result;
+        try {
+          const responseText = await response.text();
+          if (responseText) {
+            result = JSON.parse(responseText);
+          } else {
+            result = { success: true };
+          }
+        } catch (parseError) {
+          result = { success: true };
+        }
+
+        console.log('✅ [PostDetailPage] 스타 취소 성공:', result);
+        showToastMessage('스타를 취소했습니다');
+      } else {
+        // 스타 추가 (POST 요청)
+        const requestBody = {
+          memberId: 1, // 임시로 1로 설정 (로그인 기능 완료 후 실제 memberId로 변경)
+          postId: postData.postId
+        };
+
+        console.log('⭐ [PostDetailPage] 스타 추가 요청:', requestBody);
+
+        const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/star`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            // TODO: 로그인 기능 완료 후 Authorization 헤더 추가
+            // 'Authorization': `Bearer ${accessToken}`
+          },
+          body: JSON.stringify(requestBody)
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('✅ [PostDetailPage] 스타 추가 성공:', result);
+        
+        // starId 저장
+        if (result.data?.starId) {
+          setStarId(result.data.starId);
+          console.log('💾 [PostDetailPage] starId 저장:', result.data.starId);
+        }
+        
+        showToastMessage('스타했습니다');
+      }
+
+      // 스타 상태 토글
+      setIsStarred(!isStarred);
+      
+      // 스타 취소 시 starId 초기화
+      if (isStarred) {
+        setStarId(null);
+      }
+
+      // 게시글 정보 새로고침 (starCount 업데이트를 위해)
+      const postResponse = await fetch(`https://i13a509.p.ssafy.io/api/v1/post/${postData.postId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (postResponse.ok) {
+        const postData = await postResponse.json();
+        setPostData(postData.data);
+      }
+    } catch (err) {
+      console.error('❌ [PostDetailPage] 스타 요청 실패:', err);
+      alert('스타 요청에 실패했습니다.');
+    } finally {
+      setIsStarLoading(false);
+    }
   };
 
   const handleShare = () => {
@@ -185,7 +306,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
     }
   };
 
-  // 댓글 관련 핸들러들
+  // 댓글 관련 함수들
   const handleCommentChange = (text: string) => {
     setCommentText(text);
   };
@@ -199,38 +320,63 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
   };
 
   const handleCommentSubmit = async () => {
-    if (!commentText.trim() || !postData) {
-      showToastMessage('댓글 내용을 입력해주세요.');
+    if (!commentText.trim()) {
+      alert('댓글 내용을 입력해주세요.');
+      return;
+    }
+
+    if (!postData?.postId) {
+      alert('게시글 정보를 찾을 수 없습니다.');
       return;
     }
 
     try {
-      const commentData = {
-        memberId: 1, // TODO: 임시로 1로 설정, 추후 실제 로그인된 사용자 ID로 변경 필요
-        postId: postData.postId, // URL 파라미터에서 가져온 postId 사용
-        comment: commentText.trim(),
-        ...(linkUrl.trim() && { link: linkUrl.trim() })
+      const requestBody: any = {
+        memberId: 1, // 임시로 1로 설정 (로그인 기능 완료 후 실제 memberId로 변경)
+        postId: postData.postId,
+        comment: commentText.trim()
       };
+
+      // link가 있을 때만 추가
+      if (showLinkInput && linkUrl.trim()) {
+        requestBody.link = linkUrl.trim();
+      }
+
+      console.log('📝 [PostDetailPage] 댓글 작성 요청:', requestBody);
 
       const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/comment`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // TODO: 실제 인증 토큰이 있다면 추가
+          // TODO: 로그인 기능 완료 후 Authorization 헤더 추가
           // 'Authorization': `Bearer ${accessToken}`
         },
-        body: JSON.stringify(commentData)
+        body: JSON.stringify(requestBody)
       });
 
-      if (response.ok) {
-        showToastMessage('댓글이 등록되었습니다.');
-        setCommentText('');
-        setLinkUrl('');
-        setShowLinkInput(false);
-        
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('✅ [PostDetailPage] 댓글 작성 성공:', result);
+
+      // 댓글 작성 성공 후 댓글 목록과 게시글 정보 새로고침
+      if (postData.postId) {
         // 댓글 목록 새로고침
-        await fetchComments();
-        
+        const commentsResponse = await fetch(`https://i13a509.p.ssafy.io/api/v1/comment?postId=${postData.postId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        if (commentsResponse.ok) {
+          const commentsData = await commentsResponse.json();
+          setComments(commentsData.data.comments || []);
+          setBestCommentId(commentsData.data.bestCommentId || -1);
+        }
+
         // 게시글 정보 새로고침 (commentCount 업데이트를 위해)
         const postResponse = await fetch(`https://i13a509.p.ssafy.io/api/v1/post/${postData.postId}`, {
           method: 'GET',
@@ -240,17 +386,23 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         });
 
         if (postResponse.ok) {
-          const postData: PostDetailResponse = await postResponse.json();
+          const postData = await postResponse.json();
           setPostData(postData.data);
         }
-      } else {
-        showToastMessage('댓글 등록에 실패했습니다.');
       }
-    } catch (error) {
-      console.error('댓글 등록 오류:', error);
-      showToastMessage('댓글 등록에 실패했습니다.');
+
+      // 폼 초기화
+      setCommentText('');
+      setLinkUrl('');
+      setShowLinkInput(false);
+      showToastMessage('댓글이 등록되었습니다');
+    } catch (err) {
+      console.error('❌ [PostDetailPage] 댓글 작성 실패:', err);
+      alert('댓글 작성에 실패했습니다.');
     }
   };
+
+
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -381,17 +533,19 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
       />
 
       {/* 베스트 댓글 */}
-      <BestComments
+      <BestComments 
         comments={comments}
+        bestCommentId={bestCommentId}
         formatDate={formatDate}
         formatNumber={formatNumber}
       />
 
       {/* 댓글 섹션 */}
-      <CommentSection
+      <CommentSection 
         comments={comments}
         commentCount={postData.commentCount}
-        memberProfileUrl={postData.memberProfileUrl}
+        postId={postData.postId}
+        memberProfileUrl="https://via.placeholder.com/40x40/cccccc/666666?text=U"
         commentText={commentText}
         showLinkInput={showLinkInput}
         linkUrl={linkUrl}

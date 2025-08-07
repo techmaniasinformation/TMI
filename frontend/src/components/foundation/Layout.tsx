@@ -1,7 +1,7 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
-import { useThemeStore } from "@/stores/themeStore"; // 테마 전역변수
+import { useThemeStore } from '@/stores/themeStore'; // 테마 전역변수
 
 interface LayoutProps {}
 
@@ -10,16 +10,19 @@ const Layout = () => {
   // 랜딩 페이지에서 여백 없애기
   const isNoPadding = location.pathname === '/';
 
-  // 테마 전역변수 
+  // 테마 전역변수
   const { isDarkMode } = useThemeStore();
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className='min-h-screen flex flex-col'>
       {/* 헤더 */}
-      <Header variant={isDarkMode ? "dark" : "light"}/>
-      
+      <Header variant={isDarkMode ? 'dark' : 'light'} />
+
       {/* 메인 콘텐츠 */}
-      <main className="flex-1 bg-gray-50">
+      <main
+        className={`flex-1 transition-colors duration-300 
+    ${isDarkMode ? 'bg-dark-bg text-white' : 'bg-gray-50 text-gray-900'}`}
+      >
         <div
           className={
             isNoPadding
@@ -30,12 +33,12 @@ const Layout = () => {
           <Outlet />
         </div>
       </main>
-      
+
       {/* 푸터 */}
       {/* 라이트/다크 결정 변수 만들면 그거에 따라 variant값 변경하도록.  */}
-      <Footer variant={isDarkMode ? "dark" : "light"}/>
+      <Footer variant={isDarkMode ? 'dark' : 'light'} />
     </div>
   );
 };
 
-export default Layout; 
+export default Layout;

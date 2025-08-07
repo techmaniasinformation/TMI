@@ -4,6 +4,7 @@ import { DateTimeComponent } from '@/components/domain/article';
 interface CommentSectionProps {
   comments: any[]; // Comment 타입을 사용하지만 여기서는 any로 간단히 처리
   commentCount: number;
+  postId: number; // postId 추가
   memberProfileUrl: string;
   commentText: string;
   showLinkInput: boolean;
@@ -19,6 +20,7 @@ interface CommentSectionProps {
 export const CommentSection: React.FC<CommentSectionProps> = ({
   comments,
   commentCount,
+  postId,
   memberProfileUrl,
   commentText,
   showLinkInput,
@@ -99,55 +101,62 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
 
       {/* 전체 댓글 리스트 */}
       <div className="space-y-4">
-        {comments && comments.map((comment) => (
-          <div key={comment.commentId} className="border-b border-gray-200 pb-4 last:border-b-0">
-            <div className="flex items-start space-x-3">
-              <img
-                src={comment.memberProfileUrl}
-                alt={comment.name}
-                className="w-10 h-10 rounded-full"
-              />
-              <div className="flex-1">
-                <div className="flex items-center space-x-2 mb-2">
-                  <span className="font-medium text-gray-900">{comment.name}</span>
-                  {comment.badgeUrl && (
-                    <img
-                      src={comment.badgeUrl}
-                      alt="badge"
-                      className="w-4 h-4"
+        {comments && comments.length > 0 ? (
+          comments.map((comment) => (
+            <div key={comment.commentId} className="border-b border-gray-200 pb-4 last:border-b-0">
+              <div className="flex items-start space-x-3">
+                <img
+                  src={comment.memberProfileUrl || "https://via.placeholder.com/40x40/cccccc/666666?text=U"}
+                  alt={comment.name || "사용자"}
+                  className="w-10 h-10 rounded-full"
+                />
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <span className="font-medium text-gray-900">{comment.name || "익명"}</span>
+                    {comment.badgeUrl && (
+                      <img
+                        src={comment.badgeUrl}
+                        alt="badge"
+                        className="w-4 h-4"
+                      />
+                    )}
+                    <DateTimeComponent 
+                      date={comment.createAt}
+                      formatDate={formatDate}
                     />
+                  </div>
+                  <p className="text-gray-700 mb-3">{comment.comment}</p>
+                  {comment.link && (
+                    <a
+                      href={comment.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 text-sm inline-flex items-center"
+                    >
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                      링크 보기
+                    </a>
                   )}
-                  <DateTimeComponent 
-                    date={comment.createAt}
-                    formatDate={formatDate}
-                  />
-                </div>
-                <p className="text-gray-700 mb-3">{comment.comment}</p>
-                {comment.link && (
-                  <a
-                    href={comment.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800 text-sm inline-flex items-center"
-                  >
-                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                    링크 보기
-                  </a>
-                )}
-                <div className="flex items-center space-x-4 text-sm text-gray-500">
-                  <button className="flex items-center space-x-1 hover:text-red-500">
-                    <svg className="w-4 h-4" fill={comment.isRecommend ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                    <span>{formatNumber(comment.recommendCount)}</span>
-                  </button>
+                  <div className="flex items-center space-x-4 text-sm text-gray-500">
+                    <button className="flex items-center space-x-1 hover:text-red-500">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      </svg>
+                      <span>{formatNumber(comment.recommendCount || 0)}</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
+          ))
+        ) : (
+          <div className="text-center py-8 text-gray-500">
+            <p>아직 댓글이 없습니다.</p>
+            <p className="text-sm mt-1">첫 번째 댓글을 작성해보세요!</p>
           </div>
-        ))}
+        )}
       </div>
     </div>
   );

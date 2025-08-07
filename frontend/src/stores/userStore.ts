@@ -20,8 +20,14 @@ interface AuthStore {
 }
 
 export const useUserStore = create<AuthStore>((set, get) => ({
-  isAuthenticated: false,
-  user: null,
+  // 테스트를 위해 로그인 상태로 초기화
+  isAuthenticated: true,
+  user: {
+    memberId: 1,
+    name: "테스트 사용자",
+    email: "test@example.com",
+    profileUrl: "https://example.com/profile.jpg"
+  },
   isLoading: false,
   
   setLoading: (loading: boolean) => set({ isLoading: loading }),

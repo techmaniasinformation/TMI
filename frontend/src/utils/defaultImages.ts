@@ -26,6 +26,16 @@ export const isValidImageUrl = (url: string | null | undefined): boolean => {
   // 존재하지 않는 도메인 체크
   if (url.includes('cdn.example.com')) return false; // 예시 도메인
   if (url.includes('example.com')) return false; // 예시 도메인
+  
+  // https://로 시작하지만 실제로는 이미지가 아닐 수 있는 경우들 체크
+  if (url.startsWith('https://')) {
+    // URL이 너무 짧거나 패턴이 이상한 경우
+    if (url.length < 15) return false; // 너무 짧은 URL
+    if (url.includes('placeholder') || url.includes('dummy')) return false; // 플레이스홀더 이미지
+    if (url.includes('404') || url.includes('error')) return false; // 에러 페이지
+    if (url.includes('default') && url.includes('image')) return false; // 기본 이미지 텍스트
+  }
+  
   return true;
 };
 

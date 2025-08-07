@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/foundation/button';
-import { getSafeThumbnailUrl } from '@/utils/defaultImages';
+import { getSafeThumbnailUrl, DEFAULT_IMAGES } from '@/utils/defaultImages';
 
 interface PostContentProps {
   post: any; // Post 타입을 사용하지만 여기서는 any로 간단히 처리
@@ -9,17 +9,26 @@ interface PostContentProps {
 }
 
 export const PostContent: React.FC<PostContentProps> = ({ post, onStarClick, onShareClick }) => {
+  // 이미지 로드 실패 상태 관리
+  const [imageError, setImageError] = useState(false);
+  
   // 안전한 썸네일 이미지 URL 사용
   const safeThumbnailUrl = getSafeThumbnailUrl(post.thumbnailUrl);
+  
+  // 이미지 로드 실패 시 디폴트 이미지로 대체
+  const handleImageError = () => {
+    setImageError(true);
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
       {/* 썸네일 이미지 */}
       <div className="mb-6">
         <img
-          src={safeThumbnailUrl}
+          src={imageError ? DEFAULT_IMAGES.THUMBNAIL : safeThumbnailUrl}
           alt="게시글 썸네일"
           className="w-full h-64 object-cover rounded-lg"
+          onError={handleImageError}
         />
       </div>
 

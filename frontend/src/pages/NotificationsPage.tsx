@@ -1,7 +1,7 @@
 // NotificationsPage.tsx
 import React, { useState, useEffect } from 'react';
 
-// 테스트 후 나중에 지울 것들
+
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/router/routes';
 

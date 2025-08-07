@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import ArticleInfo from './ArticleInfo';
 import { Post } from '@/types';
+import { getSafeThumbnailUrl } from '@/utils/defaultImages';
 
 interface PostListProps {
   formatDate: (date: string) => string;
@@ -64,10 +65,10 @@ export default function PostList({
               techTags={searchTechTags}
               companyTags={searchCompanyTags}
             />
-            {showThumbnail && post.thumbnailUrl && (
+            {showThumbnail && (
               <div className="w-48 h-32 flex-shrink-0">
                 <img
-                  src={post.thumbnailUrl}
+                  src={getSafeThumbnailUrl(post.thumbnailUrl)}
                   alt={post.title}
                   className="w-full h-full object-cover rounded-r-lg"
                 />

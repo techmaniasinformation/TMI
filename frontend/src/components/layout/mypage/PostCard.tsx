@@ -1,5 +1,6 @@
 import React from "react";
 import CardInfoCount from "@/components/domain/article/CardInfoCount"; // 조회수, 좋아요, 댓글 수 뱃지 컴포넌트
+import { getSafeThumbnailUrl } from "@/utils/defaultImages";
 
 // 게시글(Post) 객체의 타입 정의
 interface Post {
@@ -34,14 +35,12 @@ const PostCard: React.FC<PostCardProps> = ({ post, onClick }) => {
     >
       {/* 썸네일 영역 */}
       <div className="w-[200px] h-[120px] rounded-xl flex items-center justify-center bg-gray-100 overflow-hidden">
-        {thumbnail && (
-          <img
-            src={thumbnail}
-            alt={title}
-            onError={handleImageError}
-            className="max-w-full max-h-full object-contain rounded-xl"
-          />
-        )}
+        <img
+          src={getSafeThumbnailUrl(thumbnail)}
+          alt={title}
+          onError={handleImageError}
+          className="max-w-full max-h-full object-contain rounded-xl"
+        />
       </div>
 
       {/* 게시글 정보 */}

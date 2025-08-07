@@ -43,7 +43,7 @@ const BadgeModal: React.FC<BadgeModalProps> = ({ isOpen, badge, onClose }) => {
           <div className="flex w-full gap-2 mt-4">
             {/* 대표 배지로 설정 버튼 */}
             <button
-              onClick={() => console.log("대표 배지로 설정")}
+                              onClick={() => {}}
               className="flex-1 h-12 bg-prime-btn text-white text-lg rounded hover:bg-prime-btn-hover"
             >
               대표 배지로 설정

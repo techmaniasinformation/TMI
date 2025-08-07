@@ -15,18 +15,9 @@ function ServerPagination({
   // 전체 페이지 수 계산
   const totalPages = Math.ceil(totalCount / pageSize);
 
-  // 디버깅을 위한 콘솔 로그
-  console.log('📄 ServerPagination Debug:', {
-    currentPage,
-    totalCount,
-    pageSize,
-    totalPages,
-    shouldShow: totalPages > 0
-  });
-
   // 페이지가 0개 이하면 페이지네이션 숨김
   if (totalPages <= 0) {
-    console.log('❌ ServerPagination hidden: totalPages <= 0');
+
     return null;
   }
 

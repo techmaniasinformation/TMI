@@ -1,5 +1,6 @@
 import React from 'react';
 import { Badge } from "@/components/domain/Badge";
+import { getSafeProfileUrl } from "@/utils/defaultImages";
 
 interface Post {
   id: number;
@@ -38,7 +39,7 @@ const PostCard: React.FC<PostCardProps> = ({
       <div className="flex items-start space-x-4">
         <div className="flex-shrink-0">
           <img
-            src={post.author.avatar}
+            src={getSafeProfileUrl(post.author.avatar)}
             alt={post.author.name}
             className="w-12 h-12 rounded-full"
           />

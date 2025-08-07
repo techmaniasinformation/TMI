@@ -96,7 +96,7 @@ const PostEditPage: React.FC = () => {
        };
 
        // 전송할 JSON 데이터 콘솔에 출력
-       console.log('전송할 JSON 데이터:', JSON.stringify(requestData, null, 2));
+   
 
        // API 호출
        const response = await fetch('/api/v1/posts', {
@@ -113,7 +113,7 @@ const PostEditPage: React.FC = () => {
       }
 
       const result = await response.json();
-      console.log('게시글 수정 성공:', result);
+
       
       alert('게시글이 수정되었습니다!');
       

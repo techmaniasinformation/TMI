@@ -18,9 +18,14 @@ export const isValidImageUrl = (url: string | null | undefined): boolean => {
   if (!url) return false;
   if (url.trim() === '') return false;
   if (url === 'null' || url === 'undefined') return false;
-  if (url === 'undefined' || url === 'null') return false;
   // 빈 문자열이나 공백만 있는 경우
   if (url.replace(/\s/g, '') === '') return false;
+  // 잘못된 URL 패턴들 체크
+  if (url.includes('profile') && url.length < 10) return false; // "profile" 같은 짧은 텍스트
+  if (url.startsWith('data:image/svg+xml')) return true; // 우리가 만든 기본 이미지는 유효
+  // 존재하지 않는 도메인 체크
+  if (url.includes('cdn.example.com')) return false; // 예시 도메인
+  if (url.includes('example.com')) return false; // 예시 도메인
   return true;
 };
 

@@ -81,4 +81,12 @@ public interface PostRepository extends JpaRepository<Post, Long> {
   List<PostMetrics> findAllMetrics();
 
   List<Post> findByIdIn(List<Long> ids);
+
+  @Query("select sum(p.starCount) from Post p where p.member.id = :memberId")
+  Integer sumStarCountByMemberId(Long memberId);
+
+  int countByMemberId(Long memberId);
+
+  @Query("select sum(p.viewCount) from Post p where p.member.id = :memberId")
+  Integer sumViewCountByMemberId(Long memberId);
 }

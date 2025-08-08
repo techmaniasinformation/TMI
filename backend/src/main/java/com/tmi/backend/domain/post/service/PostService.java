@@ -2,6 +2,7 @@ package com.tmi.backend.domain.post.service;
 
 import com.tmi.backend.domain.member.entity.Member;
 import com.tmi.backend.domain.member.repository.MemberRepository;
+import com.tmi.backend.domain.notification.event.PostCreatedEvent;
 import com.tmi.backend.domain.post.dto.request.PostCreateRequest;
 import com.tmi.backend.domain.post.dto.request.PostUpdateRequest;
 import com.tmi.backend.domain.post.entity.Post;
@@ -13,6 +14,7 @@ import com.tmi.backend.global.error.exception.BusinessException;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +27,7 @@ public class PostService {
   private final MemberRepository memberRepository;
   private final PostRepository postRepository;
   private final PostTagService postTagService;
+  private final ApplicationEventPublisher publisher;
 
   // TODO : 인증 로직 구현
   @Transactional
@@ -46,6 +49,8 @@ public class PostService {
     Post save = postRepository.save(post);
 
     postTagService.createPostTags(save, postCreateRequest.tags());
+
+    publisher.publishEvent(new PostCreatedEvent(post.getId(), null, member.getId()));
 
     return ServiceResult.ok(Map.of("postId", save.getId()));
   }

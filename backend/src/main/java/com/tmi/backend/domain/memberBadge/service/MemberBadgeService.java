@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -57,18 +58,22 @@ public class MemberBadgeService {
   }
 
 
-  @Transactional
-  public ServiceResult<Map<String, Long>> acceptedBadge(Long memberId, Long badgeId) {
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public boolean acceptedBadge(Long memberId, Long badgeId) {
+    if (memberBadgeRepository.existsByMemberIdAndBadgeId(memberId, badgeId)) {
+      return false;
+    }
+
     Member member = memberRepository.findById(memberId).orElse(null);
     if (member == null) {
-      return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
+      return false;
     }
     Badge badge = badgeRepository.findById(badgeId).orElse(null);
     if (badge == null) {
-      return ServiceResult.fail(ErrorCode.BADGE_NOT_FOUND);
+      return false;
     }
     MemberBadge memberBadge = memberBadgeRepository.save(MemberBadge.of(member, badge,
         LocalDateTime.now(ZoneOffset.UTC)));
-    return ServiceResult.ok(Map.of("memberBadgeId", memberBadge.getId()));
+    return true;
   }
 }

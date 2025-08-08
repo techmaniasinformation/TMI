@@ -2,6 +2,7 @@
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import SearchPostListContainer from '@/components/domain/SearchPostListContainer';
 import { useSearchResults } from '@/hooks/posts/useSearchResults';
+import { ROUTES } from '@/router/routes';
 
 const SearchResultsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -15,13 +16,15 @@ const SearchResultsPage = () => {
     currentPage,
     totalCount,
     appliedFilters,
-    setCurrentPage
+    setCurrentPage,
+    searchState,
+    hasSearchConditions
   } = useSearchResults();
 
   // 게시글 클릭 핸들러
   const handlePostClick = (postId: number) => {
-    // 상세 페이지로 이동
-    navigate(`/post/${postId}`);
+    // 상세 페이지로 이동 (ROUTES 상수 사용)
+    navigate(ROUTES.POST.replace(':id', postId.toString()));
   };
 
   return (
@@ -36,6 +39,8 @@ const SearchResultsPage = () => {
           appliedFilters={appliedFilters}
           onPageChange={setCurrentPage}
           onPostClick={handlePostClick}
+          searchState={searchState}
+          hasSearchConditions={hasSearchConditions}
         />
       </div>
     </div>

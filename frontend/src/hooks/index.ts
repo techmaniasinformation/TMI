@@ -6,5 +6,5 @@ export { useSignup } from './auth/useSignup';
 export { usePosts } from './posts/usePosts';
 
 // Tags hooks
-export { useTagSearch, useTagRemove, useTagStyles } from './tags';
-export type { SearchConditions } from './tags';
+export { useTagAutocomplete } from './tags';
+export type { AutocompleteTag } from './tags';

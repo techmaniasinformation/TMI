@@ -114,11 +114,17 @@ const LandingCard: React.FC<LandingCardProps> = ({
               </div>
               {/* 썸네일 */}
               <div className='w-24 h-20 flex-shrink-0 ml-auto'>
-                <img
-                  src={thumbnailUrl}
-                  alt={`${title} 썸네일`}
-                  className='w-full h-full object-cover rounded-lg object-top'
-                />
+                {thumbnailUrl && thumbnailUrl.trim() !== '' ? (
+                  <img
+                    src={thumbnailUrl}
+                    alt={`${title} 썸네일`}
+                    className='w-full h-full object-cover rounded-lg object-top'
+                  />
+                ) : (
+                  <div className='w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg flex items-center justify-center'>
+                    <i className='ri-image-line text-gray-400 text-xl'></i>
+                  </div>
+                )}
               </div>
             </div>
 

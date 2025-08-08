@@ -6,28 +6,7 @@ import { Button } from '@/components/foundation/button';
 import { Post } from '@/types';
 import { PopularPostItem } from '@/components/domain/article/PopularPostItem';
 import { useNavigate } from 'react-router-dom';
-
-// 인기 게시글 스켈레톤 컴포넌트
-const PopularPostSkeleton = () => (
-  <div className="border-b border-gray-100 pb-3 last:border-b-0 animate-pulse">
-    <div className="flex items-start gap-3">
-      {/* 순위 스켈레톤 */}
-      <div className="flex-shrink-0 w-6 h-6 bg-gray-200 rounded-full"></div>
-      
-      {/* 게시글 정보 스켈레톤 */}
-      <div className="flex-1 min-w-0">
-        <div className="h-4 bg-gray-200 rounded mb-1 w-3/4"></div>
-        <div className="flex items-center gap-2">
-          <div className="h-3 bg-gray-200 rounded w-16"></div>
-          <div className="h-3 bg-gray-200 rounded w-8"></div>
-          <div className="h-3 bg-gray-200 rounded w-6"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
-
+import { PopularPostSkeleton } from '@/components/foundation/Skeleton';
 
 export default function PopularPosts() {
   const navigate = useNavigate();
@@ -102,26 +81,48 @@ export default function PopularPosts() {
           ))}
         </div>
       ) : error ? (
-        // 에러 상태
         <div className="text-center py-8">
-          <i className="fas fa-exclamation-triangle text-3xl text-red-300 mb-2"></i>
-          <p className="text-sm text-red-500 mb-2">오류가 발생했습니다</p>
-          <p className="text-gray-500 text-xs">{error}</p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="mt-3 px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors"
-          >
-            다시 시도
-          </button>
+          <div className="mb-4">
+            <i className="fas fa-exclamation-triangle text-4xl text-red-300 mb-4"></i>
+            <h4 className="text-lg font-semibold text-red-600 mb-2">인기 게시글을 불러오는 중 오류가 발생했습니다</h4>
+            <p className="text-gray-600 mb-4">{error}</p>
+          </div>
+          
+          <div className="space-y-3">
+            <button 
+              onClick={() => window.location.reload()}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors mr-3"
+            >
+              <i className="fas fa-redo mr-2"></i>
+              다시 시도
+            </button>
+            
+            <button 
+              onClick={() => window.history.back()}
+              className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+            >
+              <i className="fas fa-arrow-left mr-2"></i>
+              이전 페이지로
+            </button>
+          </div>
         </div>
       ) : popularPosts.length === 0 ? (
-        // 빈 상태
         <div className="text-center py-8">
-          <i className="fas fa-chart-line text-3xl text-gray-300 mb-2"></i>
-          <p className="text-gray-500 text-sm">인기 게시글이 없습니다.</p>
+          <div className="mb-4">
+            <i className="fas fa-chart-line text-4xl text-gray-300 mb-4"></i>
+            <h4 className="text-lg font-semibold text-gray-600 mb-2">인기 게시글이 없습니다</h4>
+            <p className="text-gray-500">아직 인기 게시글이 없습니다. 첫 번째 게시글을 작성해보세요!</p>
+          </div>
+          
+          <Button
+            onClick={() => navigate('/post/create')}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
+          >
+            <i className="fas fa-plus mr-2"></i>
+            게시글 작성
+          </Button>
         </div>
       ) : (
-        // 실제 인기 게시글 목록
         <div className="space-y-4">
           {popularPosts.map((post, index) => {
             const isLoaded = loadedPosts.has(post.postId);
@@ -141,7 +142,7 @@ export default function PopularPosts() {
               >
                 <PopularPostItem
                   post={post}
-                  index={index}
+                  rank={index + 1}
                   formatNumber={formatNumber}
                   onClick={handlePostClick}
                 />

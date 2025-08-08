@@ -1,70 +1,119 @@
 import { useState } from 'react';
-
-interface SignupFormData {
-  nickname: string;
-  profileImage: string | null;
-}
+import { useLocation } from 'react-router-dom'; 
 
 export const useSignup = () => {
-  const [formData, setFormData] = useState<SignupFormData>({
+  const location = useLocation();
+  const { provider, providerId } = location.state ?? {};
+
+
+  const [formData, setFormData] = useState({
+    provider: provider || '',
+    providerMemberId: providerId || '',
     nickname: '',
-    profileImage: null
+    memberProfileUrl: '',
   });
+
+  const isFormValid = !!formData.nickname.trim();
+
   const [isNicknameChecked, setIsNicknameChecked] = useState(false);
   const [isNicknameTaken, setIsNicknameTaken] = useState(false);
   const [isCheckingNickname, setIsCheckingNickname] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newNickname = e.target.value;
-    setFormData(prev => ({ ...prev, nickname: newNickname }));
+    setFormData({ ...formData, nickname: e.target.value });
     setIsNicknameChecked(false);
-    setIsNicknameTaken(false);
   };
 
-  const handleNicknameCheck = async () => {
-    if (!formData.nickname.trim()) return;
-    
-    setIsCheckingNickname(true);
-    // Simulate API call delay
-    setTimeout(() => {
-      setIsNicknameTaken(formData.nickname === '중복');
-      setIsNicknameChecked(true);
-      setIsCheckingNickname(false);
-    }, 1000);
-  };
-
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (e) => {
-        setFormData(prev => ({ 
-          ...prev, 
-          profileImage: e.target?.result as string 
-        }));
+      reader.onloadend = () => {
+        setFormData((prev) => ({ ...prev, profileImage: reader.result as string }));
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleSubmit = () => {
-    if (isFormValid) {
-      console.log('회원가입 제출:', formData);
-      // 회원가입 로직 구현
+  const handleNicknameCheck = async () => {
+    if (!formData.nickname.trim()) return;
+    setIsCheckingNickname(true);
+    try {
+      const res = await fetch(
+        `https://i13a509.p.ssafy.io/api/v1/member/duplicate?nickname=${encodeURIComponent(formData.nickname)}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      if (!res.ok) {
+        throw new Error('닉네임 확인 요청 실패');
+      }
+      const json = await res.json();
+      setIsNicknameChecked(true);
+      setIsNicknameTaken(json.data.isDuplicated);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsCheckingNickname(false);
     }
   };
 
-  const isFormValid = formData.nickname.trim() && isNicknameChecked && !isNicknameTaken;
+  const handleSubmit = async () => {
+    if (!isFormValid || !isNicknameChecked || isNicknameTaken) return;
+
+    setIsSubmitting(true);
+    try {
+      const payload = {
+        provider: formData.provider,
+        providerMemberId: formData.providerMemberId,
+        nickname: formData.nickname,
+        memberProfileUrl: formData.memberProfileUrl,  // Base64 혹은 URL
+      };
+
+      const res = await fetch('https://i13a509.p.ssafy.io/api/v1/member/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        // body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
+      });
+
+            // memberId 전역변수 저장,
+      
+      // useId 정보 조회해서 user 정보 전역변수 저장 
+      // 로그인 완료, 이전 페이지로 리다이렉트
+
+      if (!res.ok) {
+        throw new Error('회원가입 요청 실패');
+      }
+
+      const data = await res.json();
+      console.log('회원가입 성공:', data);
+      alert('회원가입이 완료되었습니다!');
+    } catch (error) {
+      console.error('회원가입 실패:', error);
+      alert('회원가입에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return {
     formData,
+    isFormValid,
     isNicknameChecked,
     isNicknameTaken,
     isCheckingNickname,
-    isFormValid,
+    isSubmitting,
     handleNicknameChange,
-    handleNicknameCheck,
     handleImageUpload,
-    handleSubmit
+    handleNicknameCheck,
+    handleSubmit,
   };
-}; 
+};

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import ProfileHeader from '@/components/layout/mypage/ProfileHeader';
 import MyPageTabs from '@/components/layout/mypage/MypageTabs';
 import ProfileEditModal from '@/components/layout/mypage/ProfileEditModal';
@@ -22,7 +22,11 @@ interface UserStats {
   views: number;
   bugReports: number;
   tagCounts: {
-    [key: string]: number; // 동적 태그 카운트
+    SPRING: number;
+    REACT: number;
+    AI: number;
+    DB: number;
+    AWS: number;
   };
   hasFirstPost: boolean;
   hasFirstComment: boolean;
@@ -30,24 +34,39 @@ interface UserStats {
 }
 
 const MyPage: React.FC<MyPageProps> = ({ isCompany, isMyPage }) => {
-
   const { id } = useParams();
   const companyId = Number(id);
 
-  // 진입 시 탭 설정: 본인 -> profile / 기업 -> posts / 타인 -> profile
+  // 초기 탭: 본인=profile / 기업=posts / 타인=profile
   const getInitialTab = () => {
     if (isMyPage) return 'profile';
     if (isCompany) return 'posts';
-    return 'profile'; // 타인
+    return 'profile';
   };
 
-  const [activeTab, setActiveTab] = useState(getInitialTab);
+  const [activeTab, setActiveTab] = useState(getInitialTab); // lazy init OK
   const [currentPage, setCurrentPage] = useState(1);
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  const handleProfileSave = (newNickname: string, newBlogUrl: string, newGithubUrl?: string) => {
+  // 대표배지 상태는 컴포넌트 최상단에!
+  const [repBadge, setRepBadge] = useState<{ id: number | null; url: string | null }>({
+    id: null,
+    url: null,
+  });
 
+  const handleRepChange = useCallback(
+    (p: { badgeId: number | null; badgeUrl: string | null }) => {
+      // 같은 값이면 setState 안 해서 불필요 렌더 방지
+      setRepBadge(prev =>
+        prev.id === p.badgeId && prev.url === p.badgeUrl ? prev : { id: p.badgeId, url: p.badgeUrl }
+      );
+    },
+    []
+  );
+
+  const handleProfileSave = (newNickname: string, newBlogUrl: string, newGithubUrl?: string) => {
+    // TODO: 프로필 저장 로직 (기존 로직 유지)
   };
 
   const [userStats] = useState<UserStats>({
@@ -57,7 +76,7 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany, isMyPage }) => {
     likes: 256,
     views: 3200,
     bugReports: 5,
-    tagCounts: {}, // 빈 객체로 초기화 - 실제 API에서 가져올 예정
+    tagCounts: { SPRING: 12, REACT: 8, AI: 4, DB: 15, AWS: 11 },
     hasFirstPost: true,
     hasFirstComment: true,
     isRegistered: true,
@@ -74,12 +93,12 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany, isMyPage }) => {
   useEffect(() => {
     if (isCompany) {
       setLoading(true);
-      getCompany(companyId) // company 고정
+      getCompany(companyId)
         .then((res) => setCompany(res.data))
         .catch((err) => console.error(err))
         .finally(() => setLoading(false));
     }
-  }, [isCompany]);
+  }, [isCompany, companyId]); // companyId 추가
 
   return (
     <div className="max-w-[1232px] mx-auto px-4 py-8">
@@ -90,13 +109,14 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany, isMyPage }) => {
           lastUpdate={
             isCompany
               ? company?.lastUpdatedAt
-                ? company.lastUpdatedAt.split("T")[0] // 날짜만 추출
+                ? company.lastUpdatedAt.split('T')[0]
                 : ''
               : '2025-07-30'
           }
           onFollowToggle={handleFollowToggle}
           isFollowing={isFollowing}
           onEditClick={() => setIsEditModalOpen(true)}
+          repBadgeUrl={repBadge.url} // 대표배지 URL 내려줌
         />
 
         <MyPageTabs
@@ -107,13 +127,15 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany, isMyPage }) => {
           userStats={userStats}
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
+          // 대표배지 변경 시 상단 동기화
+          onRepresentativeBadgeChange={handleRepChange}
         />
 
         {isMyPage && (
           <ProfileEditModal
             isOpen={isEditModalOpen}
             onClose={() => setIsEditModalOpen(false)}
-            initialNickname="" // API에서 가져오기 때문에 빈 값
+            initialNickname=""
             initialBlogUrl=""
             initialGithubUrl=""
             onSave={handleProfileSave}

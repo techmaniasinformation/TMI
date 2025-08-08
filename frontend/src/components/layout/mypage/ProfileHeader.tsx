@@ -29,6 +29,7 @@ interface ProfileHeaderProps {
   lastUpdate: string;
   onFollowToggle: () => void;
   onEditClick: () => void;
+  repBadgeUrl?: string | null;
 }
 
 export default function ProfileHeader({
@@ -38,6 +39,7 @@ export default function ProfileHeader({
   lastUpdate,
   onFollowToggle,
   onEditClick,
+  repBadgeUrl,
 }: ProfileHeaderProps) {
   const { id } = useParams();
   const memberId = isMyPage ? 1 : Number(id);
@@ -110,12 +112,23 @@ export default function ProfileHeader({
           />
 
           <div className="flex-1">
-            <div className="flex items-center space-x-3 mt-3">
+            <div className="flex items-center mt-3">
               <h1 className="text-2xl font-bold text-gray-900">
                 {isCompany ? companyData?.name : memberData?.nickname}
               </h1>
+
+              {/* 개인일 때 배지 */}
+              {!isCompany && repBadgeUrl && (
+                <img
+                  src={repBadgeUrl}
+                  alt="대표 배지"
+                  className="w-8 h-8 rounded-md ml-1" // 살짝만 띄움
+                />
+              )}
+
+              {/* 기업일 때 라벨 */}
               {isCompany && (
-                <span className="bg-blue-100 text-blue-800 text-sm font-medium px-2 py-0.5 rounded-md">
+                <span className="bg-blue-100 text-blue-800 text-sm font-medium px-2 py-0.5 rounded-md ml-3">
                   기업
                 </span>
               )}

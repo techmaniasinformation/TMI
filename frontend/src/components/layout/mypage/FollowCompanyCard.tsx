@@ -4,12 +4,11 @@ import DefaultCompanyImage from "@/assets/icons/excompany.svg";
 interface FollowCompanyCardProps {
   id: string;
   name: string;
-  image: string;
+  image: string | null; // null 허용으로 변경
   onClick?: () => void;
 }
 
 const FollowCompanyCard: React.FC<FollowCompanyCardProps> = ({ id, name, image, onClick }) => {
-  // 이미지 로딩 오류 시 기본 이미지로 대체
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     e.currentTarget.src = DefaultCompanyImage;
   };
@@ -21,7 +20,7 @@ const FollowCompanyCard: React.FC<FollowCompanyCardProps> = ({ id, name, image, 
       onClick={onClick}
     >
       <img
-        src={image}
+        src={image || DefaultCompanyImage}
         alt={name}
         onError={handleImageError}
         className="w-16 h-16 rounded-lg object-cover"

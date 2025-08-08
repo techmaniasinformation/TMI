@@ -14,10 +14,11 @@ export interface BadgeListResponse {
   };
 }
 
-// 멤버 보유 배지 타입
+// 멤버 보유 배지 타입에 대표 여부 추가
 export interface MemberBadge {
   memberBadgeId: number;
   badgeId: number;
+  isRepresentative: boolean;
   receivedAt: string;
 }
 

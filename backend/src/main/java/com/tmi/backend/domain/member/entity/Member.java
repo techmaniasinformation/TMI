@@ -13,7 +13,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -74,15 +73,14 @@ public class Member {
   }
 
   public void change(MemberUpdateRequest req) {
-    Optional.ofNullable(req.nickname()).ifPresent(n -> this.nickname = n);
-    Optional.ofNullable(req.memberProfileUrl()).ifPresent(url -> this.memberProfileUrl = url);
-    Optional.ofNullable(req.blogUrl()).ifPresent(url -> this.blogUrl = url);
-    Optional.ofNullable(req.githubUrl()).ifPresent(url -> this.githubUrl = url);
+    this.nickname = req.nickname();
+    this.memberProfileUrl = req.memberProfileUrl();
+    this.blogUrl = req.blogUrl();
+    this.githubUrl = req.githubUrl();
     this.updatedAt = LocalDateTime.now(ZoneOffset.UTC);
   }
 
-  //TODO : 메서드명 명확히 바꾸기
-  public void delete() {
+  public void addDeleteAt() {
     deletedAt = LocalDateTime.now(ZoneOffset.UTC);
   }
 

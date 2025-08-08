@@ -1,9 +1,11 @@
 package com.tmi.backend.domain.auth.jwt.service;
 
 import com.tmi.backend.domain.auth.jwt.provider.JwtTokenProvider;
+import com.tmi.backend.global.common.response.ServiceResult;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -33,7 +35,8 @@ public class TokenService {
 
   }
 
-  public void createAndAddAuthCookies(HttpServletResponse response, Long memberId) {
+  public ServiceResult<Map<String, Boolean>> createAndAddAuthCookies(HttpServletResponse response,
+      Long memberId) {
     String accessToken = jwtTokenProvider.createAccessToken(memberId);
     String refreshToken = jwtTokenProvider.createRefreshToken(memberId);
     LocalDateTime expiresAt = jwtTokenProvider.getTokenExpiration(refreshToken);
@@ -61,6 +64,8 @@ public class TokenService {
 
     response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
     response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
+    return ServiceResult.ok(Map.of("isTokenCreated", true));
   }
 
 
@@ -75,7 +80,7 @@ public class TokenService {
 
     ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", "")
         .httpOnly(true)
-        .path("/api/v1/auth/refresh")
+        .path("/")
         .maxAge(0)
         .sameSite("None")                   // TODO : CSRF 방지(배포시 Strinct 로 변경)
         .build();

@@ -1,5 +1,7 @@
 package com.tmi.backend.domain.member.service;
 
+import com.tmi.backend.domain.auth.jwt.service.RefreshTokenService;
+import com.tmi.backend.domain.auth.jwt.service.TokenService;
 import com.tmi.backend.domain.commentRecommendation.respository.CommentRecommendationRepository;
 import com.tmi.backend.domain.follow.company.repository.CompanyFollowRepository;
 import com.tmi.backend.domain.follow.member.repository.MemberFollowRepository;
@@ -15,6 +17,7 @@ import com.tmi.backend.domain.star.repository.StarRepository;
 import com.tmi.backend.global.common.response.ServiceResult;
 import com.tmi.backend.global.error.ErrorCode;
 import com.tmi.backend.global.error.exception.BusinessException;
+import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Map;
@@ -34,16 +37,15 @@ public class MemberService {
   private final StarRepository starRepository;
   private final NotificationRepository notificationRepository;
   private final CommentRecommendationRepository commentRecommendationRepository;
+  private final TokenService tokenService;
+  private final RefreshTokenService refreshTokenService;
 
   public ServiceResult<MemberResponse> getMember(Long memberId) {
-    Member member = memberRepository.findById(memberId)
-        .orElse(null);
+    Member member = memberRepository.findById(memberId).orElse(null);
     if (member == null) {
       return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
     }
-
     MemberStats stats = memberRepository.fetchStatsById(memberId);
-
     return ServiceResult.ok(MemberResponse.of(member, stats));
   }
 
@@ -53,8 +55,7 @@ public class MemberService {
 
   @Transactional
   public ServiceResult<Map<String, Long>> updateMember(Long memberId, MemberUpdateRequest req) {
-    Member member = memberRepository.findById(memberId)
-        .orElse(null);
+    Member member = memberRepository.findById(memberId).orElse(null);
     if (member == null) {
       return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
     }
@@ -84,23 +85,24 @@ public class MemberService {
       //7일 이후
       member.reviveAndUpdate(req);
       return member.getId();
-
     }
-
   }
 
   @Transactional
-  public Long deleteMember(Long memberId) {
-    Member member = memberRepository.findById(memberId)
-        .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-    member.delete();
-
+  public ServiceResult<Map<String, Long>> deleteMember(Long memberId, HttpServletResponse res) {
+    Member member = memberRepository.findById(memberId).orElse(null);
+    if (member == null) {
+      return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
+    }
+    member.addDeleteAt();
     memberBadgeRepository.deleteByMemberId(memberId);
     memberFollowRepository.deleteByFollowerIdOrFolloweeId(memberId, memberId);
     companyFollowRepository.deleteByFollowerId(memberId);
     starRepository.deleteByMemberId(memberId);
     notificationRepository.deleteAllByMemberId(memberId);
     commentRecommendationRepository.deleteAllByMemberId(memberId);
-    return member.getId();
+    tokenService.deleteAuthCookies(res);
+    refreshTokenService.deleteByMemberId(memberId);
+    return ServiceResult.ok(Map.of("memberId", member.getId()));
   }
 }

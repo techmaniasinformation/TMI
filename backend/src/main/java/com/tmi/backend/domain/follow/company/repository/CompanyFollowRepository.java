@@ -10,6 +10,8 @@ import org.springframework.data.repository.query.Param;
 
 public interface CompanyFollowRepository extends JpaRepository<CompanyFollow, Long> {
 
+  CompanyFollow findCompanyFollowById(Long id);
+
   Page<CompanyFollow> findByFollowerId(Long followerId, Pageable pageable);
 
   boolean existsByFollowerIdAndCompanyId(Long followerId, Long companyId);

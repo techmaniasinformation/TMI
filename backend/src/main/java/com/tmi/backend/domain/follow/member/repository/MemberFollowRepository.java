@@ -20,4 +20,6 @@ public interface MemberFollowRepository extends JpaRepository<MemberFollow, Long
 
   @Modifying
   int removeById(Long id);
+
+  MemberFollow findFollowerIdById(Long memberFollowId);
 }

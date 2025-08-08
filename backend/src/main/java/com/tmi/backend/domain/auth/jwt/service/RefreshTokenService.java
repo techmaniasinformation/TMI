@@ -3,7 +3,6 @@ package com.tmi.backend.domain.auth.jwt.service;
 import com.tmi.backend.domain.auth.jwt.entity.RefreshToken;
 import com.tmi.backend.domain.auth.jwt.repository.RefreshTokenRepository;
 import java.time.LocalDateTime;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,8 +24,8 @@ public class RefreshTokenService {
     refreshTokenRepository.save(refreshToken);
   }
 
-  public Optional<RefreshToken> findByMemberId(Long memberId) {
-    return refreshTokenRepository.findById(memberId);
+  public RefreshToken findByMemberId(Long memberId) {
+    return refreshTokenRepository.findByMemberId(memberId);
   }
 
   public void deleteByMemberId(Long memberId) {

@@ -1,5 +1,5 @@
 // ===== Foundation 컴포넌트들 (모든 페이지에서 사용) =====
-export { Button, Layout, Header, Footer } from './foundation';
+export { Button, Header, Footer } from './foundation';
 
 // ===== Domain 컴포넌트들 (2개 이상 페이지에서 사용) =====
 export {

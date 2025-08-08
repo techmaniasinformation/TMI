@@ -142,7 +142,7 @@ export default function PopularPosts() {
               >
                 <PopularPostItem
                   post={post}
-                  rank={index + 1}
+                  index={index}
                   formatNumber={formatNumber}
                   onClick={handlePostClick}
                 />

@@ -2,10 +2,7 @@
 export { default as Header } from './Header';
 export { default as Footer } from './Footer';
 export { default as SearchBar } from './SearchBar';
-export { default as button } from './button';
-export { default as Skeleton } from './Skeleton';
-export { default as ErrorState } from './ErrorState';
-export { default as EmptyState } from './EmptyState';
+export { Button } from './button';
 
 // Skeleton 컴포넌트들
 export { 

@@ -73,11 +73,11 @@ public class Member {
         .build();
   }
 
-  public void change(MemberUpdateRequest req) {
-    Optional.ofNullable(req.nickname()).ifPresent(n -> this.nickname = n);
-    Optional.ofNullable(req.memberProfileUrl()).ifPresent(url -> this.memberProfileUrl = url);
-    Optional.ofNullable(req.blogUrl()).ifPresent(url -> this.blogUrl = url);
-    Optional.ofNullable(req.githubUrl()).ifPresent(url -> this.githubUrl = url);
+  public void updateProfile(String nickname, String profileUrl, String blogUrl, String githubUrl) {
+    Optional.ofNullable(nickname).ifPresent(n -> this.nickname = n);
+    Optional.ofNullable(profileUrl).ifPresent(url -> this.memberProfileUrl = url);
+    Optional.ofNullable(blogUrl).ifPresent(url -> this.blogUrl = url);
+    Optional.ofNullable(githubUrl).ifPresent(url -> this.githubUrl = url);
     this.updatedAt = LocalDateTime.now(ZoneOffset.UTC);
   }
 

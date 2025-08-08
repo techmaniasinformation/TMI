@@ -12,16 +12,23 @@ import com.tmi.backend.domain.member.repository.MemberRepository;
 import com.tmi.backend.domain.memberBadge.repository.MemberBadgeRepository;
 import com.tmi.backend.domain.notification.repository.NotificationRepository;
 import com.tmi.backend.domain.star.repository.StarRepository;
+import com.tmi.backend.global.Utils.FileUtil;
 import com.tmi.backend.global.common.response.ServiceResult;
 import com.tmi.backend.global.error.ErrorCode;
 import com.tmi.backend.global.error.exception.BusinessException;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -35,9 +42,10 @@ public class MemberService {
   private final NotificationRepository notificationRepository;
   private final CommentRecommendationRepository commentRecommendationRepository;
 
+  private final FileUtil fileUtil;
+
   public ServiceResult<MemberResponse> getMember(Long memberId) {
-    Member member = memberRepository.findById(memberId)
-        .orElse(null);
+    Member member = memberRepository.findById(memberId).orElse(null);
     if (member == null) {
       return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
     }
@@ -52,13 +60,63 @@ public class MemberService {
   }
 
   @Transactional
-  public ServiceResult<Map<String, Long>> updateMember(Long memberId, MemberUpdateRequest req) {
-    Member member = memberRepository.findById(memberId)
-        .orElse(null);
+  public ServiceResult<Map<String, Long>> updateMember(Long memberId, MemberUpdateRequest req,
+      MultipartFile profileImage) {
+    Member member = memberRepository.findById(memberId).orElse(null);
     if (member == null) {
       return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
     }
-    member.change(req);
+
+    String newProfileUrl = member.getMemberProfileUrl();
+
+    // 새로운 이미지 파일이 업로드된 경우
+    if (profileImage != null && !profileImage.isEmpty()) {
+      if (newProfileUrl != null && !newProfileUrl.isEmpty()) {
+        try {
+          fileUtil.deleteFile(newProfileUrl, "profile");
+        } catch (IOException e) {
+          log.error("기존 프로필 이미지 삭제 실패: {}", newProfileUrl, e);
+        }
+      }
+
+      // 새 파일 저장 및 롤백 처리
+      try {
+        newProfileUrl = fileUtil.saveFile(profileImage, "profile");
+        // 2. 트랜잭션 롤백 시 파일 삭제를 위한 동기화 작업 등록
+        final String finalNewProfileUrl = newProfileUrl; // 람다에서 사용하기 위해 final 변수로
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+          @Override
+          public void afterCompletion(int status) {
+            if (status == STATUS_ROLLED_BACK) {
+              try {
+                fileUtil.deleteFile(finalNewProfileUrl, "profile");
+              } catch (IOException e) {
+                log.error("프로필 이미지 롤백 중 파일 삭제 실패", e);
+              }
+            }
+          }
+        });
+      } catch (IOException e) {
+        return ServiceResult.fail(ErrorCode.FILE_UPLOAD_ERROR);
+      }
+    }
+
+    // 이미지 삭제
+    else {
+      String urlFromRequest = req.memberProfileUrl();
+      if ((urlFromRequest == null || urlFromRequest.isEmpty()) && (newProfileUrl != null
+          && !newProfileUrl.isEmpty())) {
+        try {
+          fileUtil.deleteFile(newProfileUrl, "profile");
+          newProfileUrl = "default.png"; // DB에 저장할 URL도 null로 변경
+        } catch (IOException e) {
+          log.error("프로필 이미지 삭제 실패: {}", newProfileUrl, e);
+        }
+      }
+    }
+
+    member.updateProfile(req.nickname(), newProfileUrl, req.blogUrl(), req.githubUrl());
+
     return ServiceResult.ok(Map.of("memberId", member.getId()));
   }
 

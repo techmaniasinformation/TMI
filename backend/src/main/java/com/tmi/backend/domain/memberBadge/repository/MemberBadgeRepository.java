@@ -30,5 +30,7 @@ public interface MemberBadgeRepository extends JpaRepository<MemberBadge, Long> 
 
   void deleteByMemberId(@Param("memberId") Long memberId);
 
+  boolean existsByMemberIdAndBadgeId(Long memberId, Long badgeId);
+
 }
 

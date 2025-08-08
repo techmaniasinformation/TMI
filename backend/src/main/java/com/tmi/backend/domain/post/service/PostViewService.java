@@ -6,6 +6,7 @@ import com.tmi.backend.domain.follow.company.repository.CompanyFollowRepository;
 import com.tmi.backend.domain.follow.member.repository.MemberFollowRepository;
 import com.tmi.backend.domain.member.entity.Member;
 import com.tmi.backend.domain.member.repository.MemberRepository;
+import com.tmi.backend.domain.notification.event.PostViewIncrementedEvent;
 import com.tmi.backend.domain.post.dto.request.PostFilter;
 import com.tmi.backend.domain.post.dto.request.PostSearchFilter;
 import com.tmi.backend.domain.post.dto.response.DetailPostResponse;
@@ -28,6 +29,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -50,6 +52,7 @@ public class PostViewService {
   private final PostScoreRepository postScoreRepository;
   private final CommentRepository commentRepository;
   private final TagService tagService;
+  private final ApplicationEventPublisher publisher;
 
   public ServiceResult<SimplePostPageResponse> readPosts(PostFilter filter, int page, int size) {
 
@@ -218,6 +221,8 @@ public class PostViewService {
     post.updateViewCount();
 
     int commentCount = commentRepository.countByPostId(postId);
+
+    publisher.publishEvent(new PostViewIncrementedEvent(postId, post.getMember().getId(), post.getViewCount()));
 
     return ServiceResult.ok(DetailPostResponse.of(post, commentCount));
   }

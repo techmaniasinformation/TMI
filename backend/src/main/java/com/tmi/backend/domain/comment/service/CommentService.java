@@ -9,6 +9,7 @@ import com.tmi.backend.domain.comment.repository.CommentRepository;
 import com.tmi.backend.domain.member.entity.Member;
 import com.tmi.backend.domain.member.entity.Provider;
 import com.tmi.backend.domain.member.repository.MemberRepository;
+import com.tmi.backend.domain.notification.event.CommentCreatedEvent;
 import com.tmi.backend.domain.post.entity.Post;
 import com.tmi.backend.domain.post.repository.PostRepository;
 import com.tmi.backend.global.common.response.ServiceResult;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,6 +37,7 @@ public class CommentService {
   private final CommentRepository commentRepository;
   private final MemberRepository memberRepository;
   private final PostRepository postRepository;
+  private final ApplicationEventPublisher publisher;
 
   @Transactional
   public ServiceResult<Map<String, Long>> register(CommentRequest commentRequest, Long userDetailId) {
@@ -57,6 +60,8 @@ public class CommentService {
 
     Comment comment = commentRepository.save(Comment.of(post, member, commentRequest.comment(),
         commentRequest.link()));
+
+    publisher.publishEvent(new CommentCreatedEvent(post.getId(), post.getMember().getId(), member.getId()));
 
     return ServiceResult.ok(Map.of("commentId", comment.getId()));
   }

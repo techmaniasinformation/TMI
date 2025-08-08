@@ -9,6 +9,7 @@ import com.tmi.backend.domain.commentRecommendation.respository.CommentRecommend
 import com.tmi.backend.domain.member.entity.Member;
 import com.tmi.backend.domain.member.entity.Provider;
 import com.tmi.backend.domain.member.repository.MemberRepository;
+import com.tmi.backend.domain.notification.event.RecommendationAddedEvent;
 import com.tmi.backend.domain.post.entity.Post;
 import com.tmi.backend.domain.post.repository.PostRepository;
 import com.tmi.backend.global.common.response.ServiceResult;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +32,7 @@ public class CommentRecommendationService {
   private final MemberRepository memberRepository;
   private final CommentRepository commentRepository;
   private final CommentRecommendationRepository commentRecommendationRepository;
+  private final ApplicationEventPublisher publisher;
 
   @Transactional
   public ServiceResult<Map<String, Long>> recommendation(RecommendationRequest request, Long userDetailId) {
@@ -54,6 +57,8 @@ public class CommentRecommendationService {
 
     recommendation.assignToComment(comment);
     comment.plusRecommendCount();
+
+    publisher.publishEvent(new RecommendationAddedEvent(comment.getMember().getId()));
 
     return ServiceResult.ok(Map.of("recommendationId", recommendation.getId()));
   }

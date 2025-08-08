@@ -4,6 +4,7 @@ import com.tmi.backend.domain.auth.jwt.provider.JwtTokenProvider;
 import com.tmi.backend.domain.auth.jwt.service.RefreshTokenService;
 import com.tmi.backend.domain.auth.jwt.service.TokenService;
 import com.tmi.backend.domain.auth.util.CustomUserDetails;
+import com.tmi.backend.domain.auth.util.SecurityUtil;
 import com.tmi.backend.domain.member.dto.request.MemberCreateRequest;
 import com.tmi.backend.domain.member.dto.request.MemberUpdateRequest;
 import com.tmi.backend.domain.member.dto.response.MemberResponse;
@@ -11,7 +12,6 @@ import com.tmi.backend.domain.member.service.MemberService;
 import com.tmi.backend.global.common.controller.BaseController;
 import com.tmi.backend.global.common.response.ApiResponse;
 import com.tmi.backend.global.common.response.ServiceResult;
-import com.tmi.backend.global.common.response.impl.ApiSuccessResponse;
 import com.tmi.backend.global.error.ErrorCode;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -94,13 +94,11 @@ public class MemberController implements BaseController {
    * 회원탈퇴(논리적 삭제) API
    */
   @PatchMapping("/{memberId}/delete")
-  public ApiResponse<Map<String, Long>> deleteMember(@PathVariable Long memberId,
+  public ResponseEntity<ApiResponse<Map<String, Long>>> deleteMember(@PathVariable Long memberId,
       HttpServletResponse res) {
-    Long deletedMemberId = memberService.deleteMember(memberId);
-    tokenService.deleteAuthCookies(res);
-    refreshTokenService.deleteByMemberId(deletedMemberId);
-    return ApiSuccessResponse.success(
-        Map.of("memberId", deletedMemberId)
-    );
+    if (!SecurityUtil.memberCheck(memberId)) {
+      return handle(ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED));
+    }
+    return handle(memberService.deleteMember(memberId, res));
   }
 }

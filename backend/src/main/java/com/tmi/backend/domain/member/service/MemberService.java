@@ -1,5 +1,7 @@
 package com.tmi.backend.domain.member.service;
 
+import com.tmi.backend.domain.auth.jwt.service.RefreshTokenService;
+import com.tmi.backend.domain.auth.jwt.service.TokenService;
 import com.tmi.backend.domain.commentRecommendation.respository.CommentRecommendationRepository;
 import com.tmi.backend.domain.follow.company.repository.CompanyFollowRepository;
 import com.tmi.backend.domain.follow.member.repository.MemberFollowRepository;
@@ -10,17 +12,16 @@ import com.tmi.backend.domain.member.dto.response.MemberStats;
 import com.tmi.backend.domain.member.entity.Member;
 import com.tmi.backend.domain.member.repository.MemberRepository;
 import com.tmi.backend.domain.memberBadge.repository.MemberBadgeRepository;
-import com.tmi.backend.domain.notification.event.MemberRegisteredEvent;
 import com.tmi.backend.domain.notification.repository.NotificationRepository;
 import com.tmi.backend.domain.star.repository.StarRepository;
 import com.tmi.backend.global.common.response.ServiceResult;
 import com.tmi.backend.global.error.ErrorCode;
 import com.tmi.backend.global.error.exception.BusinessException;
+import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,17 +37,15 @@ public class MemberService {
   private final StarRepository starRepository;
   private final NotificationRepository notificationRepository;
   private final CommentRecommendationRepository commentRecommendationRepository;
-  private final ApplicationEventPublisher publisher;
+  private final TokenService tokenService;
+  private final RefreshTokenService refreshTokenService;
 
   public ServiceResult<MemberResponse> getMember(Long memberId) {
-    Member member = memberRepository.findById(memberId)
-        .orElse(null);
+    Member member = memberRepository.findById(memberId).orElse(null);
     if (member == null) {
       return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
     }
-
     MemberStats stats = memberRepository.fetchStatsById(memberId);
-
     return ServiceResult.ok(MemberResponse.of(member, stats));
   }
 
@@ -56,8 +55,7 @@ public class MemberService {
 
   @Transactional
   public ServiceResult<Map<String, Long>> updateMember(Long memberId, MemberUpdateRequest req) {
-    Member member = memberRepository.findById(memberId)
-        .orElse(null);
+    Member member = memberRepository.findById(memberId).orElse(null);
     if (member == null) {
       return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
     }
@@ -75,7 +73,6 @@ public class MemberService {
       // 신규 가입
       Member newMember = Member.of(req);
       memberRepository.save(newMember);
-      publisher.publishEvent(new MemberRegisteredEvent(newMember.getId()));
       return newMember.getId();
     }
     // 재가입
@@ -88,23 +85,24 @@ public class MemberService {
       //7일 이후
       member.reviveAndUpdate(req);
       return member.getId();
-
     }
-
   }
 
   @Transactional
-  public Long deleteMember(Long memberId) {
-    Member member = memberRepository.findById(memberId)
-        .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-    member.delete();
-
+  public ServiceResult<Map<String, Long>> deleteMember(Long memberId, HttpServletResponse res) {
+    Member member = memberRepository.findById(memberId).orElse(null);
+    if (member == null) {
+      return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
+    }
+    member.addDeleteAt();
     memberBadgeRepository.deleteByMemberId(memberId);
     memberFollowRepository.deleteByFollowerIdOrFolloweeId(memberId, memberId);
     companyFollowRepository.deleteByFollowerId(memberId);
     starRepository.deleteByMemberId(memberId);
     notificationRepository.deleteAllByMemberId(memberId);
     commentRecommendationRepository.deleteAllByMemberId(memberId);
-    return member.getId();
+    tokenService.deleteAuthCookies(res);
+    refreshTokenService.deleteByMemberId(memberId);
+    return ServiceResult.ok(Map.of("memberId", member.getId()));
   }
 }

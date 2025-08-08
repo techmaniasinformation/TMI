@@ -1,5 +1,7 @@
 package com.tmi.backend.domain.post.service;
 
+import static org.springframework.transaction.support.TransactionSynchronization.STATUS_ROLLED_BACK;
+
 import com.tmi.backend.domain.member.entity.Member;
 import com.tmi.backend.domain.member.repository.MemberRepository;
 import com.tmi.backend.domain.post.dto.request.PostCreateRequest;
@@ -7,14 +9,19 @@ import com.tmi.backend.domain.post.dto.request.PostUpdateRequest;
 import com.tmi.backend.domain.post.entity.Post;
 import com.tmi.backend.domain.post.repository.PostRepository;
 import com.tmi.backend.domain.postTag.service.PostTagService;
+import com.tmi.backend.global.Utils.FileUtil;
 import com.tmi.backend.global.common.response.ServiceResult;
 import com.tmi.backend.global.error.ErrorCode;
 import com.tmi.backend.global.error.exception.BusinessException;
+import java.io.IOException;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
@@ -25,15 +32,42 @@ public class PostService {
   private final MemberRepository memberRepository;
   private final PostRepository postRepository;
   private final PostTagService postTagService;
+  private final FileUtil fileUtil;
 
   // TODO : 인증 로직 구현
   @Transactional
-  public ServiceResult<Map<String, Long>> createPost(PostCreateRequest postCreateRequest) {
+  public ServiceResult<Map<String, Long>> createPost(
+      PostCreateRequest postCreateRequest,
+      MultipartFile thumbnailImage
+  ) {
     log.info("PostService : createPost() 호출");
 
     Member member = memberRepository.findById(postCreateRequest.memberId()).orElse(null);
     if (member == null) {
       return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
+    }
+    String thumbnailUrl = null;
+    if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
+      try {
+        thumbnailUrl = fileUtil.saveFile(thumbnailImage, "post");
+
+        final String finalThumbnailUrl = thumbnailUrl;
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+          @Override
+          public void afterCompletion(int status) {
+            if (status == STATUS_ROLLED_BACK) {
+              try {
+                fileUtil.deleteFile(finalThumbnailUrl, "post");
+              } catch (IOException e) {
+                log.error("게시글 썸네일 롤백 중 파일 삭제 실패", e);
+              }
+            }
+          }
+        });
+      } catch (IOException e) {
+        log.error("썸네일 이미지 파일 저장 실패", e);
+        return ServiceResult.fail(ErrorCode.FILE_UPLOAD_ERROR); // 예시 에러 코드
+      }
     }
 
     Post post = Post.of(
@@ -41,7 +75,8 @@ public class PostService {
         postCreateRequest.title(),
         postCreateRequest.link(),
         postCreateRequest.content(),
-        postCreateRequest.thumbnailUrl());
+        thumbnailUrl
+    );
 
     Post save = postRepository.save(post);
 
@@ -51,7 +86,10 @@ public class PostService {
   }
 
   @Transactional
-  public ServiceResult<Map<String, Long>> updatePost(Long postId, PostUpdateRequest postUpdateRequest) {
+  public ServiceResult<Map<String, Long>> updatePost(Long postId,
+      PostUpdateRequest postUpdateRequest,
+      MultipartFile thumbnailImage
+  ) {
     log.info("PostService : updatePost(" + postId + ") 호출");
 
     Post post = postRepository.findById(postId).orElse(null);

@@ -62,3 +62,7 @@ api:
 
 frontend:
   redirect-uri: "http://localhost:3000/login"
+
+file:
+  #  upload-dir: ${FILE_UPLOAD_DIR}
+  upload-dir: 'C:\Users\SSAFY\IdeaProjects\S13P11A509\backend\images\'

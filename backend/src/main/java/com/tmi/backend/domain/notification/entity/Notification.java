@@ -13,7 +13,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -22,7 +21,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "notification")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -59,15 +57,25 @@ public class Notification {
 
   private LocalDateTime createdAt;
 
-  public static Notification of(Member member, NotificationType type, String content, Post post,
-      Badge badge) {
+  public static Notification of(
+      Member receiver,
+      NotificationType notificationType,
+      String content,
+      Post post,
+      Badge badge
+  ) {
     return Notification.builder()
-        .member(member)
-        .notificationType(type)
+        .member(receiver)
+        .notificationType(notificationType)
         .content(content)
         .post(post)
         .badge(badge)
         .isRead(false)
         .build();
   }
+
+  public void updateIsRead() {
+    this.isRead = true;
+  }
+
 }

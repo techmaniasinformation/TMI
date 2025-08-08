@@ -177,8 +177,10 @@ public class PostViewService {
 
     Pageable pageable = PageRequest.of(page - 1, size);
 
+    String query = filter.q() == null ? "" : filter.q();
+
     Page<Post> postPage = postRepository.search(
-        filter.q(),
+        query,
         filter.techTags(),
         filter.companyTags(),
         pageable);
@@ -194,7 +196,7 @@ public class PostViewService {
 
     // AppliedFilters 채우기 (태그 이름이 필요하다면 TagRepository 로 조회)
     AppliedFilters applied = AppliedFilters.of(
-        filter.q(),
+        query,
         tagService.findNames(filter.techTags()),
         tagService.findNames(filter.companyTags())
     );

@@ -97,7 +97,8 @@ const useSocialLogin = () => {
       //팔로우 (멤버 id) 리스트 저장
       
       // 로그인 완료, 이전 페이지로 리다이렉트
-      navigate(redirectAfterLogin);
+      // navigate(redirectAfterLogin);
+      navigate('/home');
       // 로그인 전 경로는 사용했으니 지워주는 것이 안전
       sessionStorage.removeItem('redirectAfterLogin');
       return;

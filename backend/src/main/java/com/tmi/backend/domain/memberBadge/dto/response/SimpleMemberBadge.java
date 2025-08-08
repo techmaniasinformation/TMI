@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 public record SimpleMemberBadge(
     Long memberBadgeId,
     Long badgeId,
+    Boolean isRepresentative,
     LocalDateTime receivedAt
 ) {
 
@@ -13,6 +14,7 @@ public record SimpleMemberBadge(
     return new SimpleMemberBadge(
         entity.getId(),
         entity.getBadge().getId(),
+        entity.getIsRepresentative(),
         entity.getReceivedAt()
     );
   }

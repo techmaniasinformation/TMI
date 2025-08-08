@@ -20,37 +20,37 @@ import usePagination from '@/hooks/mypage/usePagination';
 import useFetchJson from '@/hooks/mypage/useFetchJson';
 
 // 배지
-import ai from '@/assets/images/ai_image.png';
-import amumu from '@/assets/images/amumu_image.png';
-import aws from '@/assets/images/aws_image.png';
-import db from '@/assets/images/db_image.png';
-import fctmi from '@/assets/images/fctmi_image.png';
-import first_article from '@/assets/images/first_article_image.png';
-import first_comment from '@/assets/images/first_comment_image.png';
-import followmany from '@/assets/images/followmany_image.png';
-import helloworld from '@/assets/images/helloworld_image.png';
-import like10 from '@/assets/images/like10_image.png';
-import like100 from '@/assets/images/like100_image.png';
-import like1000 from '@/assets/images/like1000_image.png';
-import paris from '@/assets/images/paris_image.png';
-import react from '@/assets/images/react_image.png';
-import spring from '@/assets/images/spring_image.png';
-import star_5 from '@/assets/images/star_5_image.png';
-import star_13 from '@/assets/images/star_13_image.png';
-import star_42 from '@/assets/images/star_42_image.png';
-import view_50 from '@/assets/images/view1_image.png';   // view_50.png → view1.png
-import view_100 from '@/assets/images/view2_image.png';  // view_100.png → view2.png
-import view_1000 from '@/assets/images/view3_image.png'; // view_1000.png → view3.png
+import ai from '@/assets/images/ai_1.png';
+import amumu from '@/assets/images/amumu.png';
+import aws from '@/assets/images/aws_1.png';
+import db from '@/assets/images/db_1.png';
+import fctmi from '@/assets/images/fctmi_1.png';
+import first_article from '@/assets/images/first_article.png';
+import first_comment from '@/assets/images/first_comment.png';
+import followmany from '@/assets/images/followmany.png';
+import helloworld from '@/assets/images/helloworld.png';
+import like10 from '@/assets/images/like10.png';
+import like100 from '@/assets/images/like100.png';
+import like1000 from '@/assets/images/like1000.png';
+import paris from '@/assets/images/paris.png';
+import react from '@/assets/images/react.png';
+import spring from '@/assets/images/spring.png';
+import star_5 from '@/assets/images/star_5.png';
+import star_13 from '@/assets/images/star_13.png';
+import star_42 from '@/assets/images/star_42.png';
+import view_50 from '@/assets/images/view1.png';   // view_50.png → view1.png
+import view_100 from '@/assets/images/view2.png';  // view_100.png → view2.png
+import view_1000 from '@/assets/images/view3.png'; // view_1000.png → view3.png
 
-import lockedIcon from '@/assets/images/locked_image.png';
+import lockedIcon from '@/assets/images/locked.png';
 
 // badgeUrl 문자열과 실제 import한 이미지 객체를 매핑
 export const badgeImageMap: Record<string, string> = {
-  'ai.png': ai,
+  'ai_1.png': ai,
   'amumu.png': amumu,
-  'aws.png': aws,
-  'db.png': db,
-  'fctmi.png': fctmi,
+  'aws_1.png': aws,
+  'db_1.png': db,
+  'fctmi_1.png': fctmi,
   'first_article.png': first_article,
   'first_comment.png': first_comment,
   'followmany.png': followmany,

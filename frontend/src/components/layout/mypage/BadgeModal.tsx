@@ -11,24 +11,40 @@ interface BadgeModalProps {
     description: string;
     badgeUrl: string;
     receivedAt?: string;
+    isRepresentative?: boolean;
   } | null;
   onClose: () => void;
   onRepresentativeSet?: () => void; // 대표 배지 설정 후 호출
+  onUnsetRepresentative?: () => Promise<void>;
 }
 
-const BadgeModal: React.FC<BadgeModalProps> = ({ isOpen, badge, onClose, onRepresentativeSet }) => {
+const BadgeModal: React.FC<BadgeModalProps> = ({ isOpen, badge, onClose, onRepresentativeSet, onUnsetRepresentative }) => {
   if (!isOpen || !badge) return null;
 
-  const handleSetRepresentative = async () => {
-    if (!badge.memberBadgeId) return;
+  const isOwned = !!badge.memberBadgeId;
+  const isRep = !!badge.isRepresentative;
+
+  const handleToggleRepresentative = async () => {
+    console.log("실행 해제")
+    if (!isOwned || !badge.memberBadgeId) return;
 
     try {
-      await patchRepresentativeBadge(badge.memberBadgeId);
-      alert("대표 배지가 설정되었습니다.");
-      onRepresentativeSet?.(); // 상위 상태 갱신 요청
-      onClose(); // 모달 닫기
-    } catch (err) {
-      alert("대표 배지 설정에 실패했습니다.");
+      console.log("실행중")
+      if (isRep) {
+        // 해제 → 22번 배지로 변경
+        if (!onUnsetRepresentative) return;
+        await onUnsetRepresentative();
+        console.log("경고 실행")
+      } else {
+        // 설정
+        await patchRepresentativeBadge(badge.memberBadgeId);
+        alert("대표 배지가 설정되었습니다.");
+      }
+
+      onRepresentativeSet?.(); // 상위 리스트 리프레시
+      onClose();
+    } catch {
+      alert("대표 배지 변경에 실패했습니다.");
     }
   };
 
@@ -73,13 +89,15 @@ const BadgeModal: React.FC<BadgeModalProps> = ({ isOpen, badge, onClose, onRepre
 
           {/* 버튼 영역 */}
           <div className="flex w-full gap-2 mt-4">
-            {/* 대표 배지 설정 버튼 */}
+          {isOwned && (
             <button
-              onClick={handleSetRepresentative}
-              className="flex-1 h-12 bg-prime-btn text-white text-lg rounded hover:bg-prime-btn-hover"
+              onClick={handleToggleRepresentative}
+              className={`flex-1 h-12 text-white text-lg rounded 
+                ${isRep ? 'bg-red-500 hover:bg-red-600' : 'bg-prime-btn hover:bg-prime-btn-hover'}`}
             >
-              대표 배지로 설정
+              {isRep ? "대표 배지 해제" : "대표 배지로 설정"}
             </button>
+          )}
 
             {/* 닫기 버튼 */}
             <button

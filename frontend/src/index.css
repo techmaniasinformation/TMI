@@ -34,3 +34,14 @@ code {
     monospace;
 }
 
+/* 스크롤은 되게 하고, 스크롤바는 숨김 */
+html, body {
+  overflow: auto;
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;    /* IE/Edge */
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;               /* Chrome/Safari */
+}

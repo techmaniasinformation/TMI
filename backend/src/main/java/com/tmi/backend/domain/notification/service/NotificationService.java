@@ -6,6 +6,7 @@ import com.tmi.backend.domain.company.repository.CompanyRepository;
 import com.tmi.backend.domain.member.entity.Member;
 import com.tmi.backend.domain.member.repository.MemberRepository;
 import com.tmi.backend.domain.notification.dto.request.NotificationCreateRequest;
+import com.tmi.backend.domain.notification.dto.response.EventPayloadResponse;
 import com.tmi.backend.domain.notification.dto.response.NotificationListResponse;
 import com.tmi.backend.domain.notification.entity.Notification;
 import com.tmi.backend.domain.notification.repository.EmitterRepository;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -54,7 +56,7 @@ public class NotificationService {
   /**
    * 이벤트가 구독되어 있는 클라이언트에게 데이터를 전송
    */
-  public void broadcast(Long userId, String eventPayload) {
+  public void broadcast(Long userId, EventPayloadResponse eventPayload) {
     sendToClient(userId, eventPayload);
   }
 
@@ -138,18 +140,18 @@ public class NotificationService {
     return ServiceResult.ok(Map.of("deletedCount", count));
   }
 
-  @Transactional
-  public ServiceResult<Map<String, Long>> createNotification(NotificationCreateRequest req) {
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void createNotification(NotificationCreateRequest req) {
     Member receiver = memberRepository.findById(req.memberId()).orElse(null);
     if (receiver == null) {
-      return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
+      return;
     }
 
     Post post = null;
     if (req.postId() != null) {
       post = postRepository.findById(req.postId()).orElse(null);
       if (post == null) {
-        return ServiceResult.fail(ErrorCode.POST_NOT_FOUND);
+        return;
       }
     }
 
@@ -157,11 +159,14 @@ public class NotificationService {
     if (req.badgeId() != null) {
       badge = badgeRepository.findById(req.badgeId()).orElse(null);
       if (badge == null) {
-        return ServiceResult.fail(ErrorCode.BADGE_NOT_FOUND);
+        return;
       }
     }
     Notification notif = Notification.of(receiver, req.type(), req.content(), post, badge);
     Notification newNotif = notificationRepository.save(notif);
-    return ServiceResult.ok(Map.of("notificationId", newNotif.getId()));
+
+    // 알림 생성하면 알림 발송
+    this.broadcast(receiver.getId(),
+        EventPayloadResponse.of(newNotif.getId(), receiver.getId(), req.content()));
   }
 }

@@ -86,4 +86,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
   Integer sumStarCountByMemberId(Long memberId);
 
   int countByMemberId(Long memberId);
+
+  @Query("select sum(p.viewCount) from Post p where p.member.id = :memberId")
+  Integer sumViewCountByMemberId(Long memberId);
 }

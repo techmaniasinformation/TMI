@@ -1,6 +1,7 @@
 package com.tmi.backend.domain.notification.controller;
 
 import com.tmi.backend.domain.notification.dto.request.NotificationCreateRequest;
+import com.tmi.backend.domain.notification.dto.response.EventPayloadResponse;
 import com.tmi.backend.domain.notification.dto.response.NotificationListResponse;
 import com.tmi.backend.domain.notification.service.NotificationService;
 import com.tmi.backend.global.common.controller.BaseController;
@@ -37,8 +38,13 @@ public class NotificationController implements BaseController {
     return notificationService.subscribe(userId);
   }
 
+  /**
+   * 구독한 멤버에게 이벤트 전송
+   * @param userId 구독 유저 ID
+   * @param eventPayload 이벤트 페이로드
+   */
   @PostMapping("/broadcast/{userId}")
-  public void broadcast(@PathVariable Long userId, @RequestBody String eventPayload) {
+  public void broadcast(@PathVariable Long userId, @RequestBody EventPayloadResponse eventPayload) {
     notificationService.broadcast(userId, eventPayload);
   }
 
@@ -91,16 +97,6 @@ public class NotificationController implements BaseController {
       @RequestParam Long memberId
   ) {
     return handle(notificationService.deleteAllNotifications(memberId));
-  }
-
-  /**
-   * 알림 생성 API
-   */
-  @PostMapping
-  public ResponseEntity<ApiResponse<Map<String, Long>>> createNodtification(
-      @RequestBody NotificationCreateRequest req
-  ) {
-    return handle(notificationService.createNotification(req));
   }
 
 }

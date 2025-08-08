@@ -2,7 +2,8 @@ package com.tmi.backend.domain.notification.listener;
 
 import com.tmi.backend.domain.badge.entity.BadgeType;
 import com.tmi.backend.domain.memberBadge.service.MemberBadgeService;
-import com.tmi.backend.domain.notification.event.PostCreatedEvent;
+import com.tmi.backend.domain.notification.dto.request.NotificationCreateRequest;
+import com.tmi.backend.domain.notification.entity.NotificationType;
 import com.tmi.backend.domain.notification.event.StarAddedEvent;
 import com.tmi.backend.domain.notification.service.NotificationService;
 import com.tmi.backend.domain.post.repository.PostRepository;
@@ -46,7 +47,8 @@ public class StarBadgeListener {
         return;
       }
 
-      notificationService.broadcast(e.postMemberId(), "뱃지 획득 : " + badge.getName());
+      notificationService.createNotification(
+          NotificationCreateRequest.of(e.postMemberId(), null, badge, NotificationType.BADGE_ACQUIRED));
     }
   }
 }

@@ -55,7 +55,7 @@ public class CommentService {
     Comment comment = commentRepository.save(Comment.of(post, member, commentRequest.comment(),
         commentRequest.link()));
 
-    publisher.publishEvent(new CommentCreatedEvent(post.getMember().getId(), member.getId()));
+    publisher.publishEvent(new CommentCreatedEvent(post.getId(), post.getMember().getId(), member.getId()));
 
     return ServiceResult.ok(Map.of("commentId", comment.getId()));
   }

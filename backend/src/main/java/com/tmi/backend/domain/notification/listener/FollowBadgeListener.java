@@ -3,6 +3,8 @@ package com.tmi.backend.domain.notification.listener;
 import com.tmi.backend.domain.badge.entity.BadgeType;
 import com.tmi.backend.domain.follow.member.repository.MemberFollowRepository;
 import com.tmi.backend.domain.memberBadge.service.MemberBadgeService;
+import com.tmi.backend.domain.notification.dto.request.NotificationCreateRequest;
+import com.tmi.backend.domain.notification.entity.NotificationType;
 import com.tmi.backend.domain.notification.event.CommentCreatedEvent;
 import com.tmi.backend.domain.notification.event.FollowAddedEvent;
 import com.tmi.backend.domain.notification.service.NotificationService;
@@ -42,7 +44,9 @@ public class FollowBadgeListener {
       if (!result) {
         return;
       }
-      notificationService.broadcast(e.followeeId(), "뱃지 획득 : " + badge.getName());
+
+      notificationService.createNotification(
+          NotificationCreateRequest.of(e.followeeId(), null, badge, NotificationType.BADGE_ACQUIRED));
     }
   }
 }

@@ -4,14 +4,18 @@ import com.tmi.backend.domain.badge.entity.BadgeType;
 import com.tmi.backend.domain.comment.repository.CommentRepository;
 import com.tmi.backend.domain.follow.member.repository.MemberFollowRepository;
 import com.tmi.backend.domain.memberBadge.service.MemberBadgeService;
+import com.tmi.backend.domain.notification.dto.request.NotificationCreateRequest;
+import com.tmi.backend.domain.notification.entity.NotificationType;
 import com.tmi.backend.domain.notification.event.CommentCreatedEvent;
 import com.tmi.backend.domain.notification.service.NotificationService;
 import com.tmi.backend.domain.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class CommentListener {
@@ -36,13 +40,20 @@ public class CommentListener {
       boolean result = memberBadgeService.acceptedBadge(e.commentMemberId(),
           BadgeType.FIRST_COMMENT.getId());
       if (!result) {
+        log.info(BadgeType.FIRST_COMMENT.getName() + " 배지 이미 획득");
         return;
       }
 
-      notificationService.broadcast(e.commentMemberId(), "뱃지 획득 : " + BadgeType.FIRST_COMMENT.getName());
+      notificationService.createNotification(NotificationCreateRequest.of(
+          e.commentMemberId(), null, BadgeType.FIRST_COMMENT, NotificationType.BADGE_ACQUIRED));
     }
 
-    // 게시글 저자에게 알림 발생
-    notificationService.broadcast(e.postMemberId(), "게시글에 댓글 발생");
+    // 게시글 저자에게 알림 발생(내 게시글에 내 댓글은 알림 X)
+    if (e.postMemberId().equals(e.commentMemberId())) {
+      return;
+    }
+
+    notificationService.createNotification(NotificationCreateRequest.of(
+        e.postMemberId(), e.postId(), null, NotificationType.NEW_COMMENT));
   }
 }

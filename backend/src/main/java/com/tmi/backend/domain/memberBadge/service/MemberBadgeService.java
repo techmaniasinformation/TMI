@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -57,7 +58,7 @@ public class MemberBadgeService {
   }
 
 
-  @Transactional
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public boolean acceptedBadge(Long memberId, Long badgeId) {
     if (memberBadgeRepository.existsByMemberIdAndBadgeId(memberId, badgeId)) {
       return false;

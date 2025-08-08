@@ -5,6 +5,8 @@ import com.tmi.backend.domain.comment.entity.Comment;
 import com.tmi.backend.domain.comment.repository.CommentRepository;
 import com.tmi.backend.domain.commentRecommendation.respository.CommentRecommendationRepository;
 import com.tmi.backend.domain.memberBadge.service.MemberBadgeService;
+import com.tmi.backend.domain.notification.dto.request.NotificationCreateRequest;
+import com.tmi.backend.domain.notification.entity.NotificationType;
 import com.tmi.backend.domain.notification.event.CommentCreatedEvent;
 import com.tmi.backend.domain.notification.event.RecommendationAddedEvent;
 import com.tmi.backend.domain.notification.service.NotificationService;
@@ -48,7 +50,8 @@ public class CommentRecommendBadgeListener {
         return;
       }
 
-      notificationService.broadcast(e.CommentMemberId(), "뱃지 획득 : " + badge.getName());
+      notificationService.createNotification(
+          NotificationCreateRequest.of(e.CommentMemberId(), null, badge, NotificationType.BADGE_ACQUIRED));
     }
   }
 }

@@ -6,6 +6,8 @@ import com.tmi.backend.domain.follow.company.repository.CompanyFollowRepository;
 import com.tmi.backend.domain.follow.member.entity.MemberFollow;
 import com.tmi.backend.domain.follow.member.repository.MemberFollowRepository;
 import com.tmi.backend.domain.memberBadge.service.MemberBadgeService;
+import com.tmi.backend.domain.notification.dto.request.NotificationCreateRequest;
+import com.tmi.backend.domain.notification.entity.NotificationType;
 import com.tmi.backend.domain.notification.event.PostCreatedEvent;
 import com.tmi.backend.domain.notification.service.NotificationService;
 import com.tmi.backend.domain.post.repository.PostRepository;
@@ -42,19 +44,22 @@ public class PostCreateListener {
         return;
       }
 
-      notificationService.broadcast(e.postMemberId(), "뱃지 획득 : " + BadgeType.FIRST_ARTICLE.getName());
+      notificationService.createNotification(
+          NotificationCreateRequest.of(e.postMemberId(), null, BadgeType.FIRST_ARTICLE, NotificationType.BADGE_ACQUIRED));
     }
 
     List<MemberFollow> memberFollows = memberFollowRepository.findByFolloweeId(e.postMemberId());
     for (MemberFollow follow : memberFollows) {
-      notificationService.broadcast(follow.getFollower().getId(),
-          follow.getFollowee().getNickname() + " 님이 게시글 등록");
+
+      notificationService.createNotification(
+          NotificationCreateRequest.of(follow.getFollower().getId(), e.postId(), null, NotificationType.MEMBER_NEW_POST));
     }
 
     List<CompanyFollow> companyFollows = companyFollowRepository.findByCompanyId(e.postCompanyId());
     for (CompanyFollow follow : companyFollows) {
-      notificationService.broadcast(follow.getFollower().getId(),
-          follow.getCompany().getName() + " 님이 게시글 등록");
+
+      notificationService.createNotification(
+          NotificationCreateRequest.of(follow.getFollower().getId(), e.postId(), null, NotificationType.COMPANY_NEW_POST));
     }
   }
 }

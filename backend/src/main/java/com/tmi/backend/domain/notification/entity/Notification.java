@@ -71,6 +71,7 @@ public class Notification {
         .post(post)
         .badge(badge)
         .isRead(false)
+        .createdAt(LocalDateTime.now())
         .build();
   }
 

@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/foundation/button';
 import { useThemeStore } from '@/stores/themeStore'; //테마
-import { useUserStore } from '@/stores/userStore';  //로그인 상태 정보
+import { useUserStore } from '@/stores/userStore'; //로그인 상태 정보
 import LandingCard from '@/components/inter/LandingCard'; //인기 게시글 3개
-
-
 
 interface PostData {
   postId: number;
@@ -28,88 +26,49 @@ const LandingPage: React.FC<LandingPageProps> = () => {
   const [popularPosts, setPopularPosts] = useState<PostData[]>([]);
   const [isHovered, setIsHovered] = useState<string | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   // 테마 관련 변수 받기
   const { isDarkMode } = useThemeStore();
 
-  // ##### 현재 로그인 여부, 로그인 했을 시 user 정보
-  const { isAuthenticated, user } = useUserStore();
+  // ##### 현재 로그인 여부, 로그인 했을 시 memberId(로그인 안 한 상태면 -1)
+  const { isLogin, memberId } = useUserStore();
 
   useEffect(() => {
     async function fetchPopularPosts() {
       try {
-        console.log('🔍 [LandingPage] 인기 게시글 API 호출 시작');
         const response = await fetch(
           'https://i13a509.p.ssafy.io/api/v1/post/popular?size=3'
         );
-        
-        console.log('🔍 [LandingPage] API 응답 상태:', response.status);
-        
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
         const data = await response.json();
-        console.log('🔍 [LandingPage] API 응답 데이터:', data);
-        
-        // API 응답 구조에 따라 데이터 추출
-        let postsData = [];
-        
-        if (data.status === 'SUCCESS' && data.data && data.data.posts) {
-          // 백엔드 응답 구조: { status: 'SUCCESS', data: { posts: [...] } }
-          postsData = data.data.posts;
-        } else if (data.status === 'SUCCESS' && data.data && Array.isArray(data.data)) {
-          // 백엔드 응답 구조: { status: 'SUCCESS', data: [...] }
-          postsData = data.data;
-        } else if (Array.isArray(data)) {
-          // 직접 배열로 응답하는 경우
-          postsData = data;
-        } else {
-          console.error('❌ [LandingPage] 예상치 못한 API 응답 구조:', data);
-          throw new Error('API 응답 구조가 올바르지 않습니다.');
-        }
-        
-        console.log('🔍 [LandingPage] 추출된 게시글 데이터:', postsData);
-        
-        // API 응답 데이터를 LandingCard props 형식에 맞게 변환
-        const transformedPosts = postsData.map((post: any) => ({
-          postId: parseInt(post.postId), // 문자열을 숫자로 변환
-          memberProfileUrl: post.memberProfile, // memberProfile -> memberProfileUrl
-          companyProfileUrl: post.companyProfileUrl,
-          name: post.name,
-          badgeUrl: post.badgeUrl || '',
-          title: post.title,
-          createAt: post.createAt,
-          viewCount: post.viewCount,
-          starCount: post.starCount,
-          commentCount: post.commentCount,
-          tags: post.tags || [],
-          thumbnailUrl: post.thumbnailUrl || ''
-        }));
-        
-        console.log('🔍 [LandingPage] 변환된 게시글 데이터:', transformedPosts);
-        setPopularPosts(transformedPosts);
-        
+        setPopularPosts(data);
       } catch (error) {
-        console.error('❌ [LandingPage] 인기 게시글 불러오기 실패:', error);
-        // 에러 발생 시 빈 배열로 설정
-        setPopularPosts([]);
+        console.error('인기 게시글 불러오기 실패:', error);
       }
     }
     fetchPopularPosts();
   }, []);
 
   const handleSignupClick = (): void => {
-    navigate('/login');
+    // TODO: 로그인/회원가입 페이지로 이동 로직 구현
+    navigate('/login', {
+      state: { from: location.pathname },
+    });
+    console.log('로그인/회원가입 페이지로 이동');
   };
 
   const handleExploreClick = (): void => {
     navigate('/home');
+    console.log('메인 페이지로 이동');
   };
 
-  // ######## 카드 클릭시 게시글 상세 페이지로 이동 
+  // ######## 카드 클릭시 게시글 상세 페이지로 이동
   const handleCardClick = (postId: number) => {
     navigate(`/post/${postId}`);
+    console.log(`게시글 상세 페이지로 이동: post/${postId}`);
   };
 
   return (
@@ -180,7 +139,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
 
           {/* Navigation Buttons */}
           <div className='flex flex-col sm:flex-row gap-6 justify-center items-center'>
-            {!isAuthenticated && (
+            {!isLogin && (
               <Button
                 variant={'primary'}
                 onMouseEnter={() => setIsHovered('signup')}
@@ -248,6 +207,69 @@ const LandingPage: React.FC<LandingPageProps> = () => {
             인기 게시글
           </h2>
           {/* 각 카드는 inter에다가 컴포넌트 만들기 */}
+          <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
+            {/* Card 1 */}
+            <LandingCard
+              postId={101}
+              memberProfileUrl='https://example.com/profiles/john-doe.jpg'
+              companyProfileUrl={null}
+              name='John Doe'
+              badgeUrl='https://example.com/badges/expert.png'
+              title='React 18의 새로운 기능들과 실무 적용 방법'
+              createAt='2025.01.15'
+              viewCount={1234}
+              starCount={89}
+              commentCount={27}
+              tags={['react', 'javascript', 'frontend']}
+              thumbnailUrl='https://readdy.ai/api/search-image?query=modern%20react%20javascript%20code%20on%20computer%20screen%20with%20colorful%20syntax%20highlighting%2C%20clean%20programming%20interface%20showing%20react%20components%20and%20hooks%2C%20professional%20software%20development%20environment%20with%20dark%20theme%2C%20high%20tech%20coding%20workspace%20with%20multiple%20monitors&width=200&height=160&seq=react-post-thumb-1&orientation=landscape'
+              roleColor='bg-blue-600'
+              hoverBorder='hover:border-blue-500/50'
+              hoverShadow='hover:shadow-blue-500/20'
+              variant={isDarkMode ? 'dark' : 'light'}
+            />
+
+            {/* Card 2 */}
+            <LandingCard
+              postId={202}
+              memberProfileUrl='https://example.com/profiles/sarah-kim.jpg'
+              companyProfileUrl={null}
+              name='Sarah Kim'
+              badgeUrl='https://example.com/badges/senior.png'
+              title='Next.js 14 App Router로 마이그레이션 가이드'
+              createAt='2025.01.12'
+              viewCount={2156}
+              starCount={145}
+              commentCount={32}
+              tags={['nextjs', 'react', 'migration']}
+              thumbnailUrl='https://readdy.ai/api/search-image?query=nextjs%20framework%20logo%20and%20code%20interface%20with%20app%20router%20architecture%2C%20modern%20web%20development%20setup%20with%20typescript%20and%20react%20components%2C%20clean%20coding%20environment%20with%20nextjs%20project%20structure%2C%20professional%20software%20development%20workspace&width=200&height=160&seq=nextjs-post-thumb-1&orientation=landscape'
+              roleColor='bg-purple-600'
+              hoverBorder='hover:border-purple-500/50'
+              hoverShadow='hover:shadow-purple-500/20'
+              variant={isDarkMode ? 'dark' : 'light'}
+            />
+
+            {/* Card 3 */}
+            <LandingCard
+              postId={103}
+              memberProfileUrl='https://example.com/profiles/mike-lee.jpg'
+              companyProfileUrl={null}
+              name='Mike Lee'
+              badgeUrl='https://example.com/badges/tech-lead.png'
+              title='TypeScript 5.0 새로운 기능과 마이그레이션'
+              createAt='2025.01.10'
+              viewCount={987}
+              starCount={67}
+              commentCount={15}
+              tags={['typescript', 'javascript', 'update']}
+              thumbnailUrl='https://readdy.ai/api/search-image?query=typescript%20code%20editor%20with%20syntax%20highlighting%20and%20type%20definitions%2C%20modern%20IDE%20interface%20showing%20typescript%20language%20features%2C%20clean%20programming%20environment%20with%20typescript%20configuration%20files%2C%20professional%20software%20development%20setup&width=200&height=160&seq=typescript-post-thumb-1&orientation=landscape'
+              roleColor='bg-green-600'
+              hoverBorder='hover:border-green-500/50'
+              hoverShadow='hover:shadow-green-500/20'
+              variant={isDarkMode ? 'dark' : 'light'}
+            />
+          </div>
+          {/* api 연결 후 아래로 대체 */}
+          {/* role color 적용은 추후에 생각해볼 것.  */}
           <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
             {popularPosts.length > 0 ? (
               popularPosts.map((post) => (

@@ -1,4 +1,5 @@
-import { createBrowserRouter } from 'react-router-dom';
+import React from 'react';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 import Layout from '../components/foundation/Layout';
 import HomePage from '../pages/HomePage';
 import LandingPage from '../pages/LandingPage';
@@ -12,6 +13,19 @@ import LoginPage from '../pages/LoginPage';
 import SignupPage from '../pages/SignupPage';
 import OAuthCallbackPage from '../pages/OAuthCallbackPage';
 import { ROUTES } from './routes';
+import { useUserStore } from '@/stores/userStore';
+
+// 로그인 페이지 접근 확인 위함.
+function LoginRouteGuard() {
+  const { isLogin } = useUserStore();
+
+  if (isLogin) {
+    alert('이미 로그인 되어 있습니다');
+    return <Navigate to={ROUTES.HOME} replace />;
+  }
+
+  return <LoginPage />;
+}
 
 export const router = createBrowserRouter([
   {
@@ -27,8 +41,9 @@ export const router = createBrowserRouter([
         element: <HomePage />,
       },
       {
+        // isLogin=treu일 때, home으로 라우팅
         path: ROUTES.LOGIN,
-        element: <LoginPage />,
+        element: <LoginRouteGuard />,
       },
       {
         path: '/signup',

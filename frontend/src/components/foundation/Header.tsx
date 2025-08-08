@@ -1,13 +1,11 @@
-import React, { useState } from "react";
-import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@/utils/utils";
-import { Link, useNavigate } from "react-router-dom";
-import SearchBar from "./SearchBar"; // 검색바 컴포넌트 분리
-import { Button } from "./button";
-import { useThemeStore } from "@/stores/themeStore"; // 테마 불러오기
-import { useUserStore } from "@/stores/userStore"; // 로그인 관련 전역변수
-import tmiLogo from "@/assets/icons/tmiLogo.svg";
-import { getSafeProfileUrl } from "@/utils/defaultImages";
+import React, { useState } from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '@/utils/utils';
+import { Link, useNavigate } from 'react-router-dom';
+import SearchBar from './SearchBar'; // 검색바 컴포넌트 분리
+import { Button } from './button';
+import { useThemeStore } from '@/stores/themeStore'; // 테마 불러오기
+import { useUserStore } from '@/stores/userStore'; // 로그인 관련 전역변수
 
 const headerVariants = cva('text-white', {
   variants: {
@@ -33,17 +31,31 @@ const Header: React.FC<HeaderProps> = ({
   variant = 'light',
   size = 'default',
 }) => {
-  const {isAuthenticated, user, logout} = useUserStore(); // 로그인 상태 확인 
+  const { isLogin, memberId, toggleIsLogin } = useUserStore(); // 로그인 상태 확인
   const { isDarkMode, toggleTheme } = useThemeStore(); // 전역 상태 사용
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(true);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const navigate = useNavigate();
 
-  // 로그아웃 처리
-  const handleLogout = async () => {
-    await logout();
-    setShowProfileMenu(false);
+  // 로그아웃 함수.
+  const handleLogOut = async () => {
+    try {
+      const response = await fetch('/api/logout###### ', {
+        method: 'DELETE', // 로그아웃 요청 방식
+        credentials: 'include', // 쿠키나 세션 전송 시 필요#ㄸ##########
+      });
+
+      if (response.ok) {
+        toggleIsLogin(); // 로그인 상태 false로 변경
+        alert('로그아웃 되었습니다.');
+      } else {
+        alert('로그아웃에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('로그아웃 중 오류:', error);
+      alert('서버 오류로 로그아웃에 실패했습니다.');
+    }
   };
 
   const addToRecentSearches = (term: string) => {
@@ -62,11 +74,11 @@ const Header: React.FC<HeaderProps> = ({
 
   // ✅ 게시글 작성 버튼 클릭시 로그인 여부에 따라 반응
   const handleWritePost = () => {
-    if (!isAuthenticated) {
+    if (!isLogin) {
       alert('로그인이 필요합니다.'); // 알림 표시
       navigate('/login'); // 로그인 페이지로 이동
     } else {
-      navigate('/post/create'); // 게시글 작성 페이지로 이동
+      navigate('/posts/editor'); // 게시글 작성 페이지로 이동 (예: /write)
     }
   };
 
@@ -84,7 +96,7 @@ const Header: React.FC<HeaderProps> = ({
           <div className='flex items-center'>
             <Link to='/' className='flex items-center space-x-2'>
               <img
-                src={tmiLogo}
+                src='src/assets/icons/tmiLogo.svg'
                 alt='TMI Logo'
                 className='w-20 h-20'
               />
@@ -110,21 +122,21 @@ const Header: React.FC<HeaderProps> = ({
                 className={`fas ${isDarkMode ? 'fa-sun' : 'fa-moon'} text-lg`}
               />
             </button>
-            {/* 로그인 여부에 따라 다르게 */}
-            {isAuthenticated ? (
+            {/* ############## 로그인 여부에 따라 다르게 */}
+            {isLogin ? (
               <div className='relative flex'>
                 {/* 프로필 */}
                 <button
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
                   className={cn(
                     'relative flex items-center space-x-2 p-2 rounded-lg',
-                    textColor, 
+                    textColor,
                     'hover:bg-opacity-70'
                   )}
                 >
                   <div className='relative'>
                     <img
-                      src={getSafeProfileUrl('https://readdy.ai/api/search-image?query=professional%20headshot%20developer&width=32&height=32&orientation=squarish')}
+                      src='https://readdy.ai/api/search-image?query=professional%20headshot%20developer&width=32&height=32&orientation=squarish'
                       alt='Profile'
                       className='w-8 h-8 rounded-full'
                     />
@@ -133,14 +145,14 @@ const Header: React.FC<HeaderProps> = ({
                       <span className='absolute top-0 right-0 block w-3 h-3 bg-warning rounded-full border-2 border-blue'></span>
                     )}
                   </div>
-                  <span 
-  className={cn(
-    'text-sm font-medium hover:font-bold', // 기본 크기와 두께
-    variant === 'dark' ? 'text-white' : 'text-dark-bg', 
-  )}
->
-  김개발
-</span>
+                  <span
+                    className={cn(
+                      'text-sm font-medium hover:font-bold', // 기본 크기와 두께
+                      variant === 'dark' ? 'text-white' : 'text-dark-bg'
+                    )}
+                  >
+                    김개발
+                  </span>
                   <i
                     className={cn(
                       'fas text-xs',
@@ -159,8 +171,6 @@ const Header: React.FC<HeaderProps> = ({
                       variant === 'dark'
                         ? 'bg-dark-header border-light-header'
                         : 'bg-light-header border-dark-header'
-
-
                     )}
                   >
                     <div className='py-1'>
@@ -191,9 +201,8 @@ const Header: React.FC<HeaderProps> = ({
                         마이페이지
                       </Link>
                       <hr className='my-1' />
-                      {/* api 나오면 로그아웃도 함수로 연결하기 */}
                       <button
-                        onClick={() => navigate('/login')}
+                        onClick={handleLogOut}
                         className='block w-full text-left px-4 py-2 text-sm text-warning font-bold hover:bg-gray-100 hover:font-bold'
                       >
                         로그아웃

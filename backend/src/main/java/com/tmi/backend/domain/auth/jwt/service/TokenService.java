@@ -25,7 +25,6 @@ public class TokenService {
         .httpOnly(true)
         .secure(true)
         .path("/")
-        .domain("localhost")                //TODO : 프론트 개발 환경으로 변경(배포시 삭제)
         .maxAge(Duration.ofMinutes(5))
         .sameSite("None")                   // TODO : CSRF 방지(배포시 Strinct 로 변경)
         .build();
@@ -45,7 +44,6 @@ public class TokenService {
         .httpOnly(true)
         .secure(true)
         .path("/")
-        .domain("localhost")                //TODO : 프론트 개발 환경으로 변경(배포시 삭제)
         .maxAge(Duration.ofDays(1))
         .sameSite("None")                   // TODO : CSRF 방지(배포시 Strinct 로 변경)
         .build();
@@ -54,7 +52,6 @@ public class TokenService {
         .httpOnly(true)
         .secure(true)
         .path("/")
-        .domain("localhost")                //TODO : 프론트 개발 환경으로 변경(배포시 삭제)
         .maxAge(Duration.ofDays(14))
         .sameSite("None")                   // TODO : CSRF 방지(배포시 Strinct 로 변경)
         .build();

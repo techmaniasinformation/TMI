@@ -10,54 +10,13 @@ import { Post } from '@/types';
 import { PostItem } from '@/components/domain/article/PostItem';
 import { useNavigate } from 'react-router-dom';
 import { getSafeThumbnailUrl } from '@/utils/defaultImages';
+import { PostCardSkeleton } from '@/components/foundation/Skeleton';
 
 // 탭 설정
 const HOME_TABS = [
   { id: 'latest', label: '최신순', icon: 'fas fa-clock' },
   { id: 'following', label: '팔로우순', icon: 'fas fa-users' }
 ];
-
-// 스켈레톤 카드 컴포넌트
-const SkeletonCard = () => (
-  <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 mb-6 animate-pulse">
-    <div className="flex items-start gap-4">
-      {/* 프로필 이미지 스켈레톤 */}
-      <div className="w-10 h-10 bg-gray-200 rounded-full flex-shrink-0"></div>
-      
-      {/* 컨텐츠 영역 */}
-      <div className="flex-1 min-w-0">
-        {/* 제목 스켈레톤 */}
-        <div className="h-5 bg-gray-200 rounded mb-2 w-3/4"></div>
-        
-        {/* 작성자 정보 스켈레톤 */}
-        <div className="flex items-center gap-2 mb-3">
-          <div className="h-4 bg-gray-200 rounded w-20"></div>
-          <div className="h-4 bg-gray-200 rounded w-16"></div>
-          <div className="h-4 bg-gray-200 rounded w-12"></div>
-        </div>
-        
-        {/* 태그 스켈레톤 */}
-        <div className="flex gap-2 mb-3">
-          <div className="h-6 bg-gray-200 rounded-full w-16"></div>
-          <div className="h-6 bg-gray-200 rounded-full w-20"></div>
-          <div className="h-6 bg-gray-200 rounded-full w-14"></div>
-        </div>
-        
-        {/* 통계 정보 스켈레톤 */}
-        <div className="flex items-center gap-4">
-          <div className="h-4 bg-gray-200 rounded w-12"></div>
-          <div className="h-4 bg-gray-200 rounded w-10"></div>
-          <div className="h-4 bg-gray-200 rounded w-8"></div>
-        </div>
-      </div>
-      
-      {/* 썸네일 스켈레톤 */}
-      <div className="w-48 h-32 bg-gray-200 rounded-lg flex-shrink-0"></div>
-    </div>
-  </div>
-);
-
-
 
 export default function HomePostList() {
   const navigate = useNavigate();
@@ -104,143 +63,150 @@ export default function HomePostList() {
     }
   }, [loading, posts, isInitialLoad]);
 
-  // 에러 상태
-  if (error) {
+  // 로딩 중일 때 스켈레톤 표시
+  if (loading) {
     return (
-      <div className="text-center py-12">
-        <i className="fas fa-exclamation-triangle text-6xl text-red-300 mb-4"></i>
-        <p className="text-lg text-red-500 mb-2">오류가 발생했습니다</p>
-        <p className="text-gray-500">{error}</p>
-        <button 
-          onClick={() => window.location.reload()}
-          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          다시 시도
-        </button>
+      <div className="space-y-4">
+        {[1, 2, 3, 4, 5].map((index) => (
+          <PostCardSkeleton key={index} />
+        ))}
       </div>
     );
   }
 
-  // 로그인 필요 또는 팔로우 없음 상태 렌더링
-  const renderLoginRequiredCard = () => {
-    if (activeTab === 'following') {
-      return (
-        <div className="mb-8">
-          <Card>
-            <CardContent className="p-8">
-              <div className="flex flex-col items-center justify-center py-8">
-                <i className="fas fa-user-lock text-6xl text-gray-400 mb-4"></i>
-                <p className="text-lg text-gray-600 mb-4">로그인이 필요합니다</p>
-                <Button className="!rounded-button cursor-pointer whitespace-nowrap">
-                  로그인하기
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+  // 에러 상태
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <div className="mb-6">
+          <i className="fas fa-exclamation-triangle text-6xl text-red-300 mb-4"></i>
+          <h3 className="text-lg font-semibold text-red-600 mb-2">게시글을 불러오는 중 오류가 발생했습니다</h3>
+          <p className="text-gray-600 mb-4">{error}</p>
         </div>
-      );
-    }
-    return null;
+        
+        <div className="space-y-3">
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors mr-3"
+          >
+            <i className="fas fa-redo mr-2"></i>
+            다시 시도
+          </button>
+          
+          <button 
+            onClick={() => window.history.back()}
+            className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+          >
+            <i className="fas fa-arrow-left mr-2"></i>
+            이전 페이지로
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 로그인 필요 카드 렌더링
+  const renderLoginRequiredCard = () => {
+    return (
+      <Card className="mb-6">
+        <CardContent className="p-6">
+          <div className="text-center">
+            <div className="mb-4">
+              <i className="fas fa-users text-4xl text-gray-400 mb-4"></i>
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">팔로우한 사용자의 게시글</h3>
+              <p className="text-gray-500 mb-4">
+                팔로우한 사용자들의 최신 게시글을 확인하려면 로그인이 필요합니다
+              </p>
+            </div>
+            
+            <div className="space-y-3">
+              <Button 
+                onClick={() => navigate('/login')}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg mr-3"
+              >
+                <i className="fas fa-sign-in-alt mr-2"></i>
+                로그인
+              </Button>
+              
+              <Button 
+                onClick={() => setActiveTab('latest')}
+                variant="outline"
+                className="border-gray-300 text-gray-700 hover:bg-gray-50 px-6 py-2 rounded-lg"
+              >
+                <i className="fas fa-clock mr-2"></i>
+                최신순으로 보기
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      {/* 1. HomeTabBar 컴포넌트 */}
-      <HomeTabBar
-        activeTab={activeTab}
+    <div className="space-y-6">
+      {/* 탭 바 */}
+      <HomeTabBar 
         tabs={HOME_TABS}
-        onTabChange={(tab) => setActiveTab(tab as 'latest' | 'following')}
+        activeTab={activeTab}
+        onTabChange={(tabId) => setActiveTab(tabId as 'latest' | 'following')}
       />
 
-      {/* 2. 로그인 필요 카드 또는 PostList */}
-      {activeTab === 'following' ? (
-        renderLoginRequiredCard()
-      ) : (
-        <>
-          {/* 숨겨진 이미지 프리로딩 - 초기 로드 완료 후에만 실행 */}
-          {!isInitialLoad && (
-            <div className="hidden">
-              {posts.map((post) => (
-                                 <img
-                   key={post.postId}
-                   src={getSafeThumbnailUrl(post.thumbnailUrl)}
-                   alt=""
-                   onLoad={() => handleImageLoad(post.postId)}
-                   onError={() => handleImageLoad(post.postId)} // 에러 시에도 로드 완료로 처리
-                 />
-              ))}
-            </div>
-          )}
-
-          {/* 게시글 목록 */}
-          <div className="mb-8">
-            {/* API 로딩 중일 때는 스켈레톤 표시 */}
-            {loading ? (
-              // 스켈레톤 카드들을 순차적으로 표시
-              [1, 2, 3, 4, 5].map((index) => (
-                <div 
-                  key={index} 
-                  className="animate-pulse"
-                  style={{ 
-                    animationDelay: `${(index - 1) * 0.1}s`,
-                    animationDuration: '1.5s'
-                  }}
-                >
-                  <SkeletonCard />
-                </div>
-              ))
-            ) : (
-              // API 로딩 완료 후 게시글 표시
-              posts.map((post, index) => {
-                const isLoaded = loadedPosts.has(post.postId);
-                const hasThumbnail = post.thumbnailUrl;
-                
-                // 썸네일이 없거나 이미 로드된 경우 바로 표시
-                const shouldShow = !hasThumbnail || isLoaded;
-                
-                return shouldShow ? (
-                  <div
-                    key={post.postId}
-                    className="animate-fade-in"
-                    style={{
-                      animationDelay: `${index * 0.1}s`,
-                      animationDuration: '0.5s'
-                    }}
-                  >
-                    <PostItem
-                      post={post}
-                      formatDate={formatDate}
-                      formatNumber={formatNumber}
-                      maxTags={5}
-                      onClick={handlePostClick}
-                    />
-                  </div>
-                ) : (
-                  <div
-                    key={post.postId}
-                    className="animate-pulse"
-                    style={{
-                      animationDelay: `${index * 0.1}s`,
-                      animationDuration: '1.5s'
-                    }}
-                  >
-                    <SkeletonCard />
-                  </div>
-                );
-              })
-            )}
-          </div>
-
-          {/* 3. ServerPagination 컴포넌트 */}
-          {!loading && (
-            <ServerPagination
-              currentPage={currentPage}
-              totalCount={totalElements}
-              pageSize={10}
-              onPageChange={setCurrentPage}
+      {/* 숨겨진 이미지 프리로딩 - 초기 로드 완료 후에만 실행 */}
+      {!isInitialLoad && (
+        <div className="hidden">
+          {posts.map((post) => (
+            <img
+              key={post.postId}
+              src={getSafeThumbnailUrl(post.thumbnailUrl)}
+              alt=""
+              onLoad={() => handleImageLoad(post.postId)}
+              onError={() => handleImageLoad(post.postId)} // 에러 시에도 로드 완료로 처리
             />
-          )}
-        </>
+          ))}
+        </div>
+      )}
+
+      {/* 팔로우 탭이고 로그인이 필요한 경우 */}
+      {activeTab === 'following' && !posts.length && (
+        renderLoginRequiredCard()
+      )}
+
+      {/* 게시글 목록 */}
+      {posts.length > 0 && (
+        <PostList
+          posts={posts}
+          formatDate={formatDate}
+          formatNumber={formatNumber}
+          onPostClick={handlePostClick}
+          showThumbnail={true}
+          maxTags={5}
+          className="mb-8"
+        />
+      )}
+
+      {/* 페이지네이션 */}
+      {totalPages > 1 && (
+        <ServerPagination
+          currentPage={currentPage}
+          totalCount={totalElements}
+          pageSize={10}
+          onPageChange={setCurrentPage}
+        />
+      )}
+
+      {/* 더보기 버튼 (마지막 페이지가 아닌 경우) */}
+      {!isLast && posts.length > 0 && (
+        <div className="text-center">
+          <Button
+            onClick={() => setCurrentPage(currentPage + 1)}
+            variant="outline"
+            className="border-gray-300 text-gray-700 hover:bg-gray-50 px-8 py-3 rounded-lg"
+          >
+            <i className="fas fa-plus mr-2"></i>
+            더보기
+          </Button>
+        </div>
       )}
     </div>
   );

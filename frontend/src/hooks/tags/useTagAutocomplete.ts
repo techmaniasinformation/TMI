@@ -1,23 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-
-// 백엔드 API 응답 타입
-interface TechTag {
-  techTagId: number;
-  techName: string;
-}
-
-interface CompanyTag {
-  companyTagId: number;
-  companyName: string; // 백엔드 API 응답 확인 필요 - 임시로 companyName 사용
-}
-
-interface TagSearchApiResponse {
-  status: string;
-  data: {
-    techTags: TechTag[];
-    companyTags: CompanyTag[];
-  };
-}
+import { TechTag, CompanyTag, TagSearchResponse } from '@/types/api.types';
 
 // 통합 태그 타입 (UI에서 사용)
 export interface AutocompleteTag {
@@ -31,14 +13,30 @@ interface UseTagAutocompleteOptions {
   debounceMs?: number; // 디바운스 시간
 }
 
+interface UseTagAutocompleteReturn {
+  suggestions: AutocompleteTag[];
+  loading: boolean;
+  error: string | null;
+  searchTags: (query: string) => void;
+  clearSuggestions: () => void;
+  tagSearchResults: {
+    techTags: TechTag[];
+    companyTags: CompanyTag[];
+  };
+}
+
 const API_BASE_URL = 'https://i13a509.p.ssafy.io/api/v1';
 
-export const useTagAutocomplete = (options: UseTagAutocompleteOptions = {}) => {
+export const useTagAutocomplete = (options: UseTagAutocompleteOptions = {}): UseTagAutocompleteReturn => {
   const { minLength = 1, debounceMs = 300 } = options;
   
   const [suggestions, setSuggestions] = useState<AutocompleteTag[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [tagSearchResults, setTagSearchResults] = useState<{
+    techTags: TechTag[];
+    companyTags: CompanyTag[];
+  }>({ techTags: [], companyTags: [] });
   
   const debounceTimerRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const abortControllerRef = useRef<AbortController | undefined>(undefined);
@@ -59,7 +57,6 @@ export const useTagAutocomplete = (options: UseTagAutocompleteOptions = {}) => {
 
     try {
       const url = `${API_BASE_URL}/tag?q=${encodeURIComponent(query)}`;
-      console.log('🏷️ [fetchTagSuggestions] API 호출:', url);
 
       const response = await fetch(url, {
         method: 'GET',
@@ -73,21 +70,26 @@ export const useTagAutocomplete = (options: UseTagAutocompleteOptions = {}) => {
         throw new Error(`태그 검색 API 호출 실패: ${response.status} ${response.statusText}`);
       }
 
-      const data: TagSearchApiResponse = await response.json();
-      console.log('✅ [fetchTagSuggestions] API 응답:', data);
+      const data: TagSearchResponse = await response.json();
 
       if (data.status !== 'SUCCESS') {
         throw new Error('태그 검색 API 응답이 성공하지 않았습니다.');
       }
 
+      // 원본 API 응답 저장
+      setTagSearchResults({
+        techTags: data.data.techTags || [],
+        companyTags: data.data.companyTags || [],
+      });
+
       // 백엔드 응답을 AutocompleteTag 형식으로 변환
-      const techTags: AutocompleteTag[] = data.data.techTags.map(tag => ({
+      const techTags: AutocompleteTag[] = data.data.techTags.map((tag: TechTag) => ({
         id: tag.techTagId,
         name: tag.techName,
         type: 'tech' as const,
       }));
 
-      const companyTags: AutocompleteTag[] = data.data.companyTags.map(tag => ({
+      const companyTags: AutocompleteTag[] = data.data.companyTags.map((tag: CompanyTag) => ({
         id: tag.companyTagId,
         name: tag.companyName,
         type: 'company' as const,
@@ -98,11 +100,9 @@ export const useTagAutocomplete = (options: UseTagAutocompleteOptions = {}) => {
 
     } catch (err) {
       if (err instanceof Error && err.name === 'AbortError') {
-        console.log('🏷️ [fetchTagSuggestions] 요청이 취소됨');
         return [];
       }
       
-      console.error('❌ [fetchTagSuggestions] 오류:', err);
       throw err;
     }
   }, [minLength]);
@@ -118,6 +118,7 @@ export const useTagAutocomplete = (options: UseTagAutocompleteOptions = {}) => {
     if (query.length < minLength) {
       setSuggestions([]);
       setError(null);
+      setTagSearchResults({ techTags: [], companyTags: [] });
       return;
     }
 
@@ -133,6 +134,7 @@ export const useTagAutocomplete = (options: UseTagAutocompleteOptions = {}) => {
         const errorMessage = err instanceof Error ? err.message : '태그 검색 중 오류가 발생했습니다.';
         setError(errorMessage);
         setSuggestions([]);
+        setTagSearchResults({ techTags: [], companyTags: [] });
       } finally {
         setLoading(false);
       }
@@ -143,6 +145,7 @@ export const useTagAutocomplete = (options: UseTagAutocompleteOptions = {}) => {
   const clearSuggestions = useCallback(() => {
     setSuggestions([]);
     setError(null);
+    setTagSearchResults({ techTags: [], companyTags: [] });
   }, []);
 
   // 컴포넌트 언마운트 시 정리
@@ -163,5 +166,6 @@ export const useTagAutocomplete = (options: UseTagAutocompleteOptions = {}) => {
     error,
     searchTags,
     clearSuggestions,
+    tagSearchResults,
   };
 };

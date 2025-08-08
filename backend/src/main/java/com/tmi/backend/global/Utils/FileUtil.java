@@ -3,17 +3,20 @@ package com.tmi.backend.global.Utils;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import org.apache.tika.Tika;
 
+@Getter
 @Component
 @Slf4j
 public class FileUtil {
@@ -24,10 +27,13 @@ public class FileUtil {
   private static final List<String> ALLOWED_EXTENSIONS = Arrays.asList(".jpg", ".jpeg", ".png",
       ".gif");
 
-  public String getUploadDir() {
-    return uploadDir;
-  }
-
+  /**
+   * 디스크에 MultipartFile을 저장하고 파일명을 반환합니다.
+   *
+   * @param multipartFile 파일 객체
+   * @param domain        이미지가 저장될 곳의 디렉토리(profile, thumbnail)
+   * @return 저장된 파일명
+   */
   public String saveFile(MultipartFile multipartFile, String domain) throws IOException {
     if (multipartFile.isEmpty()) {
       throw new IllegalArgumentException("업로드할 파일이 없습니다.");
@@ -89,6 +95,22 @@ public class FileUtil {
 
     if (!mimeType.startsWith("image/")) {
       throw new IllegalArgumentException("파일 시그니처를 확인한 결과, 이미지 파일이 아닙니다.");
+    }
+  }
+
+  /**
+   * 디스크에 저장된 파일을 삭제합니다.
+   *
+   * @param filename 저장된 파일명 (UUID)
+   * @param domain   파일이 저장된 하위 디렉토리(profile, thumbnail)
+   * @return 파일의 byte[]
+   */
+  public void deleteFile(String filename, String domain) throws IOException {
+    Path filePath = Paths.get(uploadDir, domain, filename);
+    try {
+      Files.delete(filePath);
+    } catch (NoSuchFileException e) {
+      log.warn("삭제할 파일을 찾을 수 없습니다: {}", filePath);
     }
   }
 }

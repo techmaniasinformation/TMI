@@ -61,4 +61,5 @@ api:
   gms-key: ${GMS_KEY}
 
 frontend:
-  redirect-uri: "http://localhost:3000/login"
+  redirect-uri: "https://i13a509.p.ssafy.io/login"
+#  redirect-uri: "http://localhost:3000/login"

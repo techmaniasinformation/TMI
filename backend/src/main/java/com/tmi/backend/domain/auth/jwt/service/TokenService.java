@@ -26,7 +26,7 @@ public class TokenService {
         .secure(true)
         .path("/")
         .maxAge(Duration.ofMinutes(5))
-        .sameSite("None")                   // TODO : CSRF 방지(배포시 필수)
+        .sameSite("None")                   // TODO : CSRF 방지(배포시 Strinct 로 변경)
         .build();
     response.addHeader(HttpHeaders.SET_COOKIE, registCookie.toString());
 
@@ -45,15 +45,15 @@ public class TokenService {
         .secure(true)
         .path("/")
         .maxAge(Duration.ofDays(1))
-        .sameSite("None")                   // TODO : CSRF 방지(배포시 필수)
+        .sameSite("None")                   // TODO : CSRF 방지(배포시 Strinct 로 변경)
         .build();
 
     ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", refreshToken)
-        .httpOnly(true)                   // JavaScript에서 접근 불가 → XSS(크로스사이트스크립팅) 방지
-        .secure(true)                   // HTTPS 환경에서만 쿠키 전송 → MITM 방지
+        .httpOnly(true)
+        .secure(true)
         .path("/")
-        .maxAge(Duration.ofDays(14))       // 쿠키의 유효기간 설정 (14일 동안 브라우저 종료와 무관하게 유지됨)
-        .sameSite("None")                   // TODO : CSRF 방지(배포시 필수)
+        .maxAge(Duration.ofDays(14))
+        .sameSite("None")                   // TODO : CSRF 방지(배포시 Strinct 로 변경)
         .build();
 
     response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
@@ -67,14 +67,14 @@ public class TokenService {
         .httpOnly(true)
         .path("/")
         .maxAge(0)
-        .sameSite("None")                   // TODO : CSRF 방지(배포시 필수)
+        .sameSite("None")                   // TODO : CSRF 방지(배포시 Strinct 로 변경)
         .build();
 
     ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", "")
         .httpOnly(true)
         .path("/api/v1/auth/refresh")
         .maxAge(0)
-        .sameSite("None")                   // TODO : CSRF 방지(배포시 필수)
+        .sameSite("None")                   // TODO : CSRF 방지(배포시 Strinct 로 변경)
         .build();
 
     response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());

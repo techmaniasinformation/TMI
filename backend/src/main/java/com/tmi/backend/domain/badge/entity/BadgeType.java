@@ -26,7 +26,8 @@ public enum BadgeType {
   REACT(18L, "React"),
   AI(19L, "AI"),
   DB(20L, "DB"),
-  AWS(21L, "AWS");
+  AWS(21L, "AWS"),
+  NONE(22L, "");
 
   private final Long id;
   private final String name;

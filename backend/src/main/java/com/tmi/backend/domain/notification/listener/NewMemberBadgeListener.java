@@ -28,6 +28,7 @@ public class NewMemberBadgeListener {
   public void on(MemberRegisteredEvent e) {
 
     memberBadgeService.acceptedBadge(e.memberId(), BadgeType.HELLO_WORLD.getId());
+    memberBadgeService.acceptedBadge(e.memberId(), BadgeType.NONE.getId());
 
     notificationService.createNotification(
         NotificationCreateRequest.of(e.memberId(), null, BadgeType.HELLO_WORLD, NotificationType.BADGE_ACQUIRED));

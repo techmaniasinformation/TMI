@@ -10,7 +10,7 @@ interface BadgeModalProps {
     name: string;
     description: string;
     badgeUrl: string;
-    receivedAt?: string;
+    receivedAt?: string | null;
     isRepresentative?: boolean;
   } | null;
   onClose: () => void;

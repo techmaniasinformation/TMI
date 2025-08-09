@@ -1,39 +1,39 @@
+// /src/components/layout/mypage/FollowUserCard.tsx
 import React from "react";
-import DefaultUserImage from "@/assets/icons/expeople.svg"; // 기본 이미지
+import DefaultUserImage from "@/assets/icons/expeople.svg";
 
-// 컴포넌트에 전달될 props 타입 정의
 interface FollowUserCardProps {
-  id: string;
+  id: number;
   nickname: string;
-  badge: string;
-  image: string;
+  image: string | null;
+  badgeName?: string;         // ← 배지 "이름"을 옵션으로 받음
   onClick?: () => void;
 }
 
-// 개인 유저 팔로우 카드 컴포넌트
-const FollowUserCard: React.FC<FollowUserCardProps> = ({ id, nickname, badge, image, onClick }) => {
+const FollowUserCard: React.FC<FollowUserCardProps> = ({ id, nickname, image, badgeName, onClick }) => {
   return (
     <div
       key={id}
       className="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors duration-200"
       onClick={onClick}
     >
-      {/* 프로필 이미지 */}
       <img
-        src={image}
+        src={image || DefaultUserImage}
         alt={nickname}
-        onError={(e) => {
-          e.currentTarget.src = DefaultUserImage;
-        }}
+        onError={(e) => { e.currentTarget.src = DefaultUserImage; }}
         className="w-16 h-16 rounded-full object-cover"
       />
 
-      {/* 닉네임 및 배지 */}
       <div>
+        {/* 닉네임 */}
         <div className="font-medium text-gray-900">{nickname}</div>
-        <span className="inline-block mt-1 px-2 py-0.5 rounded bg-purple-100 text-purple-800 text-xs">
-          {badge}
-        </span>
+
+        {/* 대표 배지 '이름' 표시 (있을 때만) */}
+        {badgeName && (
+          <span className="inline-block mt-1 px-2 py-0.5 rounded bg-purple-100 text-purple-800 text-xs">
+            {badgeName}
+          </span>
+        )}
       </div>
     </div>
   );

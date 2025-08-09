@@ -445,7 +445,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
                   postTitle={comment.title}
                   comment={comment.comment}
                   date={comment.createAt}
-                  onClick={() => comment.link && (window.location.href = comment.link)}
+                  onClick={() => window.location.href = `/post/${comment.postId}`}
                 />
               ))}
             </div>

@@ -38,11 +38,7 @@ public class CompanyFollowController implements BaseController {
       @RequestParam(defaultValue = "10") int size,
       @RequestParam(defaultValue = "false") boolean all
   ) {
-    if (!SecurityUtil.memberCheck(followerId)) {
-      return handle(ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED));
-    }
-    ;
-    return handle(companyFollowService.getCompanyFollows(followerId, page, size, all));
+    return handle(companyFollowService.getCompanyFollows(followerId, page, size));
   }
 
   /**

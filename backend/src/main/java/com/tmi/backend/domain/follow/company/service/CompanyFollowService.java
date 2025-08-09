@@ -15,6 +15,7 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,12 +30,16 @@ public class CompanyFollowService {
   private final CompanyRepository companyRepository;
 
   public ServiceResult<CompanyFollowListResponse> getCompanyFollows(
-      Long followerId,
-      int page,
-      int size
+      Long followerId, int page, int size, boolean all
   ) {
-    PageRequest pr = PageRequest.of(page, size, Sort.by("createdAt").descending());
-    Page<CompanyFollow> p = followRepository.findByFollowerId(followerId, pr);
+    Pageable pageable;
+    if (all) {
+      pageable = Pageable.unpaged();
+    } else {
+      pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+    }
+
+    Page<CompanyFollow> p = followRepository.findByFollowerId(followerId, pageable);
 
     return ServiceResult.ok(
         CompanyFollowListResponse.from(p)

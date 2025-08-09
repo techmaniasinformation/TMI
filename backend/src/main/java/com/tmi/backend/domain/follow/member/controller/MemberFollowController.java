@@ -38,11 +38,7 @@ public class MemberFollowController implements BaseController {
       @RequestParam(defaultValue = "10") int size,
       @RequestParam(defaultValue = "false") boolean all
   ) {
-    if (all) {
-      
-    }
-
-    return handle(memberFollowService.getMemberFollows(followerId, page, size));
+    return handle(memberFollowService.getMemberFollows(followerId, page, size, all));
   }
 
   /**

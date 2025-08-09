@@ -26,5 +26,4 @@ public interface MemberFollowRepository extends JpaRepository<MemberFollow, Long
   int countByFolloweeId(Long aLong);
 
   List<MemberFollow> findByFolloweeId(Long aLong);
-
 }

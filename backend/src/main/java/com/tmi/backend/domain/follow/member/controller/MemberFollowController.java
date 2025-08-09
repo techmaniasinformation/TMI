@@ -47,7 +47,6 @@ public class MemberFollowController implements BaseController {
   @PostMapping
   public ResponseEntity<ApiResponse<Map<String, Long>>> createFollow(
       @Valid @RequestBody MemberFollowCreateRequest req
-
   ) {
     if (!SecurityUtil.memberCheck(req.followerId())) {
       return handle(ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED));

@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,13 +35,15 @@ public class MemberFollowService {
   private final ApplicationEventPublisher publisher;
 
   public ServiceResult<MemberFollowListResponse> getMemberFollows(
-      Long followerId,
-      int page,
-      int size
+      Long followerId, int page, int size, boolean all
   ) {
-    PageRequest pr = PageRequest.of(page, size, Sort.by("createdAt").descending());
-
-    Page<MemberFollow> p = followRepository.findByFollowerId(followerId, pr);
+    Pageable pageable;
+    if (all) {
+      pageable = Pageable.unpaged();
+    } else {
+      pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+    }
+    Page<MemberFollow> p = followRepository.findByFollowerId(followerId, pageable);
 
     List<Long> followeeIds = p.stream()
         .map(mf -> mf.getFollowee().getId())

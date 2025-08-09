@@ -32,9 +32,10 @@ public class MemberFollowController implements BaseController {
   public ResponseEntity<ApiResponse<MemberFollowListResponse>> getMemberFollows(
       @RequestParam Long followerId,
       @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "10") int size
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(defaultValue = "false") boolean all
   ) {
-    return handle(memberFollowService.getMemberFollows(followerId, page, size));
+    return handle(memberFollowService.getMemberFollows(followerId, page, size, all));
   }
 
   /**

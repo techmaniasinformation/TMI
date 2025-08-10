@@ -31,7 +31,8 @@ const Header: React.FC<HeaderProps> = ({
   variant = 'light',
   size = 'default',
 }) => {
-  const { isLogin, memberId, toggleIsLogin } = useUserStore(); // 로그인 상태 확인
+  const { memberId, user, toggleIsLogin } = useUserStore(); // 로그인 상태 확인
+  const isLogin = memberId !== -1; // memberId가 -1이 아니면 로그인된 상태
   const { isDarkMode, toggleTheme } = useThemeStore(); // 전역 상태 사용
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(true);
@@ -151,7 +152,7 @@ const Header: React.FC<HeaderProps> = ({
                       variant === 'dark' ? 'text-white' : 'text-dark-bg'
                     )}
                   >
-                    김개발
+                    {user?.nickname || '사용자'}
                   </span>
                   <i
                     className={cn(

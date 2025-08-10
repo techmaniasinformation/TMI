@@ -22,8 +22,13 @@ const useSocialLogin = () => {
   ) => {
     // 현재 경로를 sessionStorage에 저장
     sessionStorage.setItem('redirectAfterLogin', from);
-    // 로그인 URL로 이동
-    window.location.href = `https://i13a509.p.ssafy.io/api/v1/oauth2/authorization/${provider}`;
+    
+    // 로컬 개발 환경에서는 테스트용 URL 사용
+    const isLocal = window.location.hostname === 'localhost';
+    const baseUrl = isLocal ? 'http://localhost:8080' : 'https://i13a509.p.ssafy.io/api/v1';
+    const oauthPath = isLocal ? `/test/oauth2/authorization/${provider}` : `/oauth2/authorization/${provider}`;
+    
+    window.location.href = `${baseUrl}${oauthPath}`;
   };
 
   //쿼리 파라미터 기반 리다이렉트 처리
@@ -36,10 +41,8 @@ const useSocialLogin = () => {
     const searchParams = new URLSearchParams(location.search); // &&& location.search에서 쿼리 추출
     const isNew = searchParams.get('isNew');
 
-    const providerParams = searchParams.getAll('provider');
-
-    const provider = providerParams[0] || null;
-    const providerId = providerParams[1] || null;
+    const provider = searchParams.get('provider');
+    const providerId = searchParams.get('providerMemberId');
     console.log(provider, providerId);
     //
     const memberId = searchParams.get('memberId');

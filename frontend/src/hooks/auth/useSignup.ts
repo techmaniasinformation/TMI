@@ -1,8 +1,11 @@
 import { useState } from 'react';
-import { useLocation } from 'react-router-dom'; 
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useUserStore } from '@/stores/userStore'; 
 
 export const useSignup = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { setMemberId, setUser } = useUserStore();
   const { provider, providerId } = location.state ?? {};
 
 
@@ -38,33 +41,50 @@ export const useSignup = () => {
 
   const handleNicknameCheck = async () => {
     if (!formData.nickname.trim()) return;
+    console.log('🔍 [SIGNUP] 닉네임 중복 확인 시작:', formData.nickname);
+    console.log('🌐 [SIGNUP] API Base URL:', import.meta.env.VITE_API_BASE_URL);
+    
     setIsCheckingNickname(true);
     try {
-      const res = await fetch(
-        `https://i13a509.p.ssafy.io/api/v1/member/duplicate?nickname=${encodeURIComponent(formData.nickname)}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const url = `${import.meta.env.VITE_API_BASE_URL}/v1/member/duplicate?nickname=${encodeURIComponent(formData.nickname)}`;
+      console.log('🔍 [SIGNUP] 닉네임 확인 요청 URL:', url);
+      
+      const res = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+      
+      console.log('🔍 [SIGNUP] 닉네임 확인 응답 상태:', res.status);
+      
       if (!res.ok) {
-        throw new Error('닉네임 확인 요청 실패');
+        throw new Error(`닉네임 확인 요청 실패: ${res.status}`);
       }
       const json = await res.json();
+      console.log('🔍 [SIGNUP] 닉네임 확인 응답:', json);
+      
       setIsNicknameChecked(true);
       setIsNicknameTaken(json.data.isDuplicated);
+      console.log('✅ [SIGNUP] 닉네임 중복 확인 완료 - 중복:', json.data.isDuplicated);
     } catch (err) {
-      console.error(err);
+      console.error('❌ [SIGNUP] 닉네임 확인 에러:', err);
     } finally {
       setIsCheckingNickname(false);
     }
   };
 
   const handleSubmit = async () => {
-    if (!isFormValid || !isNicknameChecked || isNicknameTaken) return;
+    if (!isFormValid || !isNicknameChecked || isNicknameTaken) {
+      console.warn('⚠️ [SIGNUP] 폼 유효성 검사 실패');
+      console.log('📋 [SIGNUP] 폼 상태 - 유효:', isFormValid, '닉네임확인:', isNicknameChecked, '중복:', isNicknameTaken);
+      return;
+    }
 
+    console.log('🚀 [SIGNUP] 회원가입 시작');
+    console.log('🚀 [SIGNUP] 폼 데이터:', formData);
+    
     setIsSubmitting(true);
     try {
       const payload = {
@@ -74,31 +94,71 @@ export const useSignup = () => {
         memberProfileUrl: formData.memberProfileUrl,  // Base64 혹은 URL
       };
 
-      const res = await fetch('https://i13a509.p.ssafy.io/api/v1/member/signup', {
+      console.log('🚀 [SIGNUP] 전송할 페이로드:', payload);
+      
+      // 쿠키 확인 로그 (HttpOnly 쿠키는 document.cookie로 읽을 수 없음)
+      const cookies = document.cookie;
+      console.log('🚀 [SIGNUP] 현재 JavaScript 접근 가능한 쿠키들:', cookies);
+      console.log('🚀 [SIGNUP] REGIST_TOKEN은 HttpOnly 쿠키이므로 JavaScript로 직접 읽을 수 없습니다.');
+      console.log('🚀 [SIGNUP] 하지만 브라우저가 자동으로 HTTP 요청에 포함시킬 것입니다.');
+
+      const url = `${import.meta.env.VITE_API_BASE_URL}/v1/member/signup`;
+      console.log('🚀 [SIGNUP] 요청 URL:', url);
+
+      const res = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        // body: JSON.stringify(formData),
         body: JSON.stringify(payload),
       });
 
-            // memberId 전역변수 저장,
-      
-      // useId 정보 조회해서 user 정보 전역변수 저장 
-      // 로그인 완료, 이전 페이지로 리다이렉트
+      console.log('🚀 [SIGNUP] 응답 상태:', res.status);
+      console.log('🚀 [SIGNUP] 응답 헤더:', [...res.headers.entries()]);
 
       if (!res.ok) {
-        throw new Error('회원가입 요청 실패');
+        const errorText = await res.text();
+        console.error('❌ [SIGNUP] 에러 응답 내용:', errorText);
+        throw new Error(`회원가입 요청 실패: ${res.status} - ${errorText}`);
       }
 
       const data = await res.json();
-      console.log('회원가입 성공:', data);
-      alert('회원가입이 완료되었습니다!');
+      console.log('✅ [SIGNUP] 회원가입 성공:', data);
+      
+      // memberId 전역변수 저장
+      const memberId = data.data.memberId;
+      setMemberId(memberId);
+      
+      // 사용자 정보 조회해서 전역변수에 저장
+      try {
+        const userRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/v1/member/${memberId}`, {
+          credentials: 'include',
+        });
+        
+        if (userRes.ok) {
+          const userData = await userRes.json();
+          const user = {
+            memberId: userData.data.memberId,
+            nickname: userData.data.nickname,
+            memberProfileUrl: userData.data.memberProfileUrl,
+          };
+          setUser(user);
+          console.log('✅ [SIGNUP] 사용자 정보 저장 완료:', user);
+        }
+      } catch (error) {
+        console.error('❌ [SIGNUP] 사용자 정보 조회 실패:', error);
+      }
+      
+             alert('회원가입이 완료되었습니다!');
+       
+       // 홈페이지로 리다이렉트
+       navigate('/home');
+
     } catch (error) {
-      console.error('회원가입 실패:', error);
-      alert('회원가입에 실패했습니다. 다시 시도해주세요.');
+      console.error('❌ [SIGNUP] 회원가입 실패:', error);
+      const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
+      alert(`회원가입에 실패했습니다: ${errorMessage}`);
     } finally {
       setIsSubmitting(false);
     }

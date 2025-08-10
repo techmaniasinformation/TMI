@@ -69,6 +69,7 @@ const SignupPage: React.FC<SignupPageProps> = () => {
         <div className='mb-10'>
           <label className='block text-sm font-medium text-gray-700 mb-2'>
             닉네임 <span className='text-red-500'>*</span>
+            <span className='text-gray-500 text-xs ml-2'>(최대 20자)</span>
           </label>
           <div className='flex gap-3'>
             <div className='flex-1'>
@@ -79,6 +80,7 @@ const SignupPage: React.FC<SignupPageProps> = () => {
                   handleNicknameChange(e);
                 }}
                 placeholder='닉네임을 입력해 주세요'
+                maxLength={20}
                 className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors text-sm'
               />
             </div>

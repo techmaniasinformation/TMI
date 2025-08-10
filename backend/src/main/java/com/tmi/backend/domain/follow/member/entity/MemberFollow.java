@@ -13,6 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,6 +44,14 @@ public class MemberFollow {
   private Member followee;
 
   private LocalDateTime createdAt;
+
+  public static MemberFollow of(Member follower, Member followee) {
+    return MemberFollow.builder()
+        .follower(follower)
+        .followee(followee)
+        .createdAt(LocalDateTime.now(ZoneOffset.UTC))
+        .build();
+  }
 
 }
 

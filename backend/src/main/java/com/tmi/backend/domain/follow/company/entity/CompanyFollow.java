@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,6 +44,7 @@ public class CompanyFollow {
     return CompanyFollow.builder()
         .follower(follower)
         .company(company)
+        .createdAt(LocalDateTime.now(ZoneOffset.UTC))
         .build();
   }
 }

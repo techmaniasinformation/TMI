@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,8 +44,8 @@ public class Company {
         .name(name)
         .companyProfileUrl(companyProfileUrl)
         .techBlogUrl(techBlogUrl)
-        .createdAt(LocalDateTime.now())
-        .updatedAt(LocalDateTime.now())
+        .createdAt(LocalDateTime.now(ZoneOffset.UTC))
+        .updatedAt(LocalDateTime.now(ZoneOffset.UTC))
         .build();
   }
 }

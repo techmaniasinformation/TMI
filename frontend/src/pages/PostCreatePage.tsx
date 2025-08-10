@@ -8,7 +8,7 @@ import '@uiw/react-markdown-preview/markdown.css';
 
 const PostCreatePage: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useUserStore();
+  const { memberId, user } = useUserStore();
   
   // 태그 자동완성 훅 사용
   const {
@@ -121,6 +121,13 @@ const PostCreatePage: React.FC = () => {
 
 
   const handleSave = async () => {
+    // 로그인 상태 확인
+    if (memberId === -1) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+      return;
+    }
+
     if (!linkUrl || !title) {
       alert('링크 URL과 제목을 입력해주세요.');
       return;
@@ -134,7 +141,7 @@ const PostCreatePage: React.FC = () => {
       
               // API 요청 데이터 준비
         const requestData = {
-          memberId: user?.memberId || 1, // 실제 로그인된 사용자 ID 사용
+          memberId: memberId, // Zustand에서 직접 가져온 사용자 ID 사용
           link: linkUrl,
           title: title,
           thumbnailUrl: imagePreview || '', // TODO: 실제 이미지 업로드 후 URL로 변경

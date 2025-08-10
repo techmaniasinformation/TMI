@@ -8,8 +8,8 @@ import jakarta.validation.constraints.Size;
 
 public record MemberCreateRequest(
     @NotNull Provider provider,
-    @NotBlank String providerMemberId,
-    @NotBlank @Size(max = 8) String nickname,
+    @NotBlank @Size(max = 100) String providerMemberId,
+    @NotBlank @Size(max = 20) String nickname,
     String memberProfileUrl) {
 
 }

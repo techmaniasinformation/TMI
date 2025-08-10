@@ -44,7 +44,7 @@ public class Member {
   @Column(nullable = false, length = 100)
   private String providerMemberId;
 
-  @Column(nullable = false, length = 8)
+  @Column(nullable = false, length = 20)
   private String nickname;
 
   @Column(length = 255)

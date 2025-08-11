@@ -8,10 +8,17 @@ interface User {
   memberProfileUrl: string;
 }
 
+//신규 가입자 
+interface NewUser {
+  provider: string;
+  providerMemberId: string;
+}
+
 interface UserState {
   isLogin: boolean; // 페이지 구현되면 삭제 예정
   memberId: number;
   user: User | null;
+  newUser: NewUser | null;
   starLst: number[];
   followUser: number[];
   followCompany: number[];
@@ -41,6 +48,7 @@ export const useUserStore = create(
       isLogin: false, // 기능 수정 후 isLogin 변수 삭제 예정
       memberId: -1,
       user: null,
+      newUser: null,  // 신규 회원 정보
       starLst: [],
       followUser: [],
       followCompany: [],
@@ -51,16 +59,22 @@ export const useUserStore = create(
 
       setMemberId: (id: number) => set({ 
         memberId: id, 
-        isLogin: id !== -1 
+        // isLogin: id !== -1 
+      }),
+
+      setNewUSer: (newUser: NewUser) => set({
+        newUser,
       }),
 
       setUser: (user: User) => set({ 
         user, 
-        isLogin: user !== null 
+        // isLogin: user !== null 
       }),
+
       clearUser: () => set({ 
         user: null, 
-        isLogin: false 
+        memberId: -1,
+        // isLogin: false 
       }),
       setStarLst: (list: number[]) => set({ starLst: list }),
       setFollowUser: (list: number[]) => set({ followUser: list }),

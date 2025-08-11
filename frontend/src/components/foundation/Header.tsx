@@ -31,18 +31,16 @@ const Header: React.FC<HeaderProps> = ({
   variant = 'light',
   size = 'default',
 }) => {
-  const { 
-    isLogin, 
-    memberId, 
-    user, 
-    toggleIsLogin, 
-    setMemberId, 
-    setUser, 
+  const {
+    memberId,
+    user,
+    setMemberId,
+    setUser,
     clearUser,
     setStarLst,
     setFollowUser,
     setFollowCompany,
-    clearSocialLoginInfo
+    clearSocialLoginInfo,
   } = useUserStore(); // 로그인 상태 확인
   const { isDarkMode, toggleTheme } = useThemeStore(); // 전역 상태 사용
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -50,13 +48,19 @@ const Header: React.FC<HeaderProps> = ({
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const navigate = useNavigate();
 
+  // 로그인 여부
+  const isAuthenticated = memberId !== -1; 
+
   // 로그아웃 함수.
   const handleLogOut = async () => {
     try {
-      const response = await fetch('https://i13a509.p.ssafy.io/api/v1/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
-      });
+      const response = await fetch(
+        'https://i13a509.p.ssafy.io/api/v1/auth/logout',
+        {
+          method: 'POST',
+          credentials: 'include',
+        }
+      );
 
       // 서버 응답과 관계없이 클라이언트 상태 정리
       // 모든 전역변수 초기화
@@ -66,19 +70,18 @@ const Header: React.FC<HeaderProps> = ({
       setFollowUser([]);
       setFollowCompany([]);
       clearSocialLoginInfo();
-      
+
       // 프로필 메뉴 닫기
       setShowProfileMenu(false);
-      
+
       console.log('로그아웃 완료 - 모든 전역변수 정리됨');
       alert('로그아웃 되었습니다.');
-      
+
       // 홈페이지로 리다이렉트
       navigate('/');
-      
     } catch (error) {
       console.error('로그아웃 중 오류:', error);
-      
+
       // 서버 오류가 있어도 클라이언트 상태는 정리
       setMemberId(-1);
       clearUser();
@@ -87,7 +90,7 @@ const Header: React.FC<HeaderProps> = ({
       setFollowCompany([]);
       clearSocialLoginInfo();
       setShowProfileMenu(false);
-      
+
       alert('로그아웃 되었습니다.');
       navigate('/');
     }
@@ -109,7 +112,7 @@ const Header: React.FC<HeaderProps> = ({
 
   // ✅ 게시글 작성 버튼 클릭시 로그인 여부에 따라 반응
   const handleWritePost = () => {
-    if (!isLogin) {
+    if (!isAuthenticated) {
       alert('로그인이 필요합니다.'); // 알림 표시
       navigate('/login'); // 로그인 페이지로 이동
     } else {
@@ -158,7 +161,8 @@ const Header: React.FC<HeaderProps> = ({
               />
             </button>
             {/* ############## 로그인 여부에 따라 다르게 */}
-            {isLogin ? (
+            
+            {isAuthenticated ? (
               <div className='relative flex'>
                 {/* 프로필 */}
                 <button
@@ -171,7 +175,10 @@ const Header: React.FC<HeaderProps> = ({
                 >
                   <div className='relative'>
                     <img
-                      src={user?.memberProfileUrl || 'https://readdy.ai/api/search-image?query=professional%20headshot%20developer&width=32&height=32&orientation=squarish'}
+                      src={
+                        user?.memberProfileUrl ||
+                        'https://readdy.ai/api/search-image?query=professional%20headshot%20developer&width=32&height=32&orientation=squarish'
+                      }
                       alt='Profile'
                       className='w-8 h-8 rounded-full'
                     />

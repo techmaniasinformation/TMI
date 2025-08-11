@@ -163,14 +163,17 @@ const PostEditPage: React.FC = () => {
       
       const formData = new FormData();
       
-      const requestData = {
+      const requestData: { [key: string]: any } = {
         memberId: user?.memberId,
         link: processedUrl,
         title: title,
-        thumbnailUrl: imagePreview || '',
         content: content,
         tags: tags
       };
+
+      if (selectedImage) {
+        requestData.thumbnailUrl = '';
+      }
       
       const blob = new Blob([JSON.stringify(requestData)], { type: 'application/json' });
       formData.append('req', blob);

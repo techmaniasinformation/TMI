@@ -163,7 +163,7 @@ const PostCreatePage: React.FC = () => {
          memberId: user?.memberId,
          link: processedUrl,
          title: title,
-         thumbnailUrl: imagePreview || '', // Base64 이미지 URL 또는 빈 문자열
+         thumbnailUrl: selectedImage ? '' : imagePreview || '', // 새 이미지가 있으면 URL 비움
          content: content,
          tags: tags // 배열 그대로 전송
        };

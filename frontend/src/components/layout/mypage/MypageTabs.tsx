@@ -6,7 +6,6 @@ import { patchRepresentativeBadge } from "@/api/mypage/representativebadgeServic
 
 // 기본 UI
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/domain/Tabs";
-import Pagination from '@/components/domain/ServerPagination';
 
 // 카드들
 import PostCard from './PostCard';
@@ -22,7 +21,7 @@ import IconTab4 from '@/assets/icons/IconTab4';
 import IconTab5 from '@/assets/icons/IconTab5';
 
 // 훅
-import Pagination from '@/components/domain/ServerPagination';
+import ServerPagination from '@/components/domain/ServerPagination';
 
 // 배지
 import ai from '@/assets/images/ai_1.png';
@@ -455,7 +454,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
             </div>
           )}
           {commentTotalPages > 1 && (
-            <Pagination
+            <ServerPagination
               currentPage={currentCommentPage}
               totalCount={commentTotalElements}
               pageSize={5}
@@ -495,7 +494,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
               </div>
 
               {companyPostTotalPages > 1 && (
-                <Pagination
+                <ServerPagination
                   currentPage={currentPostPage}
                   totalCount={companyPostTotalElements}
                   pageSize={5}
@@ -531,7 +530,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
             </div>
 
             {postTotalPages > 1 && (
-              <Pagination
+              <ServerPagination
                 currentPage={currentPostPage}
                 totalCount={postTotalElements}
                 pageSize={5}
@@ -592,7 +591,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
                 </div>
               )}
               {totalCompanyPages > 1 && (
-                <Pagination
+                <ServerPagination
                   currentPage={currentCompanyPage}
                   totalCount={companyTotalElements} // 정확한 총합
                   pageSize={9}
@@ -622,7 +621,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
                 </div>
               )}
               {totalUserPages > 1 && (
-                <Pagination
+                <ServerPagination
                   currentPage={currentUserPage}
                   totalCount={userTotalElements} // 정확한 총합
                   pageSize={9}
@@ -666,7 +665,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
           )}
 
           {starTotalPages > 1 && (
-            <Pagination
+            <ServerPagination
               currentPage={currentStarPage}
               totalCount={starTotalElements}
               pageSize={5}

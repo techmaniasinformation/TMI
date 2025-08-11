@@ -35,7 +35,6 @@ public class PostService {
   private final FileUtil fileUtil;
   private final ApplicationEventPublisher publisher;
 
-  // TODO : 인증 로직 구현
   @Transactional
   public ServiceResult<Map<String, Long>> createPost(
       PostCreateRequest postCreateRequest,
@@ -48,6 +47,12 @@ public class PostService {
     if (member == null) {
       return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
     }
+
+    Member user = memberRepository.findById(userDetailId).orElse(null);
+    if (user == null || (!userDetailId.equals(member.getId()) && user.getProvider() != Provider.ADMIN)) {
+      return ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED);
+    }
+
     String thumbnailUrl = null;
     if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
       try {
@@ -72,11 +77,6 @@ public class PostService {
       }
     }
 
-    Member user = memberRepository.findById(userDetailId).orElse(null);
-    if (user == null || (userDetailId != member.getId() && user.getProvider() != Provider.ADMIN)) {
-      return ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED);
-    }
-
     Post post = Post.of(
         member,
         postCreateRequest.title(),
@@ -89,7 +89,7 @@ public class PostService {
 
     postTagService.createPostTags(save, postCreateRequest.tags());
 
-    publisher.publishEvent(new PostCreatedEvent(post.getId(), null, member.getId()));
+    publisher.publishEvent(new PostCreatedEvent(save.getId(), null, member.getId()));
 
     return ServiceResult.ok(Map.of("postId", save.getId()));
   }
@@ -106,6 +106,12 @@ public class PostService {
     if (post == null) {
       return ServiceResult.fail(ErrorCode.POST_NOT_FOUND);
     }
+
+    Member user = memberRepository.findById(userDetailId).orElse(null);
+    if (user == null || (!userDetailId.equals(post.getMember().getId()) && user.getProvider() != Provider.ADMIN)) {
+      return ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED);
+    }
+
     String newThumbnailUrl = post.getThumbnailUrl();
 
     // 새로운 썸네일 이미지가 업로드된 경우
@@ -119,13 +125,6 @@ public class PostService {
         }
       }
 
-    Member user = memberRepository.findById(userDetailId).orElse(null);
-    if (user == null || (userDetailId != post.getMember().getId() && user.getProvider() != Provider.ADMIN)) {
-      return ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED);
-    }
-
-    post.change(postUpdateRequest.title(), postUpdateRequest.content(),
-        postUpdateRequest.link(), postUpdateRequest.thumbnailUrl());
       // 새 파일 저장 및 롤백 처리 로직
       try {
         newThumbnailUrl = fileUtil.saveFile(thumbnailImage, "post");
@@ -184,7 +183,7 @@ public class PostService {
     }
 
     Member user = memberRepository.findById(userDetailId).orElse(null);
-    if (user == null || (userDetailId != post.getMember().getId() && user.getProvider() != Provider.ADMIN)) {
+    if (user == null || (!userDetailId.equals(post.getMember().getId()) && user.getProvider() != Provider.ADMIN)) {
       return ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED);
     }
 

@@ -17,9 +17,9 @@ import { useUserStore } from '@/stores/userStore';
 
 // 로그인 페이지 접근 확인 위함.
 function LoginRouteGuard() {
-  const { isLogin } = useUserStore();
+  const { isLogin, memberId } = useUserStore();
 
-  if (isLogin) {
+  if ( memberId != -1 ) {
     alert('이미 로그인 되어 있습니다');
     return <Navigate to={ROUTES.HOME} replace />;
   }

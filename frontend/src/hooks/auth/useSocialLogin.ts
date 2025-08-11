@@ -8,11 +8,12 @@ const useSocialLogin = () => {
   const location = useLocation();
 
   const {
-    toggleIsLogin,//isLogin 정리되면 삭제 예정
+    toggleIsLogin, //isLogin 정리되면 삭제 예정
     setMemberId,
-    setUser,        //  user 상태 저장을 위해 추가
-    setMyStarLst,
-    setMyFollowLst,
+    setUser, //  user 상태 저장을 위해 추가
+    setStarLst,
+    setFollowUser,
+    setFollowCompany,
   } = useUserStore();
 
   // 이전 경로 함께 전달하는 소셜 로그인
@@ -36,21 +37,19 @@ const useSocialLogin = () => {
     const searchParams = new URLSearchParams(location.search); // &&& location.search에서 쿼리 추출
     const isNew = searchParams.get('isNew');
 
-    const providerParams = searchParams.getAll('provider');
-
-    const provider = providerParams[0] || null;
-    const providerId = providerParams[1] || null;
-    console.log(provider, providerId);
-    //
+    const provider = searchParams.get('provider');
+    const providerMemberId = searchParams.get('providerMemberId');
+    console.log(provider, providerMemberId);
+    
     const memberId = searchParams.get('memberId');
 
     //신규 회원: provider, providerId가 반드시 있어야 회원가입으로 이동
     if (isNew === 'true') {
-      if (provider && providerId) {
+      if (provider && providerMemberId) {
         navigate('/signup', {
           state: {
             provider,
-            providerId,
+            providerMemberId,
           },
         });
       } else {
@@ -64,11 +63,13 @@ const useSocialLogin = () => {
     //  이후 방향 : 로그인 이전 경로 받아다가, 로그인 이전 페이지로 보내기.
     if (isNew === 'false') {
       // isLogin 빼고 memberId로만 로그인 상태 관리
-      toggleIsLogin();  // 즉 이 줄 지워질 수 있음
+      toggleIsLogin(); // 즉 이 줄 지워질 수 있음
+      console.log('isNew=false')
       // memberId 전역변수 저장 및 user 정보 전달
       if (memberId !== null) {
         const numericMemberId = Number(memberId);
         setMemberId(numericMemberId);
+        console.log("memberId", memberId);
 
         // ✅ 사용자 정보 요청 후 저장
         fetch(`https://i13a509.p.ssafy.io/api/v1/member/${numericMemberId}`, {
@@ -93,9 +94,32 @@ const useSocialLogin = () => {
       }
 
       //스타 게시글 리스트 저장
+      // ⭐️ 스타 게시글 리스트 저장
+      fetch(`https://i13a509.p.ssafy.io/api/v1/star?memberId=${memberId}`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('ACCESS_TOKEN')}`, // 또는 다른 방식으로 accessToken 관리 중이면 수정
+        },
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error('Failed to fetch star list');
+          return res.json();
+        })
+        .then((response) => {
+          const starIdLst = response.data.stars.map((item: any) => item.starId);
+          setStarLst(starIdLst);
+          // 🔍 DEBUG-START: 스타 게시글 목록 출력 (개발 완료 시 제거)
+          console.log('⭐️ 로그인 시 스타 게시글 목록:', starIdLst);
+          // 🔍 DEBUG-END
+        })
+        .catch((error) => {
+          console.error('⭐️ 스타 목록 가져오기 실패:', error);
+        });
 
       //팔로우 (멤버 id) 리스트 저장
-      
+
+
+
       // 로그인 완료, 이전 페이지로 리다이렉트
       navigate(redirectAfterLogin);
       // 로그인 전 경로는 사용했으니 지워주는 것이 안전

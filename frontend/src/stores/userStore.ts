@@ -1,82 +1,93 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 // 사용자 정보를 정의하는 타입 (간단 예시 — 실제 타입에 맞게 수정)
 interface User {
-  memberId:number;
+  memberId: number;
   nickname: string;
   memberProfileUrl: string;
 }
 
 interface UserState {
-  isLogin: boolean;
+  isLogin: boolean; // 페이지 구현되면 삭제 예정
   memberId: number;
   user: User | null;
-  myStarLst: number[];
-  myFollowLst: number[];
+  starLst: number[];
+  followUser: number[];
+  followCompany: number[];
 
   toggleIsLogin: () => void;
   setMemberId: (id: number) => void;
-  setUser: (user: User) => void;  
-    setMyStarLst: (list: any[]) => void;
-  setMyFollowLst: (list: any[]) => void;
+  setUser: (user: User) => void;
+  setStarLst: (list: any[]) => void;
+  setFollowUser: (list: any[]) => void;
+  setFollowCompany: (list: any[]) => void;
 
-  // checkAuth는 지울 예정 
-  checkAuth: () => Promise<void>;     // ✅ (임시) 서버로부터 사용자 인증 상태 확인
-// 위의 checkAuth는 지울 예정
+  // checkAuth는 지울 예정
+  checkAuth: () => Promise<void>; // ✅ (임시) 서버로부터 사용자 인증 상태 확인
+  // 위의 checkAuth는 지울 예정
 }
 
-export const useUserStore = create<UserState>((set) => ({
-  isLogin: false, // 기능 수정 후 isLogin 변수 삭제 예정 
-  memberId: -1,
-  user: null, 
-  myStarLst: [],
-  myFollowLst: [],                         
+export const useUserStore = create(
+  persist<UserState>(
+    (set) => ({
+      isLogin: false, // 기능 수정 후 isLogin 변수 삭제 예정
+      memberId: -1,
+      user: null,
+      starLst: [],
+      followUser: [],
+      followCompany: [],
 
+      toggleIsLogin: () => set((state) => ({ isLogin: !state.isLogin })),
 
-  toggleIsLogin: () => set((state) => ({ isLogin: !state.isLogin })),
+      setMemberId: (id: number) => set({ memberId: id }),
 
-  setMemberId: (id: number) => set({ memberId: id }),
+      setUser: (user: User) => set({ user }),
+      setStarLst: (list: number[]) => set({ starLst: list }),
+      setFollowUser: (list: number[]) => set({ followUser: list }),
+      setFollowCompany: (list: number[]) => set({ followCompany: list }),
 
-  setUser: (user: User) => set({ user }), 
-setMyStarLst: (list:number[]) => set({ myStarLst: list }),
-setMyFollowLst: (list:number[]) => set({ myFollowLst: list }),
+      // 지울 예정
+      checkAuth: async () => {
+        // ✅ (임시)
+        try {
+          const res = await fetch(
+            'https://i13a509.p.ssafy.io/api/v1/members/me',
+            {
+              credentials: 'include', // ✅ 쿠키 포함 필수
+            }
+          );
 
-
-  // 지울 예정 
-  checkAuth: async () => {                // ✅ (임시)
-    try {
-      const res = await fetch('https://i13a509.p.ssafy.io/api/v1/members/me', {
-        credentials: 'include',          // ✅ 쿠키 포함 필수
-      });
-
-      if (res.ok) {
-        const data: User = await res.json();
-        set({
-          isLogin: true,
-          user: data,                    // ✅ (임시)
-          // memberId: data.memberId,
-        });
-      } else {
-        set({
-          isLogin: false,
-          user: null,                    // ✅ (임시)
-          memberId: -1,
-        });
-      }
-    } catch (error) {
-      console.error('checkAuth error:', error);
-      set({
-        isLogin: false,
-        user: null,                      // ✅ (임시)
-        memberId: -1,
-      });
-    }
-  },
-}));
-
+          if (res.ok) {
+            const data: User = await res.json();
+            set({
+              isLogin: true,
+              user: data, // ✅ (임시)
+              // memberId: data.memberId,
+            });
+          } else {
+            set({
+              isLogin: false,
+              user: null, // ✅ (임시)
+              memberId: -1,
+            });
+          }
+        } catch (error) {
+          console.error('checkAuth error:', error);
+          set({
+            isLogin: false,
+            user: null, // ✅ (임시)
+            memberId: -1,
+          });
+        }
+      },
+    }),
+    { name: 'userStateStorage' }
+  )
+);
 
 // ✅ 브라우저 콘솔 디버깅용: 전역 노출
-// 개발 완료 후 삭제해야함
+// 개발 완료 후 삭제해야함6
 if (typeof window !== 'undefined') {
   (window as any).userStore = useUserStore;
 }

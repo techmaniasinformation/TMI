@@ -29,7 +29,9 @@ export const useSignup = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, nickname: e.target.value });
+     const value = e.target.value;
+    if (value.length > 8) return;
+    setFormData({ ...formData, nickname: value });
     setIsNicknameChecked(false);
   };
 
@@ -45,7 +47,14 @@ export const useSignup = () => {
   };
 
   const handleNicknameCheck = async () => {
+    const nickname = formData.nickname.trim();
     if (!formData.nickname.trim()) return;
+    // 닉네임이 비어있거나 8자를 초과하면 요청 안함
+        if (!nickname) return;
+    if (nickname.length > 8) {
+      alert('닉네임은 최대 8자까지 가능합니다.');
+      return;
+    }
     setIsCheckingNickname(true);
     try {
       const res = await fetch(

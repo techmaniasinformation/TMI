@@ -11,8 +11,7 @@ import org.springframework.stereotype.Service;
 public class RefreshTokenService {
 
   private final RefreshTokenRepository refreshTokenRepository;
-
-  //
+  
   public void saveOrUpdateRefreshToken(Long memberId, String token, LocalDateTime expiresAt) {
     RefreshToken refreshToken = refreshTokenRepository.findById(memberId)
         .map(rt -> {

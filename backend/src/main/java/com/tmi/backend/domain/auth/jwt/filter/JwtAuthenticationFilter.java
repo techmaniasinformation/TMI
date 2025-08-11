@@ -13,8 +13,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -27,6 +31,35 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private final JwtTokenProvider jwtTokenProvider;
   private final ObjectMapper objectMapper;
+  private static final PathPatternRequestMatcher.Builder PP =
+      PathPatternRequestMatcher.withDefaults();
+
+  private final RequestMatcher publicEndpoints = new OrRequestMatcher(
+      PP.matcher(HttpMethod.GET, "/api/v1/**"),
+
+      // 공개 POST (회원가입/재발급/로그아웃)
+      PP.matcher(HttpMethod.POST, "/api/v1/member/signup"),
+      PP.matcher(HttpMethod.POST, "/api/v1/auth/refresh"),
+      PP.matcher(HttpMethod.POST, "/api/v1/auth/logout/**"),
+
+      // OAuth2 엔드포인트 (메서드 구분 불필요하면 오버로드로 method 생략 가능)
+      PP.matcher("/api/v1/oauth2/**"),
+      PP.matcher("/oauth2/**"),
+      PP.matcher("/api/v1/oauth2/authorization/**"),
+      PP.matcher("/api/v1/oauth2/code/**"),
+      PP.matcher("/login/oauth2/code/**"),
+      PP.matcher("/login")
+  );
+
+  @Override
+  protected boolean shouldNotFilter(HttpServletRequest request) {
+    // CORS Preflight는 항상 스킵
+    if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+      return true;
+    }
+    // 공개 경로면 JWT 필터 자체를 건너뜀
+    return publicEndpoints.matches(request);
+  }
 
 
   @Override
@@ -35,6 +68,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       FilterChain filterChain)
       throws ServletException, IOException {
 
+    //ACCESS-TOKEN 가져오기
     String token = resolveAccessToken(request);
 
     if (token != null) {

@@ -34,7 +34,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
       targetUrl = UriComponentsBuilder.fromHttpUrl(REDIRECT_URI)
           .queryParam("isNew", true)
           .queryParam("provider", customUser.getProvider().name()) // 한글, 특수문자는 자동으로 URL 인코딩 됨
-          .queryParam("provider", customUser.getProviderMemberId()) // 한글, 특수문자는 자동으로 URL 인코딩 됨
+          .queryParam("providerMemberId",
+              customUser.getProviderMemberId()) // 한글, 특수문자는 자동으로 URL 인코딩 됨
           .toUriString();
 
       tokenService.createAndAddRegistCookie(response,

@@ -74,6 +74,7 @@ export const useSignup = () => {
     if (!isFormValid || !isNicknameChecked || isNicknameTaken) return;
 
     setIsSubmitting(true);
+    // data-form으로 변경할 필요 있으려나요....
     try {
       const payload = {
         provider: formData.provider,
@@ -91,11 +92,6 @@ export const useSignup = () => {
         // body: JSON.stringify(formData),
         body: JSON.stringify(payload),
       });
-
-            // memberId 전역변수 저장,
-      
-      // useId 정보 조회해서 user 정보 전역변수 저장 
-      // 로그인 완료, 이전 페이지로 리다이렉트
 
       if (!res.ok) {
         throw new Error('회원가입 요청 실패');
@@ -127,6 +123,7 @@ export const useSignup = () => {
       
       // 홈페이지로 리다이렉트
       navigate('/');
+
     } catch (error) {
       console.error('회원가입 실패:', error);
       alert('회원가입에 실패했습니다. 다시 시도해주세요.');

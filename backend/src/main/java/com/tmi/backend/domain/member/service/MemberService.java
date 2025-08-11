@@ -41,7 +41,7 @@ public class MemberService {
   private final CommentRecommendationRepository commentRecommendationRepository;
   private final TokenService tokenService;
   private final RefreshTokenService refreshTokenService;
-  private final ApplicationEventPublisher publisher;  // 추가 하기
+  private final ApplicationEventPublisher publisher;
 
   public ServiceResult<MemberResponse> getMember(Long memberId) {
     Member member = memberRepository.findById(memberId).orElse(null);

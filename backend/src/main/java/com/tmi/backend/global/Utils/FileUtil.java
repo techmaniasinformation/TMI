@@ -54,7 +54,7 @@ public class FileUtil {
     Path targetPath = Paths.get(uploadDir, domain, storedFileName);
     Files.createDirectories(targetPath.getParent());
     Files.write(targetPath, fileBytes);
-
+    log.info("파일 저장 완료 : " + storedFileName);
     return storedFileName;
   }
 

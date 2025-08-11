@@ -29,8 +29,15 @@ const useSocialLogin = () => {
 
   //쿼리 파라미터 기반 리다이렉트 처리
   useEffect(() => {
+    console.log('useSocialLogin useEffect 실행됨');
+    console.log('location.search:', location.search);
+    console.log('location.pathname:', location.pathname);
+    
     // 쿼리 파라미터가 없으면 처리하지 않음
-    if (!location.search) return;
+    if (!location.search) {
+      console.log('쿼리 파라미터 없음, 처리 중단');
+      return;
+    }
     
     // &&&&로그인 완료 후 이전 페이지 경로
     const redirectAfterLogin =

@@ -6,7 +6,7 @@ import { cn } from '@/utils/utils';
 import SocialLoginButton from '@/components/inter/SocialLoginButton';
 import useSocialLogin from '@/hooks/auth/useSocialLogin'; // 새 훅 임포트
 import { useLocation } from 'react-router-dom'; // 이전 페이지 저장용
-import { useUserStore } from '@/stores/userStore';
+
 
 // 다크모드 관련
 const loginPageVariants = cva(

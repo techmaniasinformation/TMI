@@ -217,6 +217,8 @@ const useSocialLogin = () => {
         return;
       }
 
+
+
              // 로그인 완료, 이전 페이지로 리다이렉트//구현 전 
        hasProcessed.current = true; // 처리 완료 표시
       //  navigate(redirectAfterLogin);

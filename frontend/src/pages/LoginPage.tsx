@@ -35,7 +35,7 @@ const LoginPage: React.FC<LoginPageProps> = () => {
   const location = useLocation();
   const from = location.state?.from || '/'; // 이전 페이지 or 홈 경로 기본값
 
-  // useSocialLogin 훅 사용
+  // useSocialLogin 훅 사용 (Layout에서 전역적으로 처리됨)
   const { handleSocialLoginWithLocation } = useSocialLogin();
 
   return (

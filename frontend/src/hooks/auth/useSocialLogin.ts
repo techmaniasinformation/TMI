@@ -48,14 +48,21 @@ const useSocialLogin = () => {
 
     //신규 회원: provider, providerId가 반드시 있어야 회원가입으로 이동
     if (isNew === 'true') {
+      console.log('useSocialLogin - 신규 회원 감지');
+      console.log('useSocialLogin - provider:', provider);
+      console.log('useSocialLogin - providerMemberId:', providerMemberId);
+      
       if (provider && providerMemberId) {
+        const signupState = {
+          provider,
+          providerId: providerMemberId,
+        };
+        console.log('useSocialLogin - 회원가입 페이지로 이동, state:', signupState);
         navigate('/signup', {
-          state: {
-            provider,
-            providerId: providerMemberId,
-          },
+          state: signupState,
         });
       } else {
+        console.log('useSocialLogin - 회원가입 정보 누락');
         alert('회원가입 정보가 누락되었습니다. 다시 시도해주세요.');
         navigate('/login');
       }

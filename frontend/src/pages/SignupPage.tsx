@@ -45,10 +45,17 @@ const SignupPage: React.FC<SignupPageProps> = () => {
   // 전달받은 state 구조 분해
   const { provider, providerId } = location.state || {}; // 안전하게 optional 처리
 
+  // 디버깅용 로그
+  console.log('SignupPage - location.state:', location.state);
+  console.log('SignupPage - provider:', provider);
+  console.log('SignupPage - providerId:', providerId);
+
   // provider 없으면 다시 로그인 페이지로
   // 잘못된 접근 방어
   useEffect(() => {
+    console.log('SignupPage useEffect - provider:', provider, 'providerId:', providerId);
     if (!provider || !providerId) {
+      console.log('SignupPage - 잘못된 접근 감지');
       alert('잘못된 접근입니다.');
       navigate('/login');
     }

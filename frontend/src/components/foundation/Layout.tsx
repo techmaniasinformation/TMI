@@ -2,6 +2,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import { useThemeStore } from '@/stores/themeStore'; // 테마 전역변수
+import useSocialLogin from '@/hooks/auth/useSocialLogin'; // 소셜 로그인 훅
 
 interface LayoutProps {}
 
@@ -12,6 +13,9 @@ const Layout = () => {
 
   // 테마 전역변수
   const { isDarkMode } = useThemeStore();
+  
+  // 소셜 로그인 훅 사용 (전역적으로 실행)
+  useSocialLogin();
 
   return (
     <div className='min-h-screen flex flex-col'>

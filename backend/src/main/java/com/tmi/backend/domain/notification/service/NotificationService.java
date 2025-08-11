@@ -1,5 +1,6 @@
 package com.tmi.backend.domain.notification.service;
 
+import com.tmi.backend.domain.auth.util.SecurityUtil;
 import com.tmi.backend.domain.badge.entity.Badge;
 import com.tmi.backend.domain.badge.repository.BadgeRepository;
 import com.tmi.backend.domain.company.repository.CompanyRepository;
@@ -99,6 +100,9 @@ public class NotificationService {
     Notification notification = notificationRepository.findById(notificationId).orElse(null);
     if (notification == null) {
       return ServiceResult.fail(ErrorCode.NOTIFICATION_NOT_FOUND);
+    }
+    if (!SecurityUtil.memberCheck(notification.getMember().getId())) {
+      return ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED);
     }
 
     if (!notification.getIsRead()) {

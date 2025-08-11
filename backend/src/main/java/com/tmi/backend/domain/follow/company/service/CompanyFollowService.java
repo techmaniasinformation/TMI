@@ -1,5 +1,6 @@
 package com.tmi.backend.domain.follow.company.service;
 
+import com.tmi.backend.domain.auth.util.SecurityUtil;
 import com.tmi.backend.domain.company.entity.Company;
 import com.tmi.backend.domain.company.repository.CompanyRepository;
 import com.tmi.backend.domain.follow.company.dto.request.CompanyFollowCreateRequest;
@@ -71,6 +72,10 @@ public class CompanyFollowService {
 
   @Transactional
   public ServiceResult<Map<String, Long>> deleteFollow(Long companyFollowId) {
+    CompanyFollow cf = followRepository.findCompanyFollowById(companyFollowId);
+    if (!SecurityUtil.memberCheck(cf.getFollower().getId())) {
+      return ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED);
+    }
 
     int deleted = followRepository.removeById(companyFollowId);
     if (deleted == 0) {

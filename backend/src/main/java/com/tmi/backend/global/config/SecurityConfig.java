@@ -38,8 +38,7 @@ public class SecurityConfig {
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(authorize -> authorize
-            .requestMatchers(HttpMethod.GET, "/api/v1/company/**", "api/v1/member/**",
-                "/api/v1/badge", "/api/v1/comment")
+            .requestMatchers(HttpMethod.GET, "/api/v1/**")
             .permitAll()
             .requestMatchers(HttpMethod.POST, "/api/v1/auth/refresh", "/api/v1/member/signup",
                 "/api/v1/auth/logout/**")

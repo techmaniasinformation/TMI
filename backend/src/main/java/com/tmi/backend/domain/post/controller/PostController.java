@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/post")
@@ -29,32 +31,37 @@ public class PostController implements BaseController {
 
   /**
    * 게시글 등록 API
+   *
    * @param postCreateRequest 게시글 등록 정보
    */
   @PostMapping
   public ResponseEntity<ApiResponse<Map<String, Long>>> createPost(
-      @Valid @RequestBody PostCreateRequest postCreateRequest
+      @Valid @RequestPart("req") PostCreateRequest postCreateRequest,
+      @RequestPart(value = "thumbnailImage", required = false) MultipartFile thumbnailImage
   ) {
 
-    return handle(postService.createPost(postCreateRequest));
+    return handle(postService.createPost(postCreateRequest, thumbnailImage));
   }
 
   /**
    * 게시글 수정 API
-   * @param postId 수정할 게시글 id
+   *
+   * @param postId            수정할 게시글 id
    * @param postUpdateRequest 게시글 수정 정보
    */
   @PatchMapping("/{postId}")
   public ResponseEntity<ApiResponse<Map<String, Long>>> updatePost(
       @PathVariable Long postId,
-      @Valid @RequestBody PostUpdateRequest postUpdateRequest
+      @Valid @RequestPart("req") PostUpdateRequest postUpdateRequest,
+      @RequestPart(value = "thumbnailImage", required = false) MultipartFile thumbnailImage
   ) {
 
-    return handle(postService.updatePost(postId, postUpdateRequest));
+    return handle(postService.updatePost(postId, postUpdateRequest, thumbnailImage));
   }
 
   /**
    * 게시글 삭제 API
+   *
    * @param postId 삭제할 게시글 id
    */
   @DeleteMapping("/{postId}")

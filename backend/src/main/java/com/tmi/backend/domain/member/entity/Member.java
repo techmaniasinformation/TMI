@@ -72,11 +72,11 @@ public class Member {
         .build();
   }
 
-  public void change(MemberUpdateRequest req) {
-    this.nickname = req.nickname();
-    this.memberProfileUrl = req.memberProfileUrl();
-    this.blogUrl = req.blogUrl();
-    this.githubUrl = req.githubUrl();
+  public void updateProfile(String nickname, String profileUrl, String blogUrl, String githubUrl) {
+    this.nickname = nickname;
+    this.memberProfileUrl = profileUrl;
+    this.blogUrl = blogUrl();
+    this.githubUrl = githubUrl();
     this.updatedAt = LocalDateTime.now(ZoneOffset.UTC);
   }
 

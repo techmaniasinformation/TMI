@@ -7,11 +7,11 @@ import jakarta.validation.constraints.Size;
 import java.util.List;
 
 public record PostCreateRequest(
-  @NotNull Long memberId,
-  @NotBlank String link,
-  @NotBlank String title,
-  String thumbnailUrl,
-  @Size(min = 50) String content,
-  @Size(max = 5) List<String> tags
+    @NotNull Long memberId,
+    @NotBlank String link,
+    @NotBlank String title,
+    @Size(min = 50) String content,
+    @Size(max = 5) List<String> tags
 ) {
+
 }

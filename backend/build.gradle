@@ -57,6 +57,8 @@ dependencies {
 
     // jsoup HTML parser library @ https://jsoup.org/
     implementation 'org.jsoup:jsoup:1.21.1'
+
+    implementation 'org.apache.tika:tika-core:3.2.1'
 }
 
 tasks.named('test') {

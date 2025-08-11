@@ -39,7 +39,8 @@ public class PostTagService {
     log.info("PostTagService : updatePostTags() 호출");
 
     postTagRepository.deleteAllByPostId(post.getId());
-
+    postTagRepository.flush();
+    
     List<PostTag> postTags = tagService.findTechTags(tags).stream()
         .map(tag -> PostTag.of(post, tag))
         .toList();

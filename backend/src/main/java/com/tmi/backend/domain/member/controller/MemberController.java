@@ -27,7 +27,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/member")
@@ -49,6 +51,7 @@ public class MemberController implements BaseController {
 
   /**
    * 닉네임 중복 여부 API
+   *
    * @RequestParam : 사용하려는 닉네임
    */
   @GetMapping("/duplicate")
@@ -61,20 +64,22 @@ public class MemberController implements BaseController {
 
   /**
    * 멤버 정보 수정 API
+   *
    * @RequestBody : 수정된 멤버의 정보
    */
   @PatchMapping("/{memberId}")
   public ResponseEntity<ApiResponse<Map<String, Long>>> updateMember(
       @PathVariable Long memberId,
-      @Valid @RequestBody MemberUpdateRequest req,
+      @Valid @RequestPart("req") MemberUpdateRequest req,
+      @RequestPart(value = "profileImage", required = false) MultipartFile profileImage,
       @AuthenticationPrincipal CustomUserDetails userDetail
   ) {
-
-    return handle(memberService.updateMember(memberId, req));
+    return handle(memberService.updateMember(memberId, req, profileImage));
   }
 
   /**
    * 멤버등록 (회원가입)  API
+   *
    * @RequestBody : 신규 회원 정보
    */
   @PostMapping("/signup")

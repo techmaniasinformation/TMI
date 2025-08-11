@@ -33,7 +33,7 @@ export async function updateMemberProfile(
   body: UpdateMemberRequest
 ): Promise<number> {
   const res = await fetch(`https://i13a509.p.ssafy.io/api/v1/member/${memberId}`, {
-    method: "PUT",             // 서버가 PATCH가 아니라면 PUT 사용 (예시 요청과 맞춤)
+    method: "PATCH",             // 서버가 PATCH가 아니라면 PUT 사용 (예시 요청과 맞춤)
     headers: {
       "Content-Type": "application/json",
     },

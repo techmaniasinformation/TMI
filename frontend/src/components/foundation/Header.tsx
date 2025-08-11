@@ -85,8 +85,8 @@ const Header: React.FC<HeaderProps> = ({
       console.error('로그아웃 중 오류:', error);
 
       // 서버 오류가 있어도 클라이언트 상태는 정리
-      setMemberId(-1);
       clearUser();
+      setMemberId(-1);
       setStarLst([]);
       setFollowUser([]);
       setFollowCompany([]);

@@ -202,7 +202,8 @@ const useSocialLogin = () => {
 
              // 로그인 완료, 이전 페이지로 리다이렉트
        hasProcessed.current = true; // 처리 완료 표시
-       navigate(redirectAfterLogin);
+      //  navigate(redirectAfterLogin);
+      navigate('/home');
        // 로그인 전 경로는 사용했으니 지워주는 것이 안전
        sessionStorage.removeItem('redirectAfterLogin');
        return;

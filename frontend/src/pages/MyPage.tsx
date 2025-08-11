@@ -1,11 +1,15 @@
 // /src/pages/MyPage.tsx
 import React, { useState, useEffect, useCallback } from 'react';
+import { useParams } from 'react-router-dom';
+
 import ProfileHeader from '@/components/layout/mypage/ProfileHeader';
 import MyPageTabs from '@/components/layout/mypage/MypageTabs';
 import ProfileEditModal from '@/components/layout/mypage/ProfileEditModal';
 
 import { getCompany } from '@/api/company/company';
 import type { Company } from '@/types/company/company';
+
+import type { MyTab } from '@/components/layout/mypage/MypageTabs';
 
 // 팔로우 API
 import {
@@ -17,11 +21,11 @@ import {
   findCompanyFollowId,
 } from '@/api/followService';
 
-import { useParams } from 'react-router-dom';
+// ✅ store는 읽기만 사용
+import { useUserStore } from '@/stores/userStore';
 
 interface MyPageProps {
   isCompany: boolean;
-  isMyPage: boolean;
 }
 
 interface UserStats {
@@ -31,21 +35,30 @@ interface UserStats {
   likes: number;
   views: number;
   bugReports: number;
-  tagCounts: { SPRING: number; REACT: number; AI: number; DB: number; AWS: number; };
+  tagCounts: { SPRING: number; REACT: number; AI: number; DB: number; AWS: number };
   hasFirstPost: boolean;
   hasFirstComment: boolean;
   isRegistered: boolean;
 }
 
-const MyPage: React.FC<MyPageProps> = ({ isCompany, isMyPage }) => {
+const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
   const { id } = useParams();
   const routeId = Number(id);
 
-  // 초기 탭
-  const getInitialTab = () => (isMyPage ? 'profile' : isCompany ? 'posts' : 'profile');
-  const [activeTab, setActiveTab] = useState(getInitialTab);
-  const [currentPage, setCurrentPage] = useState(1);
+  // ✅ store에서 내 id 읽기 (수정 X)
+  const { user, memberId } = useUserStore();
+  const myId = user?.memberId ?? memberId;
 
+  // ✅ 내 페이지 여부 계산
+  const isMyPage = myId > 0 && myId === routeId;
+
+  // 초기 탭
+  const [activeTab, setActiveTab] = useState<MyTab>('profile');
+  useEffect(() => {
+    setActiveTab(isMyPage ? 'profile' : (isCompany ? 'posts' : 'profile'));
+  }, [isMyPage, isCompany]);
+
+  const [currentPage, setCurrentPage] = useState(1);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   // 대표 배지 (상단 표시)
@@ -65,9 +78,7 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany, isMyPage }) => {
   });
 
   /** ========== 팔로우 상태 관리 ========== **/
-  // TODO: 실제 로그인 사용자 ID로 바꿔주세요.
-  const getCurrentUserId = () => 1;
-  const currentUserId = getCurrentUserId();
+  const currentUserId = myId; // 로그인 안 되어 있으면 <= 0
 
   const targetMemberId = !isCompany ? routeId : null;
   const targetCompanyId = isCompany ? routeId : null;
@@ -82,6 +93,8 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany, isMyPage }) => {
     async function init() {
       try {
         if (isMyPage) return;
+        if (!currentUserId || currentUserId <= 0) return;
+
         if (!isCompany && targetMemberId) {
           const id = await findMemberFollowId(currentUserId, targetMemberId);
           if (!ignore) { setMemberFollowId(id); setIsFollowing(!!id); }
@@ -100,6 +113,10 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany, isMyPage }) => {
   // 팔/언팔 토글
   const handleFollowToggle = useCallback(async () => {
     if (isMyPage) return;
+    if (!currentUserId || currentUserId <= 0) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
 
     try {
       if (!isFollowing) {
@@ -125,7 +142,7 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany, isMyPage }) => {
           setCompanyFollowId(null);
         }
       }
-    } catch (e : any) {
+    } catch (e: any) {
       console.error('팔로우/언팔 실패:', e);
       setIsFollowing(prev => !prev); // 롤백
       alert(e?.message || '팔로우 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');

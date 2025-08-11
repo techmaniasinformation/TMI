@@ -28,6 +28,7 @@ const PostEditPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isAILoading, setIsAILoading] = useState(false);
   const [aiSummary, setAiSummary] = useState('');
+  const [postId, setPostId] = useState<number | null>(null);
 
   // 이미지 관련 상태
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -146,6 +147,10 @@ const PostEditPage: React.FC = () => {
       alert('링크 URL과 제목을 입력해주세요.');
       return;
     }
+    if (!postId) {
+      alert('게시글 ID가 없어 수정할 수 없습니다.');
+      return;
+    }
 
     setIsLoading(true);
     
@@ -156,40 +161,27 @@ const PostEditPage: React.FC = () => {
         return;
       }
       
-      // FormData 생성
       const formData = new FormData();
       
-      // JSON 데이터를 req 필드에 추가
       const requestData = {
         memberId: user?.memberId,
         link: processedUrl,
         title: title,
-        thumbnailUrl: imagePreview || '', // Base64 이미지 URL 또는 빈 문자열
+        thumbnailUrl: imagePreview || '',
         content: content,
-        tags: tags // 배열 그대로 전송
+        tags: tags
       };
       
       formData.append('req', JSON.stringify(requestData));
       
-      // 이미지가 선택된 경우 FormData에 추가
       if (selectedImage) {
         formData.append('thumbnail', selectedImage);
       }
 
-      console.log('전송할 FormData:', {
-        memberId: user?.memberId || 1,
-        link: processedUrl,
-        title: title,
-        content: content,
-        tags: tags,
-        hasImage: !!selectedImage
-      });
-
-      // API 호출 - FormData 사용
-      const response = await fetch('https://i13a509.p.ssafy.io/api/v1/post', {
-        method: 'POST',
-        credentials: 'include', // 쿠키 자동 전송
-        body: formData // Content-Type은 브라우저가 자동으로 설정
+      const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/post/${postId}`, {
+        method: 'PATCH',
+        credentials: 'include',
+        body: formData
       });
 
       if (!response.ok) {
@@ -201,12 +193,7 @@ const PostEditPage: React.FC = () => {
 
       alert('게시글이 수정되었습니다!');
       
-      // 저장 완료 후 상세 페이지로 이동 - 응답에서 받은 게시글 ID 사용
-      if (result.data && result.data.postId) {
-        navigate(`/post/${result.data.postId}`);
-      } else {
-        navigate('/'); // ID가 없으면 홈으로 이동
-      }
+      navigate(`/post/${postId}`);
       
     } catch (error) {
       console.error('저장 실패:', error);
@@ -326,8 +313,9 @@ const PostEditPage: React.FC = () => {
   // 상세게시글에서 데이터 가져오기
   useEffect(() => {
     const postData = location.state?.postData;
-    if (postData) {
+    if (postData && postData.postId) {
       console.log('수정할 게시글 데이터:', postData);
+      setPostId(postData.postId);
       setLinkUrl(postData.link || '');
       setTitle(postData.title || '');
       setContent(postData.content || '');

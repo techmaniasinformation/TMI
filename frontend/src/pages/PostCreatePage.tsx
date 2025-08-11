@@ -38,6 +38,7 @@ const PostCreatePage: React.FC = () => {
   // 태그 관련 상태
   const [newTag, setNewTag] = useState('');
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
+  const [tagError, setTagError] = useState('');
   
   // UI 상태
   const [isPreviewMode, setIsPreviewMode] = useState(false);
@@ -267,12 +268,18 @@ const PostCreatePage: React.FC = () => {
   };
 
   const handleAddTag = (tagName?: string) => {
-    const tagToAdd = tagName || newTag.trim();
-    if (tagToAdd && !tags.includes(tagToAdd)) {
-      if (tags.length >= 5) {
-        alert('태그는 최대 5개까지 추가할 수 있습니다.');
+    const tagToAdd = (tagName || newTag).trim();
+    if (tagToAdd) {
+      if (tags.includes(tagToAdd)) {
+        setTagError('중복된 태그입니다.');
         return;
       }
+      if (tags.length >= 5) {
+        setTagError('태그는 최대 5개까지 추가할 수 있습니다.');
+        return;
+      }
+      
+      setTagError(''); // 에러 초기화
       setTags([...tags, tagToAdd]);
       setNewTag('');
       setShowTagSuggestions(false);
@@ -283,7 +290,8 @@ const PostCreatePage: React.FC = () => {
   const handleTagInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setNewTag(value);
-    
+    setTagError(''); // 사용자가 입력 시작 시 에러 메시지 초기화
+
     if (value.trim()) {
       searchTags(value.trim());
       setShowTagSuggestions(true);
@@ -571,6 +579,7 @@ const PostCreatePage: React.FC = () => {
                        추가
                      </button>
                   </div>
+                  {tagError && <p className="text-sm text-red-500 mt-1">{tagError}</p>}
                   
                   {/* 태그 제안 드롭다운 */}
                   {showTagSuggestions && (tagLoading || tagSuggestions.length > 0) && (

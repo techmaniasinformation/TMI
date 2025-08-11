@@ -174,7 +174,7 @@ const useSocialLogin = () => {
           });
 
         // 팔로우 (멤버 id) 리스트 저장
-        fetch(`https://i13a509.p.ssafy.io/api/v1/follow/member?memberId=${numericMemberId}`, {
+        fetch(`https://i13a509.p.ssafy.io/api/v1/memberFollow?followerId=${numericMemberId}&all=true`, {
           method: 'GET',
           credentials: 'include',
         })
@@ -183,12 +183,31 @@ const useSocialLogin = () => {
             return res.json();
           })
           .then((response) => {
-            const followUserIds = response.data.follows.map((item: any) => item.followId);
+            const followUserIds = response.data.follows.map((item: any) => item.memberId);
             setFollowUser(followUserIds);
             console.log('팔로우 사용자 목록:', followUserIds);
           })
           .catch((error) => {
-            console.error('팔로우 목록 가져오기 실패:', error);
+            console.error('팔로우 사용자 목록 가져오기 실패:', error);
+          });
+
+          //팔로우 회사 리스트 저장
+        // 팔로우 (멤버 id) 리스트 저장
+        fetch(`https://i13a509.p.ssafy.io/api/v1/companyFollow?followerId=${numericMemberId}&all=true`, {
+          method: 'GET',
+          credentials: 'include',
+        })
+          .then((res) => {
+            if (!res.ok) throw new Error('Failed to fetch follow list');
+            return res.json();
+          })
+          .then((response) => {
+            const followCompanyIds = response.data.follows.map((item: any) => item.companyId);
+            setFollowUser(followCompanyIds);
+            console.log('팔로우 사용자 목록:', followCompanyIds);
+          })
+          .catch((error) => {
+            console.error('팔로우 기업 목록 가져오기 실패:', error);
           });
 
       } else {
@@ -200,7 +219,7 @@ const useSocialLogin = () => {
 
 
 
-             // 로그인 완료, 이전 페이지로 리다이렉트
+             // 로그인 완료, 이전 페이지로 리다이렉트//구현 전 
        hasProcessed.current = true; // 처리 완료 표시
       //  navigate(redirectAfterLogin);
       navigate('/home');

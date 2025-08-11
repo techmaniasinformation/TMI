@@ -5,7 +5,7 @@ import { useTagAutocomplete } from '@/hooks/tags/useTagAutocomplete';
 import MDEditor from '@uiw/react-md-editor';
 import '@uiw/react-md-editor/markdown-editor.css';
 import '@uiw/react-markdown-preview/markdown.css';
-import imageCompression from 'browser-image-compression';
+// import imageCompression from 'browser-image-compression';
 
 const PostCreatePage: React.FC = () => {
   const navigate = useNavigate();
@@ -243,20 +243,20 @@ const PostCreatePage: React.FC = () => {
 
         console.log('원본 이미지 크기:', (file.size / 1024 / 1024).toFixed(2), 'MB');
         
-        // 이미지 압축
-        const compressedFile = await imageCompression(file, options);
+        // // 이미지 압축
+        // const compressedFile = await imageCompression(file, options);
         
-        console.log('압축된 이미지 크기:', (compressedFile.size / 1024 / 1024).toFixed(2), 'MB');
+        // console.log('압축된 이미지 크기:', (compressedFile.size / 1024 / 1024).toFixed(2), 'MB');
         
         // 압축된 파일을 상태에 저장
-        setSelectedImage(compressedFile);
+        setSelectedImage(file);
         
         // 미리보기 생성
         const reader = new FileReader();
         reader.onload = (e) => {
           setImagePreview(e.target?.result as string);
         };
-        reader.readAsDataURL(compressedFile);
+        reader.readAsDataURL(file);
         
       } catch (error) {
         console.error('이미지 압축 실패:', error);

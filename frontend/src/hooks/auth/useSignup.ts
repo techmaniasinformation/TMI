@@ -1,10 +1,18 @@
 import { useState } from 'react';
-import { useLocation } from 'react-router-dom'; 
+import { useLocation, useNavigate } from 'react-router-dom'; 
 import { useUserStore } from '@/stores/userStore';
 
 export const useSignup = () => {
   const location = useLocation();
-  const { socialProvider, socialProviderId, clearSocialLoginInfo } = useUserStore();
+  const navigate = useNavigate();
+  const { 
+    socialProvider, 
+    socialProviderId, 
+    clearSocialLoginInfo,
+    setMemberId,
+    setUser,
+    toggleIsLogin
+  } = useUserStore();
 
   const [formData, setFormData] = useState({
     provider: socialProvider || '',
@@ -96,10 +104,30 @@ export const useSignup = () => {
       const data = await res.json();
       console.log('회원가입 성공:', data);
       
+      // 회원가입 완료 후 전역변수에 사용자 정보 저장
+      if (data.data && data.data.memberId) {
+        const memberId = data.data.memberId;
+        const user = {
+          memberId: memberId,
+          nickname: formData.nickname,
+          memberProfileUrl: formData.memberProfileUrl || '',
+        };
+        
+        // 전역변수에 저장
+        setMemberId(memberId);
+        setUser(user);
+        toggleIsLogin(); // 로그인 상태로 변경
+        
+        console.log('회원가입 후 전역변수 저장 완료:', { memberId, user });
+      }
+      
       // 회원가입 완료 후 소셜 로그인 정보 정리
       clearSocialLoginInfo();
       
       alert('회원가입이 완료되었습니다!');
+      
+      // 홈페이지로 리다이렉트
+      navigate('/');
     } catch (error) {
       console.error('회원가입 실패:', error);
       alert('회원가입에 실패했습니다. 다시 시도해주세요.');

@@ -1,11 +1,12 @@
 // hooks/auth/useSocialLogin.ts
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useUserStore } from '@/stores/userStore';
 
 const useSocialLogin = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const hasProcessed = useRef(false);
 
   const {
     toggleIsLogin, //isLogin 정리되면 삭제 예정
@@ -45,6 +46,18 @@ const useSocialLogin = () => {
       return;
     }
     
+    // 이미 처리된 경우 중복 실행 방지
+    if (hasProcessed.current) {
+      console.log('이미 처리됨, 중복 실행 방지');
+      return;
+    }
+    
+    // 이미 처리된 경우 중복 실행 방지
+    if (location.pathname === '/signup') {
+      console.log('이미 회원가입 페이지에 있음, 처리 중단');
+      return;
+    }
+    
     // &&&&로그인 완료 후 이전 페이지 경로
     const redirectAfterLogin =
       sessionStorage.getItem('redirectAfterLogin') || '/';
@@ -70,6 +83,7 @@ const useSocialLogin = () => {
          // 전역 변수에 소셜 로그인 정보 저장
          setSocialLoginInfo(provider, providerMemberId);
          console.log('useSocialLogin - 소셜 로그인 정보 저장:', { provider, providerId: providerMemberId });
+         hasProcessed.current = true; // 처리 완료 표시
          navigate('/signup');
        } else {
         console.log('useSocialLogin - 회원가입 정보 누락');
@@ -140,13 +154,14 @@ const useSocialLogin = () => {
 
 
 
-      // 로그인 완료, 이전 페이지로 리다이렉트
-      navigate(redirectAfterLogin);
-      // 로그인 전 경로는 사용했으니 지워주는 것이 안전
-      sessionStorage.removeItem('redirectAfterLogin');
-      return;
+             // 로그인 완료, 이전 페이지로 리다이렉트
+       hasProcessed.current = true; // 처리 완료 표시
+       navigate(redirectAfterLogin);
+       // 로그인 전 경로는 사용했으니 지워주는 것이 안전
+       sessionStorage.removeItem('redirectAfterLogin');
+       return;
     }
-  }, [location]); // location 전체를 의존성으로 변경
+  }, [location.search, location.pathname]); // 필요한 값만 의존성으로 설정
 
   return {
     handleSocialLoginWithLocation,

@@ -20,7 +20,7 @@ public class ImageService {
 
   private final FileUtil fileUtil;
 
-  public ResponseEntity<byte[]> getImage(String filename, String domain) throws IOException {
+  public ResponseEntity<byte[]> getImage(String domain, String filename) throws IOException {
     byte[] fileBytes = fileUtil.getFile(filename, domain);
 
     HttpHeaders headers = new HttpHeaders();

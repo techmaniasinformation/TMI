@@ -29,6 +29,9 @@ const useSocialLogin = () => {
 
   //쿼리 파라미터 기반 리다이렉트 처리
   useEffect(() => {
+    // 쿼리 파라미터가 없으면 처리하지 않음
+    if (!location.search) return;
+    
     // &&&&로그인 완료 후 이전 페이지 경로
     const redirectAfterLogin =
       sessionStorage.getItem('redirectAfterLogin') || '/';
@@ -36,10 +39,12 @@ const useSocialLogin = () => {
     // 회원 정보
     const searchParams = new URLSearchParams(location.search); // &&& location.search에서 쿼리 추출
     const isNew = searchParams.get('isNew');
+    console.log("isNew", isNew);
 
     const provider = searchParams.get('provider');
     const providerMemberId = searchParams.get('providerMemberId');
-    console.log(provider, providerMemberId);
+    console.log("provider", provider);
+    console.log("providerMemberId", providerMemberId);
     
     const memberId = searchParams.get('memberId');
 
@@ -126,7 +131,7 @@ const useSocialLogin = () => {
       sessionStorage.removeItem('redirectAfterLogin');
       return;
     }
-  }, [location.search, navigate]);
+  }, [location.search]);
 
   return {
     handleSocialLoginWithLocation,

@@ -76,6 +76,7 @@ public class JwtTokenProvider {
   public String createRegistToken(String provider, String providerMemberId) {
     Date now = new Date();
     Date expiry = new Date(now.getTime() + registrationTokenExpirationMinutes * 60 * 1000);
+
     return Jwts.builder()
         .setSubject("registration")
         .claim("provider", provider)
@@ -84,8 +85,6 @@ public class JwtTokenProvider {
         .setExpiration(expiry)
         .signWith(key, SignatureAlgorithm.HS256)
         .compact();
-
-
   }
 
   /**

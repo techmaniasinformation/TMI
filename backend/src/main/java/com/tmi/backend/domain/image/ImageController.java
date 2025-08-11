@@ -1,6 +1,5 @@
 package com.tmi.backend.domain.image;
 
-import com.tmi.backend.global.Utils.FileUtil;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,11 +9,10 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/image")
+@RequestMapping("/api/v1/image")
 @RequiredArgsConstructor
 public class ImageController {
 
-  private final FileUtil fileUtil;
   private final ImageService imageService;
 
   @GetMapping("/{domain}/{filename}")

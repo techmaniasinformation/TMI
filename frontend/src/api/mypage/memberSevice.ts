@@ -27,19 +27,32 @@ export async function fetchMemberProfile(memberId: number): Promise<MemberData> 
   return data.data;
 }
 
-// 회원 정보 수정 API (JSON 전송; 멀티파트 아님)
+// 회원 정보 수정 API (멀티파트 전송; req 파트에 JSON 담기)
 export async function updateMemberProfile(
   memberId: number,
   body: UpdateMemberRequest
 ): Promise<number> {
+  const form = new FormData();
+
+  // 서버가 요구하는 'req' 파트: JSON Blob으로 넣기
+  const reqPayload = {
+    nickname: body.nickname ?? '',
+    blogUrl: body.blogUrl ?? null,
+    githubUrl: body.githubUrl ?? null,
+    memberProfileUrl: body.memberProfileUrl ?? null,
+  };
+  form.append(
+    'req',
+    new Blob([JSON.stringify(reqPayload)], { type: 'application/json' })
+  );
+
+  // 이미지 파일이 필요한 경우에만 추가 (optional)
+  // if (body.file) form.append('file', body.file);
+
   const res = await fetch(`https://i13a509.p.ssafy.io/api/v1/member/${memberId}`, {
-    method: "PATCH",             // 서버가 PATCH가 아니라면 PUT 사용 (예시 요청과 맞춤)
-    headers: {
-      "Content-Type": "application/json",
-    },
-    // 쿠키 세션을 쓰는 경우엔 아래 주석 해제
-    // credentials: "include",
-    body: JSON.stringify(body),
+    method: 'PATCH',
+    body: form,                 // Content-Type 절대 수동 지정하지 말기!
+    // credentials: 'include',  // 쿠키 인증이면 주석 해제
   });
 
   if (!res.ok) {
@@ -52,10 +65,8 @@ export async function updateMemberProfile(
   }
 
   const data: UpdateMemberResponse = await res.json();
-  if (data.status !== "SUCCESS") {
-    throw new Error("프로필 수정 실패: API 상태 비정상");
+  if (data.status !== 'SUCCESS') {
+    throw new Error('프로필 수정 실패: API 상태 비정상');
   }
-
-  // 서버 예시 응답에 맞춰 memberId 반환
   return data.data.memberId;
 }

@@ -33,6 +33,14 @@ function LoginRouteGuard() {
   return <LoginPage />;
 }
 
+// 새 컴포넌트 추가
+function MyPageRedirect() {
+  const { user, memberId } = useUserStore();
+  const myId = user?.memberId ?? memberId;
+
+  if (myId && myId > 0) return <Navigate to={ROUTES.MEMBER_PAGE(myId)} replace />;
+  return <Navigate to={ROUTES.HOME} replace />; // 비로그인/ID없음
+}
 
 export const router = createBrowserRouter([
   {
@@ -78,17 +86,17 @@ export const router = createBrowserRouter([
       },
       {
         path: ROUTES.MY_PAGE, // 내 사용자 마이페이지
-        element: <MyPage isCompany={false} isMyPage={true} />,
+        element: <MyPageRedirect />
       },
       
       {
         path: '/member/:id', // 동적 유저 페이지 라우트 추가
-        element: <MyPage isCompany={false} isMyPage={false} />,
+        element: <MyPage isCompany={false} />,
       },
 
       {
         path: '/company/:id', // 동적 기업 페이지 라우트 추가
-        element: <MyPage isCompany={true} isMyPage={false} />,
+        element: <MyPage isCompany={true} />,
       },
 
       {

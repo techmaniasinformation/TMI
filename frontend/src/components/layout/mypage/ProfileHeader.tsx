@@ -1,14 +1,19 @@
+// /src/components/layout/mypage/ProfileHeader.tsx
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
+// 컴포넌트
 import UserStatsCard from './UserStatsCard';
+
+// API
 import { fetchMemberProfile } from '@/api/mypage/memberSevice';
 import { getCompany } from '@/api/company/company';
 
+// 타입
 import type { MemberData } from '@/types/mypage/member';
 import type { Company } from '@/types/company/company';
 
-// 아이콘 및 기본 이미지
+// 아이콘/이미지
 import Star from '@/assets/icons/star.svg';
 import GitHub from '@/assets/icons/Github.svg';
 import Blog from '@/assets/icons/blog.svg';
@@ -16,6 +21,8 @@ import Follow from '@/assets/icons/Follow.svg';
 import ArticleFix from '@/assets/icons/articlefix.svg';
 import UserDelete from '@/assets/icons/userdelete.svg';
 import Update from '@/assets/icons/Update.svg';
+
+// 유틸
 import { getSafeProfileUrl } from '@/utils/defaultImages';
 
 // 모달
@@ -23,13 +30,13 @@ import WithdrawalConfirmModal from '@/components/layout/mypage/WithdrawalConfirm
 import WithdrawalCompleteModal from '@/components/layout/mypage/WithdrawalCompleteModal';
 
 interface ProfileHeaderProps {
-  isFollowing: boolean;
-  isCompany: boolean;
-  isMyPage: boolean;
-  lastUpdate: string;
-  onFollowToggle: () => void;
-  onEditClick: () => void;
-  repBadgeUrl?: string | null;
+  isFollowing: boolean;          // 팔로우 버튼 상태
+  isCompany: boolean;            // 기업 페이지 여부
+  isMyPage: boolean;             // 내 페이지 여부
+  lastUpdate: string;            // 기업 최근 업데이트 표시용
+  onFollowToggle: () => void;    // 팔/언팔 클릭 핸들러 (상위에서 주입)
+  onEditClick: () => void;       // 프로필 수정
+  repBadgeUrl?: string | null;   // 개인 대표 배지
 }
 
 export default function ProfileHeader({
@@ -42,7 +49,7 @@ export default function ProfileHeader({
   repBadgeUrl,
 }: ProfileHeaderProps) {
   const { id } = useParams();
-  const memberId = isMyPage ? 1 : Number(id);
+  const memberId = isMyPage ? 1 : Number(id); // TODO: auth로 대체
 
   const [showWithdrawalConfirm, setShowWithdrawalConfirm] = useState(false);
   const [showWithdrawalComplete, setShowWithdrawalComplete] = useState(false);
@@ -51,10 +58,11 @@ export default function ProfileHeader({
   const [companyData, setCompanyData] = useState<Company | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // 프로필 데이터 로드
   useEffect(() => {
     if (!memberId) return;
-
     setLoading(true);
+
     if (isCompany) {
       getCompany(memberId)
         .then((res) => setCompanyData(res.data))
@@ -66,20 +74,16 @@ export default function ProfileHeader({
         .catch((err) => console.error('멤버 정보 조회 실패:', err))
         .finally(() => setLoading(false));
     }
-  }, [id, isCompany, isMyPage]);
+  }, [id, isCompany, isMyPage, memberId]);
+
+  const getProfileImage = (url: string | null | undefined) => getSafeProfileUrl(url);
 
   const handleWithdrawalClick = () => setShowWithdrawalConfirm(true);
   const handleWithdrawalConfirm = () => {
     setShowWithdrawalConfirm(false);
     setShowWithdrawalComplete(true);
   };
-  const handleWithdrawalComplete = () => {
-    window.location.href = '/';
-  };
-
-  const getProfileImage = (url: string | null | undefined) => {
-    return getSafeProfileUrl(url);
-  };
+  const handleWithdrawalComplete = () => (window.location.href = '/');
 
   if (loading) {
     return (
@@ -100,12 +104,10 @@ export default function ProfileHeader({
   return (
     <div className="w-[1232px] h-[150px] bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
       <div className="flex justify-between h-full">
-        {/* 좌측 프로필 정보 */}
+        {/* 왼쪽: 프로필 */}
         <div className="flex items-start space-x-4">
           <img
-            src={getProfileImage(
-              isCompany ? companyData?.companyProfileUrl : memberData?.memberProfileUrl
-            )}
+            src={getProfileImage(isCompany ? companyData?.companyProfileUrl : memberData?.memberProfileUrl)}
             alt="profile"
             className="w-20 h-20 ps-4 rounded-full object-fit"
             onError={(e) => ((e.target as HTMLImageElement).src = Star)}
@@ -117,16 +119,12 @@ export default function ProfileHeader({
                 {isCompany ? companyData?.name : memberData?.nickname}
               </h1>
 
-              {/* 개인일 때 배지 */}
+              {/* 개인 대표배지 */}
               {!isCompany && repBadgeUrl && (
-                <img
-                  src={repBadgeUrl}
-                  alt="대표 배지"
-                  className="w-8 h-8 rounded-md ml-1" // 살짝만 띄움
-                />
+                <img src={repBadgeUrl} alt="대표 배지" className="w-8 h-8 rounded-md ml-1" />
               )}
 
-              {/* 기업일 때 라벨 */}
+              {/* 기업 라벨 */}
               {isCompany && (
                 <span className="bg-blue-100 text-blue-800 text-sm font-medium px-2 py-0.5 rounded-md ml-3">
                   기업
@@ -134,27 +132,17 @@ export default function ProfileHeader({
               )}
             </div>
 
-            {/* 개인용 링크 */}
+            {/* 개인 링크 */}
             {!isCompany && (
               <div className="flex space-x-6 mt-6">
                 {memberData?.blogUrl && (
-                  <a
-                    href={memberData.blogUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center text-sm text-gray-600 hover:text-gray-900"
-                  >
+                  <a href={memberData.blogUrl} target="_blank" rel="noopener noreferrer" className="flex items-center text-sm text-gray-600 hover:text-gray-900">
                     <img src={Blog} alt="blog" className="w-4 h-4 mr-2" />
                     블로그
                   </a>
                 )}
                 {memberData?.githubUrl && (
-                  <a
-                    href={memberData.githubUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center text-sm text-gray-600 hover:text-gray-900"
-                  >
+                  <a href={memberData.githubUrl} target="_blank" rel="noopener noreferrer" className="flex items-center text-sm text-gray-600 hover:text-gray-900">
                     <img src={GitHub} alt="github" className="w-4 h-4 mr-2" />
                     깃허브
                   </a>
@@ -162,7 +150,7 @@ export default function ProfileHeader({
               </div>
             )}
 
-            {/* 기업용 링크 */}
+            {/* 기업 링크 */}
             {isCompany && (
               <>
                 <div className="flex items-center text-sm text-gray-500 mt-1">
@@ -171,12 +159,7 @@ export default function ProfileHeader({
                 </div>
                 {companyData?.techBlogUrl && (
                   <div className="flex items-center mt-4">
-                    <a
-                      href={companyData.techBlogUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center text-sm text-gray-600 hover:text-gray-900"
-                    >
+                    <a href={companyData.techBlogUrl} target="_blank" rel="noopener noreferrer" className="flex items-center text-sm text-gray-600 hover:text-gray-900">
                       <img src={Blog} alt="blog" className="w-4 h-4 mr-2" />
                       블로그
                     </a>
@@ -187,21 +170,13 @@ export default function ProfileHeader({
           </div>
         </div>
 
-        {/* 통계 + 버튼 */}
+        {/* 오른쪽: 통계 + 버튼 */}
         <div className="flex flex-col items-end justify-between h-full space-y-5">
           <UserStatsCard
-            posts={
-              isCompany ? companyData?.stats.postCount ?? 0 : memberData?.memberStats.postCount ?? 0
-            }
-            comments={
-              isCompany ? 0 : memberData?.memberStats.commentCount ?? 0
-            }
-            followers={
-              isCompany ? companyData?.stats.followerCount ?? 0 : memberData?.memberStats.followerCount ?? 0
-            }
-            views={
-              isCompany ? companyData?.stats.totalViewCount ?? 0 : memberData?.memberStats.totalViewCount ?? 0
-            }
+            posts={isCompany ? companyData?.stats.postCount ?? 0 : memberData?.memberStats.postCount ?? 0}
+            comments={isCompany ? 0 : memberData?.memberStats.commentCount ?? 0}
+            followers={isCompany ? companyData?.stats.followerCount ?? 0 : memberData?.memberStats.followerCount ?? 0}
+            views={isCompany ? companyData?.stats.totalViewCount ?? 0 : memberData?.memberStats.totalViewCount ?? 0}
             isCompany={isCompany}
           />
 

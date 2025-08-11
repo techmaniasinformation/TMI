@@ -17,6 +17,9 @@ const useSocialLogin = () => {
     setFollowCompany,
     setSocialLoginInfo,
     clearUser,
+    isLogin,
+    memberId: globalMemberId,
+    user,
   } = useUserStore();
 
   // 이전 경로 함께 전달하는 소셜 로그인
@@ -37,6 +40,13 @@ const useSocialLogin = () => {
     console.log('location.pathname:', location.pathname);
     console.log('전체 URL:', window.location.href);
     console.log('window.location.search:', window.location.search);
+    
+    // 현재 전역변수 상태 확인
+    console.log('🔍 현재 전역변수 상태:', {
+      isLogin,
+      memberId: globalMemberId,
+      user: user ? { memberId: user.memberId, nickname: user.nickname } : null
+    });
     
     // window.location.search를 우선 사용
     const searchString = window.location.search || location.search;
@@ -84,6 +94,14 @@ const useSocialLogin = () => {
          // 전역 변수에 소셜 로그인 정보 저장
          setSocialLoginInfo(provider, providerMemberId);
          console.log('useSocialLogin - 소셜 로그인 정보 저장:', { provider, providerId: providerMemberId });
+         
+         // 전역변수 상태 확인
+         console.log('🔍 신규 회원 처리 후 전역변수 상태:', {
+           isLogin,
+           memberId: globalMemberId,
+           user: user ? { memberId: user.memberId, nickname: user.nickname } : null
+         });
+         
          hasProcessed.current = true; // 처리 완료 표시
          navigate('/signup');
        } else {
@@ -120,8 +138,15 @@ const useSocialLogin = () => {
               nickname: data.nickname,
               memberProfileUrl: data.memberProfileUrl,
             };
-            setUser(user); // ✅ zustand 전역에 저장 (isLogin은 자동으로 true로 변경됨)
-            console.log('useSocialLogin - 사용자 정보 저장 완료:', user);
+                         setUser(user); // ✅ zustand 전역에 저장 (isLogin은 자동으로 true로 변경됨)
+             console.log('useSocialLogin - 사용자 정보 저장 완료:', user);
+             
+             // 전역변수 상태 확인
+             console.log('🔍 기존 회원 처리 후 전역변수 상태:', {
+               isLogin,
+               memberId: globalMemberId,
+               user: user ? { memberId: user.memberId, nickname: user.nickname } : null
+             });
           })
           .catch((error) => {
             console.error('유저 정보 가져오기 실패:', error);

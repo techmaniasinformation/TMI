@@ -19,11 +19,15 @@ import { useUserStore } from '@/stores/userStore';
 function LoginRouteGuard() {
   const { isLogin, memberId } = useUserStore();
 
-  if ( memberId != -1 ) {
+  console.log('[LoginRouteGuard] isLogin:', isLogin, 'memberId:', memberId);
+
+  if (memberId !== -1) {
+    console.log('[LoginRouteGuard] 이미 로그인 상태이므로 홈으로 리다이렉트');
     alert('이미 로그인 되어 있습니다');
     return <Navigate to={ROUTES.HOME} replace />;
   }
 
+  console.log('[LoginRouteGuard] 비로그인 상태, 로그인 페이지 렌더링');
   return <LoginPage />;
 }
 

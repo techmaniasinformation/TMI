@@ -18,7 +18,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/post")
@@ -27,6 +29,8 @@ public class PostController implements BaseController {
 
   private final PostService postService;
 
+  // TODO: 권한 검증 구현하기
+
   /**
    * 게시글 등록 API
    * @param postCreateRequest 게시글 등록 정보
@@ -34,11 +38,12 @@ public class PostController implements BaseController {
    */
   @PostMapping
   public ResponseEntity<ApiResponse<Map<String, Long>>> createPost(
-      @Valid @RequestBody PostCreateRequest postCreateRequest,
+      @Valid @RequestPart("req") PostCreateRequest postCreateRequest,
+      @RequestPart(value = "thumbnailImage", required = false) MultipartFile thumbnailImage,
       @AuthenticationPrincipal CustomUserDetails userDetails
   ) {
 
-    return handle(postService.createPost(postCreateRequest, userDetails.getMemberId()));
+    return handle(postService.createPost(postCreateRequest, thumbnailImage, userDetails.getMemberId()));
   }
 
   /**
@@ -50,15 +55,17 @@ public class PostController implements BaseController {
   @PatchMapping("/{postId}")
   public ResponseEntity<ApiResponse<Map<String, Long>>> updatePost(
       @PathVariable Long postId,
-      @Valid @RequestBody PostUpdateRequest postUpdateRequest,
+      @Valid @RequestPart("req") PostUpdateRequest postUpdateRequest,
+      @RequestPart(value = "thumbnailImage", required = false) MultipartFile thumbnailImage,
       @AuthenticationPrincipal CustomUserDetails userDetails
   ) {
 
-    return handle(postService.updatePost(postId, postUpdateRequest, userDetails.getMemberId()));
+    return handle(postService.updatePost(postId, postUpdateRequest, thumbnailImage, userDetails.getMemberId()));
   }
 
   /**
    * 게시글 삭제 API
+   *
    * @param postId 삭제할 게시글 id
    * @param userDetails 본인만 삭제 가능
    */

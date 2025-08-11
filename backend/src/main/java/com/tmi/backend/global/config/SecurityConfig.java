@@ -42,7 +42,7 @@ public class SecurityConfig {
                 "/api/v1/badge", "/api/v1/comment")
             .permitAll()
             .requestMatchers(HttpMethod.POST, "/api/v1/auth/refresh", "/api/v1/member/signup",
-                "api/v1/auth/logout/**")
+                "/api/v1/auth/logout/**")
             .permitAll()
             .requestMatchers(
                 "/api/**",
@@ -50,7 +50,8 @@ public class SecurityConfig {
                 "/api/v1/auth/refresh",
                 "/api/v1/oauth2/authorization/**",
                 "/api/v1/oauth2/code/**",
-                "/login/oauth2/code/**"
+                "/login/oauth2/code/**",
+                "/login"
             ).permitAll()
             .anyRequest().authenticated()
         )

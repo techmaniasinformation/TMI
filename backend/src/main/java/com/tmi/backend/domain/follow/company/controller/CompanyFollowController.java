@@ -1,10 +1,13 @@
 package com.tmi.backend.domain.follow.company.controller;
 
+import com.tmi.backend.domain.auth.util.SecurityUtil;
 import com.tmi.backend.domain.follow.company.dto.request.CompanyFollowCreateRequest;
 import com.tmi.backend.domain.follow.company.dto.response.CompanyFollowListResponse;
 import com.tmi.backend.domain.follow.company.service.CompanyFollowService;
 import com.tmi.backend.global.common.controller.BaseController;
 import com.tmi.backend.global.common.response.ApiResponse;
+import com.tmi.backend.global.common.response.ServiceResult;
+import com.tmi.backend.global.error.ErrorCode;
 import jakarta.validation.Valid;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -32,9 +35,14 @@ public class CompanyFollowController implements BaseController {
   public ResponseEntity<ApiResponse<CompanyFollowListResponse>> getCompanyFollows(
       @RequestParam Long followerId,
       @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "10") int size
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(defaultValue = "false") boolean all
   ) {
-    return handle(companyFollowService.getCompanyFollows(followerId, page, size));
+    if (!SecurityUtil.memberCheck(followerId)) {
+      return handle(ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED));
+    }
+    ;
+    return handle(companyFollowService.getCompanyFollows(followerId, page, size, all));
   }
 
   /**
@@ -44,6 +52,9 @@ public class CompanyFollowController implements BaseController {
   public ResponseEntity<ApiResponse<Map<String, Long>>> createFollow(
       @Valid @RequestBody CompanyFollowCreateRequest req
   ) {
+    if (!SecurityUtil.memberCheck(req.followerId())) {
+      return handle(ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED));
+    }
     return handle(companyFollowService.createFollow(req));
   }
 

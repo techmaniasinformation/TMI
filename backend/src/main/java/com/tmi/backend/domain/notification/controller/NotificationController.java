@@ -1,11 +1,14 @@
 package com.tmi.backend.domain.notification.controller;
 
+import com.tmi.backend.domain.auth.util.SecurityUtil;
 import com.tmi.backend.domain.notification.dto.request.NotificationCreateRequest;
 import com.tmi.backend.domain.notification.dto.response.EventPayloadResponse;
 import com.tmi.backend.domain.notification.dto.response.NotificationListResponse;
 import com.tmi.backend.domain.notification.service.NotificationService;
 import com.tmi.backend.global.common.controller.BaseController;
 import com.tmi.backend.global.common.response.ApiResponse;
+import com.tmi.backend.global.common.response.ServiceResult;
+import com.tmi.backend.global.error.ErrorCode;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -55,6 +58,9 @@ public class NotificationController implements BaseController {
   public ResponseEntity<ApiResponse<NotificationListResponse>> getNotifications(
       @RequestParam Long memberId,
       @RequestParam(defaultValue = "all") String status) {
+    if (!SecurityUtil.memberCheck(memberId)) {
+      return handle(ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED));
+    }
     return handle(notificationService.getNotifications(memberId, status));
   }
 
@@ -75,6 +81,10 @@ public class NotificationController implements BaseController {
   public ResponseEntity<ApiResponse<Map<String, List<Long>>>> readAllNotifications(
       @RequestParam Long memberId
   ) {
+    if (!SecurityUtil.memberCheck(memberId)) {
+      return handle(ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED));
+    }
+
     return handle(notificationService.readAllNotifications(memberId));
   }
 
@@ -86,6 +96,9 @@ public class NotificationController implements BaseController {
       @PathVariable Long notificationId,
       @RequestParam Long memberId
   ) {
+    if (!SecurityUtil.memberCheck(memberId)) {
+      return handle(ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED));
+    }
     return handle(notificationService.deleteNotification(notificationId, memberId));
   }
 
@@ -96,6 +109,9 @@ public class NotificationController implements BaseController {
   public ResponseEntity<ApiResponse<Map<String, Integer>>> deleteAllNotifications(
       @RequestParam Long memberId
   ) {
+    if (!SecurityUtil.memberCheck(memberId)) {
+      return handle(ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED));
+    }
     return handle(notificationService.deleteAllNotifications(memberId));
   }
 

@@ -1,5 +1,6 @@
 package com.tmi.backend.domain.notification.service;
 
+import com.tmi.backend.domain.auth.util.SecurityUtil;
 import com.tmi.backend.domain.badge.entity.Badge;
 import com.tmi.backend.domain.badge.repository.BadgeRepository;
 import com.tmi.backend.domain.company.repository.CompanyRepository;
@@ -20,11 +21,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -46,22 +49,25 @@ public class NotificationService {
 
     sseEmitter.onTimeout(() -> emitterRepository.deleteById(userId));
 
-    // 첫 구독시에 이벤트를 발생시킨다.
-    // sse 연결이 이루어진 후, 하나의 데이터로 전송되지 않는다면 sse의 유효 시간이 만료되고 503 에러가 발생한다.
-    sendToClient(userId, "subscribe event, userId : " + userId);
-
+    // 최초 신호
+    sendToClient(userId, "subscribe event, memberId : " + userId);
     return sseEmitter;
   }
 
-  /**
-   * 이벤트가 구독되어 있는 클라이언트에게 데이터를 전송
-   */
   public void broadcast(Long userId, EventPayloadResponse eventPayload) {
     sendToClient(userId, eventPayload);
   }
 
   private void sendToClient(Long userId, Object data) {
     SseEmitter sseEmitter = emitterRepository.findById(userId);
+
+    if (sseEmitter == null) {
+      // ▶ 여기서 바로 NPE 방지 & 오프라인 처리
+      log.warn("[SSE][MISS] no subscriber for userId={}, skip sending (dataType={})",
+          userId, data.getClass().getSimpleName());
+      return;
+    }
+
     try {
       sseEmitter.send(
           SseEmitter.event()
@@ -69,9 +75,12 @@ public class NotificationService {
               .name("sse")
               .data(data)
       );
-    } catch (IOException ex) {
+    } catch (IllegalStateException | IOException ex) {
+      // 끊긴 커넥션 정리
       emitterRepository.deleteById(userId);
-      throw new RuntimeException("연결 오류 발생");
+      log.warn("[SSE][DROP] userId={} removed emitter due to {}: {}",
+          userId, ex.getClass().getSimpleName(), ex.getMessage());
+      // 전파 금지(서비스 흐름 보호)
     }
   }
 
@@ -91,6 +100,9 @@ public class NotificationService {
     Notification notification = notificationRepository.findById(notificationId).orElse(null);
     if (notification == null) {
       return ServiceResult.fail(ErrorCode.NOTIFICATION_NOT_FOUND);
+    }
+    if (!SecurityUtil.memberCheck(notification.getMember().getId())) {
+      return ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED);
     }
 
     if (!notification.getIsRead()) {
@@ -165,7 +177,6 @@ public class NotificationService {
     Notification notif = Notification.of(receiver, req.type(), req.content(), post, badge);
     Notification newNotif = notificationRepository.save(notif);
 
-    // 알림 생성하면 알림 발송
     this.broadcast(receiver.getId(),
         EventPayloadResponse.of(newNotif.getId(), receiver.getId(), req.content()));
   }

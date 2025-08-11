@@ -70,8 +70,10 @@ public enum ErrorCode {
 
   /* 14. AI – AI */
   CRAWLING_FAILED(HttpStatus.BAD_GATEWAY, "AI-001"),
-  CONTENT_EXTRACTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AI-002");
+  CONTENT_EXTRACTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AI-002"),
 
+  /* 15. FILE */
+  FILE_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "FILE-001");
 
   private final HttpStatus httpStatus;
   private final String code;

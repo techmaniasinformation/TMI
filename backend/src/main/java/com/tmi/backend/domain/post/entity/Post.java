@@ -30,7 +30,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Post {
 
-  @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "post_id")
   private Long id;
 
@@ -90,7 +91,7 @@ public class Post {
         .build();
   }
 
-  public void change(String title, String content, String link, String thumbnailUrl) {
+  public void updatePost(String title, String content, String link, String thumbnailUrl) {
     if (title != null) {
       this.title = title;
     }

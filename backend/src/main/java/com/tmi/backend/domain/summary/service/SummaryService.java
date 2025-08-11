@@ -29,7 +29,6 @@ public class SummaryService {
   private final RestClient restClient = RestClient.create();
   private final RestClient openAiRestClient;
 
-  // SummaryService.java
   public ServiceResult<String> extractContent(String url) {
     String html;
     try {

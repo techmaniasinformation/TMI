@@ -17,14 +17,13 @@ interface ProfileEditModalProps {
   initialBlogUrl: string;
   initialGithubUrl?: string;
   initialProfileImageUrl?: string;
-  // 추가
   nicknameDisabled?: boolean;
   nicknameHelperText?: string;
   onSave: (
     nickname: string,
     blogUrl: string,
     githubUrl?: string,
-    profileImageUrl?: string   // URL만 전달
+    profileImageUrl?: string
   ) => void;
 }
 
@@ -35,8 +34,8 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   initialBlogUrl,
   initialGithubUrl,
   initialProfileImageUrl,
-  nicknameDisabled,     // 추가
-  nicknameHelperText,   // 추가
+  nicknameDisabled,
+  nicknameHelperText,
   onSave,
 }) => {
   const [nickname, setNickname] = useState(initialNickname);
@@ -44,9 +43,32 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   const [githubUrl, setGithubUrl] = useState(initialGithubUrl || '');
   const [previewUrl, setPreviewUrl] = useState<string | null>(initialProfileImageUrl || null);
 
-  // 파일 업로드용
+  // 이미지 상태
+  const [imgLoading, setImgLoading] = useState(false);
+  const fallbackAppliedRef = useRef(false);
+
+  // 파일 업로드용 (저장에는 사용하지 않음)
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // blob URL 정리용
+  const prevUrlRef = useRef<string | null>(null);
+  useEffect(() => {
+    // previewUrl 변경 시 이전 blob URL 정리
+    if (
+      prevUrlRef.current &&
+      prevUrlRef.current !== previewUrl &&
+      prevUrlRef.current.startsWith('blob:')
+    ) {
+      URL.revokeObjectURL(prevUrlRef.current);
+    }
+    prevUrlRef.current = previewUrl || null;
+    return () => {
+      if (prevUrlRef.current && prevUrlRef.current.startsWith('blob:')) {
+        URL.revokeObjectURL(prevUrlRef.current);
+      }
+    };
+  }, [previewUrl]);
 
   useEffect(() => {
     setNickname(initialNickname);
@@ -54,18 +76,41 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
     setGithubUrl(initialGithubUrl || '');
     setPreviewUrl(initialProfileImageUrl || null);
     setSelectedFile(null);
+    setImgLoading(!!initialProfileImageUrl);
+    fallbackAppliedRef.current = false;
   }, [isOpen, initialNickname, initialBlogUrl, initialGithubUrl, initialProfileImageUrl]);
+
+  // 기본 이미지로 1회만 안전하게 대체 (무한 onError 방지)
+  const handleImgError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    if (fallbackAppliedRef.current) return;
+    fallbackAppliedRef.current = true;
+    setImgLoading(false);
+    (e.currentTarget as HTMLImageElement).src = '/default-avatar.png';
+  };
+
+  const handleImgLoad = () => {
+    setImgLoading(false);
+    // 성공하면 fallback 플래그 리셋
+    fallbackAppliedRef.current = false;
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     setSelectedFile(file);
-    setPreviewUrl(file ? URL.createObjectURL(file) : initialProfileImageUrl || null);
+    fallbackAppliedRef.current = false;
+    if (file) {
+      setImgLoading(true);
+      setPreviewUrl(URL.createObjectURL(file));
+    } else {
+      setImgLoading(!!initialProfileImageUrl);
+      setPreviewUrl(initialProfileImageUrl || null);
+    }
   };
 
   const openFilePicker = () => fileInputRef.current?.click();
-  
+
   const handleSubmit = () => {
-    onSave(nickname, blogUrl, githubUrl); // ← 파일/이미지 URL 안 보냄
+    onSave(nickname, blogUrl, githubUrl); // 파일/이미지 URL 전송 안 함
     onClose();
   };
 
@@ -82,13 +127,25 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
 
         {/* 프로필 이미지 + 카메라 아이콘 업로드 */}
         <div className="flex flex-col items-center justify-center mt-4 mb-2">
-          <div className="w-24 h-24">
-            <img
-              src={previewUrl || '/default-avatar.png'}
-              alt="Profile"
-              className="w-24 h-24 rounded-full object-cover border border-gray-300"
-              onError={(e) => (e.currentTarget.src = '/default-avatar.png')}
-            />
+          <div className="w-24 h-24 rounded-full border border-gray-300 overflow-hidden flex items-center justify-center">
+            {previewUrl ? (
+              <>
+                {imgLoading && <div className="w-full h-full animate-pulse bg-gray-100" />}
+                <img
+                  key={previewUrl} // URL 바뀔 때만 remount
+                  src={previewUrl}
+                  alt="Profile"
+                  className={`w-24 h-24 object-cover ${imgLoading ? 'hidden' : 'block'}`}
+                  onLoad={handleImgLoad}
+                  onError={handleImgError}
+                  draggable={false}
+                />
+              </>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+                No Image
+              </div>
+            )}
           </div>
 
           <button

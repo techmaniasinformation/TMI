@@ -37,21 +37,19 @@ const useSocialLogin = () => {
     const searchParams = new URLSearchParams(location.search); // &&& location.search에서 쿼리 추출
     const isNew = searchParams.get('isNew');
 
-    const providerParams = searchParams.getAll('provider');
-
-    const provider = providerParams[0] || null;
-    const providerId = providerParams[1] || null;
-    console.log(provider, providerId);
-    //
+    const provider = searchParams.get('provider');
+    const providerMemberId = searchParams.get('providerMemberId');
+    console.log(provider, providerMemberId);
+    
     const memberId = searchParams.get('memberId');
 
     //신규 회원: provider, providerId가 반드시 있어야 회원가입으로 이동
     if (isNew === 'true') {
-      if (provider && providerId) {
+      if (provider && providerMemberId) {
         navigate('/signup', {
           state: {
             provider,
-            providerId,
+            providerMemberId,
           },
         });
       } else {

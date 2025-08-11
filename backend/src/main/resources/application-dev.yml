@@ -15,7 +15,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update  # 또는 create, none, validate 등
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         default_batch_fetch_size: 100 # 배치 사이즈 설정

@@ -25,6 +25,7 @@ public class ImageService {
 
     HttpHeaders headers = new HttpHeaders();
     Path filePath = Paths.get(fileUtil.getUploadDir(), domain, filename);
+    log.info("filePath : {}", filePath);
     headers.setContentType(MediaType.parseMediaType(Files.probeContentType(filePath)));
 
     return new ResponseEntity<>(fileBytes, headers, HttpStatus.OK);

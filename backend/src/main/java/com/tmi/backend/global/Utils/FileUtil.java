@@ -38,7 +38,7 @@ public class FileUtil {
    * @return 저장된 파일명
    */
   public String saveFile(MultipartFile multipartFile, String domain) throws IOException {
-    log.info("업로드 DIR : " + uploadDir);
+    log.info("업로드 DIR : {}", uploadDir);
     if (multipartFile.isEmpty()) {
       throw new IllegalArgumentException("업로드할 파일이 없습니다.");
     }
@@ -58,7 +58,8 @@ public class FileUtil {
     Path targetPath = Paths.get(uploadDir, domain, storedFileName);
     Files.createDirectories(targetPath.getParent());
     Files.write(targetPath, fileBytes);
-    log.info("파일 저장 완료 : " + storedFileName);
+    log.info("파일 저장 완료 : {}", storedFileName);
+    log.info("저장할 경로 : {}", String.join("/", baseUrl.replaceAll("/$", ""), domain, storedFileName));
     return String.join("/", baseUrl.replaceAll("/$", ""), domain, storedFileName);
   }
 

@@ -7,6 +7,8 @@ import { Button } from './button';
 import { useThemeStore } from '@/stores/themeStore'; // 테마 불러오기
 import { useUserStore } from '@/stores/userStore'; // 로그인 관련 전역변수
 
+import logo from '@/assets/icons/tmiLogo.svg';
+
 const headerVariants = cva('text-white', {
   variants: {
     variant: {
@@ -134,7 +136,7 @@ const Header: React.FC<HeaderProps> = ({
           <div className='flex items-center'>
             <Link to='/' className='flex items-center space-x-2'>
               <img
-                src='src/assets/icons/tmiLogo.svg'
+                src={logo}
                 alt='TMI Logo'
                 className='w-20 h-20'
               />

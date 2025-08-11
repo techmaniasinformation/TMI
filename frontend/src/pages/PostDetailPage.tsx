@@ -33,6 +33,8 @@ interface PostDetail {
   thumbnailUrl: string;
   content: string;
   link: string;
+  memberId?: number; // 개인 사용자 ID
+  companyId?: number; // 회사 ID
 }
 
 interface PostDetailResponse {
@@ -294,28 +296,56 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
 
   const handleShare = () => {
     if (navigator.share) {
-      navigator.share({
-        title: postData?.title || 'TMI 게시글',
-        url: window.location.href,
-      });
+      navigator.share({ title: postData?.title || 'TMI 게시글', url: window.location.href });
     } else {
       navigator.clipboard.writeText(window.location.href);
       showToastMessage('링크가 클립보드에 복사되었습니다.');
     }
   };
 
+  const handleAuthorClick = () => {
+    if (!postData) {
+      showToastMessage('게시글 정보를 찾을 수 없습니다.');
+      return;
+    }
+    
+    if (postData.companyProfileUrl && postData.companyId) {
+      navigate(`/company/${postData.companyId}`);
+    } else if (postData.memberId) {
+      navigate(`/member/${postData.memberId}`);
+    } else {
+      showToastMessage(postData.companyProfileUrl ? '회사 프로필 ID 정보가 없습니다.' : '개인 프로필 ID 정보가 없습니다.');
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!postData?.postId || !window.confirm('정말로 이 게시글을 삭제하시겠습니까?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/posts/${postData.postId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer accessToken' },
+        body: JSON.stringify({})
+      });
+
+      if (response.ok && (await response.json()).status === 'SUCCESS') {
+        showToastMessage('게시글이 삭제되었습니다.');
+        setTimeout(() => navigate('/home'), 1500);
+      } else {
+        throw new Error('게시글 삭제에 실패했습니다.');
+      }
+    } catch (err) {
+      console.error('❌ [PostDetailPage] 게시글 삭제 실패:', err);
+      showToastMessage('게시글 삭제에 실패했습니다.');
+    }
+  };
+
   // 댓글 관련 함수들
-  const handleCommentChange = (text: string) => {
-    setCommentText(text);
-  };
-
-  const handleLinkToggle = () => {
-    setShowLinkInput(!showLinkInput);
-  };
-
-  const handleLinkChange = (url: string) => {
-    setLinkUrl(url);
-  };
+  const handleCommentChange = (text: string) => setCommentText(text);
+  const handleLinkToggle = () => setShowLinkInput(!showLinkInput);
+  const handleLinkChange = (url: string) => setLinkUrl(url);
 
   const handleCommentSubmit = async () => {
     if (!commentText.trim()) {
@@ -414,9 +444,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
 
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInMs = now.getTime() - date.getTime();
+    const diffInMs = Date.now() - new Date(dateString).getTime();
     const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
     const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
     const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
@@ -426,32 +454,23 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
     if (diffInHours < 24) return `${diffInHours}시간 전`;
     if (diffInDays < 7) return `${diffInDays}일 전`;
     
-    return date.toLocaleDateString('ko-KR');
+    return new Date(dateString).toLocaleDateString('ko-KR');
   };
 
   const formatNumber = (num: number) => {
-    if (num >= 1000000) {
-      return (num / 1000000).toFixed(1) + 'M';
-    } else if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'K';
-    }
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
     return num.toString();
   };
 
-  const renderMarkdown = (content: string) => {
-    // 간단한 마크다운 렌더링 (필요시 확장)
-    return content
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/`(.*?)`/g, '<code>$1</code>')
-      .replace(/\n/g, '<br>')
-      // XSS 방지를 위한 기본적인 이스케이프 처리
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      // 허용된 태그들만 다시 복원
-      .replace(/&lt;(strong|em|code|br)&gt;/g, '<$1>')
-      .replace(/&lt;\/(strong|em|code)&gt;/g, '</$1>');
-  };
+  const renderMarkdown = (content: string) => content
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/`(.*?)`/g, '<code>$1</code>')
+    .replace(/\n/g, '<br>')
+    .replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/&lt;(strong|em|code|br)&gt;/g, '<$1>')
+    .replace(/&lt;\/(strong|em|code)&gt;/g, '</$1>');
 
   // 로딩 상태
   if (loading) {
@@ -503,18 +522,28 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
 
       {/* 상단 수정/삭제 버튼 */}
       <div className="flex justify-end gap-2 mb-4">
-        <Link to={`/post/${postData.postId}/edit`}>
-          <Button
-            variant="outline"
-            className="!rounded-button cursor-pointer whitespace-nowrap"
-          >
-            <i className="fas fa-edit mr-2"></i>
-            수정하기
-          </Button>
-        </Link>
+        <Button
+          variant="outline"
+          className="!rounded-button cursor-pointer whitespace-nowrap"
+          onClick={() => navigate(`/post/${postData.postId}/edit`, {
+            state: {
+              postData: {
+                link: postData.link,
+                title: postData.title,
+                content: postData.content,
+                tags: postData.tags,
+                thumbnailUrl: postData.thumbnailUrl
+              }
+            }
+          })}
+        >
+          <i className="fas fa-edit mr-2"></i>
+          수정하기
+        </Button>
         <Button
           variant="outline"
           className="!rounded-button cursor-pointer whitespace-nowrap text-red-600 hover:bg-red-50"
+          onClick={handleDelete}
         >
           <i className="fas fa-trash-alt mr-2"></i>
           삭제하기
@@ -536,6 +565,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         post={postData}
         formatDate={formatDate}
         onFollowClick={handleFollow}
+        onAuthorClick={handleAuthorClick}
       />
 
       {/* 본문 콘텐츠 */}

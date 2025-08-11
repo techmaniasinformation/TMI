@@ -1,19 +1,13 @@
-// /src/components/layout/mypage/ProfileHeader.tsx
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
-// 컴포넌트
 import UserStatsCard from './UserStatsCard';
-
-// API
 import { fetchMemberProfile } from '@/api/mypage/memberSevice';
 import { getCompany } from '@/api/company/company';
 
-// 타입
 import type { MemberData } from '@/types/mypage/member';
 import type { Company } from '@/types/company/company';
 
-// 아이콘/이미지
 import Star from '@/assets/icons/star.svg';
 import GitHub from '@/assets/icons/Github.svg';
 import Blog from '@/assets/icons/blog.svg';
@@ -22,21 +16,21 @@ import ArticleFix from '@/assets/icons/articlefix.svg';
 import UserDelete from '@/assets/icons/userdelete.svg';
 import Update from '@/assets/icons/Update.svg';
 
-// 유틸
 import { getSafeProfileUrl } from '@/utils/defaultImages';
-
-// 모달
 import WithdrawalConfirmModal from '@/components/layout/mypage/WithdrawalConfirmModal';
 import WithdrawalCompleteModal from '@/components/layout/mypage/WithdrawalCompleteModal';
 
+// ✅ store는 읽기만
+import { useUserStore } from '@/stores/userStore';
+
 interface ProfileHeaderProps {
-  isFollowing: boolean;          // 팔로우 버튼 상태
-  isCompany: boolean;            // 기업 페이지 여부
-  isMyPage: boolean;             // 내 페이지 여부
-  lastUpdate: string;            // 기업 최근 업데이트 표시용
-  onFollowToggle: () => void;    // 팔/언팔 클릭 핸들러 (상위에서 주입)
-  onEditClick: () => void;       // 프로필 수정
-  repBadgeUrl?: string | null;   // 개인 대표 배지
+  isFollowing: boolean;
+  isCompany: boolean;
+  isMyPage: boolean;
+  lastUpdate: string;
+  onFollowToggle: () => void;
+  onEditClick: () => void;
+  repBadgeUrl?: string | null;
 }
 
 export default function ProfileHeader({
@@ -49,7 +43,14 @@ export default function ProfileHeader({
   repBadgeUrl,
 }: ProfileHeaderProps) {
   const { id } = useParams();
-  const memberId = isMyPage ? 1 : Number(id); // TODO: auth로 대체
+  const routeId = Number(id);
+
+  // ✅ 로그인 사용자 id (store에서 읽기)
+  const { user, memberId } = useUserStore();
+  const myId = user?.memberId ?? memberId;
+
+  // ✅ 최종 조회 대상: 내 페이지면 내 id, 아니면 URL id
+  const targetId = isMyPage && myId > 0 ? myId : routeId;
 
   const [showWithdrawalConfirm, setShowWithdrawalConfirm] = useState(false);
   const [showWithdrawalComplete, setShowWithdrawalComplete] = useState(false);
@@ -58,23 +59,36 @@ export default function ProfileHeader({
   const [companyData, setCompanyData] = useState<Company | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // 프로필 데이터 로드
+  // ✅ targetId 변경될 때마다 재요청
   useEffect(() => {
-    if (!memberId) return;
-    setLoading(true);
+    if (!targetId || Number.isNaN(targetId) || targetId <= 0) return;
 
-    if (isCompany) {
-      getCompany(memberId)
-        .then((res) => setCompanyData(res.data))
-        .catch((err) => console.error('기업 정보 조회 실패:', err))
-        .finally(() => setLoading(false));
-    } else {
-      fetchMemberProfile(memberId)
-        .then((data) => setMemberData(data))
-        .catch((err) => console.error('멤버 정보 조회 실패:', err))
-        .finally(() => setLoading(false));
+    let ignore = false;
+    async function load() {
+      setLoading(true);
+      try {
+        if (isCompany) {
+          const res = await getCompany(targetId);
+          if (!ignore) setCompanyData(res.data);
+        } else {
+          const data = await fetchMemberProfile(targetId);
+          if (!ignore) setMemberData(data);
+        }
+      } catch (err) {
+        console.error('프로필 정보 조회 실패:', err);
+        if (!ignore) {
+          setMemberData(null);
+          setCompanyData(null);
+        }
+      } finally {
+        if (!ignore) setLoading(false);
+      }
     }
-  }, [id, isCompany, isMyPage, memberId]);
+    load();
+    return () => {
+      ignore = true;
+    };
+  }, [isCompany, targetId]);
 
   const getProfileImage = (url: string | null | undefined) => getSafeProfileUrl(url);
 
@@ -109,7 +123,7 @@ export default function ProfileHeader({
           <img
             src={getProfileImage(isCompany ? companyData?.companyProfileUrl : memberData?.memberProfileUrl)}
             alt="profile"
-            className="w-20 h-20 ps-4 rounded-full object-fit"
+            className="w-20 h-20 ms-4 rounded-full object-cover"
             onError={(e) => ((e.target as HTMLImageElement).src = Star)}
           />
 

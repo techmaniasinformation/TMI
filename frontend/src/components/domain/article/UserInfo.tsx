@@ -14,6 +14,9 @@ interface UserInfoBoxProps {
 
   // 이미지 사이즈 조절
   imageSize?: string; // ex: '40px', '2.5rem'
+
+  // 클릭 이벤트
+  onClick?: () => void;
 }
 
 export default function UserInfoBox({
@@ -24,6 +27,7 @@ export default function UserInfoBox({
   width,
   height,
   imageSize = '40px', // 기본값 설정
+  onClick,
 }: UserInfoBoxProps) {
   // 안전한 프로필 이미지 URL 사용
   const safeProfileUrl = getSafeProfileUrl(profileImageUrl);
@@ -31,8 +35,17 @@ export default function UserInfoBox({
   return (
     <div
       // 수평 정렬
-      className="flex items-start gap-3"
+      className={`flex items-start gap-3 ${onClick ? 'cursor-pointer hover:opacity-80 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]' : ''}`}
       style={{ width, height }}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      } : undefined}
     >
       {/* 프로필 이미지 (크기 지정 가능) */}
       <img

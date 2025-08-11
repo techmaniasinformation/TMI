@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import type { Dispatch, SetStateAction } from 'react';
 
 // 대표 배지 수정 API
 import { patchRepresentativeBadge } from "@/api/mypage/representativebadgeService";
@@ -101,12 +102,14 @@ type SelectedBadge = Badge & {
   isRepresentative?: boolean;
 };
 
+export type MyTab = 'profile' | 'comments' | 'posts' | 'follow' | 'starred';
+
 // props
 interface MyPageTabsProps {
   isCompany: boolean;
   isMyPage: boolean;
-  activeTab: string;
-  setActiveTab: (value: string) => void;
+  activeTab: MyTab;
+  setActiveTab: Dispatch<SetStateAction<MyTab>>;
   userStats: any;
   currentPage: number;
   setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
@@ -323,7 +326,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
    * 렌더링
    * ----------------------------- */
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className='w-[1232px]'>
+    <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as MyTab)} className='w-[1232px]'>
       {/* 탭 목록 */}
       <TabsList className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 w-full flex justify-start p-0 h-auto">
         {/* 내 정보 */}

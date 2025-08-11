@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -16,7 +16,15 @@ interface ProfileEditModalProps {
   initialNickname: string;
   initialBlogUrl: string;
   initialGithubUrl?: string;
-  onSave: (nickname: string, blogUrl: string, githubUrl?: string) => void;
+  initialProfileImageUrl?: string;
+  nicknameDisabled?: boolean;
+  nicknameHelperText?: string;
+  onSave: (
+    nickname: string,
+    blogUrl: string,
+    githubUrl?: string,
+    profileImageUrl?: string
+  ) => void;
 }
 
 const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
@@ -25,32 +33,84 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   initialNickname,
   initialBlogUrl,
   initialGithubUrl,
+  initialProfileImageUrl,
+  nicknameDisabled,
+  nicknameHelperText,
   onSave,
 }) => {
   const [nickname, setNickname] = useState(initialNickname);
   const [blogUrl, setBlogUrl] = useState(initialBlogUrl);
   const [githubUrl, setGithubUrl] = useState(initialGithubUrl || '');
-  const [profileImage, setProfileImage] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(initialProfileImageUrl || null);
+
+  // 이미지 상태
+  const [imgLoading, setImgLoading] = useState(false);
+  const fallbackAppliedRef = useRef(false);
+
+  // 파일 업로드용 (저장에는 사용하지 않음)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // blob URL 정리용
+  const prevUrlRef = useRef<string | null>(null);
+  useEffect(() => {
+    // previewUrl 변경 시 이전 blob URL 정리
+    if (
+      prevUrlRef.current &&
+      prevUrlRef.current !== previewUrl &&
+      prevUrlRef.current.startsWith('blob:')
+    ) {
+      URL.revokeObjectURL(prevUrlRef.current);
+    }
+    prevUrlRef.current = previewUrl || null;
+    return () => {
+      if (prevUrlRef.current && prevUrlRef.current.startsWith('blob:')) {
+        URL.revokeObjectURL(prevUrlRef.current);
+      }
+    };
+  }, [previewUrl]);
 
   useEffect(() => {
     setNickname(initialNickname);
     setBlogUrl(initialBlogUrl);
     setGithubUrl(initialGithubUrl || '');
-    setProfileImage(null);
-    setPreviewUrl(null);
-  }, [isOpen, initialNickname, initialBlogUrl, initialGithubUrl]);
+    setPreviewUrl(initialProfileImageUrl || null);
+    setSelectedFile(null);
+    setImgLoading(!!initialProfileImageUrl);
+    fallbackAppliedRef.current = false;
+  }, [isOpen, initialNickname, initialBlogUrl, initialGithubUrl, initialProfileImageUrl]);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  // 기본 이미지로 1회만 안전하게 대체 (무한 onError 방지)
+  const handleImgError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    if (fallbackAppliedRef.current) return;
+    fallbackAppliedRef.current = true;
+    setImgLoading(false);
+    (e.currentTarget as HTMLImageElement).src = '/default-avatar.png';
+  };
+
+  const handleImgLoad = () => {
+    setImgLoading(false);
+    // 성공하면 fallback 플래그 리셋
+    fallbackAppliedRef.current = false;
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setSelectedFile(file);
+    fallbackAppliedRef.current = false;
     if (file) {
-      setProfileImage(file);
+      setImgLoading(true);
       setPreviewUrl(URL.createObjectURL(file));
+    } else {
+      setImgLoading(!!initialProfileImageUrl);
+      setPreviewUrl(initialProfileImageUrl || null);
     }
   };
 
+  const openFilePicker = () => fileInputRef.current?.click();
+
   const handleSubmit = () => {
-    onSave(nickname, blogUrl, githubUrl);
+    onSave(nickname, blogUrl, githubUrl); // 파일/이미지 URL 전송 안 함
     onClose();
   };
 
@@ -65,38 +125,65 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
           <DialogTitle className="text-lg font-bold">프로필 수정</DialogTitle>
         </DialogHeader>
 
-        {/* 프로필 이미지 및 업로드 */}
-        <div className="flex flex-col items-center justify-center mt-4 mb-2 relative">
-          <div className="relative w-24 h-24">
-            <img
-              src={previewUrl || '/default-avatar.png'}
-              alt="Profile"
-              className="w-24 h-24 rounded-full object-cover border border-gray-300"
-            />
-            <label
-              htmlFor="profileImageUpload"
-              className="absolute bottom-0 right-0 bg-white p-1 rounded-full shadow cursor-pointer"
-            >
-              <Camera className="w-5 h-5 text-purple-600" />
-            </label>
-            <input
-              id="profileImageUpload"
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="hidden"
-            />
+        {/* 프로필 이미지 + 카메라 아이콘 업로드 */}
+        <div className="flex flex-col items-center justify-center mt-4 mb-2">
+          <div className="w-24 h-24 rounded-full border border-gray-300 overflow-hidden flex items-center justify-center">
+            {previewUrl ? (
+              <>
+                {imgLoading && <div className="w-full h-full animate-pulse bg-gray-100" />}
+                <img
+                  key={previewUrl} // URL 바뀔 때만 remount
+                  src={previewUrl}
+                  alt="Profile"
+                  className={`w-24 h-24 object-cover ${imgLoading ? 'hidden' : 'block'}`}
+                  onLoad={handleImgLoad}
+                  onError={handleImgError}
+                  draggable={false}
+                />
+              </>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+                No Image
+              </div>
+            )}
           </div>
+
+          <button
+            type="button"
+            onClick={openFilePicker}
+            className="mt-4 flex items-center justify-center w-10 h-10 rounded-full bg-[#7C3AED] hover:bg-[#6D28D9] transition"
+            aria-label="Change profile image"
+            title="Change profile image"
+          >
+            <Camera className="w-5 h-5 text-white" />
+          </button>
+
           <p className="text-sm text-gray-500 mt-2">
             Click the camera icon to change profile image
           </p>
+
+          {/* 숨김 파일 인풋 */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleFileChange}
+          />
         </div>
 
         {/* 입력 필드 */}
         <div className="space-y-4 mt-2">
           <div>
             <label className="text-sm font-medium text-gray-700">닉네임</label>
-            <Input value={nickname} onChange={(e) => setNickname(e.target.value)} />
+            <Input
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+              disabled={!!nicknameDisabled}
+            />
+            {nicknameHelperText && (
+              <p className="mt-1 text-xs text-gray-500">{nicknameHelperText}</p>
+            )}
           </div>
           <div>
             <label className="text-sm font-medium text-gray-700">블로그 URL</label>

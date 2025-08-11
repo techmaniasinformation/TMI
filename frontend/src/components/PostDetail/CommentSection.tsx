@@ -134,7 +134,6 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
                           <span>👍</span>
                           <span>{formatNumber(comment.recommendCount)}</span>
                         </button>
-                        <button className="hover:text-blue-600">답글</button>
                       </div>
                     </div>
                   </div>

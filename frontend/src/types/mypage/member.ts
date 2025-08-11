@@ -21,3 +21,19 @@ export interface MemberResponse {
   status: string;     // API 상태 ("SUCCESS" / "FAIL")
   data: MemberData;   // 실제 회원 데이터
 }
+
+// 회원 정보 수정 요청 바디
+export interface UpdateMemberRequest {
+  nickname: string;
+  memberProfileUrl?: string | null;
+  blogUrl?: string | null;
+  githubUrl?: string | null;
+}
+
+// 회원 정보 수정 응답 (서버 예시: { status: "SUCCESS", data: { memberId: 789 } })
+export interface UpdateMemberResponse {
+  status: string;
+  data: {
+    memberId: number;
+  };
+}

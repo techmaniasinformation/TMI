@@ -8,9 +8,10 @@ interface AuthorInfoProps {
   post: any; // Post 타입을 사용하지만 여기서는 any로 간단히 처리
   formatDate: (date: string) => string;
   onFollowClick: () => void;
+  onAuthorClick: () => void;
 }
 
-export const AuthorInfo: React.FC<AuthorInfoProps> = ({ post, formatDate, onFollowClick }) => {
+export const AuthorInfo: React.FC<AuthorInfoProps> = ({ post, formatDate, onFollowClick, onAuthorClick }) => {
   return (
     <div className="bg-white rounded-lg shadow-md p-4 mb-6">
       <div className="flex items-center justify-between">
@@ -18,6 +19,7 @@ export const AuthorInfo: React.FC<AuthorInfoProps> = ({ post, formatDate, onFoll
           profileImageUrl={post.memberProfileUrl}
           nickname={post.name}
           imageSize="64px"
+          onClick={onAuthorClick}
           badge={
             <Badge className="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">
               인증

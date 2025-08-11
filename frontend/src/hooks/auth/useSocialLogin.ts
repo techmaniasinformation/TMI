@@ -39,12 +39,10 @@ const useSocialLogin = () => {
     // 회원 정보
     const searchParams = new URLSearchParams(location.search); // &&& location.search에서 쿼리 추출
     const isNew = searchParams.get('isNew');
-    console.log("isNew", isNew);
 
     const provider = searchParams.get('provider');
     const providerMemberId = searchParams.get('providerMemberId');
-    console.log("provider", provider);
-    console.log("providerMemberId", providerMemberId);
+    console.log(provider, providerMemberId);
     
     const memberId = searchParams.get('memberId');
 
@@ -54,7 +52,7 @@ const useSocialLogin = () => {
         navigate('/signup', {
           state: {
             provider,
-            providerMemberId,
+            providerId: providerMemberId,
           },
         });
       } else {

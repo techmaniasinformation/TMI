@@ -1,7 +1,9 @@
 package com.tmi.backend.global.error;
 
 import static com.tmi.backend.global.error.ErrorCode.*;
-import static java.util.stream.Collectors.*;import java.util.HashMap;
+import static java.util.stream.Collectors.*;
+
+import java.util.HashMap;
 
 
 import com.tmi.backend.global.common.response.ApiResponse;
@@ -49,6 +51,7 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(value = Exception.class)
   public ResponseEntity<String> handleException(Exception e) {
+    log.error("서버 에러 발생 : ", e);
     return ResponseEntity.status(500).body(e.getMessage());
   }
 }

@@ -31,7 +31,19 @@ const Header: React.FC<HeaderProps> = ({
   variant = 'light',
   size = 'default',
 }) => {
-  const { isLogin, memberId, user, toggleIsLogin, setMemberId, setUser, clearUser } = useUserStore(); // 로그인 상태 확인
+  const { 
+    isLogin, 
+    memberId, 
+    user, 
+    toggleIsLogin, 
+    setMemberId, 
+    setUser, 
+    clearUser,
+    setStarLst,
+    setFollowUser,
+    setFollowCompany,
+    clearSocialLoginInfo
+  } = useUserStore(); // 로그인 상태 확인
   const { isDarkMode, toggleTheme } = useThemeStore(); // 전역 상태 사용
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(true);
@@ -47,14 +59,18 @@ const Header: React.FC<HeaderProps> = ({
       });
 
       // 서버 응답과 관계없이 클라이언트 상태 정리
-      // 전역변수 초기화 (isLogin은 자동으로 false로 변경됨)
+      // 모든 전역변수 초기화
       setMemberId(-1);
       clearUser();
+      setStarLst([]);
+      setFollowUser([]);
+      setFollowCompany([]);
+      clearSocialLoginInfo();
       
       // 프로필 메뉴 닫기
       setShowProfileMenu(false);
       
-      console.log('로그아웃 완료 - 전역변수 정리됨');
+      console.log('로그아웃 완료 - 모든 전역변수 정리됨');
       alert('로그아웃 되었습니다.');
       
       // 홈페이지로 리다이렉트
@@ -66,6 +82,10 @@ const Header: React.FC<HeaderProps> = ({
       // 서버 오류가 있어도 클라이언트 상태는 정리
       setMemberId(-1);
       clearUser();
+      setStarLst([]);
+      setFollowUser([]);
+      setFollowCompany([]);
+      clearSocialLoginInfo();
       setShowProfileMenu(false);
       
       alert('로그아웃 되었습니다.');

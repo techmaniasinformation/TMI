@@ -78,6 +78,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [bestCommentId, setBestCommentId] = useState<number>(-1);
   const [commentText, setCommentText] = useState('');
+  const [newComment, setNewComment] = useState('');
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
   const [commentLoading, setCommentLoading] = useState(false);
@@ -348,95 +349,41 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
   const handleLinkChange = (url: string) => setLinkUrl(url);
 
   const handleCommentSubmit = async () => {
-    if (!commentText.trim()) {
+    if (!newComment.trim()) {
       alert('댓글 내용을 입력해주세요.');
       return;
     }
-
     if (!postData?.postId) {
-      alert('게시글 정보를 찾을 수 없습니다.');
+      alert('게시글 ID를 찾을 수 없습니다.');
       return;
     }
+    // TODO: 실제 사용자 정보를 가져오는 로직 구현 필요
+    const mockUserId = 1; // 임시 사용자 ID
 
     try {
-      const requestBody: any = {
-        memberId: 1, // 임시로 1로 설정 (로그인 기능 완료 후 실제 memberId로 변경)
-        postId: postData.postId,
-        comment: commentText.trim()
-      };
-
-      // link가 있을 때만 추가
-      if (showLinkInput && linkUrl.trim()) {
-        requestBody.link = linkUrl.trim();
-      }
-
       const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/comment`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // TODO: 로그인 기능 완료 후 Authorization 헤더 추가
-          // 'Authorization': `Bearer ${accessToken}`
         },
-        body: JSON.stringify(requestBody)
+        body: JSON.stringify({
+          postId: postData.postId,
+          memberId: mockUserId,
+          content: newComment,
+          link: linkUrl || null
+        })
       });
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const result = await response.json();
-
-      // 댓글 작성 성공 후 댓글 목록과 게시글 정보 새로고침
-      if (postData.postId) {
-        // 댓글 목록 새로고침
-        const commentsResponse = await fetch(`https://i13a509.p.ssafy.io/api/v1/comment?postId=${postData.postId}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        });
-
-        if (commentsResponse.ok) {
-          const commentsData = await commentsResponse.json();
-          // 댓글에 기본 이미지 적용
-          const commentsWithDefaultImages = (commentsData.data.comments || []).map((comment: Comment) => ({
-            ...comment,
-            memberProfileUrl: getSafeProfileUrl(comment.memberProfileUrl),
-            badgeUrl: getSafeBadgeUrl(comment.badgeUrl),
-          }));
-          setComments(commentsWithDefaultImages);
-          setBestCommentId(commentsData.data.bestCommentId || -1);
-        }
-
-        // 게시글 정보 새로고침 (commentCount 업데이트를 위해)
-        const postResponse = await fetch(`https://i13a509.p.ssafy.io/api/v1/post/${postData.postId}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        });
-
-        if (postResponse.ok) {
-          const postData = await postResponse.json();
-          // 기본 이미지 적용
-          const postWithDefaultImages = {
-            ...postData.data,
-            memberProfileUrl: getSafeProfileUrl(postData.data.memberProfileUrl),
-            companyProfileUrl: getSafeCompanyUrl(postData.data.companyProfileUrl),
-            badgeUrl: getSafeBadgeUrl(postData.data.badgeUrl),
-            thumbnailUrl: getSafeThumbnailUrl(postData.data.thumbnailUrl),
-          };
-          setPostData(postWithDefaultImages);
-        }
-      }
-
-      // 폼 초기화
-      setCommentText('');
+      const created = await response.json();
+      setComments((prev) => [...prev, created.data]);
+      setNewComment('');
       setLinkUrl('');
-      setShowLinkInput(false);
-      showToastMessage('댓글이 등록되었습니다');
-    } catch (err) {
-      console.error('❌ [PostDetailPage] 댓글 작성 실패:', err);
+    } catch (error) {
+      console.error('댓글 작성 실패:', error);
       alert('댓글 작성에 실패했습니다.');
     }
   };

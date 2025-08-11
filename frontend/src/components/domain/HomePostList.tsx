@@ -195,19 +195,7 @@ export default function HomePostList() {
         />
       )}
 
-      {/* 더보기 버튼 (마지막 페이지가 아닌 경우) */}
-      {!isLast && posts.length > 0 && (
-        <div className="text-center">
-          <Button
-            onClick={() => setCurrentPage(currentPage + 1)}
-            variant="outline"
-            className="border-gray-300 text-gray-700 hover:bg-gray-50 px-8 py-3 rounded-lg"
-          >
-            <i className="fas fa-plus mr-2"></i>
-            더보기
-          </Button>
-        </div>
-      )}
+      {/* 더보기 버튼 (마지막 페이지가 아닌 경우) - 기능 제거 */}
     </div>
   );
 } 

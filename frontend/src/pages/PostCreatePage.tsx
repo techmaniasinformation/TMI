@@ -187,14 +187,38 @@ const PostCreatePage: React.FC = () => {
        });
 
       // API 호출 - FormData 사용
+      console.log('🔍 [PostCreatePage] API 요청 시작:', {
+        url: 'https://i13a509.p.ssafy.io/api/v1/post',
+        method: 'POST',
+        hasFormData: !!formData,
+        userInfo: user ? { memberId: user.memberId, nickname: user.nickname } : 'No user'
+      });
+      
       const response = await fetch('https://i13a509.p.ssafy.io/api/v1/post', {
         method: 'POST',
         credentials: 'include', // 쿠키 자동 전송
+        headers: {
+          // Authorization 헤더 추가 (토큰이 있는 경우)
+          // TODO: 실제 토큰 관리 방식에 맞게 수정 필요
+        },
         body: formData // Content-Type은 브라우저가 자동으로 설정
+      });
+      
+      console.log('🔍 [PostCreatePage] API 응답 받음:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+        headers: Object.fromEntries(response.headers.entries())
       });
 
       if (!response.ok) {
-        throw new Error('게시글 작성에 실패했습니다.');
+        const errorText = await response.text();
+        console.error('API 응답 에러:', {
+          status: response.status,
+          statusText: response.statusText,
+          body: errorText
+        });
+        throw new Error(`게시글 작성에 실패했습니다. (${response.status}: ${response.statusText})`);
       }
 
              const result = await response.json();

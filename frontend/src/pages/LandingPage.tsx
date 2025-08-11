@@ -27,13 +27,17 @@ const LandingPage: React.FC<LandingPageProps> = () => {
   const [isHovered, setIsHovered] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
-
+  
   // 테마 관련 변수 받기
   const { isDarkMode } = useThemeStore();
 
   // ##### 현재 로그인 여부, 로그인 했을 시 memberId(로그인 안 한 상태면 -1)
-  const { isLogin, memberId } = useUserStore();
+  const { isLogin, memberId, setPrevPath } = useUserStore();
 
+  if (memberId === -1) {
+    setPrevPath(location.pathname);
+  }
+  
   useEffect(() => {
     async function fetchPopularPosts() {
       try {
@@ -53,6 +57,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
   }, []);
 
   const handleSignupClick = (): void => {
+    setPrevPath(location.pathname);
     // TODO: 로그인/회원가입 페이지로 이동 로직 구현
     navigate('/login', {
       state: { from: location.pathname },

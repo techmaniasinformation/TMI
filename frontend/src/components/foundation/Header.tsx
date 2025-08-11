@@ -55,7 +55,7 @@ const Header: React.FC<HeaderProps> = ({
   const handleLogOut = async () => {
     try {
       const response = await fetch(
-        'https://i13a509.p.ssafy.io/api/v1/auth/logout',
+        `https://i13a509.p.ssafy.io/api/v1/auth/logout/${memberId}`,
         {
           method: 'POST',
           credentials: 'include',

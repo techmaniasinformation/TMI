@@ -70,6 +70,7 @@ public class TokenService {
   public void deleteAuthCookies(HttpServletResponse response) {
     ResponseCookie accessCookie = ResponseCookie.from("ACCESS_TOKEN", "")
         .httpOnly(true)
+        .secure(true)
         .path("/")
         .maxAge(0)
         .sameSite("None")                   // TODO : CSRF 방지(배포시 Strinct 로 변경)
@@ -77,6 +78,7 @@ public class TokenService {
 
     ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", "")
         .httpOnly(true)
+        .secure(true)
         .path("/")
         .maxAge(0)
         .sameSite("None")                   // TODO : CSRF 방지(배포시 Strinct 로 변경)

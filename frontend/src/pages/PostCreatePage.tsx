@@ -168,7 +168,8 @@ const PostCreatePage: React.FC = () => {
          tags: tags // 배열 그대로 전송
        };
       
-      formData.append('req', JSON.stringify(requestData));
+      const blob = new Blob([JSON.stringify(requestData)], { type: 'application/json' });
+      formData.append('req', blob);
       
       // 이미지가 선택된 경우 FormData에 추가
       if (selectedImage) {
@@ -218,7 +219,16 @@ const PostCreatePage: React.FC = () => {
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    const fileInput = event.target;
+
     if (file) {
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+      if (!allowedTypes.includes(file.type)) {
+        alert('jpg, jpeg, png, gif 형식의 이미지만 업로드할 수 있습니다.');
+        fileInput.value = '';
+        return;
+      }
+
       setIsImageProcessing(true);
       try {
         // 이미지 압축 옵션 - 크롭 방식 최적화

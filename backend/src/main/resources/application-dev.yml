@@ -12,7 +12,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update  # 또는 create, none, validate 등
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         default_batch_fetch_size: 100 # 배치 사이즈 설정
@@ -64,5 +64,4 @@ frontend:
   redirect-uri: "http://localhost:3000/login"
 
 file:
-  #  upload-dir: ${FILE_UPLOAD_DIR}
-  upload-dir: 'C:\Users\SSAFY\IdeaProjects\S13P11A509\backend\images\'
+  upload-dir: ${FILE_UPLOAD_DIR}

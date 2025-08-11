@@ -144,7 +144,7 @@ public class PostService {
     }
 
     // 4. 게시글 정보 및 최종 결정된 썸네일 URL로 DB 업데이트
-    post.change(postUpdateRequest.title(), postUpdateRequest.content(),
+    post.updatePost(postUpdateRequest.title(), postUpdateRequest.content(),
         postUpdateRequest.link(), newThumbnailUrl);
 
     if (postUpdateRequest.tags() != null) {

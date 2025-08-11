@@ -159,11 +159,12 @@ const PostCreatePage: React.FC = () => {
        const formData = new FormData();
        
        // JSON 데이터를 req 필드에 추가
-       const requestData = {
+       // JSON 데이터를 req 필드에 추가
+      const requestData = {
          memberId: user?.memberId,
          link: processedUrl,
          title: title,
-         thumbnailUrl: selectedImage ? '' : imagePreview || '', // 새 이미지가 있으면 URL 비움
+         thumbnailUrl: selectedImage ? '' : imagePreview || '',
          content: content,
          tags: tags // 배열 그대로 전송
        };

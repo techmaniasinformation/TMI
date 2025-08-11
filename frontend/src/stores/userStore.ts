@@ -27,14 +27,18 @@ interface UserState {
   socialProvider: string | null;
   socialProviderId: string | null;
 
+  prevPath: string; // 로그인 전 페이지
+
   toggleIsLogin: () => void;
   setMemberId: (id: number) => void;
   setUser: (user: User) => void;
   clearUser: () => void;
+  setNewUser: (newUser: NewUser) => void;
   setStarLst: (list: any[]) => void;
   setFollowUser: (list: any[]) => void;
   setFollowCompany: (list: any[]) => void;
   setSocialLoginInfo: (provider: string, providerId: string) => void;
+  setPrevPath: (path: string) => void; 
   clearSocialLoginInfo: () => void;
 
   // checkAuth는 지울 예정
@@ -54,6 +58,7 @@ export const useUserStore = create(
       followCompany: [],
       socialProvider: null,
       socialProviderId: null,
+      prevPath: '/home', // 기본값
 
       toggleIsLogin: () => set((state) => ({ isLogin: !state.isLogin })),
 
@@ -62,7 +67,7 @@ export const useUserStore = create(
         // isLogin: id !== -1 
       }),
 
-      setNewUSer: (newUser: NewUser) => set({
+      setNewUser: (newUser: NewUser) => set({
         newUser,
       }),
 
@@ -72,8 +77,13 @@ export const useUserStore = create(
       }),
 
       clearUser: () => set({ 
-        user: null, 
-        memberId: -1,
+          memberId: 0,
+          user: null,
+          newUser: null,
+          starLst: [],
+          followUser: [],
+          followCompany: [],
+          prevPath: '/home',
         // isLogin: false 
       }),
       setStarLst: (list: number[]) => set({ starLst: list }),
@@ -81,6 +91,7 @@ export const useUserStore = create(
       setFollowCompany: (list: number[]) => set({ followCompany: list }),
       setSocialLoginInfo: (provider: string, providerId: string) => 
         set({ socialProvider: provider, socialProviderId: providerId }),
+      setPrevPath: (path: string) => set({ prevPath: path }),
       clearSocialLoginInfo: () => set({ socialProvider: null, socialProviderId: null }),
 
       // 지울 예정

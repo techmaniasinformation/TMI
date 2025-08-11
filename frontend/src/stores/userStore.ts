@@ -77,7 +77,7 @@ export const useUserStore = create(
       }),
 
       clearUser: () => set({ 
-          memberId: -1,
+          memberId: 0,
           user: null,
           newUser: null,
           starLst: [],

@@ -12,12 +12,13 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update  # 또는 create, none, validate 등
-    show-sql: false
+    show-sql: true
     properties:
       hibernate:
         default_batch_fetch_size: 100 # 배치 사이즈 설정
         format_sql: true
     database-platform: org.hibernate.dialect.MySQL8Dialect
+    open-in-view: false               # open-in-view 끄기 << 요거 추가
 
   security:
     oauth2:
@@ -65,5 +66,5 @@ frontend:
 
 file:
   upload-dir: ${FILE_UPLOAD_DIR}
-
+  base-url: ${FILE_BASE_URL}
 

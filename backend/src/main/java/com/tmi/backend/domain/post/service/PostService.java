@@ -41,7 +41,6 @@ public class PostService {
       MultipartFile thumbnailImage
   ) {
     log.info("PostService : createPost() 호출");
-
     Member member = memberRepository.findById(postCreateRequest.memberId()).orElse(null);
     if (member == null) {
       return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);

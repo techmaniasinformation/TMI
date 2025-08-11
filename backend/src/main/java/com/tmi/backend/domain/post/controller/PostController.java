@@ -36,7 +36,7 @@ public class PostController implements BaseController {
    */
   @PostMapping
   public ResponseEntity<ApiResponse<Map<String, Long>>> createPost(
-      @Valid @RequestPart("req") PostCreateRequest postCreateRequest,
+      @RequestPart("req") PostCreateRequest postCreateRequest,
       @RequestPart(value = "thumbnailImage", required = false) MultipartFile thumbnailImage
   ) {
 

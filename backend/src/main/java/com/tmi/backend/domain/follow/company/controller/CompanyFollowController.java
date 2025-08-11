@@ -32,9 +32,10 @@ public class CompanyFollowController implements BaseController {
   public ResponseEntity<ApiResponse<CompanyFollowListResponse>> getCompanyFollows(
       @RequestParam Long followerId,
       @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "10") int size
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(defaultValue = "false") boolean all
   ) {
-    return handle(companyFollowService.getCompanyFollows(followerId, page, size));
+    return handle(companyFollowService.getCompanyFollows(followerId, page, size, all));
   }
 
   /**

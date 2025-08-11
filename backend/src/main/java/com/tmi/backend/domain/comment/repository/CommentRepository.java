@@ -43,4 +43,11 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
   List<CommentCount> findCountByPostIds(@Param("postIds") List<Long> postIds);
 
   int countByPostId(Long postId);
+
+  int countByMemberId(Long memberId);
+
+  List<Comment> findAllByMemberId(Long memberId);
+
+  @Query("select sum(c.recommendCount) from Comment c where c.member.id = :memberId")
+  Integer sumRecommendCountByMemberId(Long memberId);
 }

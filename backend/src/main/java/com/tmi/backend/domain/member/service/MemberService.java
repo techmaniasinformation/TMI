@@ -10,6 +10,7 @@ import com.tmi.backend.domain.member.dto.response.MemberStats;
 import com.tmi.backend.domain.member.entity.Member;
 import com.tmi.backend.domain.member.repository.MemberRepository;
 import com.tmi.backend.domain.memberBadge.repository.MemberBadgeRepository;
+import com.tmi.backend.domain.notification.event.MemberRegisteredEvent;
 import com.tmi.backend.domain.notification.repository.NotificationRepository;
 import com.tmi.backend.domain.star.repository.StarRepository;
 import com.tmi.backend.global.Utils.FileUtil;
@@ -22,6 +23,7 @@ import java.time.ZoneOffset;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -41,6 +43,7 @@ public class MemberService {
   private final StarRepository starRepository;
   private final NotificationRepository notificationRepository;
   private final CommentRecommendationRepository commentRecommendationRepository;
+  private final ApplicationEventPublisher publisher;
 
   private final FileUtil fileUtil;
 
@@ -130,6 +133,7 @@ public class MemberService {
       // 신규 가입
       Member newMember = Member.of(req);
       memberRepository.save(newMember);
+      publisher.publishEvent(new MemberRegisteredEvent(newMember.getId()));
       return newMember.getId();
     }
     // 재가입

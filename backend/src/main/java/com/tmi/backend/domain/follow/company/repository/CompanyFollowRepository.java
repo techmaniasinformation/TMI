@@ -21,4 +21,6 @@ public interface CompanyFollowRepository extends JpaRepository<CompanyFollow, Lo
 
   @Modifying
   int removeById(Long companyFollowId);
+
+  List<CompanyFollow> findByCompanyId(Long companyId);
 }

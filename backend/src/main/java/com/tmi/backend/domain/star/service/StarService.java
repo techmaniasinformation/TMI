@@ -2,6 +2,7 @@ package com.tmi.backend.domain.star.service;
 
 import com.tmi.backend.domain.member.entity.Member;
 import com.tmi.backend.domain.member.repository.MemberRepository;
+import com.tmi.backend.domain.notification.event.StarAddedEvent;
 import com.tmi.backend.domain.post.entity.Post;
 import com.tmi.backend.domain.post.repository.PostRepository;
 import com.tmi.backend.domain.star.dto.response.StarListResponse;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +29,7 @@ public class StarService {
   private final StarRepository starRepository;
   private final MemberRepository memberRepository;
   private final PostRepository postRepository;
+  private final ApplicationEventPublisher publisher;
 
   @Transactional
   public ServiceResult<Map<String, Long>> register(Long memberId, Long postId) {
@@ -48,6 +51,8 @@ public class StarService {
 
     post.plusStarCount();
     Star star = starRepository.save(Star.of(member, post));
+
+    publisher.publishEvent(new StarAddedEvent(post.getMember().getId()));
 
     return ServiceResult.ok(Map.of("starId", star.getId()));
   }

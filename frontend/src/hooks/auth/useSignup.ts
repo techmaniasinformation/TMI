@@ -113,10 +113,9 @@ export const useSignup = () => {
           memberProfileUrl: formData.memberProfileUrl || '',
         };
         
-        // 전역변수에 저장
+        // 전역변수에 저장 (isLogin은 자동으로 true로 변경됨)
         setMemberId(memberId);
         setUser(user);
-        toggleIsLogin(); // 로그인 상태로 변경
         
         console.log('회원가입 후 전역변수 저장 완료:', { memberId, user });
       }

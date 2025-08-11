@@ -16,6 +16,7 @@ const useSocialLogin = () => {
     setFollowUser,
     setFollowCompany,
     setSocialLoginInfo,
+    clearUser,
   } = useUserStore();
 
   // 이전 경로 함께 전달하는 소셜 로그인
@@ -93,17 +94,16 @@ const useSocialLogin = () => {
       return;
     }
 
-    // 기존 회원: provider 정보 없이도 홈으로 이동
-    //  이후 방향 : 로그인 이전 경로 받아다가, 로그인 이전 페이지로 보내기.
+    // 기존 회원: 로그인 처리
     if (isNew === 'false') {
-      // isLogin 빼고 memberId로만 로그인 상태 관리
-      toggleIsLogin(); // 즉 이 줄 지워질 수 있음
-      console.log('isNew=false')
-      // memberId 전역변수 저장 및 user 정보 전달
+      console.log('useSocialLogin - 기존 회원 감지');
+      
       if (memberId !== null) {
         const numericMemberId = Number(memberId);
+        console.log('useSocialLogin - memberId:', numericMemberId);
+        
+        // memberId 전역변수 저장 (isLogin은 자동으로 true로 변경됨)
         setMemberId(numericMemberId);
-        console.log("memberId", memberId);
 
         // ✅ 사용자 정보 요청 후 저장
         fetch(`https://i13a509.p.ssafy.io/api/v1/member/${numericMemberId}`, {
@@ -120,37 +120,58 @@ const useSocialLogin = () => {
               nickname: data.nickname,
               memberProfileUrl: data.memberProfileUrl,
             };
-            setUser(user); // ✅ zustand 전역에 저장
+            setUser(user); // ✅ zustand 전역에 저장 (isLogin은 자동으로 true로 변경됨)
+            console.log('useSocialLogin - 사용자 정보 저장 완료:', user);
           })
           .catch((error) => {
             console.error('유저 정보 가져오기 실패:', error);
+            // 에러 발생 시 로그인 상태 초기화
+            setMemberId(-1);
+            clearUser();
           });
+
+        // ⭐️ 스타 게시글 리스트 저장
+        fetch(`https://i13a509.p.ssafy.io/api/v1/star?memberId=${numericMemberId}`, {
+          method: 'GET',
+          credentials: 'include',
+        })
+          .then((res) => {
+            if (!res.ok) throw new Error('Failed to fetch star list');
+            return res.json();
+          })
+          .then((response) => {
+            const starIdLst = response.data.stars.map((item: any) => item.starId);
+            setStarLst(starIdLst);
+            console.log('⭐️ 로그인 시 스타 게시글 목록:', starIdLst);
+          })
+          .catch((error) => {
+            console.error('⭐️ 스타 목록 가져오기 실패:', error);
+          });
+
+        // 팔로우 (멤버 id) 리스트 저장
+        fetch(`https://i13a509.p.ssafy.io/api/v1/follow/member?memberId=${numericMemberId}`, {
+          method: 'GET',
+          credentials: 'include',
+        })
+          .then((res) => {
+            if (!res.ok) throw new Error('Failed to fetch follow list');
+            return res.json();
+          })
+          .then((response) => {
+            const followUserIds = response.data.follows.map((item: any) => item.followId);
+            setFollowUser(followUserIds);
+            console.log('팔로우 사용자 목록:', followUserIds);
+          })
+          .catch((error) => {
+            console.error('팔로우 목록 가져오기 실패:', error);
+          });
+
+      } else {
+        console.log('useSocialLogin - memberId 누락');
+        alert('로그인 정보가 누락되었습니다. 다시 시도해주세요.');
+        navigate('/login');
+        return;
       }
-
-      //스타 게시글 리스트 저장
-      // ⭐️ 스타 게시글 리스트 저장
-      fetch(`https://i13a509.p.ssafy.io/api/v1/star?memberId=${memberId}`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('ACCESS_TOKEN')}`, // 또는 다른 방식으로 accessToken 관리 중이면 수정
-        },
-      })
-        .then((res) => {
-          if (!res.ok) throw new Error('Failed to fetch star list');
-          return res.json();
-        })
-        .then((response) => {
-          const starIdLst = response.data.stars.map((item: any) => item.starId);
-          setStarLst(starIdLst);
-          // 🔍 DEBUG-START: 스타 게시글 목록 출력 (개발 완료 시 제거)
-          console.log('⭐️ 로그인 시 스타 게시글 목록:', starIdLst);
-          // 🔍 DEBUG-END
-        })
-        .catch((error) => {
-          console.error('⭐️ 스타 목록 가져오기 실패:', error);
-        });
-
-      //팔로우 (멤버 id) 리스트 저장
 
 
 

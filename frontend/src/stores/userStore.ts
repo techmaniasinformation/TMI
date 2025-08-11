@@ -23,6 +23,7 @@ interface UserState {
   toggleIsLogin: () => void;
   setMemberId: (id: number) => void;
   setUser: (user: User) => void;
+  clearUser: () => void;
   setStarLst: (list: any[]) => void;
   setFollowUser: (list: any[]) => void;
   setFollowCompany: (list: any[]) => void;
@@ -48,9 +49,19 @@ export const useUserStore = create(
 
       toggleIsLogin: () => set((state) => ({ isLogin: !state.isLogin })),
 
-      setMemberId: (id: number) => set({ memberId: id }),
+      setMemberId: (id: number) => set({ 
+        memberId: id, 
+        isLogin: id !== -1 
+      }),
 
-      setUser: (user: User) => set({ user }),
+      setUser: (user: User) => set({ 
+        user, 
+        isLogin: user !== null 
+      }),
+      clearUser: () => set({ 
+        user: null, 
+        isLogin: false 
+      }),
       setStarLst: (list: number[]) => set({ starLst: list }),
       setFollowUser: (list: number[]) => set({ followUser: list }),
       setFollowCompany: (list: number[]) => set({ followCompany: list }),

@@ -31,7 +31,7 @@ const Header: React.FC<HeaderProps> = ({
   variant = 'light',
   size = 'default',
 }) => {
-  const { isLogin, memberId, toggleIsLogin } = useUserStore(); // 로그인 상태 확인
+  const { isLogin, memberId, user, toggleIsLogin, setMemberId, setUser, clearUser } = useUserStore(); // 로그인 상태 확인
   const { isDarkMode, toggleTheme } = useThemeStore(); // 전역 상태 사용
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(true);
@@ -41,20 +41,35 @@ const Header: React.FC<HeaderProps> = ({
   // 로그아웃 함수.
   const handleLogOut = async () => {
     try {
-      const response = await fetch('/api/logout###### ', {
-        method: 'DELETE', // 로그아웃 요청 방식
-        credentials: 'include', // 쿠키나 세션 전송 시 필요#ㄸ##########
+      const response = await fetch('https://i13a509.p.ssafy.io/api/v1/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
       });
 
-      if (response.ok) {
-        toggleIsLogin(); // 로그인 상태 false로 변경
-        alert('로그아웃 되었습니다.');
-      } else {
-        alert('로그아웃에 실패했습니다.');
-      }
+      // 서버 응답과 관계없이 클라이언트 상태 정리
+      // 전역변수 초기화 (isLogin은 자동으로 false로 변경됨)
+      setMemberId(-1);
+      clearUser();
+      
+      // 프로필 메뉴 닫기
+      setShowProfileMenu(false);
+      
+      console.log('로그아웃 완료 - 전역변수 정리됨');
+      alert('로그아웃 되었습니다.');
+      
+      // 홈페이지로 리다이렉트
+      navigate('/');
+      
     } catch (error) {
       console.error('로그아웃 중 오류:', error);
-      alert('서버 오류로 로그아웃에 실패했습니다.');
+      
+      // 서버 오류가 있어도 클라이언트 상태는 정리
+      setMemberId(-1);
+      clearUser();
+      setShowProfileMenu(false);
+      
+      alert('로그아웃 되었습니다.');
+      navigate('/');
     }
   };
 
@@ -136,7 +151,7 @@ const Header: React.FC<HeaderProps> = ({
                 >
                   <div className='relative'>
                     <img
-                      src='https://readdy.ai/api/search-image?query=professional%20headshot%20developer&width=32&height=32&orientation=squarish'
+                      src={user?.memberProfileUrl || 'https://readdy.ai/api/search-image?query=professional%20headshot%20developer&width=32&height=32&orientation=squarish'}
                       alt='Profile'
                       className='w-8 h-8 rounded-full'
                     />
@@ -151,7 +166,7 @@ const Header: React.FC<HeaderProps> = ({
                       variant === 'dark' ? 'text-white' : 'text-dark-bg'
                     )}
                   >
-                    김개발
+                    {user?.nickname || '사용자'}
                   </span>
                   <i
                     className={cn(

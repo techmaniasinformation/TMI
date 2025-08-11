@@ -202,7 +202,7 @@ const useSocialLogin = () => {
             return res.json();
           })
           .then((response) => {
-            const followCompanyIds = response.data.follows.map((item: any) => item.companyId);
+            const followCompanyIds = response.data.companyFollows.map((item: any) => item.companyId);
             setFollowUser(followCompanyIds);
             console.log('팔로우 사용자 목록:', followCompanyIds);
           })

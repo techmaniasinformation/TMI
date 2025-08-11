@@ -14,6 +14,7 @@ const useSocialLogin = () => {
     setStarLst,
     setFollowUser,
     setFollowCompany,
+    setSocialLoginInfo,
   } = useUserStore();
 
   // 이전 경로 함께 전달하는 소셜 로그인
@@ -32,9 +33,14 @@ const useSocialLogin = () => {
     console.log('useSocialLogin useEffect 실행됨');
     console.log('location.search:', location.search);
     console.log('location.pathname:', location.pathname);
+    console.log('전체 URL:', window.location.href);
+    console.log('window.location.search:', window.location.search);
+    
+    // window.location.search를 우선 사용
+    const searchString = window.location.search || location.search;
     
     // 쿼리 파라미터가 없으면 처리하지 않음
-    if (!location.search) {
+    if (!searchString) {
       console.log('쿼리 파라미터 없음, 처리 중단');
       return;
     }
@@ -43,8 +49,9 @@ const useSocialLogin = () => {
     const redirectAfterLogin =
       sessionStorage.getItem('redirectAfterLogin') || '/';
 
-    // 회원 정보
-    const searchParams = new URLSearchParams(location.search); // &&& location.search에서 쿼리 추출
+    // 회원 정보 - searchString 사용
+    const searchParams = new URLSearchParams(searchString);
+    console.log('사용된 searchString:', searchString);
     const isNew = searchParams.get('isNew');
 
     const provider = searchParams.get('provider');
@@ -59,16 +66,12 @@ const useSocialLogin = () => {
       console.log('useSocialLogin - provider:', provider);
       console.log('useSocialLogin - providerMemberId:', providerMemberId);
       
-      if (provider && providerMemberId) {
-        const signupState = {
-          provider,
-          providerId: providerMemberId,
-        };
-        console.log('useSocialLogin - 회원가입 페이지로 이동, state:', signupState);
-        navigate('/signup', {
-          state: signupState,
-        });
-      } else {
+             if (provider && providerMemberId) {
+         // 전역 변수에 소셜 로그인 정보 저장
+         setSocialLoginInfo(provider, providerMemberId);
+         console.log('useSocialLogin - 소셜 로그인 정보 저장:', { provider, providerId: providerMemberId });
+         navigate('/signup');
+       } else {
         console.log('useSocialLogin - 회원가입 정보 누락');
         alert('회원가입 정보가 누락되었습니다. 다시 시도해주세요.');
         navigate('/login');
@@ -143,7 +146,7 @@ const useSocialLogin = () => {
       sessionStorage.removeItem('redirectAfterLogin');
       return;
     }
-  }, [location.search]);
+  }, [location]); // location 전체를 의존성으로 변경
 
   return {
     handleSocialLoginWithLocation,

@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom'; 
+import { useUserStore } from '@/stores/userStore';
 
 export const useSignup = () => {
   const location = useLocation();
-  const { provider, providerId } = location.state ?? {};
-
+  const { socialProvider, socialProviderId, clearSocialLoginInfo } = useUserStore();
 
   const [formData, setFormData] = useState({
-    provider: provider || '',
-    providerMemberId: providerId || '',
+    provider: socialProvider || '',
+    providerMemberId: socialProviderId || '',
     nickname: '',
     memberProfileUrl: '',
   });
@@ -95,6 +95,10 @@ export const useSignup = () => {
 
       const data = await res.json();
       console.log('회원가입 성공:', data);
+      
+      // 회원가입 완료 후 소셜 로그인 정보 정리
+      clearSocialLoginInfo();
+      
       alert('회원가입이 완료되었습니다!');
     } catch (error) {
       console.error('회원가입 실패:', error);

@@ -5,6 +5,7 @@ import { cn } from '@/utils/utils';
 import { useThemeStore } from '@/stores/themeStore';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import { useUserStore } from '@/stores/userStore';
 
 // ####### useUserStore 보류!!!
 // 다크모드 관련
@@ -41,25 +42,24 @@ const SignupPage: React.FC<SignupPageProps> = () => {
 
   const location = useLocation();
   const navigate = useNavigate();
-
-  // 전달받은 state 구조 분해
-  const { provider, providerId } = location.state || {}; // 안전하게 optional 처리
+  
+  // 전역 변수에서 소셜 로그인 정보 가져오기
+  const { socialProvider, socialProviderId, clearSocialLoginInfo } = useUserStore();
 
   // 디버깅용 로그
-  console.log('SignupPage - location.state:', location.state);
-  console.log('SignupPage - provider:', provider);
-  console.log('SignupPage - providerId:', providerId);
+  console.log('SignupPage - socialProvider:', socialProvider);
+  console.log('SignupPage - socialProviderId:', socialProviderId);
 
   // provider 없으면 다시 로그인 페이지로
   // 잘못된 접근 방어
   useEffect(() => {
-    console.log('SignupPage useEffect - provider:', provider, 'providerId:', providerId);
-    if (!provider || !providerId) {
+    console.log('SignupPage useEffect - socialProvider:', socialProvider, 'socialProviderId:', socialProviderId);
+    if (!socialProvider || !socialProviderId) {
       console.log('SignupPage - 잘못된 접근 감지');
       alert('잘못된 접근입니다.');
       navigate('/login');
     }
-  }, [provider, providerId, navigate]);
+  }, [socialProvider, socialProviderId, navigate]);
 
 
   return (

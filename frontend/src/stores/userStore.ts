@@ -15,6 +15,10 @@ interface UserState {
   starLst: number[];
   followUser: number[];
   followCompany: number[];
+  
+  // 소셜 로그인 정보
+  socialProvider: string | null;
+  socialProviderId: string | null;
 
   toggleIsLogin: () => void;
   setMemberId: (id: number) => void;
@@ -22,6 +26,8 @@ interface UserState {
   setStarLst: (list: any[]) => void;
   setFollowUser: (list: any[]) => void;
   setFollowCompany: (list: any[]) => void;
+  setSocialLoginInfo: (provider: string, providerId: string) => void;
+  clearSocialLoginInfo: () => void;
 
   // checkAuth는 지울 예정
   checkAuth: () => Promise<void>; // ✅ (임시) 서버로부터 사용자 인증 상태 확인
@@ -37,6 +43,8 @@ export const useUserStore = create(
       starLst: [],
       followUser: [],
       followCompany: [],
+      socialProvider: null,
+      socialProviderId: null,
 
       toggleIsLogin: () => set((state) => ({ isLogin: !state.isLogin })),
 
@@ -46,6 +54,9 @@ export const useUserStore = create(
       setStarLst: (list: number[]) => set({ starLst: list }),
       setFollowUser: (list: number[]) => set({ followUser: list }),
       setFollowCompany: (list: number[]) => set({ followCompany: list }),
+      setSocialLoginInfo: (provider: string, providerId: string) => 
+        set({ socialProvider: provider, socialProviderId: providerId }),
+      clearSocialLoginInfo: () => set({ socialProvider: null, socialProviderId: null }),
 
       // 지울 예정
       checkAuth: async () => {

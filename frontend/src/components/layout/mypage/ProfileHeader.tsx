@@ -123,7 +123,7 @@ export default function ProfileHeader({
           <img
             src={getProfileImage(isCompany ? companyData?.companyProfileUrl : memberData?.memberProfileUrl)}
             alt="profile"
-            className="w-20 h-20 ps-4 rounded-full object-cover"
+            className="w-20 h-20 ms-4 rounded-full object-cover"
             onError={(e) => ((e.target as HTMLImageElement).src = Star)}
           />
 

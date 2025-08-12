@@ -7,8 +7,6 @@ import {
   getSafeCompanyUrl 
 } from '@/utils/defaultImages';
 import { 
-  fetchUserStarList, 
-  checkPostStarStatus, 
   addStar, 
   removeStar 
 } from '@/utils/starUtils';

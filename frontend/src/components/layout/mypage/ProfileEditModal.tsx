@@ -101,7 +101,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
     const file = e.target.files?.[0] || null;
     setRemoved(false); // ✅ 파일 선택하면 제거 의도 해제
     if (file) {
-      const MAX = 20 * 1024 * 1024; // 20MB
+      const MAX = 10 * 1024 * 1024; // 20MB
       const okType = /^image\//.test(file.type);
       if (!okType) {
         alert('이미지 파일만 업로드 가능합니다.');
@@ -109,7 +109,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
         return;
       }
       if (file.size > MAX) {
-        alert('이미지는 5MB 이하만 업로드 가능합니다.');
+        alert('이미지는 10MB 이하만 업로드 가능합니다.');
         e.target.value = '';
         return;
       }

@@ -40,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       // 공개 POST (회원가입/재발급/로그아웃)
       PP.matcher(HttpMethod.POST, "/api/v1/member/signup"),
       PP.matcher(HttpMethod.POST, "/api/v1/auth/refresh"),
-      PP.matcher(HttpMethod.POST, "/api/v1/auth/logout/**"),
+//      PP.matcher(HttpMethod.POST, "/api/v1/auth/logout/**"),
 
       // OAuth2 엔드포인트 (메서드 구분 불필요하면 오버로드로 method 생략 가능)
       PP.matcher("/api/v1/oauth2/**"),
@@ -48,7 +48,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       PP.matcher("/api/v1/oauth2/authorization/**"),
       PP.matcher("/api/v1/oauth2/code/**"),
       PP.matcher("/login/oauth2/code/**"),
-      PP.matcher("/login")
+      PP.matcher("/login"),
+
+      //
+      PP.matcher("/"),
+      PP.matcher("/favicon.ico"),
+      PP.matcher("/error"),
+      PP.matcher("/css/**"),
+      PP.matcher("/js/**"),
+      PP.matcher("/images/**"),
+      PP.matcher("/assets/**"),
+      PP.matcher("/webjars/**"),
+      PP.matcher("/.well-known/**")
+
   );
 
   @Override

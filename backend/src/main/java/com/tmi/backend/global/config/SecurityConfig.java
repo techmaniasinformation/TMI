@@ -38,6 +38,10 @@ public class SecurityConfig {
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(authorize -> authorize
+            .requestMatchers(
+                "/", "/favicon.ico", "/error",
+                "/css/**", "/js/**", "/images/**", "/assets/**", "/webjars/**", "/.well-known/**"
+            ).permitAll()
             .requestMatchers(HttpMethod.GET, "/api/v1/**")
             .permitAll()
             .requestMatchers(HttpMethod.POST, "/api/v1/auth/refresh", "/api/v1/member/signup",

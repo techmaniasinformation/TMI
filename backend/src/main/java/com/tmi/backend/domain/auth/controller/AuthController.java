@@ -7,7 +7,6 @@ import com.tmi.backend.domain.auth.jwt.service.TokenService;
 import com.tmi.backend.global.common.controller.BaseController;
 import com.tmi.backend.global.common.response.ApiResponse;
 import com.tmi.backend.global.common.response.ServiceResult;
-import com.tmi.backend.global.common.response.impl.ApiSuccessResponse;
 import com.tmi.backend.global.error.ErrorCode;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,7 +17,10 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,6 +39,12 @@ public class AuthController implements BaseController {
   /**
    * 토큰 재발급 API
    */
+
+  @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
+  private String restKey;
+  @Value("${kakao.logout-redirect-uri}")
+  private String kakaoLogoutRedirectUri;
+
   @PostMapping("/refresh")
   public ResponseEntity<ApiResponse<Map<String, Boolean>>> refreshToken(HttpServletRequest request,
       HttpServletResponse response) {
@@ -77,16 +85,23 @@ public class AuthController implements BaseController {
   /**
    * 로그아웃 API
    */
-  @PostMapping("/logout/{memberId}")
-  public ApiResponse<?> logout(@PathVariable Long memberId, HttpServletRequest request,
+  @GetMapping("/logout/{memberId}/{provider}")
+  public ResponseEntity<Void> logout(@PathVariable Long memberId, @PathVariable String provider,
       HttpServletResponse response) {
     // DB에서 리프레시 토큰 제거
     refreshTokenService.deleteByMemberId(memberId);
     // 쿠키에서 리프레시 토큰 삭제 ( = 유효기간 0으로 설정)
     tokenService.deleteAuthCookies(response);
-    return ApiSuccessResponse.success(Map.of("isLoggedOut", true));
+    String url;
+    if (provider.equals("kakao")) {
+      url = "https://kauth.kakao.com/oauth/logout"
+          + "?client_id=" + restKey
+          + "&logout_redirect_uri=" + kakaoLogoutRedirectUri;
+      System.out.println("===");
+    }
+    url = kakaoLogoutRedirectUri;
+    return ResponseEntity.status(302).header(HttpHeaders.LOCATION, url).build();
   }
-
 
 }
 

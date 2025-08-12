@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { patchRepresentativeBadge } from '@/api/mypage/representativebadgeService';
 
-// 배지 이미지들을 정적 import로 변경
+// 배지 이미지들 import
 import ai_1 from '@/assets/images/ai_1.png';
 import amumu from '@/assets/images/amumu.png';
 import aws_1 from '@/assets/images/aws_1.png';
@@ -62,16 +63,17 @@ interface BadgeModalProps {
     isRepresentative?: boolean;
   } | null;
   onClose: () => void;
-  onSelect: (badge: BadgeModalProps['badge']) => void; // 배지 선택 시 호출
+  onSelect: (badge: BadgeModalProps['badge']) => void;
 }
 
-export default function BadgeModal({ 
-  isOpen, 
-  onClose, 
-  badge, 
-  onSelect 
+export default function BadgeModal({
+  isOpen,
+  onClose,
+  badge,
+  onSelect,
 }: BadgeModalProps) {
   const [badgeImageUrl, setBadgeImageUrl] = useState<string>('');
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (badge?.badgeUrl) {
@@ -86,26 +88,29 @@ export default function BadgeModal({
   const isRep = !!badge.isRepresentative;
 
   const handleToggleRepresentative = async () => {
-    console.log("실행 해제")
-    if (!isOwned || !badge.memberBadgeId) return;
-
+    if (!isOwned && !isRep) {
+      alert('획득한 배지만 대표 배지로 설정할 수 있습니다.');
+      return;
+    }
     try {
-      console.log("실행중")
+      setSubmitting(true);
+
       if (isRep) {
-        // 해제 → 22번 배지로 변경
-        // This logic is removed as per the new_code, as the representative badge setting is removed.
-        // The onUnsetRepresentative prop is also removed.
-        console.log("경고 실행")
+        // 해제: 22번(기본 배지)로 설정
+        await patchRepresentativeBadge(22);
+        onSelect?.({ ...badge, isRepresentative: false });
       } else {
         // 설정
-        // This logic is removed as per the new_code, as the representative badge setting is removed.
-        alert("대표 배지가 설정되었습니다.");
+        await patchRepresentativeBadge(badge.memberBadgeId!);
+        onSelect?.({ ...badge, isRepresentative: true });
       }
 
-      // onRepresentativeSet?.(); // 상위 리스트 리프레시 - Removed as per new_code
       onClose();
-    } catch {
-      alert("대표 배지 변경에 실패했습니다.");
+    } catch (e: any) {
+      console.error(e);
+      alert(e?.message || '대표 배지 변경에 실패했습니다.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -122,22 +127,31 @@ export default function BadgeModal({
       <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
         <div className="text-center">
           <img
-            src={badgeImageUrl || "/fallback.png"}
+            src={badgeImageUrl || '/fallback.png'}
             alt={badge.name}
             className="w-32 h-32 mx-auto mb-4 rounded-lg object-contain"
           />
           <h3 className="text-xl font-semibold mb-2">{badge.name}</h3>
-          <p className="text-gray-600 mb-4">{badge.description}</p>
-          
+          <p className="text-gray-600 mb-2">{badge.description}</p>
+          <p className="text-sm text-gray-500 mb-6">{formattedDate}</p>
+
           <div className="flex gap-2">
             <button
-              onClick={() => {
-                onSelect(badge);
-                onClose();
-              }}
-              className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+              onClick={handleToggleRepresentative}
+              disabled={submitting || (!isOwned && !isRep)}
+              className={`flex-1 py-2 px-4 rounded-lg transition-colors
+                ${submitting || (!isOwned && !isRep)
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : isRep
+                    ? 'bg-red-600 text-white hover:bg-red-700'   // 해제일 때 빨간색
+                    : 'bg-blue-600 text-white hover:bg-blue-700' // 설정일 때 파란색
+                }`}
             >
-              선택
+              {submitting
+                ? '변경 중…'
+                : isRep
+                ? '대표 배지 해제'
+                : '대표 배지로 설정'}
             </button>
             <button
               onClick={onClose}
@@ -146,6 +160,12 @@ export default function BadgeModal({
               취소
             </button>
           </div>
+
+          {!isOwned && !isRep && (
+            <p className="mt-3 text-xs text-red-500">
+              이 배지는 아직 획득하지 않아 대표 배지로 설정할 수 없습니다.
+            </p>
+          )}
         </div>
       </div>
     </div>

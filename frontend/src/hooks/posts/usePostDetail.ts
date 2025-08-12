@@ -241,9 +241,14 @@ export const useFollow = (postData: PostDetail | null) => {
     }
   }, [postData, followUser, followCompany]);
 
+  // user 상태가 로드된 후에 팔로우 상태 확인
   useEffect(() => {
-    checkFollowStatus();
-  }, [checkFollowStatus]);
+    if (user && postData) {
+      checkFollowStatus();
+    }
+  }, [user, postData, checkFollowStatus]);
+
+
 
   // 팔로우 토글
   const toggleFollow = useCallback(async () => {
@@ -252,8 +257,8 @@ export const useFollow = (postData: PostDetail | null) => {
       return;
     }
     
-    // 로그인 상태 확인을 더 엄격하게 체크
-    if (!user || !user.memberId || user.memberId <= 0) {
+    // 로그인 상태 확인
+    if (!user?.memberId) {
       alert('로그인이 필요합니다.');
       return;
     }
@@ -376,7 +381,7 @@ export const useFollow = (postData: PostDetail | null) => {
       console.error('❌ [useFollow] 팔로우 요청 실패:', err);
       alert('팔로우 요청에 실패했습니다.');
     }
-  }, [isFollowing, postData, user, followUser, followCompany, setFollowUser, setFollowCompany, memberFollowId, companyFollowId]);
+  }, [isFollowing, postData, user?.memberId, followUser, followCompany, setFollowUser, setFollowCompany, memberFollowId, companyFollowId]);
 
   return {
     isFollowing,
@@ -469,8 +474,8 @@ export const useComments = (postId: string) => {
       return;
     }
     
-    // 로그인 상태 확인을 더 엄격하게 체크
-    if (!user || !user.memberId || user.memberId <= 0) {
+    // 로그인 상태 확인
+    if (!user?.memberId) {
       alert('로그인이 필요합니다.');
       return;
     }
@@ -511,8 +516,8 @@ export const useComments = (postId: string) => {
 
   // 댓글 추천
   const toggleCommentRecommend = useCallback(async (commentId: number) => {
-    // 로그인 상태 확인을 더 엄격하게 체크
-    if (!user || !user.memberId || user.memberId <= 0) {
+    // 로그인 상태 확인
+    if (!user?.memberId) {
       alert('로그인이 필요합니다.');
       return;
     }

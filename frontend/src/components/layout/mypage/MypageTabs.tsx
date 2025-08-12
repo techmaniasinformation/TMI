@@ -121,13 +121,16 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   isMyPage,
   activeTab,
   setActiveTab,
-  currentPage,
-  setCurrentPage,
+  currentPage, // eslint-disable-line @typescript-eslint/no-unused-vars
+  setCurrentPage, // eslint-disable-line @typescript-eslint/no-unused-vars
   onRepresentativeBadgeChange,
 }) => {
   // 현재 화면이 개인(회사 아님)인지
   const isPersonal = !isCompany;
   const isOtherUser = isPersonal && !isMyPage;
+
+  // ✅ 내 페이지(개인)에서만 배지 모달 허용
+  const canOpenBadgeModal = isMyPage && isPersonal;
 
   // URL 파라미터 (개인/기업 공통으로 id 사용)
   const { id } = useParams();
@@ -405,20 +408,32 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
                 const hasBadge = memberBadges.some((mb) => mb.badgeId === badge.badgeId);
                 const matchedBadge = hasBadge ? memberBadges.find((mb) => mb.badgeId === badge.badgeId) : null;
 
+                // ✅ 내 페이지가 아니면 클릭 무시
+                const handleClick = () => {
+                  if (!canOpenBadgeModal || !hasBadge) return;
+                  setSelectedBadge({
+                    ...badge,
+                    memberBadgeId: matchedBadge?.memberBadgeId,
+                    receivedAt: matchedBadge?.receivedAt ?? null,
+                    isRepresentative: matchedBadge?.isRepresentative ?? false,
+                  });
+                  setIsBadgeModalOpen(true);
+                };
+
                 return (
                   <div
                     key={badge.badgeId}
-                    onClick={hasBadge ? () => {
-                      setSelectedBadge({
-                        ...badge,
-                        memberBadgeId: matchedBadge?.memberBadgeId,
-                        receivedAt: matchedBadge?.receivedAt ?? null,
-                        isRepresentative: matchedBadge?.isRepresentative ?? false,
-                      });
-                      setIsBadgeModalOpen(true);
-                    } : undefined}
+                    onClick={handleClick} // ✅ 가드된 핸들러
                     className={`aspect-square border rounded-xl shadow-sm flex flex-col items-center justify-center transition 
-                      ${hasBadge ? 'cursor-pointer hover:shadow-md border-purple-600' : 'cursor-not-allowed border-gray-300 opacity-50'}`}
+                      ${
+                        hasBadge
+                          ? (canOpenBadgeModal
+                              ? 'cursor-pointer hover:shadow-md border-purple-600'
+                              : 'cursor-default border-purple-600')
+                          : 'cursor-not-allowed border-gray-300 opacity-50'
+                      }`}
+                    aria-disabled={!canOpenBadgeModal}
+                    title={canOpenBadgeModal ? badge.name : undefined}
                   >
                     <img
                       src={hasBadge ? (badgeImageMap[badge.badgeUrl] || '/fallback.png') : badgeImageMap['locked.png']}
@@ -678,8 +693,8 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
         </TabsContent>
       )}
 
-      {/* 배지 모달 */}
-      {isBadgeModalOpen && selectedBadge && (
+      {/* ✅ 배지 모달 (내 페이지일 때만 렌더) */}
+      {canOpenBadgeModal && isBadgeModalOpen && selectedBadge && (
         <BadgeModal
           isOpen={true}
           badge={selectedBadge}

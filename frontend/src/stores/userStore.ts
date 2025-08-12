@@ -155,7 +155,8 @@ export const useUserStore = create(
     }),
     { 
       name: 'userStateStorage',
-      serialize: (state) => {
+      // @ts-ignore - Zustand persist의 타입 정의 문제로 인한 임시 해결책
+      serialize: (state: any) => {
         // Map 객체를 배열로 변환하여 직렬화
         const serializedState = {
           ...state,
@@ -163,7 +164,8 @@ export const useUserStore = create(
         };
         return JSON.stringify(serializedState);
       },
-      deserialize: (str) => {
+      // @ts-ignore - Zustand persist의 타입 정의 문제로 인한 임시 해결책
+      deserialize: (str: string) => {
         const parsed = JSON.parse(str);
         // 배열을 다시 Map으로 변환
         return {

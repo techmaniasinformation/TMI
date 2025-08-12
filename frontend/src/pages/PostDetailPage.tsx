@@ -20,7 +20,7 @@ import {
 interface PostDetailPageProps {}
 
 interface PostDetail {
-  postId: number;
+  postId: string;
   title: string;
   tags: string[];
   memberProfileUrl: string;
@@ -97,7 +97,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
   const [error, setError] = useState<string | null>(null);
 
   // 사용자의 스타 상태 확인 함수 (전역 상태 사용)
-  const checkUserStarStatus = useCallback((postId: number) => {
+  const checkUserStarStatus = useCallback((postId: string) => {
     // 전역 상태의 starLst에서 현재 게시글 ID가 있는지 확인
     const isStarred = starLst.includes(postId);
     setIsStarred(isStarred);
@@ -122,7 +122,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
   }, [followUser, followCompany]);
 
   // 사용자의 댓글 추천 상태 확인 함수
-  const checkUserRecommendations = useCallback(async (postId: number, userId: number) => {
+  const checkUserRecommendations = useCallback(async (postId: string, userId: number) => {
     if (!userId) return;
 
     try {
@@ -733,10 +733,14 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
     }
   }, [commentText, postData?.postId, user?.memberId, linkUrl, showToastMessage]);
 
-  // 날짜 포맷팅 함수를 useMemo로 메모이제이션
+  // 날짜 포맷팅 함수를 useMemo로 메모이제이션 (UTC -> KST 변환)
   const formatDate = useMemo(() => {
     return (dateString: string) => {
-      const diffInMs = Date.now() - new Date(dateString).getTime();
+      // UTC 시간을 한국 시간으로 변환
+      const utcDate = new Date(dateString);
+      const kstDate = new Date(utcDate.getTime() + (9 * 60 * 60 * 1000)); // UTC+9 (한국 시간)
+      
+      const diffInMs = Date.now() - kstDate.getTime();
       const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
       const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
       const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
@@ -746,7 +750,9 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
       if (diffInHours < 24) return `${diffInHours}시간 전`;
       if (diffInDays < 7) return `${diffInDays}일 전`;
       
-      return new Date(dateString).toLocaleDateString('ko-KR');
+      return kstDate.toLocaleDateString('ko-KR', {
+        timeZone: 'Asia/Seoul'
+      });
     };
   }, []);
 

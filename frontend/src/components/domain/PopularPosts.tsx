@@ -12,7 +12,7 @@ export default function PopularPosts() {
   const navigate = useNavigate();
   
   const {
-    popularPosts,
+    posts: popularPosts,
     loading,
     error,
     formatNumber

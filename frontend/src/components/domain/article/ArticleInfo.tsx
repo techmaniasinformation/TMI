@@ -10,7 +10,7 @@ interface PostData {
   title: string;
   author: string;
   authorProfile: string;
-  authorBadge?: string;
+  authorBadge?: string | null; // 백엔드에서 null이 올 수 있음
   tags: string[];
   date: string;
   views: number;

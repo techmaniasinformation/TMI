@@ -18,7 +18,7 @@ interface UserState {
   isLogin: boolean; // 페이지 구현되면 삭제 예정
   user: User | null;
   newUser: NewUser | null;
-  starLst: number[];
+  starLst: string[];
   followUser: number[];
   followCompany: number[];
 
@@ -33,7 +33,7 @@ interface UserState {
   toggleIsLogin: () => void;
   setUser: (user: User) => void;
   clearUser: () => void;
-  setStarLst: (list: any[]) => void;
+  setStarLst: (list: string[]) => void;
   setFollowUser: (list: any[]) => void;
   setFollowCompany: (list: any[]) => void;
   setSocialLoginInfo: (provider: string, providerId: string) => void;
@@ -87,7 +87,7 @@ export const useUserStore = create(
           // isLogin: false
         }),
 
-      setStarLst: (list: number[]) => set({ starLst: list }),
+      setStarLst: (list: string[]) => set({ starLst: list }),
       setFollowUser: (list: number[]) => set({ followUser: list }),
       setFollowCompany: (list: number[]) => set({ followCompany: list }),
 

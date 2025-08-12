@@ -215,7 +215,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
           </button>
 
           <p className="text-sm text-gray-500 mt-2">
-             이미지는 20MB 이하만 업로드할 수 있어요.
+             이미지는 10MB 이하만 업로드할 수 있어요.
           </p>
           {(previewUrl || selectedFile) && (
             <button

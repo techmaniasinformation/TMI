@@ -52,7 +52,7 @@ export default function PostList({
               id={post.postId}
               title={post.title}
               author={post.name}
-              authorProfile={post.memberProfileUrl}
+                             authorProfile={post.memberProfileUrl}
               authorBadge={post.badgeUrl}
               tags={post.tags}
               date={post.createAt}

@@ -55,7 +55,6 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   // blob URL 정리용
   const prevUrlRef = useRef<string | null>(null);
   useEffect(() => {
-    // previewUrl 변경 시 이전 blob URL 정리
     if (
       prevUrlRef.current &&
       prevUrlRef.current !== previewUrl &&
@@ -91,7 +90,6 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
 
   const handleImgLoad = () => {
     setImgLoading(false);
-    // 성공하면 fallback 플래그 리셋
     fallbackAppliedRef.current = false;
   };
 
@@ -102,7 +100,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
       const okType = /^image\//.test(file.type);
       if (!okType) {
         alert('이미지 파일만 업로드 가능합니다.');
-        e.target.value = ''; // 같은 파일 다시 선택 가능하게 초기화
+        e.target.value = '';
         return;
       }
       if (file.size > MAX) {
@@ -129,10 +127,33 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
     if (saving) return;
     setSaving(true);
     try {
-      await onSave(nickname, blogUrl, githubUrl, previewUrl ?? undefined, selectedFile);
+      // 파일 없음 + 프리뷰가 초기 이미지와 같으면 URL은 보내지 않음(= undefined)
+      const isSameAsInitial =
+        !selectedFile &&
+        (previewUrl ?? '') === (initialProfileImageUrl ?? '');
+
+      // 아무 것도 안 바뀐 경우 요청 자체를 생략
+      const nothingChanged =
+        (nickname ?? '') === (initialNickname ?? '') &&
+        (blogUrl ?? '') === (initialBlogUrl ?? '') &&
+        (githubUrl ?? '') === (initialGithubUrl ?? '') &&
+        !selectedFile &&
+        (isSameAsInitial || (previewUrl ?? '') === (initialProfileImageUrl ?? ''));
+
+      if (nothingChanged) {
+        onClose();
+        return;
+      }
+
+      await onSave(
+        nickname,
+        blogUrl,
+        githubUrl,
+        isSameAsInitial ? undefined : (previewUrl ?? undefined),
+        selectedFile
+      );
       onClose();
     } catch (e) {
-      // 실패 시 모달 유지, 에러 토스트/알럿은 부모에서 해도 됨
       console.error(e);
     } finally {
       setSaving(false);
@@ -157,7 +178,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
               <>
                 {imgLoading && <div className="w-full h-full animate-pulse bg-gray-100" />}
                 <img
-                  key={previewUrl} // URL 바뀔 때만 remount
+                  key={previewUrl}
                   src={previewUrl}
                   alt="Profile"
                   className={`w-24 h-24 object-contain ${imgLoading ? 'hidden' : 'block'}`}

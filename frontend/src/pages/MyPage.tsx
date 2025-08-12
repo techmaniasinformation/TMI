@@ -63,14 +63,14 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
   });
 
   const { id } = useParams();
-  const routeId = Number(id);
+  const routeId = Number(id) || 0;                 // ✅ 숫자 가드
 
   // store에서 내 id 읽기 (수정 X)
   const { user } = useUserStore();
   const myId = user?.memberId;
 
-  // 내 페이지 여부 계산
-  const isMyPage = myId > 0 && myId === routeId;
+  // 내 페이지 여부 계산 (id 없는 라우트도 고려)
+  const isMyPage = routeId > 0 ? (myId > 0 && myId === routeId) : myId > 0;  // ✅ 가드
 
   // 초기 탭
   const [activeTab, setActiveTab] = useState<MyTab>('profile');
@@ -148,14 +148,14 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
     newBlogUrl: string,
     newGithubUrl?: string,
     newProfileUrl?: string,
-    file?: File | null            // ✅ 파일 추가
+    file?: File | null
   ) => {
     if (!isMyPage || !myId || myId <= 0) {
       alert('내 프로필에서만 수정할 수 있습니다.');
       return;
     }
 
-    // ✅ 닉네임 7일 쿨타임 프리체크 (localStorage 기반)
+    // 닉네임 쿨타임 프리체크
     const nicknameChanged = (newNickname ?? '').trim() !== (modalInit.nickname ?? '').trim();
     if (nicknameChanged && nicknameDaysLeft > 0) {
       alert(`닉네임은 ${nicknameDaysLeft}일 후에 변경할 수 있어요.`);
@@ -163,16 +163,28 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
     }
 
     try {
-      // ✅ 파일이 있으면 파일 우선, 없으면 URL로 전송
-      await updateMemberProfile(myId, {
+      // ✅ 조건부 페이로드 구성: 바꾸는 것만 보낸다
+      const payload: any = {
         nickname: newNickname,
         blogUrl: newBlogUrl || null,
         githubUrl: (newGithubUrl ?? '') || null,
-        memberProfileUrl: file ? null : ((newProfileUrl ?? '') || null),
-        file: file ?? null,
-      });
+      };
 
-      // ✅ 닉네임이 실제로 바뀐 경우에만 변경시각 기록
+      if (file instanceof File) {
+        // 파일 있을 때: 파일만 보내고 URL은 포함하지 않음(서버가 새 파일 기준으로 세팅)
+        payload.file = file;
+      } else {
+        // 파일 없고, URL을 실제로 바꾸려는 경우에만 포함 (안 바꾸면 키 생략)
+        const willChangeUrl =
+          typeof newProfileUrl !== 'undefined' &&
+          newProfileUrl !== (modalInit.profileUrl || '');
+        if (willChangeUrl) {
+          payload.memberProfileUrl = newProfileUrl || null; // 빈 문자열이면 null
+        }
+      }
+
+      await updateMemberProfile(myId, payload);
+
       if (nicknameChanged) {
         localStorage.setItem(
           NICK_COOLDOWN_KEY(myId),
@@ -180,6 +192,7 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
         );
       }
 
+      // NOTE: ProfileHeader가 자체적으로 fetch하는 구조라, 간단히 전체 새로고침
       window.location.reload();
     } catch (e: any) {
       console.error('프로필 저장 실패:', e);
@@ -298,14 +311,16 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (isCompany) {
-      setLoading(true);
-      getCompany(routeId)
-        .then((res) => setCompany(res.data))
-        .catch((err) => console.error(err))
-        .finally(() => setLoading(false));
-    }
+    if (!isCompany || routeId <= 0) return;   // ✅ 불필요 호출 방지
+    setLoading(true);
+    getCompany(routeId)
+      .then((res) => setCompany(res.data))
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
   }, [isCompany, routeId]);
+
+  const lastUpdateText =
+    isCompany && company?.lastUpdatedAt ? company.lastUpdatedAt.slice(0, 10) : '';  // ✅ 포맷
 
   return (
     <div className="max-w-[1232px] mx-auto px-4 py-8">
@@ -313,7 +328,7 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
         <ProfileHeader
           isCompany={isCompany}
           isMyPage={isMyPage}
-          lastUpdate={isCompany ? (company?.lastUpdatedAt ? company.lastUpdatedAt.split('T')[0] : '') : '2025-07-30'}
+          lastUpdate={isCompany ? lastUpdateText : '2025-07-30'}
           onFollowToggle={handleFollowToggle}
           isFollowing={isFollowing}
           onEditClick={() => setIsEditModalOpen(true)}

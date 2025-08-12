@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { SearchApiResponse, Post, PageInfo } from '@/types';
 import { useUserStore } from '@/stores/userStore';
 import { useSearchParams } from 'react-router-dom';
+import { formatUTCToKSTDate } from '@/utils/dateUtils';
 
 interface PostsListState {
   posts: Post[];
@@ -85,10 +86,29 @@ export const usePostsList = () => {
         followMemberId: sort === 'following' ? user?.memberId : undefined
       });
       
-      const { posts, pageInfo } = response.data;
+      const { posts: apiPosts, pageInfo } = response.data;
+
+      // API 응답을 프론트엔드 타입으로 변환
+      const transformedPosts = (apiPosts || []).map((post: any) => ({
+        postId: post.postId,
+        title: post.title,
+        content: post.content || '',
+        tags: post.tags || [],
+        memberProfileUrl: post.memberProfile || '', // API: memberProfile -> Frontend: memberProfileUrl
+        companyProfileUrl: post.companyProfileUrl || undefined,
+        name: post.name,
+        badgeUrl: post.badgeUrl || '',
+        createAt: post.createAt,
+        viewCount: post.viewCount,
+        starCount: post.starCount,
+        commentCount: post.commentCount,
+        thumbnailUrl: post.thumbnailUrl || '',
+        link: post.link || '',
+        isStar: post.isStar || false
+      }));
 
       setState({
-        posts: posts || [],
+        posts: transformedPosts,
         loading: false,
         error: null,
         currentPage: pageInfo?.currPage ?? 1,
@@ -149,10 +169,10 @@ export const usePostsList = () => {
     setSearchParams(newSearchParams);
   }, [state.currentPage, searchParams, setSearchParams]);
 
-  // 날짜 포맷팅 함수를 useMemo로 메모이제이션
+  // 날짜 포맷팅 함수를 useMemo로 메모이제이션 (UTC -> KST 변환)
   const formatDate = useMemo(() => {
     return (date: string) => {
-      return new Date(date).toLocaleDateString('ko-KR');
+      return formatUTCToKSTDate(date);
     };
   }, []);
 

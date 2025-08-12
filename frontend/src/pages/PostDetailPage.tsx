@@ -20,7 +20,7 @@ import {
 interface PostDetailPageProps {}
 
 interface PostDetail {
-  postId: number;
+  postId: string;
   title: string;
   tags: string[];
   memberProfileUrl: string;
@@ -97,7 +97,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
   const [error, setError] = useState<string | null>(null);
 
   // 사용자의 스타 상태 확인 함수 (전역 상태 사용)
-  const checkUserStarStatus = useCallback((postId: number) => {
+  const checkUserStarStatus = useCallback((postId: string) => {
     // 전역 상태의 starLst에서 현재 게시글 ID가 있는지 확인
     const isStarred = starLst.includes(postId);
     setIsStarred(isStarred);

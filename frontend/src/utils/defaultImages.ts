@@ -20,16 +20,17 @@ export const isValidImageUrl = (url: string | null | undefined): boolean => {
   if (url === 'null' || url === 'undefined') return false;
   // 빈 문자열이나 공백만 있는 경우
   if (url.replace(/\s/g, '') === '') return false;
-  // 잘못된 URL 패턴들 체크
-  if (url.includes('profile') && url.length < 10) return false; // "profile" 같은 짧은 텍스트
-  if (url.startsWith('data:image/svg+xml')) return true; // 우리가 만든 기본 이미지는 유효
-  // 존재하지 않는 도메인 체크
-  if (url.includes('cdn.example.com')) return false; // 예시 도메인
-  if (url.includes('example.com')) return false; // 예시 도메인
   
-  // https://로 시작하지만 실제로는 이미지가 아닐 수 있는 경우들 체크
+  // 우리가 만든 기본 이미지는 유효
+  if (url.startsWith('data:image/svg+xml')) return true;
+  
+  // https://로 시작하는 실제 이미지 URL은 유효
   if (url.startsWith('https://')) {
-    // URL이 너무 짧거나 패턴이 이상한 경우
+    // 실제 서버 URL인 경우 유효
+    if (url.includes('i13a509.p.ssafy.io')) return true;
+    if (url.includes('api/v1/image')) return true;
+    
+    // URL이 너무 짧거나 패턴이 이상한 경우만 체크
     if (url.length < 15) return false; // 너무 짧은 URL
     if (url.includes('placeholder') || url.includes('dummy')) return false; // 플레이스홀더 이미지
     if (url.includes('404') || url.includes('error')) return false; // 에러 페이지

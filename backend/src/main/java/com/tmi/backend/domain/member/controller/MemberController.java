@@ -84,12 +84,16 @@ public class MemberController implements BaseController {
    */
   @PostMapping("/signup")
   public ResponseEntity<ApiResponse<Map<String, Long>>> signup(
-      @RequestBody MemberCreateRequest req, HttpServletResponse res,
-      @CookieValue(name = "REGIST_TOKEN", required = true) String registToken) {
+      @RequestPart MemberCreateRequest req,
+      @RequestPart(value = "profileImage", required = false) MultipartFile profileImage,
+      HttpServletResponse res,
+      @CookieValue(name = "REGIST_TOKEN", required = true) String registToken
+  ) {
+
     if (!jwtTokenProvider.validateToken(registToken)) {
       return handle(ServiceResult.fail(ErrorCode.USER_SIGN_UP_FAIL));
     }
-    Long memberId = memberService.createOrReviveMember(req);
+    Long memberId = memberService.createOrReviveMember(req, profileImage);
     tokenService.createAndAddAuthCookies(res, memberId);
 
     return handle(ServiceResult.ok(Map.of("memberId", memberId)));

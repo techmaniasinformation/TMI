@@ -66,10 +66,14 @@ public class Member {
         .provider(req.provider())
         .providerMemberId(req.providerMemberId())
         .nickname(req.nickname())
-        .memberProfileUrl(req.memberProfileUrl())
+        .memberProfileUrl("")
         .createdAt(LocalDateTime.now(ZoneOffset.UTC))
         .updatedAt(LocalDateTime.now(ZoneOffset.UTC))
         .build();
+  }
+
+  public void updateProfileUrl(String url) {
+    this.memberProfileUrl = url;
   }
 
   public void updateProfile(String nickname, String profileUrl, String blogUrl, String githubUrl) {
@@ -86,12 +90,9 @@ public class Member {
 
   public void reviveAndUpdate(MemberCreateRequest req) {
     nickname = req.nickname();
-    memberProfileUrl = req.memberProfileUrl();
+    memberProfileUrl = "";
     deletedAt = null;
     createdAt = LocalDateTime.now(ZoneOffset.UTC);
     updatedAt = LocalDateTime.now(ZoneOffset.UTC);
-
-
   }
-
 }

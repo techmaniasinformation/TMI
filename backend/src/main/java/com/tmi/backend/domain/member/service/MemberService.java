@@ -127,7 +127,7 @@ public class MemberService {
   }
 
   @Transactional
-  public Long createOrReviveMember(MemberCreateRequest req) {
+  public Long createOrReviveMember(MemberCreateRequest req, MultipartFile profileImage) {
 
     Member member = memberRepository.findByProviderAndProviderMemberId(req.provider(),
         req.providerMemberId()).orElse(null);
@@ -135,6 +135,17 @@ public class MemberService {
     if (member == null) {
       // 신규 가입
       Member newMember = Member.of(req);
+      // 프로필 이미지 저장 및 URL 세팅
+      if (profileImage != null && !profileImage.isEmpty()) {
+        try {
+          String profileImageUrl = fileUtil.saveFile(profileImage, "profile");
+          newMember.updateProfileUrl(profileImageUrl);
+        } catch (IOException e) {
+          log.error("프로필 이미지 저장 실패", e);
+          // 필요시 예외 처리하거나 기본값 세팅 가능
+        }
+      }
+
       memberRepository.save(newMember);
       publisher.publishEvent(new MemberRegisteredEvent(newMember.getId())); // 추가 하기
       return newMember.getId();
@@ -148,6 +159,15 @@ public class MemberService {
     } else {
       //7일 이후
       member.reviveAndUpdate(req);
+      if (profileImage != null && !profileImage.isEmpty()) {
+        try {
+          String profileImageUrl = fileUtil.saveFile(profileImage, "profile");
+          member.updateProfileUrl(profileImageUrl);
+        } catch (IOException e) {
+          log.error("프로필 이미지 저장 실패", e);
+          // 필요시 예외 처리하거나 기본값 세팅 가능
+        }
+      }
       return member.getId();
     }
   }

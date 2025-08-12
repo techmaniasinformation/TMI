@@ -9,9 +9,10 @@ interface AuthorInfoProps {
   formatDate: (date: string) => string;
   onFollowClick: () => void;
   onAuthorClick: () => void;
+  isFollowing: boolean;
 }
 
-export const AuthorInfo: React.FC<AuthorInfoProps> = ({ post, formatDate, onFollowClick, onAuthorClick }) => {
+export const AuthorInfo: React.FC<AuthorInfoProps> = ({ post, formatDate, onFollowClick, onAuthorClick, isFollowing }) => {
   return (
     <div className="bg-white rounded-lg shadow-md p-4 mb-6">
       <div className="flex items-center justify-between">
@@ -43,12 +44,11 @@ export const AuthorInfo: React.FC<AuthorInfoProps> = ({ post, formatDate, onFoll
           </div>
         </UserInfoBox>
         <Button 
-          variant="dark" 
+          variant={isFollowing ? "light" : "dark"}
           size="sm"
-          className="bg-black text-white hover:bg-gray-800"
           onClick={onFollowClick}
         >
-          팔로우
+          {isFollowing ? '팔로우 취소' : '팔로우'}
         </Button>
       </div>
     </div>

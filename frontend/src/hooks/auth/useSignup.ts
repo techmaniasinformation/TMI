@@ -10,7 +10,6 @@ export const useSignup = () => {
     socialProviderId, 
     prevPath,
     clearSocialLoginInfo,
-    setMemberId,
     setUser,
     toggleIsLogin,
     setPrevPath
@@ -121,7 +120,6 @@ export const useSignup = () => {
         };
         
         // 전역변수에 저장 (isLogin은 자동으로 true로 변경됨)
-        setMemberId(memberId);
         setUser(user);
         
         console.log('회원가입 후 전역변수 저장 완료:', { memberId, user });

@@ -16,7 +16,6 @@ interface NewUser {
 
 interface UserState {
   isLogin: boolean; // 페이지 구현되면 삭제 예정
-  memberId: number;
   user: User | null;
   newUser: NewUser | null;
   starLst: number[];  
@@ -31,7 +30,6 @@ interface UserState {
   prevPath: string | '/';
 
   toggleIsLogin: () => void;
-  setMemberId: (id: number) => void;
   setUser: (user: User) => void;
   clearUser: () => void;
   setStarLst: (list: any[]) => void;
@@ -51,7 +49,6 @@ export const useUserStore = create(
   persist<UserState>(
     (set) => ({
       isLogin: false, // 기능 수정 후 isLogin 변수 삭제 예정
-      memberId: -1,
       user: null,
       newUser: null,  // 신규 회원 정보
       starLst: [],
@@ -66,11 +63,6 @@ export const useUserStore = create(
 
       toggleIsLogin: () => set((state) => ({ isLogin: !state.isLogin })),
 
-      setMemberId: (id: number) => set({ 
-        memberId: id, 
-        // isLogin: id !== -1 
-      }),
-
       setNewUSer: (newUser: NewUser) => set({
         newUser,
       }),
@@ -81,8 +73,7 @@ export const useUserStore = create(
       }),
 
       clearUser: () => set({ 
-        user: null, 
-        memberId: -1,
+        user: null,
         // isLogin: false 
       }),
       setStarLst: (list: number[]) => set({ starLst: list }),
@@ -110,13 +101,11 @@ export const useUserStore = create(
             set({
               isLogin: true,
               user: data, // ✅ (임시)
-              // memberId: data.memberId,
             });
           } else {
             set({
               isLogin: false,
               user: null, // ✅ (임시)
-              memberId: -1,
             });
           }
         } catch (error) {
@@ -124,7 +113,6 @@ export const useUserStore = create(
           set({
             isLogin: false,
             user: null, // ✅ (임시)
-            memberId: -1,
           });
         }
       },

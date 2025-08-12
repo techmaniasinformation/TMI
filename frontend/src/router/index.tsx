@@ -19,14 +19,14 @@ import { useLocation } from 'react-router-dom';
 // 로그인 페이지 접근 확인 위함.
 function LoginRouteGuard() {
   const location = useLocation();  
-  const { memberId } = useUserStore();
+  const { user } = useUserStore();
 
-  console.log('[LoginRouteGuard]memberId:', memberId);
+  console.log('[LoginRouteGuard]user:', user);
   const searchParams = new URLSearchParams(location.search);  // &&& 수정: location.search 사용
   const isNew = searchParams.get('isNew');
   const queryMemberId = searchParams.get('memberId');
 
-  if (memberId !== -1 && !(isNew === 'false' && queryMemberId)) {
+  if (user && !(isNew === 'false' && queryMemberId)) {
     console.log('[LoginRouteGuard] 이미 로그인 상태이므로 홈으로 리다이렉트');
     alert('이미 로그인 되어 있습니다');
     return <Navigate to={ROUTES.HOME} replace />;
@@ -38,8 +38,8 @@ function LoginRouteGuard() {
 
 // 새 컴포넌트 추가
 function MyPageRedirect() {
-  const { user, memberId } = useUserStore();
-  const myId = user?.memberId ?? memberId;
+  const { user } = useUserStore();
+  const myId = user?.memberId;
 
   if (myId && myId > 0) return <Navigate to={ROUTES.MEMBER_PAGE(myId)} replace />;
   return <Navigate to={ROUTES.HOME} replace />; // 비로그인/ID없음

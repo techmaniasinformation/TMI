@@ -10,7 +10,6 @@ const useSocialLogin = () => {
 
   const {
     toggleIsLogin, //isLogin 정리되면 삭제 예정
-    setMemberId,
     setUser, //  user 상태 저장을 위해 추가
     setStarLst,
     setFollowUser,
@@ -20,7 +19,6 @@ const useSocialLogin = () => {
     setPrevPath,
     prevPath,
     isLogin,
-    memberId: globalMemberId,
     user,
   } = useUserStore();
 
@@ -46,7 +44,6 @@ const useSocialLogin = () => {
     // 현재 전역변수 상태 확인
     console.log('🔍 현재 전역변수 상태:', {
       isLogin,
-      memberId: globalMemberId,
       user: user ? { memberId: user.memberId, nickname: user.nickname } : null
     });
     
@@ -100,7 +97,6 @@ const useSocialLogin = () => {
          // 전역변수 상태 확인
          console.log('🔍 신규 회원 처리 후 전역변수 상태:', {
            isLogin,
-           memberId: globalMemberId,
            user: user ? { memberId: user.memberId, nickname: user.nickname } : null
          });
          
@@ -122,9 +118,6 @@ const useSocialLogin = () => {
         const numericMemberId = Number(memberId);
         console.log('useSocialLogin - memberId:', numericMemberId);
         
-        // memberId 전역변수 저장 (isLogin은 자동으로 true로 변경됨)
-        setMemberId(numericMemberId);
-
         // ✅ 사용자 정보 요청 후 저장
         fetch(`https://i13a509.p.ssafy.io/api/v1/member/${numericMemberId}`, {
           credentials: 'include',
@@ -146,14 +139,12 @@ const useSocialLogin = () => {
              // 전역변수 상태 확인
              console.log('🔍 기존 회원 처리 후 전역변수 상태:', {
                isLogin,
-               memberId: globalMemberId,
                user: user ? { memberId: user.memberId, nickname: user.nickname } : null
              });
           })
           .catch((error) => {
             console.error('유저 정보 가져오기 실패:', error);
             // 에러 발생 시 로그인 상태 초기화
-            setMemberId(-1);
             clearUser();
           });
 

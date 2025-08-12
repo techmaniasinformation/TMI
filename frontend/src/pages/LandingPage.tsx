@@ -31,8 +31,8 @@ const LandingPage: React.FC<LandingPageProps> = () => {
   // 테마 관련 변수 받기
   const { isDarkMode } = useThemeStore();
 
-  // ##### 현재 로그인 여부, 로그인 했을 시 memberId(로그인 안 한 상태면 -1)
-  const { isLogin, memberId } = useUserStore();
+  // ##### 현재 로그인 여부, 로그인 했을 시 user 객체
+  const { isLogin, user } = useUserStore();
 
   useEffect(() => {
     async function fetchPopularPosts() {

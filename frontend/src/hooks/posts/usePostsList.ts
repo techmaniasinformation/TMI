@@ -64,7 +64,7 @@ export const usePostsList = () => {
   const [activeTab, setActiveTab] = useState<'latest' | 'following'>('latest');
   
   // 로그인 상태 확인
-  const { isLogin, memberId } = useUserStore();
+  const { isLogin, user } = useUserStore();
   const isLoggedIn = isLogin;
 
   // 게시글 목록 가져오기 함수를 useCallback으로 메모이제이션
@@ -76,7 +76,7 @@ export const usePostsList = () => {
       const response: SearchApiResponse = await fetchPostsFromAPI({ 
         page, 
         size: 10, 
-        followMemberId: sort === 'following' ? memberId : undefined
+        followMemberId: sort === 'following' ? user?.memberId : undefined
       });
       
       const { posts, pageInfo } = response.data;
@@ -99,7 +99,7 @@ export const usePostsList = () => {
         error: '게시글을 불러오는 중 오류가 발생했습니다.'
       }));
     }
-  }, [memberId]);
+  }, [user?.memberId]);
 
   // 컴포넌트 마운트 시 초기 데이터 로드
   useEffect(() => {

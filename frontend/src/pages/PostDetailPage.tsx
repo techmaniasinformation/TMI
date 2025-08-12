@@ -66,7 +66,7 @@ interface CommentResponse {
 const PostDetailPage: React.FC<PostDetailPageProps> = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user, memberId, starLst, setStarLst, followUser, followCompany, setFollowUser, setFollowCompany } = useUserStore();
+  const { user, starLst, setStarLst, followUser, followCompany, setFollowUser, setFollowCompany } = useUserStore();
 
   const [isFollowing, setIsFollowing] = useState(false);
   const [isStarred, setIsStarred] = useState(false);
@@ -122,11 +122,11 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
   }, [followUser, followCompany]);
 
   // 사용자의 댓글 추천 상태 확인 함수
-  const checkUserRecommendations = useCallback(async (postId: number) => {
-    if (!memberId) return;
+  const checkUserRecommendations = useCallback(async (postId: number, userId: number) => {
+    if (!userId) return;
 
     try {
-      const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/recommendation?memberId=${memberId}&postId=${postId}`, {
+      const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/recommendation?memberId=${userId}&postId=${postId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -148,7 +148,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
     } catch (err) {
       console.error('❌ [PostDetailPage] 댓글 추천 상태 확인 실패:', err);
     }
-  }, [memberId]);
+  }, []);
 
   // 게시글 상세 정보 가져오기 함수를 useCallback으로 메모이제이션
   const fetchPostDetail = useCallback(async () => {
@@ -201,7 +201,9 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
       }
       
       // 게시글 로드 후 사용자의 댓글 추천 상태 확인
-      await checkUserRecommendations(data.data.postId);
+          if (user?.memberId) {
+      await checkUserRecommendations(data.data.postId, user.memberId);
+    }
     } catch (err) {
       console.error('❌ [PostDetailPage] 게시글 상세 정보 가져오기 실패:', err);
       setError('게시글을 불러오는데 실패했습니다.');
@@ -268,7 +270,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
       return;
     }
 
-    if (!memberId) {
+    if (!user?.memberId) {
       showToastMessage('로그인이 필요합니다.');
       return;
     }
@@ -277,10 +279,12 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
       if (isFollowing) {
         // 팔로우 취소
         if (postData.companyId) {
-          // 회사 팔로우 취소
+          // 회사 팔로우 취소 - companyFollowId가 없으면 전역 상태에서만 제거
           if (!companyFollowId) {
-            console.error('❌ [PostDetailPage] companyFollowId가 없습니다.');
-            showToastMessage('팔로우 정보를 찾을 수 없습니다.');
+            // 전역 상태에서만 제거하고 API 호출하지 않음
+            setFollowCompany(followCompany.filter(id => id !== postData.companyId));
+            setIsFollowing(false);
+            showToastMessage('회사 팔로우를 취소했습니다.');
             return;
           }
 
@@ -301,10 +305,12 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
           setCompanyFollowId(null);
           showToastMessage('회사 팔로우를 취소했습니다.');
         } else if (postData.memberId) {
-          // 개인 사용자 팔로우 취소
+          // 개인 사용자 팔로우 취소 - memberFollowId가 없으면 전역 상태에서만 제거
           if (!memberFollowId) {
-            console.error('❌ [PostDetailPage] memberFollowId가 없습니다.');
-            showToastMessage('팔로우 정보를 찾을 수 없습니다.');
+            // 전역 상태에서만 제거하고 API 호출하지 않음
+            setFollowUser(followUser.filter(id => id !== postData.memberId));
+            setIsFollowing(false);
+            showToastMessage('사용자 팔로우를 취소했습니다.');
             return;
           }
 
@@ -336,7 +342,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              followerId: memberId,
+              followerId: user.memberId,
               companyId: postData.companyId
             })
           });
@@ -364,7 +370,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              followerId: memberId,
+              followerId: user.memberId,
               followeeId: postData.memberId
             })
           });
@@ -390,7 +396,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
       console.error('❌ [PostDetailPage] 팔로우 요청 실패:', err);
       showToastMessage('팔로우 요청에 실패했습니다.');
     }
-  }, [isFollowing, postData, memberId, followUser, followCompany, setFollowUser, setFollowCompany, memberFollowId, companyFollowId, showToastMessage]);
+  }, [isFollowing, postData, user?.memberId, followUser, followCompany, setFollowUser, setFollowCompany, memberFollowId, companyFollowId, showToastMessage]);
 
   // 스타 핸들러를 useCallback으로 메모이제이션
   const handleStar = useCallback(async () => {
@@ -401,7 +407,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
       return;
     }
 
-    if (!memberId) {
+    if (!user?.memberId) {
       showToastMessage('로그인이 필요합니다.');
       return;
     }
@@ -440,7 +446,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
       } else {
         // 스타 추가 (POST 요청)
         const requestBody = {
-          memberId: memberId,
+          memberId: user.memberId,
           postId: postData.postId
         };
 
@@ -495,11 +501,11 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
     } finally {
       setIsStarLoading(false);
     }
-  }, [isStarLoading, postData?.postId, isStarred, starId, memberId, starLst, setStarLst, showToastMessage]);
+  }, [isStarLoading, postData?.postId, isStarred, starId, user?.memberId, starLst, setStarLst, showToastMessage]);
 
   // 댓글 추천 핸들러
   const handleCommentRecommend = useCallback(async (commentId: number) => {
-    if (!memberId) {
+    if (!user?.memberId) {
       showToastMessage('로그인이 필요합니다.');
       return;
     }
@@ -556,7 +562,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            memberId: memberId,
+            memberId: user.memberId,
             commentId: commentId
           })
         });
@@ -596,7 +602,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         return newMap;
       });
     }
-  }, [memberId, userRecommendations, recommendLoading, showToastMessage]);
+  }, [user?.memberId, userRecommendations, recommendLoading, showToastMessage]);
 
   // 공유 핸들러를 useCallback으로 메모이제이션
   const handleShare = useCallback(async () => {
@@ -657,23 +663,23 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
 
   // 댓글 제출 핸들러를 useCallback으로 메모이제이션
   const handleCommentSubmit = useCallback(async () => {
-    if (!newComment.trim()) {
-      alert('댓글 내용을 입력해주세요.');
+    if (!commentText.trim()) {
+      showToastMessage('댓글 내용을 입력해주세요.');
       return;
     }
     if (!postData?.postId) {
-      alert('게시글 ID를 찾을 수 없습니다.');
+      showToastMessage('게시글 ID를 찾을 수 없습니다.');
       return;
     }
     
     // 로그인 확인
-    const currentUserId = user?.memberId ?? memberId;
+    const currentUserId = user?.memberId;
     if (!currentUserId || currentUserId <= 0) {
-      alert('로그인이 필요합니다.');
-      navigate('/login');
+      showToastMessage('로그인이 필요합니다.');
       return;
     }
 
+    setCommentLoading(true);
     try {
       const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/comment`, {
         method: 'POST',
@@ -684,7 +690,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         body: JSON.stringify({
           postId: postData.postId,
           memberId: currentUserId,
-          content: newComment,
+          content: commentText,
           link: linkUrl || null
         })
       });
@@ -695,13 +701,17 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
 
       const created = await response.json();
       setComments((prev) => [...prev, created.data]);
-      setNewComment('');
+      setCommentText('');
       setLinkUrl('');
+      setShowLinkInput(false);
+      showToastMessage('댓글이 작성되었습니다.');
     } catch (error) {
       console.error('댓글 작성 실패:', error);
-      alert('댓글 작성에 실패했습니다.');
+      showToastMessage('댓글 작성에 실패했습니다.');
+    } finally {
+      setCommentLoading(false);
     }
-  }, [newComment, postData?.postId, user?.memberId, memberId, navigate, linkUrl]);
+  }, [commentText, postData?.postId, user?.memberId, linkUrl, showToastMessage]);
 
   // 날짜 포맷팅 함수를 useMemo로 메모이제이션
   const formatDate = useMemo(() => {
@@ -835,6 +845,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         formatDate={formatDate}
         onFollowClick={handleFollow}
         onAuthorClick={handleAuthorClick}
+        isFollowing={isFollowing}
       />
 
       {/* 본문 콘텐츠 */}

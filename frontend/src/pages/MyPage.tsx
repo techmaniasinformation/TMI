@@ -66,8 +66,8 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
   const routeId = Number(id);
 
   // store에서 내 id 읽기 (수정 X)
-  const { user, memberId } = useUserStore();
-  const myId = user?.memberId ?? memberId;
+  const { user } = useUserStore();
+  const myId = user?.memberId;
 
   // 내 페이지 여부 계산
   const isMyPage = myId > 0 && myId === routeId;

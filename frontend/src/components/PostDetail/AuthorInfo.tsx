@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import UserInfoBox from '@/components/domain/article/UserInfo';
 import { Badge } from '@/components/domain/Badge';
 import { Button } from '@/components/foundation/button';
@@ -13,11 +13,16 @@ interface AuthorInfoProps {
 }
 
 export const AuthorInfo: React.FC<AuthorInfoProps> = ({ post, formatDate, onFollowClick, onAuthorClick, isFollowing }) => {
+  // 프로필 이미지 URL을 메모이제이션
+  const profileImageUrl = useMemo(() => {
+    return post.memberProfileUrl;
+  }, [post.memberProfileUrl]);
+
   return (
     <div className="bg-white rounded-lg shadow-md p-4 mb-6">
       <div className="flex items-center justify-between">
         <UserInfoBox
-          profileImageUrl={post.memberProfileUrl}
+          profileImageUrl={profileImageUrl}
           nickname={post.name}
           imageSize="64px"
           onClick={onAuthorClick}

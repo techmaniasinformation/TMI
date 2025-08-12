@@ -19,6 +19,7 @@ interface UserState {
   user: User | null;
   newUser: NewUser | null;
   starLst: string[];
+  starIdMap: Map<string, number>; // postId -> starId 매핑
   followUser: number[];
   followCompany: number[];
 
@@ -34,6 +35,9 @@ interface UserState {
   setUser: (user: User) => void;
   clearUser: () => void;
   setStarLst: (list: string[]) => void;
+  setStarIdMap: (map: Map<string, number>) => void;
+  addStarId: (postId: string, starId: number) => void;
+  removeStarId: (postId: string) => void;
   setFollowUser: (list: any[]) => void;
   setFollowCompany: (list: any[]) => void;
   setSocialLoginInfo: (provider: string, providerId: string) => void;
@@ -61,6 +65,7 @@ export const useUserStore = create(
       user: null,
       newUser: null, // 신규 회원 정보
       starLst: [],
+      starIdMap: new Map(),
       followUser: [],
       followCompany: [],
       socialProvider: null,
@@ -88,6 +93,19 @@ export const useUserStore = create(
         }),
 
       setStarLst: (list: string[]) => set({ starLst: list }),
+      setStarIdMap: (map: Map<string, number>) => set({ starIdMap: map }),
+      addStarId: (postId: string, starId: number) => 
+        set((state) => {
+          const newMap = new Map(state.starIdMap);
+          newMap.set(postId, starId);
+          return { starIdMap: newMap };
+        }),
+      removeStarId: (postId: string) => 
+        set((state) => {
+          const newMap = new Map(state.starIdMap);
+          newMap.delete(postId);
+          return { starIdMap: newMap };
+        }),
       setFollowUser: (list: number[]) => set({ followUser: list }),
       setFollowCompany: (list: number[]) => set({ followCompany: list }),
 

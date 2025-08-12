@@ -34,6 +34,14 @@ export default function UserInfoBox({
     return getSafeProfileUrl(profileImageUrl);
   }, [profileImageUrl]);
 
+  // 이미지 로딩 에러 핸들러를 메모이제이션
+  const handleImageError = useMemo(() => (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const target = e.target as HTMLImageElement;
+    if (target.src !== safeProfileUrl) {
+      target.src = safeProfileUrl;
+    }
+  }, [safeProfileUrl]);
+
   return (
     <div
       // 수평 정렬
@@ -58,12 +66,7 @@ export default function UserInfoBox({
           height: imageSize,
         }}
         className="rounded-full object-contain"
-        onError={(e) => {
-          const target = e.target as HTMLImageElement;
-          if (target.src !== safeProfileUrl) {
-            target.src = safeProfileUrl;
-          }
-        }}
+        onError={handleImageError}
       />
 
       {/* 닉네임 + 하위 정보 */}

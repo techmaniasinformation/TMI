@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Button } from '@/components/foundation/button';
 import { getSafeProfileUrl, getSafeBadgeUrl } from '@/utils/defaultImages';
 
@@ -39,8 +39,10 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
   userRecommendations,
   recommendLoading,
 }) => {
-  // 안전한 프로필 이미지 URL 사용
-  const safeMemberProfileUrl = getSafeProfileUrl(memberProfileUrl);
+  // 안전한 프로필 이미지 URL을 메모이제이션
+  const safeMemberProfileUrl = useMemo(() => {
+    return getSafeProfileUrl(memberProfileUrl);
+  }, [memberProfileUrl]);
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
@@ -98,9 +100,14 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
         ) : (
           <div className="space-y-4">
             {comments.map((comment) => {
-              // 각 댓글의 안전한 프로필 이미지 URL 사용
-              const safeCommentProfileUrl = getSafeProfileUrl(comment.memberProfileUrl);
-              const safeCommentBadgeUrl = getSafeBadgeUrl(comment.badgeUrl);
+              // 각 댓글의 안전한 프로필 이미지 URL을 메모이제이션
+              const safeCommentProfileUrl = useMemo(() => {
+                return getSafeProfileUrl(comment.memberProfileUrl);
+              }, [comment.memberProfileUrl]);
+              
+              const safeCommentBadgeUrl = useMemo(() => {
+                return getSafeBadgeUrl(comment.badgeUrl);
+              }, [comment.badgeUrl]);
 
               return (
                 <div key={comment.commentId} className="border-b border-gray-200 pb-4">

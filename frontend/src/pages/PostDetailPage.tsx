@@ -66,7 +66,7 @@ interface CommentResponse {
 const PostDetailPage: React.FC<PostDetailPageProps> = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user, starLst, setStarLst, followUser, followCompany, setFollowUser, setFollowCompany } = useUserStore();
+  const { user, starLst, starIdMap, setStarLst, addStarId, removeStarId, followUser, followCompany, setFollowUser, setFollowCompany } = useUserStore();
 
   const [isFollowing, setIsFollowing] = useState(false);
   const [isStarred, setIsStarred] = useState(false);
@@ -102,11 +102,14 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
     const isStarred = starLst.includes(postId);
     setIsStarred(isStarred);
     
-    // 스타된 상태라면 starId는 나중에 스타 추가 시 받아올 예정
-    if (!isStarred) {
+    if (isStarred) {
+      // 전역 상태의 starIdMap에서 starId 가져오기
+      const starId = starIdMap.get(postId);
+      setStarId(starId || null);
+    } else {
       setStarId(null);
     }
-  }, [starLst]);
+  }, [starLst, starIdMap]);
 
   // 사용자의 팔로우 상태 확인 함수 (전역 상태 사용)
   const checkUserFollowStatus = useCallback((authorId: number, isCompany: boolean = false) => {
@@ -453,6 +456,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         setStarId(null);
         // 전역 상태에서 스타 목록 업데이트
         setStarLst(starLst.filter(id => id !== postData.postId));
+        removeStarId(postData.postId);
         showToastMessage('스타를 취소했습니다');
       } else {
         // 스타 추가 (POST 요청)
@@ -482,6 +486,8 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         // starId 저장
         if (result.data?.starId) {
           setStarId(result.data.starId);
+          // 전역 상태의 starIdMap에도 추가
+          addStarId(postData.postId, result.data.starId);
         }
         
         // 스타 추가 성공
@@ -901,7 +907,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         comments={comments}
         commentCount={postData.commentCount}
         postId={postData.postId}
-        memberProfileUrl={postData.memberProfileUrl}
+        memberProfileUrl={user?.memberProfileUrl || postData.memberProfileUrl}
         commentText={commentText}
         showLinkInput={showLinkInput}
         linkUrl={linkUrl}

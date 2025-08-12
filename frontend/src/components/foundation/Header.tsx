@@ -119,10 +119,10 @@ const Header: React.FC<HeaderProps> = ({
   // ✅ 게시글 작성 버튼 클릭시 로그인 여부에 따라 반응
   const handleWritePost = () => {
     if (!isAuthenticated) {
-      alert('로그인이 필요합니다.'); // 알림 표시
+      
       setPrevPath('/post/create'); // 로그인 완료하면 게시글 작성으로 이동하게
       console.log('prevPath', prevPath);
-      
+      alert('로그인이 필요합니다.'); // 알림 표시
       navigate('/login'); // 로그인 페이지로 이동
     } else {
       navigate('/post/create'); // 게시글 작성 페이지로 이동 (예: /write)

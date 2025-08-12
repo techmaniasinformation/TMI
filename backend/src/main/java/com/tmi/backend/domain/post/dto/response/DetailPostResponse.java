@@ -3,6 +3,7 @@ package com.tmi.backend.domain.post.dto.response;
 import com.tmi.backend.domain.post.entity.Post;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Builder;
 
@@ -26,8 +27,8 @@ public record DetailPostResponse(
     String link
 ) {
 
-  public static DetailPostResponse of(Post post,
-      int commentCount) {
+  public static DetailPostResponse of(Post post, int commentCount) {
+    String memberName = (post.getMember().getId() == 1 && !Objects.isNull(post.getCompany())) ? post.getCompany().getName() :post.getMember().getNickname();
 
     return DetailPostResponse.builder()
         .postId(post.getId())
@@ -41,7 +42,7 @@ public record DetailPostResponse(
         .companyProfileUrl(post.getCompany() != null
             ? post.getCompany().getCompanyProfileUrl()
             : null)
-        .name(post.getMember().getNickname())
+        .name(memberName)
         // .badgeUrl(post.getMember().getBadgeUrl())
         .badgeUrl(null)                               // 예시: 아직 미구현
         .createAt(post.getCreatedAt())

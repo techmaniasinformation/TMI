@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/utils/utils';
 import Tag from '@/components/domain/article/Tag';
 import CardInfoCount from '@/components/domain/article/CardInfoCount';
+import { getSafeProfileUrl, getSafeBadgeUrl, DEFAULT_IMAGES } from '@/utils/defaultImages';
 
 // 카드 variant 스타일 정의
 const cardVariants = cva(
@@ -61,7 +62,14 @@ const LandingCard: React.FC<LandingCardProps> = ({
   variant,
   onClick,
 }) => {
-  const profileUrl = memberProfile || companyProfileUrl;
+  // 이미지 에러 상태 관리
+  const [profileImageError, setProfileImageError] = useState(false);
+  const [badgeImageError, setBadgeImageError] = useState(false);
+  const [thumbnailImageError, setThumbnailImageError] = useState(false);
+
+  // 안전한 이미지 URL 사용
+  const safeProfileUrl = getSafeProfileUrl(memberProfile || companyProfileUrl);
+  const safeBadgeUrl = getSafeBadgeUrl(badgeUrl);
 
   return (
     <div
@@ -89,11 +97,12 @@ const LandingCard: React.FC<LandingCardProps> = ({
           {/* 프로필 + 작성자 정보 */}
           <div className='flex-1'>
             <div className='flex items-center gap-3 mb-4'>
-              {profileUrl ? (
+              {memberProfile || companyProfileUrl ? (
                 <img
-                  src={profileUrl}
+                  src={safeProfileUrl}
                   alt={`${name} 프로필`}
                   className='w-8 h-8 rounded-full object-contain'
+                  onError={() => setProfileImageError(true)}
                 />
               ) : (
                 <div className='w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center'>
@@ -105,21 +114,23 @@ const LandingCard: React.FC<LandingCardProps> = ({
 
               <div className='flex items-center gap-2'>
                 <span className='text-sm font-medium'>{name}</span>
-                {badgeUrl && (
+                {badgeUrl && !badgeImageError ? (
                   <img
-                    src={badgeUrl}
+                    src={safeBadgeUrl}
                     alt='Badge'
-                    className='w-5 h-5 rounded-full border '
+                    className='w-5 h-5 rounded-full border'
+                    onError={() => setBadgeImageError(true)}
                   />
-                )}
+                ) : null}
               </div>
               {/* 썸네일 */}
               <div className='w-24 h-20 flex-shrink-0 ml-auto'>
-                {thumbnailUrl && thumbnailUrl.trim() !== '' ? (
+                {thumbnailUrl && thumbnailUrl.trim() !== '' && !thumbnailImageError ? (
                   <img
                     src={thumbnailUrl}
                     alt={`${title} 썸네일`}
                     className='w-full h-full object-contain rounded-lg object-top'
+                    onError={() => setThumbnailImageError(true)}
                   />
                 ) : (
                   <div className='w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg flex items-center justify-center'>
@@ -144,10 +155,8 @@ const LandingCard: React.FC<LandingCardProps> = ({
             </div>
 
             {/* 태그 */}
-
             <div className='flex flex-wrap gap-2'>
               {tags.map((tag, index) => (
-                // &&& 기존 span 대신 Tag 컴포넌트 사용
                 <Tag
                   key={index}
                   tag={`#${tag}`}

@@ -10,7 +10,9 @@ interface PopularPostsState {
 // 인기게시글 API 호출 함수
 const fetchPopularPosts = async (size: number = 3): Promise<Post[]> => {
   try {
-    const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/post/popular?size=${size}`, {
+    // 백엔드에서 7개만 반환하므로, 더 많은 개수를 요청해도 7개만 받을 수 있음
+    // 실제로는 서버에서 사용 가능한 모든 인기 게시글을 가져옴
+    const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/post/popular?size=20`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -23,6 +25,8 @@ const fetchPopularPosts = async (size: number = 3): Promise<Post[]> => {
     }
 
     const data = await response.json();
+    
+
     
     // API 응답을 프론트엔드 타입으로 변환
     const transformedPosts = (data.data?.posts || []).map((post: any) => ({
@@ -43,7 +47,8 @@ const fetchPopularPosts = async (size: number = 3): Promise<Post[]> => {
       isStar: post.isStar || false
     }));
 
-    return transformedPosts;
+    // 요청한 size만큼만 반환 (서버에서 제공하는 최대 개수 내에서)
+    return transformedPosts.slice(0, Math.min(size, transformedPosts.length));
   } catch (error) {
     console.error('❌ [fetchPopularPosts] API 호출 실패:', error);
     throw error;

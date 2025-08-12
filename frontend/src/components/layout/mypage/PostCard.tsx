@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import CardInfoCount from "@/components/domain/article/CardInfoCount"; // 조회수, 좋아요, 댓글 수 뱃지 컴포넌트
-import { getSafeThumbnailUrl } from "@/utils/defaultImages";
+import { getSafeThumbnailUrl, DEFAULT_IMAGES } from "@/utils/defaultImages";
 
 // 게시글(Post) 객체의 타입 정의
 interface Post {
@@ -22,9 +22,12 @@ interface PostCardProps {
 const PostCard: React.FC<PostCardProps> = ({ post, onClick }) => {
   const { id, title, thumbnail, tags, views, stars, comments } = post;
 
-  // 이미지 로딩 실패 시 이미지 숨기기
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    e.currentTarget.style.display = "none";
+  // 이미지 에러 상태 관리
+  const [imageError, setImageError] = useState(false);
+
+  // 이미지 로딩 실패 시 기본 이미지로 대체
+  const handleImageError = () => {
+    setImageError(true);
   };
 
   return (
@@ -36,7 +39,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, onClick }) => {
       {/* 썸네일 영역 */}
       <div className="w-[200px] h-[120px] rounded-xl flex items-center justify-center bg-gray-100 overflow-hidden">
         <img
-          src={getSafeThumbnailUrl(thumbnail)}
+          src={imageError ? DEFAULT_IMAGES.THUMBNAIL : getSafeThumbnailUrl(thumbnail)}
           alt={title}
           onError={handleImageError}
           className="w-full h-full object-contain rounded-xl"

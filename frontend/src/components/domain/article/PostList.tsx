@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import ArticleInfo from './ArticleInfo';
 import { Post } from '@/types';
-import { getSafeThumbnailUrl } from '@/utils/defaultImages';
+import { getSafeThumbnailUrl, DEFAULT_IMAGES } from '@/utils/defaultImages';
 
 interface PostListProps {
   formatDate: (date: string) => string;
@@ -41,43 +41,53 @@ export default function PostList({
 
   return (
     <div className={`space-y-6 ${className}`}>
-      {posts.map((post: Post) => (
-        <div 
-          key={post.postId} 
-          className="group bg-light-header dark:bg-dark-header rounded-lg border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer p-4"
-          onClick={() => onPostClick?.(post.postId)}
-        >
-          <div className="flex items-start gap-4">
-            <ArticleInfo
-              id={post.postId}
-              title={post.title}
-              author={post.name}
-                             authorProfile={post.memberProfileUrl}
-              authorBadge={post.badgeUrl}
-              tags={post.tags}
-              date={post.createAt}
-              views={post.viewCount}
-              stars={post.starCount}
-              comments={post.commentCount}
-              formatDate={formatDate}
-              formatNumber={formatNumber}
-              maxTags={maxTags}
-              keyword={searchKeyword}
-              techTags={searchTechTags}
-              companyTags={searchCompanyTags}
-            />
-            {showThumbnail && (
-              <div className="w-48 h-32 flex-shrink-0">
-                <img
-                  src={getSafeThumbnailUrl(post.thumbnailUrl)}
-                  alt={post.title}
-                  className="w-full h-full object-contain rounded-r-lg"
-                />
-              </div>
-            )}
+      {posts.map((post: Post) => {
+        // 각 게시글별로 이미지 에러 상태 관리
+        const [imageError, setImageError] = useState(false);
+        
+        const handleImageError = () => {
+          setImageError(true);
+        };
+
+        return (
+          <div 
+            key={post.postId} 
+            className="group bg-light-header dark:bg-dark-header rounded-lg border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer p-4"
+            onClick={() => onPostClick?.(post.postId)}
+          >
+            <div className="flex items-start gap-4">
+              <ArticleInfo
+                id={post.postId}
+                title={post.title}
+                author={post.name}
+                authorProfile={post.memberProfileUrl}
+                authorBadge={post.badgeUrl}
+                tags={post.tags}
+                date={post.createAt}
+                views={post.viewCount}
+                stars={post.starCount}
+                comments={post.commentCount}
+                formatDate={formatDate}
+                formatNumber={formatNumber}
+                maxTags={maxTags}
+                keyword={searchKeyword}
+                techTags={searchTechTags}
+                companyTags={searchCompanyTags}
+              />
+              {showThumbnail && (
+                <div className="w-48 h-32 flex-shrink-0">
+                  <img
+                    src={imageError ? DEFAULT_IMAGES.THUMBNAIL : getSafeThumbnailUrl(post.thumbnailUrl)}
+                    alt={post.title}
+                    className="w-full h-full object-contain rounded-r-lg"
+                    onError={handleImageError}
+                  />
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 } 

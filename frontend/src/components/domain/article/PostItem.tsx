@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Post } from '@/types';
-import { getSafeProfileUrl, getSafeThumbnailUrl } from '@/utils/defaultImages';
+import { getSafeProfileUrl, getSafeThumbnailUrl, DEFAULT_IMAGES } from '@/utils/defaultImages';
 
 interface PostItemProps {
   post: Post;
@@ -21,6 +21,10 @@ export const PostItem: React.FC<PostItemProps> = ({
   onClick,
   className = ''
 }) => {
+  // 이미지 에러 상태 관리
+  const [profileImageError, setProfileImageError] = useState(false);
+  const [thumbnailImageError, setThumbnailImageError] = useState(false);
+
   const handleClick = () => {
     if (onClick) {
       onClick(post.postId);
@@ -40,9 +44,10 @@ export const PostItem: React.FC<PostItemProps> = ({
         {/* 프로필 이미지 */}
         <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden">
           <img
-            src={safeProfileUrl}
+            src={profileImageError ? DEFAULT_IMAGES.PROFILE : safeProfileUrl}
             alt={post.name}
             className="w-full h-full object-contain"
+            onError={() => setProfileImageError(true)}
           />
         </div>
         
@@ -86,9 +91,10 @@ export const PostItem: React.FC<PostItemProps> = ({
         {showThumbnail && (
           <div className="w-48 h-32 flex-shrink-0">
             <img
-              src={safeThumbnailUrl}
+              src={thumbnailImageError ? DEFAULT_IMAGES.THUMBNAIL : safeThumbnailUrl}
               alt={post.title}
               className="w-full h-full object-contain rounded-lg"
+              onError={() => setThumbnailImageError(true)}
             />
           </div>
         )}

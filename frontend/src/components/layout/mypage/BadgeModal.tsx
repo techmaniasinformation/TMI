@@ -1,6 +1,5 @@
-import React from 'react';
-import { badgeImageMap } from "@/components/layout/mypage/MypageTabs";
-import { patchRepresentativeBadge } from "@/api/mypage/representativebadgeService";
+import React, { useState, useEffect } from 'react';
+import { getBadgeImage } from "@/components/layout/mypage/MypageTabs";
 
 interface BadgeModalProps {
   isOpen: boolean;
@@ -14,11 +13,23 @@ interface BadgeModalProps {
     isRepresentative?: boolean;
   } | null;
   onClose: () => void;
-  onRepresentativeSet?: () => void; // 대표 배지 설정 후 호출
-  onUnsetRepresentative?: () => Promise<void>;
+  onSelect: (badge: BadgeModalProps['badge']) => void; // 배지 선택 시 호출
 }
 
-const BadgeModal: React.FC<BadgeModalProps> = ({ isOpen, badge, onClose, onRepresentativeSet, onUnsetRepresentative }) => {
+export default function BadgeModal({ 
+  isOpen, 
+  onClose, 
+  badge, 
+  onSelect 
+}: BadgeModalProps) {
+  const [badgeImageUrl, setBadgeImageUrl] = useState<string>('');
+
+  useEffect(() => {
+    if (badge?.badgeUrl) {
+      getBadgeImage(badge.badgeUrl).then(setBadgeImageUrl);
+    }
+  }, [badge?.badgeUrl]);
+
   if (!isOpen || !badge) return null;
 
   const isOwned = !!badge.memberBadgeId;
@@ -32,16 +43,16 @@ const BadgeModal: React.FC<BadgeModalProps> = ({ isOpen, badge, onClose, onRepre
       console.log("실행중")
       if (isRep) {
         // 해제 → 22번 배지로 변경
-        if (!onUnsetRepresentative) return;
-        await onUnsetRepresentative();
+        // This logic is removed as per the new_code, as the representative badge setting is removed.
+        // The onUnsetRepresentative prop is also removed.
         console.log("경고 실행")
       } else {
         // 설정
-        await patchRepresentativeBadge(badge.memberBadgeId);
+        // This logic is removed as per the new_code, as the representative badge setting is removed.
         alert("대표 배지가 설정되었습니다.");
       }
 
-      onRepresentativeSet?.(); // 상위 리스트 리프레시
+      // onRepresentativeSet?.(); // 상위 리스트 리프레시 - Removed as per new_code
       onClose();
     } catch {
       alert("대표 배지 변경에 실패했습니다.");
@@ -58,59 +69,35 @@ const BadgeModal: React.FC<BadgeModalProps> = ({ isOpen, badge, onClose, onRepre
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-[600px] h-[500px] max-w-[90%] flex flex-col">
-        {/* 제목 (왼쪽 상단) */}
-        <h2 className="text-3xl font-bold mb-4 text-left">{badge.name}</h2>
-
-        {/* 가운데 컨텐츠 */}
-        <div className="flex flex-col flex-1 items-center">
-          {/* 배지 이미지 */}
+      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <div className="text-center">
           <img
-            src={badgeImageMap[badge.badgeUrl] || "/fallback.png"}
+            src={badgeImageUrl || "/fallback.png"}
             alt={badge.name}
-            className="w-60 h-60 mb-2 object-contain"
+            className="w-32 h-32 mx-auto mb-4 rounded-lg object-contain"
           />
-
-          {/* 설명 */}
-          <p className="text-center text-lg text-gray-600 mb-3">
-            {badge.description}
-          </p>
-
-          {/* 획득 날짜 or 미획득 안내 */}
-          <div
-            className={`px-4 py-1 text-sm rounded-full flex items-center gap-2 ${
-              badge.receivedAt
-                ? 'bg-green-100 text-green-700'
-                : 'bg-gray-100 text-gray-500'
-            }`}
-          >
-            {formattedDate}
-          </div>
-
-          {/* 버튼 영역 */}
-          <div className="flex w-full gap-2 mt-4">
-          {isOwned && (
+          <h3 className="text-xl font-semibold mb-2">{badge.name}</h3>
+          <p className="text-gray-600 mb-4">{badge.description}</p>
+          
+          <div className="flex gap-2">
             <button
-              onClick={handleToggleRepresentative}
-              className={`flex-1 h-12 text-white text-lg rounded 
-                ${isRep ? 'bg-red-500 hover:bg-red-600' : 'bg-prime-btn hover:bg-prime-btn-hover'}`}
+              onClick={() => {
+                onSelect(badge);
+                onClose();
+              }}
+              className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
             >
-              {isRep ? "대표 배지 해제" : "대표 배지로 설정"}
+              선택
             </button>
-          )}
-
-            {/* 닫기 버튼 */}
             <button
               onClick={onClose}
-              className="flex-1 h-12 border border-gray-300 text-gray-700 text-lg rounded hover:bg-gray-100"
+              className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors"
             >
-              닫기
+              취소
             </button>
           </div>
         </div>
       </div>
     </div>
   );
-};
-
-export default BadgeModal;
+}

@@ -31,43 +31,27 @@ const useSocialLogin = () => {
     // 현재 경로를 sessionStorage에 저장
     sessionStorage.setItem('redirectAfterLogin', from);
     setSocialProvider(provider);
-    console.log('provider', provider);
     // 로그인 URL로 이동
     window.location.href = `https://i13a509.p.ssafy.io/api/v1/oauth2/authorization/${provider}`;
   };
 
   //쿼리 파라미터 기반 리다이렉트 처리
   useEffect(() => {
-    console.log('useSocialLogin useEffect 실행됨');
-    console.log('location.search:', location.search);
-    console.log('location.pathname:', location.pathname);
-    console.log('전체 URL:', window.location.href);
-    console.log('window.location.search:', window.location.search);
-    
-    // 현재 전역변수 상태 확인
-    console.log('🔍 현재 전역변수 상태:', {
-      isLogin,
-      user: user ? { memberId: user.memberId, nickname: user.nickname } : null
-    });
-    
     // window.location.search를 우선 사용
     const searchString = window.location.search || location.search;
     
     // 쿼리 파라미터가 없으면 처리하지 않음
     if (!searchString) {
-      console.log('쿼리 파라미터 없음, 처리 중단');
       return;
     }
     
     // 이미 처리된 경우 중복 실행 방지
     if (hasProcessed.current) {
-      console.log('이미 처리됨, 중복 실행 방지');
       return;
     }
     
     // 이미 처리된 경우 중복 실행 방지
     if (location.pathname === '/signup') {
-      console.log('이미 회원가입 페이지에 있음, 처리 중단');
       return;
     }
     
@@ -77,36 +61,22 @@ const useSocialLogin = () => {
 
     // 회원 정보 - searchString 사용
     const searchParams = new URLSearchParams(searchString);
-    console.log('사용된 searchString:', searchString);
     const isNew = searchParams.get('isNew');
 
     const provider = searchParams.get('provider');
     const providerMemberId = searchParams.get('providerMemberId');
-    console.log(provider, providerMemberId);
     
     const memberId = searchParams.get('memberId');
 
     //신규 회원: provider, providerId가 반드시 있어야 회원가입으로 이동
     if (isNew === 'true') {
-      console.log('useSocialLogin - 신규 회원 감지');
-      console.log('useSocialLogin - provider:', provider);
-      console.log('useSocialLogin - providerMemberId:', providerMemberId);
-      
-             if (provider && providerMemberId) {
-         // 전역 변수에 소셜 로그인 정보 저장
-         setSocialLoginInfo(provider, providerMemberId);
-         console.log('useSocialLogin - 소셜 로그인 정보 저장:', { provider, providerId: providerMemberId });
-         
-         // 전역변수 상태 확인
-         console.log('🔍 신규 회원 처리 후 전역변수 상태:', {
-           isLogin,
-           user: user ? { memberId: user.memberId, nickname: user.nickname } : null
-         });
-         
-         hasProcessed.current = true; // 처리 완료 표시
-         navigate('/signup');
-       } else {
-        console.log('useSocialLogin - 회원가입 정보 누락');
+      if (provider && providerMemberId) {
+        // 전역 변수에 소셜 로그인 정보 저장
+        setSocialLoginInfo(provider, providerMemberId);
+        
+        hasProcessed.current = true; // 처리 완료 표시
+        navigate('/signup');
+      } else {
         alert('회원가입 정보가 누락되었습니다. 다시 시도해주세요.');
         navigate('/login');
       }
@@ -115,11 +85,8 @@ const useSocialLogin = () => {
 
     // 기존 회원: 로그인 처리
     if (isNew === 'false') {
-      console.log('useSocialLogin - 기존 회원 감지');
-      
       if (memberId !== null) {
         const numericMemberId = Number(memberId);
-        console.log('useSocialLogin - memberId:', numericMemberId);
         
         // ✅ 사용자 정보 요청 후 저장
         fetch(`https://i13a509.p.ssafy.io/api/v1/member/${numericMemberId}`, {
@@ -136,9 +103,8 @@ const useSocialLogin = () => {
               nickname: data.nickname,
               memberProfileUrl: data.memberProfileUrl,
             };
-                         setUser(user); // ✅ zustand 전역에 저장 (isLogin은 자동으로 true로 변경됨)
-             console.log('useSocialLogin - 사용자 정보 저장 완료:', user);
-             
+            setUser(user); // ✅ zustand 전역에 저장 (isLogin은 자동으로 true로 변경됨)
+            
              // 전역변수 상태 확인
              console.log('🔍 기존 회원 처리 후 전역변수 상태:', {
                isLogin,
@@ -207,7 +173,6 @@ const useSocialLogin = () => {
           });
 
       } else {
-        console.log('useSocialLogin - memberId 누락');
         alert('로그인 정보가 누락되었습니다. 다시 시도해주세요.');
         navigate('/login');
         return;

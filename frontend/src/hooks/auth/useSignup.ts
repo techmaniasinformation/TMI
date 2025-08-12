@@ -98,7 +98,7 @@ export const useSignup = () => {
       providerMemberId: formData.providerMemberId,
       nickname: formData.nickname,
     };
-    apiFormData.append('signupRequest', new Blob([JSON.stringify(signupRequest)], { type: 'application/json' }));
+    apiFormData.append('req', new Blob([JSON.stringify(signupRequest)], { type: 'application/json' }));
 
     if (imageFile) {
       apiFormData.append('profileImage', imageFile);

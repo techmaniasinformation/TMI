@@ -17,15 +17,21 @@ export const fetchUserStarList = async (memberId: number) => {
     const result = await response.json();
     const stars = result.data?.stars || [];
     
-    // postId 목록과 starId 매핑 생성
-    const postIds = stars.map((star: any) => star.postId);
+    console.log(`📋 [fetchUserStarList] 서버에서 받은 원본 스타 데이터:`, stars);
+    
+    // postId를 문자열로 통일하여 저장 (타입 일관성 보장)
+    const postIds = stars.map((star: any) => String(star.postId));
     const starIdMap = new Map();
     
     stars.forEach((star: any) => {
       if (star.postId && star.starId) {
-        starIdMap.set(star.postId, star.starId);
+        // postId를 문자열로 변환하여 저장
+        starIdMap.set(String(star.postId), star.starId);
       }
     });
+    
+    console.log(`📋 [fetchUserStarList] 변환된 데이터 - postIds:`, postIds);
+    console.log(`📋 [fetchUserStarList] 변환된 데이터 - starIdMap:`, Array.from(starIdMap.entries()));
 
     return {
       success: true,
@@ -47,7 +53,15 @@ export const fetchUserStarList = async (memberId: number) => {
 
 // 특정 게시글의 스타 상태를 확인하는 함수
 export const checkPostStarStatus = (postId: string, stars: any[]) => {
-  const currentStar = stars.find((star: any) => star.postId === postId);
+  // postId를 숫자로 변환하여 비교 (서버에서 숫자로 오는 경우 대비)
+  const numericPostId = Number(postId);
+  const currentStar = stars.find((star: any) => 
+    star.postId === postId || star.postId === numericPostId
+  );
+  
+  console.log(`🔍 [checkPostStarStatus] 검색 조건 - postId: "${postId}" (타입: ${typeof postId}), numericPostId: ${numericPostId}`);
+  console.log(`🔍 [checkPostStarStatus] 스타 목록에서 검색 - 찾은 결과:`, currentStar);
+  
   return {
     isStarred: !!currentStar,
     starId: currentStar?.starId || null

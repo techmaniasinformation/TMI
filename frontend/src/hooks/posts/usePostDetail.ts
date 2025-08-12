@@ -138,6 +138,7 @@ export const useStar = (postId: string) => {
         console.log(`📋 [useStar] 서버에서 받은 스타 목록:`, result.stars);
         
         // 현재 게시글의 스타 상태 확인
+        console.log(`🔍 [useStar] postId 타입 확인 - postId: "${postId}" (타입: ${typeof postId})`);
         const { isStarred: serverIsStarred, starId: serverStarId } = checkPostStarStatus(postId, result.stars);
         
         console.log(`🎯 [useStar] 현재 게시글 스타 상태 - postId: ${postId}, isStarred: ${serverIsStarred}, serverStarId: ${serverStarId}`);

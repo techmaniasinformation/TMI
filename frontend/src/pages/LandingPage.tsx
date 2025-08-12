@@ -152,7 +152,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
               >
                 <div className='flex items-center justify-center space-x-2'>
                   {/* 로켓 아이콘 건의 */}
-                  <i className='fa-solid fa-rocket w-5 h-5 flex items-center justify-center border border-blue-500'></i>
+                  <i className='fa-solid fa-rocket w-5 h-5 flex items-center justify-center'></i>
                   <span>로그인/회원가입</span>
                 </div>
               </Button>
@@ -168,7 +168,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
             >
               <div className='flex items-center justify-center space-x-2'>
                 {/* 돋보기 아이콘 건의 */}
-                <i className='fa-solid fa-magnifying-glass w-5 h-5 flex items-center justify-center border border-blue-500'></i>
+                <i className='fa-solid fa-magnifying-glass w-5 h-5 flex items-center justify-center'></i>
                 <span>둘러보기</span>
               </div>
             </Button>
@@ -234,7 +234,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
         {/* Bottom Explore Button */}
         <div className='mt-12 mb-8'>
           <Button
-            // variant="dark"
+            variant={isDarkMode ? 'dark' : 'default'}
             onMouseEnter={() => setIsHovered('explore')}
             onMouseLeave={() => setIsHovered(null)}
             onClick={handleExploreClick}
@@ -244,7 +244,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
           >
             <div className='flex items-center justify-center space-x-2'>
               {/* 돋보기 아이콘 건의 */}
-              <i className='fa-solid fa-magnifying-glass w-5 h-5 flex items-center justify-center border border-blue-500'></i>
+              <i className='fa-solid fa-magnifying-glass w-5 h-5 flex items-center justify-center'></i>
               <span>둘러보기</span>
             </div>
           </Button>

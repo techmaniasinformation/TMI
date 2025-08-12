@@ -2,6 +2,7 @@ import React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/utils/utils';
 import Tag from '@/components/domain/article/Tag';
+import CardInfoCount from '@/components/domain/article/CardInfoCount';
 
 // 카드 variant 스타일 정의
 const cardVariants = cva(
@@ -135,20 +136,11 @@ const LandingCard: React.FC<LandingCardProps> = ({
 
             {/* 메타 정보 */}
             <div className='flex items-center gap-3 text-sm mb-4'>
-              <span>{createAt}</span>
-              <span>•</span>
-              <span className='flex items-center gap-1'>
-                <i className='ri-eye-line w-4 h-4 flex items-center justify-center'></i>
-                {viewCount.toLocaleString()}
-              </span>
-              <span className='flex items-center gap-1'>
-                <i className='ri-star-line w-4 h-4 flex items-center justify-center'></i>
-                {starCount}
-              </span>
-              <span className='flex items-center gap-1'>
-                <i className='ri-chat-3-line w-4 h-4 flex items-center justify-center'></i>
-                {commentCount}
-              </span>
+              <CardInfoCount
+                viewCount={viewCount}
+                starCount={starCount}
+                commentCount={commentCount}
+              />
             </div>
 
             {/* 태그 */}

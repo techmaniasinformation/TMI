@@ -27,7 +27,7 @@ public class Company {
 
   @Column(length = 100, nullable = false)
   private String name;
-  
+
   @Column(length = 255)
   private String companyProfileUrl;
 
@@ -47,5 +47,10 @@ public class Company {
         .createdAt(LocalDateTime.now(ZoneOffset.UTC))
         .updatedAt(LocalDateTime.now(ZoneOffset.UTC))
         .build();
+  }
+
+  public void updateCompany(String companyProfileUrl, String techBlogUrl) {
+    this.companyProfileUrl = companyProfileUrl;
+    this.techBlogUrl = techBlogUrl;
   }
 }

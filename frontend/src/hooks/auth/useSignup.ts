@@ -8,10 +8,12 @@ export const useSignup = () => {
   const { 
     socialProvider, 
     socialProviderId, 
+    prevPath,
     clearSocialLoginInfo,
     setMemberId,
     setUser,
-    toggleIsLogin
+    toggleIsLogin,
+    setPrevPath
   } = useUserStore();
 
   const [formData, setFormData] = useState({
@@ -130,8 +132,10 @@ export const useSignup = () => {
       
       alert('회원가입이 완료되었습니다!');
       
-      // 홈페이지로 리다이렉트
-      navigate('/');
+      // prevPath로 라우팅
+      console.log('현재 prevPath', prevPath);
+      navigate(prevPath);
+      console.log('네비게이트 후', prevPath);
 
     } catch (error) {
       console.error('회원가입 실패:', error);

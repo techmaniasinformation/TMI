@@ -17,6 +17,8 @@ const useSocialLogin = () => {
     setFollowCompany,
     setSocialLoginInfo,
     clearUser,
+    setPrevPath,
+    prevPath,
     isLogin,
     memberId: globalMemberId,
     user,
@@ -220,11 +222,12 @@ const useSocialLogin = () => {
 
 
              // 로그인 완료, 이전 페이지로 리다이렉트//구현 전 
-       hasProcessed.current = true; // 처리 완료 표시
-      //  navigate(redirectAfterLogin);
-      navigate('/home');
+       hasProcessed.current = true; // 처리 완료 표시 ??? 이거 무슨 코드지
+      console.log('네비게이트 전', prevPath)
+       navigate(prevPath);
        // 로그인 전 경로는 사용했으니 지워주는 것이 안전
-       sessionStorage.removeItem('redirectAfterLogin');
+      setPrevPath('/')
+      console.log('네비게이트 후', prevPath);
        return;
     }
   }, [location.search, location.pathname]); // 필요한 값만 의존성으로 설정

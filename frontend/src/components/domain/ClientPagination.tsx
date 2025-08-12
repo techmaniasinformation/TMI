@@ -113,11 +113,6 @@ function ClientPagination<T>({
           <button
             onClick={(e) => {
               e.preventDefault();
-              if (updateUrl) {
-                const newSearchParams = new URLSearchParams(searchParams);
-                newSearchParams.set('page', (currentPage - 1).toString());
-                setSearchParams(newSearchParams);
-              }
               onPageChange(currentPage - 1);
             }}
             disabled={currentPage === 1}
@@ -134,11 +129,6 @@ function ClientPagination<T>({
               onClick={(e) => {
                 e.preventDefault();
                 if (typeof page === 'number') {
-                  if (updateUrl) {
-                    const newSearchParams = new URLSearchParams(searchParams);
-                    newSearchParams.set('page', page.toString());
-                    setSearchParams(newSearchParams);
-                  }
                   onPageChange(page);
                 }
               }}
@@ -161,11 +151,6 @@ function ClientPagination<T>({
           <button
             onClick={(e) => {
               e.preventDefault();
-              if (updateUrl) {
-                const newSearchParams = new URLSearchParams(searchParams);
-                newSearchParams.set('page', (currentPage + 1).toString());
-                setSearchParams(newSearchParams);
-              }
               onPageChange(currentPage + 1);
             }}
             disabled={currentPage === totalPages}

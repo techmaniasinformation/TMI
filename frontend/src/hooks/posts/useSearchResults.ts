@@ -130,7 +130,7 @@ export const useSearchResults = (): SearchResults => {
     setSearchParams(newSearchParams);
   }, [searchParams, setSearchParams]);
 
-  // 검색 실행
+  // 검색 실행 - URL 변경 감지
   useEffect(() => {
     if (!hasConditions) {
       setSearchState('idle');

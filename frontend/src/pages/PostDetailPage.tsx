@@ -649,7 +649,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
     }
 
     try {
-      const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/posts/${postData.postId}`, {
+      const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/post/${postData.postId}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer accessToken' },
         body: JSON.stringify({})
@@ -711,7 +711,16 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
       }
 
       const created = await response.json();
-      setComments((prev) => [...prev, created.data]);
+      
+      // 댓글 목록 다시 가져오기
+      await fetchComments();
+      
+      // 게시글 댓글 수 업데이트
+      setPostData(prev => prev ? {
+        ...prev,
+        commentCount: prev.commentCount + 1
+      } : null);
+      
       setCommentText('');
       setLinkUrl('');
       setShowLinkInput(false);
@@ -819,6 +828,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
             onClick={() => navigate(`/post/${postData.postId}/edit`, {
               state: {
                 postData: {
+                  postId: postData.postId,
                   link: postData.link,
                   title: postData.title,
                   content: postData.content,

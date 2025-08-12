@@ -17,12 +17,12 @@ function ServerPagination({
   updateUrl = true
 }: ServerPaginationProps) {
   const [searchParams, setSearchParams] = useSearchParams();
+  
   // 전체 페이지 수 계산
   const totalPages = Math.ceil(totalCount / pageSize);
 
   // 페이지가 0개 이하면 페이지네이션 숨김
   if (totalPages <= 0) {
-
     return null;
   }
 
@@ -77,18 +77,30 @@ function ServerPagination({
 
   const pageNumbers = getPageNumbers();
 
+  // 페이지 변경 핸들러
+  const handlePageChange = (page: number) => {
+    if (page === currentPage || page < 1 || page > totalPages) {
+      return;
+    }
+    
+    // URL 업데이트 (updateUrl이 true인 경우)
+    if (updateUrl) {
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.set('page', page.toString());
+      setSearchParams(newSearchParams);
+    }
+    
+    // 콜백 함수 호출
+    onPageChange(page);
+  };
+
   return (
     <div className="flex justify-center items-center space-x-2 mt-8">
       {/* 이전 페이지 버튼 */}
       <button
         onClick={(e) => {
           e.preventDefault();
-          if (updateUrl) {
-            const newSearchParams = new URLSearchParams(searchParams);
-            newSearchParams.set('page', (currentPage - 1).toString());
-            setSearchParams(newSearchParams);
-          }
-          onPageChange(currentPage - 1);
+          handlePageChange(currentPage - 1);
         }}
         disabled={currentPage === 1}
         className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
@@ -103,12 +115,7 @@ function ServerPagination({
           key={page}
           onClick={(e) => {
             e.preventDefault();
-            if (updateUrl) {
-              const newSearchParams = new URLSearchParams(searchParams);
-              newSearchParams.set('page', page.toString());
-              setSearchParams(newSearchParams);
-            }
-            onPageChange(page);
+            handlePageChange(page);
           }}
           className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
             currentPage === page
@@ -126,12 +133,7 @@ function ServerPagination({
       <button
         onClick={(e) => {
           e.preventDefault();
-          if (updateUrl) {
-            const newSearchParams = new URLSearchParams(searchParams);
-            newSearchParams.set('page', (currentPage + 1).toString());
-            setSearchParams(newSearchParams);
-          }
-          onPageChange(currentPage + 1);
+          handlePageChange(currentPage + 1);
         }}
         disabled={currentPage === totalPages}
         className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"

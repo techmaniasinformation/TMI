@@ -43,7 +43,6 @@ const fetchPostsFromAPI = async (params: { page: number; size: number; followMem
 
     const data: SearchApiResponse = await response.json();
     
-
     return data;
   } catch (error) {
     console.error('❌ [fetchPostsFromAPI] API 호출 실패:', error);
@@ -89,7 +88,7 @@ export const usePostsList = () => {
       const { posts, pageInfo } = response.data;
 
       setState({
-        posts,
+        posts: posts || [],
         loading: false,
         error: null,
         currentPage: pageInfo?.currPage ?? 1,
@@ -108,7 +107,7 @@ export const usePostsList = () => {
     }
   }, [user?.memberId]);
 
-  // URL 변경 감지하여 상태 동기화
+  // 초기 데이터 로드 및 URL 변경 감지
   useEffect(() => {
     const currentUrlPage = parseInt(searchParams.get('page') || '1');
     const currentUrlTab = searchParams.get('tab') as 'latest' | 'following' || 'latest';
@@ -118,42 +117,37 @@ export const usePostsList = () => {
       setState(prev => ({ ...prev, currentPage: currentUrlPage }));
       setActiveTab(currentUrlTab);
     }
-  }, [searchParams, state.currentPage, activeTab]);
-
-  // 컴포넌트 마운트 시 초기 데이터 로드
-  useEffect(() => {
-    // 팔로우 탭이고 로그인하지 않았으면 API 호출하지 않음
-    if (activeTab === 'following' && !isLoggedIn) {
-      return;
-    }
-    fetchPosts(state.currentPage, activeTab);
-  }, [fetchPosts, activeTab, isLoggedIn, state.currentPage]); // 의존성 배열 수정
-
-  // 탭 변경 시 게시글 다시 가져오기
-  useEffect(() => {
-    // URL 업데이트
-    const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set('tab', activeTab);
-    newSearchParams.set('page', '1'); // 탭 변경 시 페이지 1로 리셋
-    setSearchParams(newSearchParams);
     
-    // 팔로우 탭이고 로그인하지 않았으면 게시글 초기화
-    if (activeTab === 'following' && !isLoggedIn) {
+    // 팔로우 탭이고 로그인하지 않았으면 API 호출하지 않음
+    if (currentUrlTab === 'following' && !isLoggedIn) {
       setState(prev => ({ ...prev, posts: [], loading: false }));
       return;
     }
-    fetchPosts(1, activeTab);
-  }, [activeTab, isLoggedIn, fetchPosts, searchParams, setSearchParams]);
+    
+    // 데이터 로드 (초기 로드 또는 URL 변경 시)
+    fetchPosts(currentUrlPage, currentUrlTab);
+  }, [searchParams, state.currentPage, activeTab, isLoggedIn, fetchPosts]);
+
+  // 탭 변경 핸들러
+  const handleTabChange = useCallback((newTab: 'latest' | 'following') => {
+    if (newTab === activeTab) return;
+    
+    // URL 업데이트
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set('tab', newTab);
+    newSearchParams.set('page', '1'); // 탭 변경 시 페이지 1로 리셋
+    setSearchParams(newSearchParams);
+  }, [activeTab, searchParams, setSearchParams]);
 
   // 페이지 변경 핸들러를 useCallback으로 메모이제이션
   const setCurrentPage = useCallback((page: number) => {
+    if (page === state.currentPage) return;
+    
     // URL 업데이트
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set('page', page.toString());
     setSearchParams(newSearchParams);
-    
-    fetchPosts(page, activeTab);
-  }, [fetchPosts, activeTab, searchParams, setSearchParams]);
+  }, [state.currentPage, searchParams, setSearchParams]);
 
   // 날짜 포맷팅 함수를 useMemo로 메모이제이션
   const formatDate = useMemo(() => {
@@ -172,7 +166,7 @@ export const usePostsList = () => {
   return {
     ...state,
     activeTab,
-    setActiveTab,
+    setActiveTab: handleTabChange,
     setCurrentPage,
     formatDate,
     formatNumber,

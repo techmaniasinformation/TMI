@@ -1,14 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useSignup } from '@/hooks/auth/useSignup';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/utils/utils';
-import { useThemeStore } from '@/stores/themeStore';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useUserStore } from '@/stores/userStore';
 
-// ####### useUserStore 보류!!!
-// 다크모드 관련
 const signupPageVariants = cva(
   'flex items-center justify-center transition-colors duration-300 py-8',
   {
@@ -29,6 +25,7 @@ interface SignupPageProps extends VariantProps<typeof signupPageVariants> {}
 const SignupPage: React.FC<SignupPageProps> = () => {
   const {
     formData,
+    imagePreview, // 미리보기 이미지 URL
     isFormValid,
     isNicknameChecked,
     isNicknameTaken,
@@ -40,39 +37,24 @@ const SignupPage: React.FC<SignupPageProps> = () => {
     handleSubmit,
   } = useSignup();
 
-  const location = useLocation();
   const navigate = useNavigate();
-  
-  // 전역 변수에서 소셜 로그인 정보 가져오기
-  const { socialProvider, socialProviderId, clearSocialLoginInfo } = useUserStore();
+  const { socialProvider, socialProviderId } = useUserStore();
 
-  // 디버깅용 로그
-  console.log('SignupPage - socialProvider:', socialProvider);
-  console.log('SignupPage - socialProviderId:', socialProviderId);
-
-  // provider 없으면 다시 로그인 페이지로
-  // 잘못된 접근 방어
   useEffect(() => {
-    console.log('SignupPage useEffect - socialProvider:', socialProvider, 'socialProviderId:', socialProviderId);
     if (!socialProvider || !socialProviderId) {
-      console.log('SignupPage - 잘못된 접근 감지');
       alert('잘못된 접근입니다.');
       navigate('/login');
     }
   }, [socialProvider, socialProviderId, navigate]);
 
-
   return (
     <div className='max-w-md mx-auto px-6 py-16'>
-      {/* Header */}
       <div className='text-center mb-16'>
         <h1 className='text-3xl font-bold mb-4'>회원가입</h1>
         <p>새로운 계정을 만들어보세요</p>
       </div>
 
-      {/* Form Container */}
       <div className='bg-white rounded-2xl shadow-lg p-10'>
-        {/* Nickname Input Section */}
         <div className='mb-10'>
           <label className='block text-sm font-medium text-gray-700 mb-2'>
             닉네임 <span className='text-red-500'>*</span>
@@ -82,9 +64,7 @@ const SignupPage: React.FC<SignupPageProps> = () => {
               <input
                 type='text'
                 value={formData.nickname}
-                onChange={(e) => {
-                  handleNicknameChange(e);
-                }}
+                onChange={handleNicknameChange}
                 placeholder='닉네임을 입력해 주세요'
                 className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors text-sm'
               />
@@ -101,33 +81,28 @@ const SignupPage: React.FC<SignupPageProps> = () => {
               )}
             </button>
           </div>
-          {/* Validation Message Container */}
-                  <div className='h-5 mt-1'>
-          {/* Error Message */}
-          {isNicknameChecked && isNicknameTaken && (
-            <div className='flex items-center text-red-600 text-xs'>
-              <i className='fas fa-exclamation-circle mr-1'></i>
-              이미 사용 중인 닉네임입니다.
-            </div>
-          )}
-          {/* Success Message */}
-          {isNicknameChecked && !isNicknameTaken && (
-            <div className='flex items-center text-green-600 text-xs'>
-              <i className='fas fa-check-circle mr-1'></i>
-              사용 가능한 닉네임입니다.
-            </div>
-          )}
+          <div className='h-5 mt-1'>
+            {isNicknameChecked && isNicknameTaken && (
+              <div className='flex items-center text-red-600 text-xs'>
+                <i className='fas fa-exclamation-circle mr-1'></i>
+                이미 사용 중인 닉네임입니다.
+              </div>
+            )}
+            {isNicknameChecked && !isNicknameTaken && (
+              <div className='flex items-center text-green-600 text-xs'>
+                <i className='fas fa-check-circle mr-1'></i>
+                사용 가능한 닉네임입니다.
+              </div>
+            )}
+          </div>
         </div>
-        </div>
-        {/* Validation Message Container */}
 
-        {/* Profile Image Section */}
         <div className='mb-12'>
           <div className='flex items-start gap-4'>
             <div className='w-32 h-32 rounded-lg overflow-hidden bg-gray-100 border-2 border-gray-200 shadow-lg flex-shrink-0'>
-              {formData.memberProfileUrl ? (
+              {imagePreview ? (
                 <img
-                  src={formData.memberProfileUrl}
+                  src={imagePreview}
                   alt='Profile'
                   className='w-full h-full object-contain object-top'
                 />
@@ -158,13 +133,12 @@ const SignupPage: React.FC<SignupPageProps> = () => {
           </div>
         </div>
 
-        {/* Submit Button */}
         <button
           onClick={handleSubmit}
-          disabled={!isFormValid || !isNicknameChecked || isNicknameTaken}
+          disabled={!isFormValid || !isNicknameChecked || isNicknameTaken || isSubmitting}
           className='w-full py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors'
         >
-          회원가입 완료
+          {isSubmitting ? '가입 처리 중...' : '회원가입 완료'}
         </button>
       </div>
     </div>

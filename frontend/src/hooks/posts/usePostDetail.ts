@@ -126,8 +126,10 @@ export const useStar = (postId: string) => {
     if (isStarred) {
       const starId = starIdMap.get(postId);
       setStarId(starId || null);
+      console.log(`✅ [useStar] 스타 상태 확인 - postId: ${postId}, starId: ${starId}`);
     } else {
       setStarId(null);
+      console.log(`❌ [useStar] 스타 상태 확인 - postId: ${postId}, 스타하지 않음`);
     }
   }, [postId, starLst, starIdMap]);
 
@@ -144,15 +146,19 @@ export const useStar = (postId: string) => {
       return;
     }
 
+    console.log(`🔄 [useStar] 스타 토글 시작 - postId: ${postId}, 현재 상태: ${isStarred}, starId: ${starId}`);
+
     setIsStarLoading(true);
     try {
       if (isStarred) {
         // 스타 취소
         if (!starId) {
+          console.error('❌ [useStar] starId가 없습니다. postId:', postId, 'starIdMap:', starIdMap);
           alert('스타 정보를 찾을 수 없습니다.');
           return;
         }
 
+        console.log(`🗑️ [useStar] 스타 취소 요청 - starId: ${starId}`);
         const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/star/${starId}`, {
           method: 'DELETE',
           headers: {
@@ -162,8 +168,12 @@ export const useStar = (postId: string) => {
         });
 
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          const errorText = await response.text();
+          console.error('❌ [useStar] 스타 취소 실패 - 응답:', errorText);
+          throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
         }
+
+        console.log(`✅ [useStar] 스타 취소 성공 - starId: ${starId}`);
 
         // 낙관적 업데이트
         setStarLst(starLst.filter((id: string) => id !== postId));
@@ -174,6 +184,7 @@ export const useStar = (postId: string) => {
         alert('스타를 취소했습니다');
       } else {
         // 스타 추가
+        console.log(`⭐ [useStar] 스타 추가 요청 - postId: ${postId}`);
         const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/star`, {
           method: 'POST',
           headers: {
@@ -186,17 +197,23 @@ export const useStar = (postId: string) => {
         });
 
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          const errorText = await response.text();
+          console.error('❌ [useStar] 스타 추가 실패 - 응답:', errorText);
+          throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
         }
 
         const result = await response.json();
+        console.log(`✅ [useStar] 스타 추가 성공 - 응답:`, result);
         
         // 낙관적 업데이트
         setStarLst([...starLst, postId]);
         
         if (result.data?.starId) {
+          console.log(`💾 [useStar] starId 저장 - postId: ${postId}, starId: ${result.data.starId}`);
           setStarId(result.data.starId);
           addStarId(postId, result.data.starId);
+        } else {
+          console.warn('⚠️ [useStar] 응답에 starId가 없습니다:', result);
         }
         
         setIsStarred(true);
@@ -209,7 +226,7 @@ export const useStar = (postId: string) => {
     } finally {
       setIsStarLoading(false);
     }
-  }, [isStarred, starId, user?.memberId, postId, starLst, setStarLst, addStarId, removeStarId, isStarLoading]);
+  }, [isStarred, starId, user?.memberId, postId, starLst, setStarLst, addStarId, removeStarId, isStarLoading, starIdMap]);
 
   return {
     isStarred,

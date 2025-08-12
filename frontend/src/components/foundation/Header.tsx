@@ -36,6 +36,7 @@ const Header: React.FC<HeaderProps> = ({
   const {
     user,
     prevPath,
+    socialProvider,
     setUser,
     clearUser,
     setStarLst,
@@ -58,7 +59,7 @@ const Header: React.FC<HeaderProps> = ({
   const handleLogOut = useCallback(async () => {
     try {
       const response = await fetch(
-        `https://i13a509.p.ssafy.io/api/v1/auth/logout/${user?.memberId}`,
+        `https://i13a509.p.ssafy.io/api/v1/auth/logout/${user?.memberId}/${socialProvider}`,
         {
           method: 'POST',
           credentials: 'include',

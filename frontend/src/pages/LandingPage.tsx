@@ -44,6 +44,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
+        console.log('popular', data);
         setPopularPosts(data);
       } catch (error) {
         console.error('인기 게시글 불러오기 실패:', error);

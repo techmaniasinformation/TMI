@@ -9,21 +9,7 @@ const API_BASE_URL = 'https://i13a509.p.ssafy.io/api/v1';
 // 검색 상태 타입 정의
 type SearchState = 'idle' | 'loading' | 'success' | 'error' | 'no-results';
 
-// 백엔드 API 응답 타입
-interface SearchApiPost {
-  postId: number;
-  memberProfileUrl: string;
-  companyProfileUrl: string | null;
-  name: string;
-  badgeUrl: string | null;
-  title: string;
-  createAt: string;
-  viewCount: number;
-  starCount: number;
-  commentCount: number;
-  tags: string[];
-  thumbnailUrl: string;
-}
+
 
 interface SearchResults {
   posts: Post[];
@@ -81,13 +67,13 @@ const fetchSearchData = async (
 };
 
 // 백엔드 응답을 프론트엔드 타입으로 변환하는 함수
-const transformApiPostToPost = (apiPost: SearchApiPost): Post => {
+const transformApiPostToPost = (apiPost: any): Post => {
   return {
     postId: apiPost.postId,
     title: apiPost.title,
     content: '',
     tags: apiPost.tags,
-    memberProfileUrl: apiPost.memberProfileUrl,
+    memberProfileUrl: apiPost.memberProfile || '', // API: memberProfile -> Frontend: memberProfileUrl
     companyProfileUrl: apiPost.companyProfileUrl || undefined,
     name: apiPost.name,
     badgeUrl: apiPost.badgeUrl || '',
@@ -174,7 +160,7 @@ export const useSearchResults = (): SearchResults => {
           throw new Error('검색 결과 데이터 형식이 올바르지 않습니다.');
         }
 
-        const transformedPosts = (apiPosts as SearchApiPost[]).map(transformApiPostToPost);
+        const transformedPosts = (apiPosts || []).map(transformApiPostToPost);
 
         if (!isMounted) return;
         

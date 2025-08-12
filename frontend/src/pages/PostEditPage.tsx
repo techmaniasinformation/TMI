@@ -5,7 +5,6 @@ import { useTagAutocomplete } from '@/hooks/tags/useTagAutocomplete';
 import MDEditor from '@uiw/react-md-editor';
 import '@uiw/react-md-editor/markdown-editor.css';
 import '@uiw/react-markdown-preview/markdown.css';
-import imageCompression from 'browser-image-compression';
 
 const PostEditPage: React.FC = () => {
   const navigate = useNavigate();
@@ -168,7 +167,6 @@ const PostEditPage: React.FC = () => {
         memberId: user?.memberId,
         link: processedUrl,
         title: title,
-        thumbnailUrl: selectedImage ? '' : imagePreview || '',
         content: content,
         tags: tags
       };
@@ -177,7 +175,7 @@ const PostEditPage: React.FC = () => {
       formData.append('req', blob);
       
       if (selectedImage) {
-        formData.append('thumbnail', selectedImage);
+        formData.append('thumbnailImage', selectedImage);
       }
 
       const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/post/${postId}`, {
@@ -218,34 +216,26 @@ const PostEditPage: React.FC = () => {
         return;
       }
 
+      // 파일 크기 체크 (10MB = 10 * 1024 * 1024 bytes)
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (file.size > maxSize) {
+        alert('파일 크기는 10MB 이하여야 합니다.');
+        fileInput.value = '';
+        return;
+      }
+
       setIsImageProcessing(true);
       try {
-        // 이미지 압축 옵션 - 크롭 방식 최적화
-        const options = {
-          maxSizeMB: 10, // 최대 10MB
-          useWebWorker: true,
-          fileType: 'image/jpeg', // JPEG로 변환
-          // 썸네일 크기에 맞춰 크롭하기 위한 설정 (3:2 비율)
-          maxWidth: 1024,
-          maxHeight: 683 // 1024 * (2/3) ≈ 683 (썸네일 비율과 동일)
-        };
-
-        console.log('원본 이미지 크기:', (file.size / 1024 / 1024).toFixed(2), 'MB');
         
-        // 이미지 압축
-        const compressedFile = await imageCompression(file, options);
-        
-        console.log('압축된 이미지 크기:', (compressedFile.size / 1024 / 1024).toFixed(2), 'MB');
-        
-        // 압축된 파일을 상태에 저장
-        setSelectedImage(compressedFile);
+        // 파일을 상태에 저장
+        setSelectedImage(file);
         
         // 미리보기 생성
         const reader = new FileReader();
         reader.onload = (e) => {
           setImagePreview(e.target?.result as string);
         };
-        reader.readAsDataURL(compressedFile);
+        reader.readAsDataURL(file);
         
       } catch (error) {
         console.error('이미지 압축 실패:', error);

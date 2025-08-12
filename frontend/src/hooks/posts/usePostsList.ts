@@ -85,10 +85,29 @@ export const usePostsList = () => {
         followMemberId: sort === 'following' ? user?.memberId : undefined
       });
       
-      const { posts, pageInfo } = response.data;
+      const { posts: apiPosts, pageInfo } = response.data;
+
+      // API 응답을 프론트엔드 타입으로 변환
+      const transformedPosts = (apiPosts || []).map((post: any) => ({
+        postId: post.postId,
+        title: post.title,
+        content: post.content || '',
+        tags: post.tags || [],
+        memberProfileUrl: post.memberProfile || '', // API: memberProfile -> Frontend: memberProfileUrl
+        companyProfileUrl: post.companyProfileUrl || undefined,
+        name: post.name,
+        badgeUrl: post.badgeUrl || '',
+        createAt: post.createAt,
+        viewCount: post.viewCount,
+        starCount: post.starCount,
+        commentCount: post.commentCount,
+        thumbnailUrl: post.thumbnailUrl || '',
+        link: post.link || '',
+        isStar: post.isStar || false
+      }));
 
       setState({
-        posts: posts || [],
+        posts: transformedPosts,
         loading: false,
         error: null,
         currentPage: pageInfo?.currPage ?? 1,

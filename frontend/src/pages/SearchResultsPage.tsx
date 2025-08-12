@@ -22,9 +22,9 @@ const SearchResultsPage = () => {
   } = useSearchResults();
 
   // 게시글 클릭 핸들러
-  const handlePostClick = (postId: number) => {
+  const handlePostClick = (postId: string) => {
     // 상세 페이지로 이동 (ROUTES 상수 사용)
-    navigate(ROUTES.POST.replace(':id', postId.toString()));
+    navigate(ROUTES.POST.replace(':id', postId));
   };
 
   return (

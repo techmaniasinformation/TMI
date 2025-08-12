@@ -7,7 +7,7 @@ interface SearchPostListProps {
   loading: boolean;
   error: string | null;
   totalCount: number;
-  onPostClick?: (postId: number) => void;
+  onPostClick?: (postId: string) => void;
   searchKeyword?: string;
   searchTechTags?: string[];
   searchCompanyTags?: string[];

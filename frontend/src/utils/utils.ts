@@ -8,9 +8,12 @@ export function cn(...inputs: ClassValue[]) {
 
 // ===== 날짜 포맷팅 =====
 export const formatDate = (dateString: string): string => {
-  const date = new Date(dateString);
+  // UTC 시간을 한국 시간으로 변환
+  const utcDate = new Date(dateString);
+  const kstDate = new Date(utcDate.getTime() + (9 * 60 * 60 * 1000)); // UTC+9 (한국 시간)
+  
   const now = new Date();
-  const diffInMs = now.getTime() - date.getTime();
+  const diffInMs = now.getTime() - kstDate.getTime();
   const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
   const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
   const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
@@ -24,10 +27,11 @@ export const formatDate = (dateString: string): string => {
   } else if (diffInDays < 7) {
     return `${diffInDays}일 전`;
   } else {
-    return date.toLocaleDateString('ko-KR', {
+    return kstDate.toLocaleDateString('ko-KR', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
+      timeZone: 'Asia/Seoul'
     });
   }
 };

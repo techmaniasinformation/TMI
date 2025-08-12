@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/foundation/button';
 import { useThemeStore } from '@/stores/themeStore'; //테마
 import { useUserStore } from '@/stores/userStore'; //로그인 상태 정보
 import LandingCard from '@/components/inter/LandingCard'; //인기 게시글 3개
+import { usePopularPosts } from '@/hooks/posts/usePopularPosts';
+import { formatUTCToKSTDate } from '@/utils/dateUtils';
 
 interface PostData {
     postId: string;
@@ -23,7 +25,6 @@ interface PostData {
 interface LandingPageProps {}
 
 const LandingPage: React.FC<LandingPageProps> = () => {
-  const [popularPosts, setPopularPosts] = useState<PostData[]>([]);
   const [isHovered, setIsHovered] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -34,24 +35,8 @@ const LandingPage: React.FC<LandingPageProps> = () => {
   // ##### 현재 로그인 여부, 로그인 했을 시 user 객체
   const { isLogin, user } = useUserStore();
 
-  useEffect(() => {
-    async function fetchPopularPosts() {
-      try {
-        const response = await fetch(
-          'https://i13a509.p.ssafy.io/api/v1/post/popular?size=3'
-        );
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        console.log('popular', data);
-        setPopularPosts(data.data.posts);
-      } catch (error) {
-        console.error('인기 게시글 불러오기 실패:', error);
-      }
-    }
-    fetchPopularPosts();
-  }, []);
+  // 인기게시글 데이터 가져오기
+  const { posts: popularPosts, loading, error } = usePopularPosts();
 
   const handleSignupClick = (): void => {
     // TODO: 로그인/회원가입 페이지로 이동 로직 구현
@@ -67,7 +52,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
   };
 
   // ######## 카드 클릭시 게시글 상세 페이지로 이동
-  const handleCardClick = (postId: string) => {
+  const handleCardClick = (postId: number) => {
     navigate(`/post/${postId}`);
     console.log(`게시글 상세 페이지로 이동: post/${postId}`);
   };
@@ -211,11 +196,23 @@ const LandingPage: React.FC<LandingPageProps> = () => {
           {/* 각 카드는 inter에다가 컴포넌트 만들기 */}
           {/* role color 적용은 추후에 생각해볼 것.  */}
           <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
-            {popularPosts.length > 0 ? (
+            {loading ? (
+              <div className='text-gray-400 text-center w-full'>
+                <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2'></div>
+                인기게시글을 불러오는 중입니다...
+              </div>
+            ) : error ? (
+              <div className='text-red-400 text-center w-full'>
+                <p>인기게시글을 불러오는데 실패했습니다.</p>
+                <p className='text-sm'>{error}</p>
+              </div>
+            ) : popularPosts.length > 0 ? (
               popularPosts.map((post) => (
                 <LandingCard
                   key={post.postId}
                   {...post}
+                  postId={post.postId.toString()}
+                  createAt={formatUTCToKSTDate(post.createAt)}
                   roleColor='bg-blue-600'
                   hoverBorder='hover:border-blue-500/50'
                   hoverShadow='hover:shadow-blue-500/20'
@@ -225,7 +222,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
               ))
             ) : (
               <p className='text-gray-400 text-center w-full'>
-                게시글을 불러오는 중입니다...
+                인기게시글이 없습니다.
               </p>
             )}
           </div>

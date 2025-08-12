@@ -39,15 +39,20 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
     }
   };
 
-  // 시간 문자열을 '방금 전', '3시간 전' 처럼 보기 쉽게 바꾸는 함수
+  // 시간 문자열을 '방금 전', '3시간 전' 처럼 보기 쉽게 바꾸는 함수 (UTC -> KST 변환)
   const formatTimestamp = (timestamp: string) => {
-    const date = new Date(timestamp);
+    // UTC 시간을 한국 시간으로 변환
+    const utcDate = new Date(timestamp);
+    const kstDate = new Date(utcDate.getTime() + (9 * 60 * 60 * 1000)); // UTC+9 (한국 시간)
+    
     const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    const diffInHours = Math.floor((now.getTime() - kstDate.getTime()) / (1000 * 60 * 60));
     if (diffInHours < 1) return '방금 전';
     if (diffInHours < 24) return `${diffInHours}시간 전`;
     if (diffInHours < 48) return '어제';
-    return date.toLocaleDateString('ko-KR');
+    return kstDate.toLocaleDateString('ko-KR', {
+      timeZone: 'Asia/Seoul'
+    });
   };
 
   return (

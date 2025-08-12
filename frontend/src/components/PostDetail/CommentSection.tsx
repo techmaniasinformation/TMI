@@ -5,7 +5,7 @@ import { getSafeProfileUrl, getSafeBadgeUrl } from '@/utils/defaultImages';
 interface CommentSectionProps {
   comments: any[];
   commentCount: number;
-  postId: number;
+  postId: string;
   memberProfileUrl: string;
   commentText: string;
   showLinkInput: boolean;

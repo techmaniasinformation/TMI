@@ -46,11 +46,15 @@ export const usePosts = () => {
 
 
   const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ko-KR', {
+    // UTC 시간을 한국 시간으로 변환
+    const utcDate = new Date(dateString);
+    const kstDate = new Date(utcDate.getTime() + (9 * 60 * 60 * 1000)); // UTC+9 (한국 시간)
+    
+    return kstDate.toLocaleDateString('ko-KR', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
+      timeZone: 'Asia/Seoul'
     });
   };
 

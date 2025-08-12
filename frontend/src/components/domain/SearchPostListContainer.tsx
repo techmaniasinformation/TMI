@@ -18,7 +18,7 @@ interface SearchPostListContainerProps {
   totalCount: number;
   appliedFilters: AppliedFilters | null;
   onPageChange: (page: number) => void;
-  onPostClick?: (postId: string) => void;
+  onPostClick?: (postId: number) => void;
   searchState: 'idle' | 'loading' | 'success' | 'error' | 'no-results';
   hasSearchConditions: boolean;
 }

@@ -10,13 +10,13 @@ import { PopularPostSkeleton } from '@/components/foundation/Skeleton';
 
 export default function PopularPosts() {
   const navigate = useNavigate();
-  
+
   const {
     posts: popularPosts,
     loading,
     error,
     formatNumber
-  } = usePopularPosts();
+  } = usePopularPosts(10);
 
   // 게시글 클릭 핸들러를 useCallback으로 메모이제이션
   const handlePostClick = useCallback((postId: number) => {
@@ -48,7 +48,7 @@ export default function PopularPosts() {
   return (
     <div className="bg-white rounded-lg shadow p-6">
       <h3 className="text-lg font-semibold mb-4">인기 게시글</h3>
-      
+
       {/* 숨겨진 이미지 프리로딩 - 초기 로드 완료 후에만 실행 */}
       {!isInitialLoad && (
         <div className="hidden">
@@ -68,10 +68,10 @@ export default function PopularPosts() {
       {loading ? (
         <div className="space-y-4">
           {[1, 2, 3, 4, 5].map((index) => (
-            <div 
-              key={index} 
+            <div
+              key={index}
               className="animate-pulse"
-              style={{ 
+              style={{
                 animationDelay: `${(index - 1) * 0.1}s`,
                 animationDuration: '1.5s'
               }}
@@ -84,20 +84,21 @@ export default function PopularPosts() {
         <div className="text-center py-8">
           <div className="mb-4">
             <i className="fas fa-exclamation-triangle text-4xl text-red-300 mb-4"></i>
+
             <h4 className="text-lg font-semibold text-red-600 mb-2">인기 게시글을 불러오는 중 오류가 발생했습니다</h4>
             <p className="text-gray-600 mb-4">{error}</p>
           </div>
-          
+
           <div className="space-y-3">
-            <button 
+            <button
               onClick={() => window.location.reload()}
               className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors mr-3"
             >
               <i className="fas fa-redo mr-2"></i>
               다시 시도
             </button>
-            
-            <button 
+
+            <button
               onClick={() => window.history.back()}
               className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
             >
@@ -113,7 +114,7 @@ export default function PopularPosts() {
             <h4 className="text-lg font-semibold text-gray-600 mb-2">인기 게시글이 없습니다</h4>
             <p className="text-gray-500">아직 인기 게시글이 없습니다. 첫 번째 게시글을 작성해보세요!</p>
           </div>
-          
+
           <Button
             onClick={() => navigate('/post/create')}
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
@@ -127,10 +128,10 @@ export default function PopularPosts() {
           {popularPosts.map((post, index) => {
             const isLoaded = loadedPosts.has(post.postId);
             const hasThumbnail = post.thumbnailUrl;
-            
+
             // 썸네일이 없거나 이미 로드된 경우 바로 표시
             const shouldShow = !hasThumbnail || isLoaded;
-            
+
             return shouldShow ? (
               <div
                 key={post.postId}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import type { Dispatch, SetStateAction } from 'react';
 
@@ -24,12 +24,12 @@ import IconTab5 from '@/assets/icons/IconTab5';
 // 훅
 import ServerPagination from '@/components/domain/ServerPagination';
 
-// 배지
-import ai from '@/assets/images/ai_1.png';
+// 배지 이미지들을 정적 import로 변경
+import ai_1 from '@/assets/images/ai_1.png';
 import amumu from '@/assets/images/amumu.png';
-import aws from '@/assets/images/aws_1.png';
-import db from '@/assets/images/db_1.png';
-import fctmi from '@/assets/images/fctmi_1.png';
+import aws_1 from '@/assets/images/aws_1.png';
+import db_1 from '@/assets/images/db_1.png';
+import fctmi_1 from '@/assets/images/fctmi_1.png';
 import first_article from '@/assets/images/first_article.png';
 import first_comment from '@/assets/images/first_comment.png';
 import followmany from '@/assets/images/followmany.png';
@@ -43,19 +43,18 @@ import spring from '@/assets/images/spring.png';
 import star_5 from '@/assets/images/star_5.png';
 import star_13 from '@/assets/images/star_13.png';
 import star_42 from '@/assets/images/star_42.png';
-import view_50 from '@/assets/images/view1.png';   // view_50.png → view1.png
-import view_100 from '@/assets/images/view2.png';  // view_100.png → view2.png
-import view_1000 from '@/assets/images/view3.png'; // view_1000.png → view3.png
+import view1 from '@/assets/images/view1.png';
+import view2 from '@/assets/images/view2.png';
+import view3 from '@/assets/images/view3.png';
+import locked from '@/assets/images/locked.png';
 
-import lockedIcon from '@/assets/images/locked.png';
-
-// badgeUrl → 실제 이미지 매핑
-export const badgeImageMap: Record<string, string> = {
-  'ai_1.png': ai,
+// 배지 이미지 매핑
+const badgeImages: Record<string, string> = {
+  'ai_1.png': ai_1,
   'amumu.png': amumu,
-  'aws_1.png': aws,
-  'db_1.png': db,
-  'fctmi_1.png': fctmi,
+  'aws_1.png': aws_1,
+  'db_1.png': db_1,
+  'fctmi_1.png': fctmi_1,
   'first_article.png': first_article,
   'first_comment.png': first_comment,
   'followmany.png': followmany,
@@ -69,10 +68,10 @@ export const badgeImageMap: Record<string, string> = {
   'star_5.png': star_5,
   'star_13.png': star_13,
   'star_42.png': star_42,
-  'view_50.png': view_50,
-  'view_100.png': view_100,
-  'view_1000.png': view_1000,
-  'locked.png': lockedIcon,
+  'view_50.png': view1,
+  'view_100.png': view2,
+  'view_1000.png': view3,
+  'locked.png': locked,
 };
 
 // 배지 모달
@@ -150,7 +149,13 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   const [memberBadges, setMemberBadges] = useState<MemberBadge[]>([]);
   const [isBadgeModalOpen, setIsBadgeModalOpen] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState<SelectedBadge | null>(null);
-  
+
+  // 기본(빈) 배지 badgeId=22의 memberBadgeId 구해두기
+  const defaultMemberBadgeId = useMemo(
+    () => memberBadges.find((mb) => mb.badgeId === 22)?.memberBadgeId ?? null,
+    [memberBadges]
+  );
+
   function getBadgeNameByUrl(allBadges: Badge[], badgeUrl?: string | null): string | undefined {
     if (!badgeUrl) return undefined;
     // 파일명만 추출
@@ -181,8 +186,12 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
     if (onRepresentativeBadgeChange) {
       if (rep) {
         const meta = allBadges.find((b) => b.badgeId === rep.badgeId);
-        const url = meta?.badgeUrl ? badgeImageMap[meta.badgeUrl] : null;
-        onRepresentativeBadgeChange({ badgeId: rep.badgeId, badgeUrl: url ?? null });
+        if (meta?.badgeUrl) {
+          const badgeImage = badgeImages[meta.badgeUrl] || '/fallback.png';
+          onRepresentativeBadgeChange({ badgeId: rep.badgeId, badgeUrl: badgeImage });
+        } else {
+          onRepresentativeBadgeChange({ badgeId: rep.badgeId, badgeUrl: null });
+        }
       } else {
         onRepresentativeBadgeChange({ badgeId: null, badgeUrl: null });
       }
@@ -436,7 +445,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
                     title={canOpenBadgeModal ? badge.name : undefined}
                   >
                     <img
-                      src={hasBadge ? (badgeImageMap[badge.badgeUrl] || '/fallback.png') : badgeImageMap['locked.png']}
+                      src={hasBadge ? (badgeImages[badge.badgeUrl] || '/fallback.png') : (badgeImages['locked.png'] || '/fallback.png')}
                       alt={badge.name}
                       className="w-20 h-20 mb-2 rounded-lg object-contain"
                     />
@@ -696,44 +705,32 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
       {/* ✅ 배지 모달 (내 페이지일 때만 렌더) */}
       {canOpenBadgeModal && isBadgeModalOpen && selectedBadge && (
         <BadgeModal
-          isOpen={true}
+          isOpen={isBadgeModalOpen}
           badge={selectedBadge}
           onClose={() => setIsBadgeModalOpen(false)}
-          onRepresentativeSet={async () => {
-            const updated = await fetchMemberBadges(memberId);
-            setMemberBadges(updated);
-            if (onRepresentativeBadgeChange) {
-              const rep = updated.find(mb => mb.isRepresentative);
-              if (rep) {
-                const meta = allBadges.find(b => b.badgeId === rep.badgeId);
-                const url = meta?.badgeUrl ? badgeImageMap[meta.badgeUrl] : null;
-                onRepresentativeBadgeChange({ badgeId: rep.badgeId, badgeUrl: url ?? null });
-              } else {
-                onRepresentativeBadgeChange({ badgeId: null, badgeUrl: null });
+          // 필요하면 defaultMemberBadgeId도 넘길 수 있음 (아래 선택 섹션 참고)
+          onSelect={(changed) => {
+            // ✅ 낙관적 업데이트: 새로고침 없이 즉시 반영
+            setMemberBadges((prev) => {
+              if (changed?.isRepresentative) {
+                // 대표 "설정" 성공 → 해당 배지만 true, 나머지는 false
+                return prev.map((mb) => ({
+                  ...mb,
+                  isRepresentative: mb.memberBadgeId === changed.memberBadgeId,
+                }));
               }
-            }
-          }}
-          onUnsetRepresentative={async () => {
-            const fallback = memberBadges.find(mb => mb.badgeId === 22);
-            if (!fallback?.memberBadgeId) {
-              alert("기본 배지(22)를 보유하고 있지 않습니다.");
-              return;
-            }
-            await patchRepresentativeBadge(fallback.memberBadgeId);
-            alert("대표 배지를 기본 배지로 변경했습니다.");
-
-            const updated = await fetchMemberBadges(memberId);
-            setMemberBadges(updated);
-            if (onRepresentativeBadgeChange) {
-              const rep = updated.find(mb => mb.isRepresentative);
-              if (rep) {
-                const meta = allBadges.find(b => b.badgeId === rep.badgeId);
-                const url = meta?.badgeUrl ? badgeImageMap[meta.badgeUrl] : null;
-                onRepresentativeBadgeChange({ badgeId: rep.badgeId, badgeUrl: url ?? null });
-              } else {
-                onRepresentativeBadgeChange({ badgeId: null, badgeUrl: null });
+              // 대표 "해제" 성공
+              if (defaultMemberBadgeId) {
+                // 기본배지(22)가 있으면 그걸 대표로
+                return prev.map((mb) => ({
+                  ...mb,
+                  isRepresentative: mb.memberBadgeId === defaultMemberBadgeId,
+                }));
               }
-            }
+              // 기본배지가 없으면 모두 해제
+              return prev.map((mb) => ({ ...mb, isRepresentative: false }));
+            });
+            setIsBadgeModalOpen(false);
           }}
         />
       )}

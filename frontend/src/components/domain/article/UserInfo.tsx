@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { getSafeProfileUrl } from '@/utils/defaultImages';
+import React, { useMemo, useState } from 'react';
+import { getSafeProfileUrl, DEFAULT_IMAGES } from '@/utils/defaultImages';
 
 interface UserInfoBoxProps {
   profileImageUrl: string;
@@ -29,18 +29,18 @@ export default function UserInfoBox({
   imageSize = '40px', // 기본값 설정
   onClick,
 }: UserInfoBoxProps) {
+  // 이미지 에러 상태 관리
+  const [imageError, setImageError] = useState(false);
+
   // 안전한 프로필 이미지 URL을 메모이제이션
   const safeProfileUrl = useMemo(() => {
     return getSafeProfileUrl(profileImageUrl);
   }, [profileImageUrl]);
 
-  // 이미지 로딩 에러 핸들러를 메모이제이션
-  const handleImageError = useMemo(() => (e: React.SyntheticEvent<HTMLImageElement>) => {
-    const target = e.target as HTMLImageElement;
-    if (target.src !== safeProfileUrl) {
-      target.src = safeProfileUrl;
-    }
-  }, [safeProfileUrl]);
+  // 이미지 로딩 에러 핸들러
+  const handleImageError = () => {
+    setImageError(true);
+  };
 
   return (
     <div
@@ -59,7 +59,7 @@ export default function UserInfoBox({
     >
       {/* 프로필 이미지 (크기 지정 가능) */}
       <img
-        src={safeProfileUrl}
+        src={imageError ? DEFAULT_IMAGES.PROFILE : safeProfileUrl}
         alt="profile"
         style={{
           width: imageSize,

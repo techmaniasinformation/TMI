@@ -90,6 +90,16 @@ export const useSignup = () => {
     if (!isFormValid || !isNicknameChecked || isNicknameTaken) return;
 
     setIsSubmitting(true);
+    
+    const apiFormData = new FormData();
+    
+    // 1. JSON 데이터를 Blob으로 만들어 FormData에 추가
+    const signupRequest = {
+      provider: formData.provider,
+      providerMemberId: formData.providerMemberId,
+      nickname: formData.nickname,
+    };
+    apiFormData.append('signupRequest', new Blob([JSON.stringify(signupRequest)], { type: 'application/json' }));
 
     let profileImageUrl = '';
 
@@ -141,7 +151,7 @@ export const useSignup = () => {
 
       clearSocialLoginInfo();
       alert('회원가입이 완료되었습니다!');
-      navigate(prevPath || '/');
+      navigate(prevPath || '/'); // prevPath가 없으면 홈으로 이동
 
     } catch (error) {
       console.error('회원가입 실패:', error);

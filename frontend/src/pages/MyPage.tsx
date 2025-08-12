@@ -252,7 +252,7 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
     async function init() {
       try {
         if (isMyPage) return;
-        if (!currentUserId || currentUserId <= 0) return;
+        if (!currentUserId) return;
 
         if (!isCompany && targetMemberId) {
           const id = await findMemberFollowId(currentUserId, targetMemberId);
@@ -280,7 +280,7 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
   // 팔/언팔 토글
   const handleFollowToggle = useCallback(async () => {
     if (isMyPage) return;
-    if (!currentUserId || currentUserId <= 0) {
+    if (!currentUserId) {
       alert('로그인이 필요합니다.');
       return;
     }

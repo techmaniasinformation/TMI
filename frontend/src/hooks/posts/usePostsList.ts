@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { SearchApiResponse, Post, PageInfo } from '@/types';
 import { useUserStore } from '@/stores/userStore';
 import { useSearchParams } from 'react-router-dom';
+import { formatUTCToKSTDate } from '@/utils/dateUtils';
 
 interface PostsListState {
   posts: Post[];
@@ -168,10 +169,10 @@ export const usePostsList = () => {
     setSearchParams(newSearchParams);
   }, [state.currentPage, searchParams, setSearchParams]);
 
-  // 날짜 포맷팅 함수를 useMemo로 메모이제이션
+  // 날짜 포맷팅 함수를 useMemo로 메모이제이션 (UTC -> KST 변환)
   const formatDate = useMemo(() => {
     return (date: string) => {
-      return new Date(date).toLocaleDateString('ko-KR');
+      return formatUTCToKSTDate(date);
     };
   }, []);
 

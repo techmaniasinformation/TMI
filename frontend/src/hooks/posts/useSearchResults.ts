@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Post, AppliedFilters } from '@/types';
 import { SearchApiResponse } from '@/types/posts.types';
 import { extractSearchConditions, hasSearchConditions } from '@/utils/searchUtils';
+import { formatUTCToKSTDate } from '@/utils/dateUtils';
 
 const API_BASE_URL = 'https://i13a509.p.ssafy.io/api/v1';
 

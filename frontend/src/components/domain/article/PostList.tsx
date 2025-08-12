@@ -28,6 +28,16 @@ export default function PostList({
   searchTechTags = [],
   searchCompanyTags = []
 }: PostListProps) {
+  // 이미지 에러 상태를 객체로 관리 (postId를 키로 사용)
+  const [imageErrors, setImageErrors] = useState<Record<number, boolean>>({});
+
+  // 이미지 에러 핸들러
+  const handleImageError = useCallback((postId: number) => {
+    setImageErrors(prev => ({
+      ...prev,
+      [postId]: true
+    }));
+  }, []);
 
   // 빈 결과 상태
   if (posts.length === 0) {
@@ -42,12 +52,7 @@ export default function PostList({
   return (
     <div className={`space-y-6 ${className}`}>
       {posts.map((post: Post) => {
-        // 각 게시글별로 이미지 에러 상태 관리
-        const [imageError, setImageError] = useState(false);
-        
-        const handleImageError = () => {
-          setImageError(true);
-        };
+        const hasImageError = imageErrors[post.postId] || false;
 
         return (
           <div 
@@ -77,10 +82,10 @@ export default function PostList({
               {showThumbnail && (
                 <div className="w-48 h-32 flex-shrink-0">
                   <img
-                    src={imageError ? DEFAULT_IMAGES.THUMBNAIL : getSafeThumbnailUrl(post.thumbnailUrl)}
+                    src={hasImageError ? DEFAULT_IMAGES.THUMBNAIL : getSafeThumbnailUrl(post.thumbnailUrl)}
                     alt={post.title}
                     className="w-full h-full object-contain rounded-r-lg"
-                    onError={handleImageError}
+                    onError={() => handleImageError(post.postId)}
                   />
                 </div>
               )}

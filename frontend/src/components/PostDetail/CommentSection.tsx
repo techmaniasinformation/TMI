@@ -100,14 +100,9 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
         ) : (
           <div className="space-y-4">
             {comments.map((comment) => {
-              // 각 댓글의 안전한 프로필 이미지 URL을 메모이제이션
-              const safeCommentProfileUrl = useMemo(() => {
-                return getSafeProfileUrl(comment.memberProfileUrl);
-              }, [comment.memberProfileUrl]);
-              
-              const safeCommentBadgeUrl = useMemo(() => {
-                return getSafeBadgeUrl(comment.badgeUrl);
-              }, [comment.badgeUrl]);
+              // 각 댓글의 안전한 프로필 이미지 URL을 직접 계산
+              const safeCommentProfileUrl = getSafeProfileUrl(comment.memberProfileUrl);
+              const safeCommentBadgeUrl = getSafeBadgeUrl(comment.badgeUrl);
 
               return (
                 <div key={comment.commentId} className="border-b border-gray-200 pb-4">
@@ -142,19 +137,20 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
                           {comment.link}
                         </a>
                       )}
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
-                        <button 
+                      <div className="flex items-center gap-4 mt-2">
+                        <button
                           onClick={() => onCommentRecommend(comment.commentId)}
-                          disabled={recommendLoading.get(comment.commentId)}
-                          className={`flex items-center gap-1 transition-colors ${
+                          className={`flex items-center gap-1 text-sm ${
                             userRecommendations.has(comment.commentId)
                               ? 'text-blue-600'
                               : 'text-gray-500 hover:text-blue-600'
-                          } ${recommendLoading.get(comment.commentId) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                          }`}
+                          disabled={recommendLoading.has(comment.commentId)}
                         >
-                          <span>{userRecommendations.has(comment.commentId) ? '👍' : '👍'}</span>
-                          <span>{formatNumber(comment.recommendCount)}</span>
-                          {recommendLoading.get(comment.commentId) && <span className="text-xs">...</span>}
+                          <span>👍</span>
+                          <span>
+                            {userRecommendations.has(comment.commentId) ? '추천됨' : '추천'}
+                          </span>
                         </button>
                       </div>
                     </div>

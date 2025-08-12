@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/utils/utils';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import SearchBar from './SearchBar'; // 검색바 컴포넌트 분리
 import { Button } from './button';
 import { useThemeStore } from '@/stores/themeStore'; // 테마 불러오기
@@ -36,19 +36,23 @@ const Header: React.FC<HeaderProps> = ({
   const {
     memberId,
     user,
+    prevPath,
     setMemberId,
     setUser,
     clearUser,
-    setStarLst,
-    setFollowUser,
-    setFollowCompany,
+    setStarLst,       
+    setFollowUser,    
+    setFollowCompany, 
     clearSocialLoginInfo,
+    setPrevPath,
   } = useUserStore(); // 로그인 상태 확인
   const { isDarkMode, toggleTheme } = useThemeStore(); // 전역 상태 사용
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(true);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const navigate = useNavigate();
+  const location = useLocation();
+  
 
   // 로그인 여부
   const isAuthenticated = memberId !== -1; 
@@ -68,9 +72,9 @@ const Header: React.FC<HeaderProps> = ({
       // 모든 전역변수 초기화
       setMemberId(-1);
       clearUser();
-      setStarLst([]);
-      setFollowUser([]);
-      setFollowCompany([]);
+      setStarLst([]);   
+      setFollowUser([]);  
+      setFollowCompany([]); 
       clearSocialLoginInfo();
 
       // 프로필 메뉴 닫기
@@ -116,6 +120,9 @@ const Header: React.FC<HeaderProps> = ({
   const handleWritePost = () => {
     if (!isAuthenticated) {
       alert('로그인이 필요합니다.'); // 알림 표시
+      setPrevPath('/post/create'); // 로그인 완료하면 게시글 작성으로 이동하게
+      console.log('prevPath', prevPath);
+      
       navigate('/login'); // 로그인 페이지로 이동
     } else {
       navigate('/post/create'); // 게시글 작성 페이지로 이동 (예: /write)
@@ -258,7 +265,9 @@ const Header: React.FC<HeaderProps> = ({
             ) : (
               // 로그아웃 상태일 때
               <div className='flex items-center space-x-2'>
-                <Link to='/login' className='px-4 py-2 text-sm hover:font-bold'>
+                <Link to='/login' 
+                onClick={() => setPrevPath(location.pathname + location.search)}
+                className='px-4 py-2 text-sm hover:font-bold'>
                   로그인/회원가입
                 </Link>
               </div>

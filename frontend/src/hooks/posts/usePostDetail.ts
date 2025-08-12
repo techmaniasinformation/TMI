@@ -6,6 +6,12 @@ import {
   getSafeBadgeUrl, 
   getSafeCompanyUrl 
 } from '@/utils/defaultImages';
+import { 
+  fetchUserStarList, 
+  checkPostStarStatus, 
+  addStar, 
+  removeStar 
+} from '@/utils/starUtils';
 
 interface PostDetail {
   postId: string;
@@ -117,65 +123,59 @@ export const useStar = (postId: string) => {
   const [isStarred, setIsStarred] = useState(false);
   const [isStarLoading, setIsStarLoading] = useState(false);
   const [starId, setStarId] = useState<number | null>(null);
+  const [hasCheckedServer, setHasCheckedServer] = useState(false);
 
-  // 서버에서 스타 상태 확인 (전체 스타 목록을 가져와서 확인)
+  // 서버에서 스타 상태 확인
   const checkStarStatusFromServer = useCallback(async () => {
     if (!user?.memberId || !postId) return;
 
     try {
       console.log(`🔍 [useStar] 서버에서 스타 상태 확인 시작 - postId: ${postId}, memberId: ${user.memberId}`);
       
-      const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/star?memberId=${user.memberId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        const stars = result.data?.stars || [];
+      const result = await fetchUserStarList(user.memberId);
+      
+      if (result.success) {
+        console.log(`📋 [useStar] 서버에서 받은 스타 목록:`, result.stars);
         
-        console.log(`📋 [useStar] 서버에서 받은 스타 목록:`, stars);
+        // 현재 게시글의 스타 상태 확인
+        const { isStarred: serverIsStarred, starId: serverStarId } = checkPostStarStatus(postId, result.stars);
         
-        // 현재 게시글이 스타 목록에 있는지 확인
-        const currentStar = stars.find((star: any) => star.postId === postId);
-        const isStarred = !!currentStar;
-        const serverStarId = currentStar?.starId || null;
+        console.log(`🎯 [useStar] 현재 게시글 스타 상태 - postId: ${postId}, isStarred: ${serverIsStarred}, serverStarId: ${serverStarId}`);
         
-        console.log(`🎯 [useStar] 현재 게시글 스타 상태 - postId: ${postId}, isStarred: ${isStarred}, serverStarId: ${serverStarId}`);
-        
-        // 로컬 상태와 서버 상태가 다르면 동기화
+        // 서버 상태를 기준으로 로컬 상태와 전역 상태 동기화
         const localIsStarred = starLst.includes(postId);
         const localStarId = starIdMap.get(postId);
         
-        console.log(`🔄 [useStar] 상태 비교 - 로컬: ${localIsStarred}(starId: ${localStarId}), 서버: ${isStarred}(starId: ${serverStarId})`);
+        console.log(`🔄 [useStar] 상태 비교 - 로컬: ${localIsStarred}(starId: ${localStarId}), 서버: ${serverIsStarred}(starId: ${serverStarId})`);
         
-        if (isStarred && !localIsStarred) {
-          console.log(`➕ [useStar] 로컬 상태 동기화 - postId: ${postId}를 스타 목록에 추가`);
+        // 서버 상태가 다르면 전역 상태 업데이트
+        if (serverIsStarred && !localIsStarred) {
+          console.log(`➕ [useStar] 전역 상태 동기화 - postId: ${postId}를 스타 목록에 추가`);
           setStarLst([...starLst, postId]);
           if (serverStarId) {
             addStarId(postId, serverStarId);
           }
-        } else if (!isStarred && localIsStarred) {
-          console.log(`➖ [useStar] 로컬 상태 동기화 - postId: ${postId}를 스타 목록에서 제거`);
+        } else if (!serverIsStarred && localIsStarred) {
+          console.log(`➖ [useStar] 전역 상태 동기화 - postId: ${postId}를 스타 목록에서 제거`);
           setStarLst(starLst.filter((id: string) => id !== postId));
           removeStarId(postId);
         }
         
-        // UI 상태 업데이트
-        setIsStarred(isStarred);
+        // UI 상태 업데이트 (서버 상태 기준)
+        setIsStarred(serverIsStarred);
         setStarId(serverStarId);
+        setHasCheckedServer(true);
         
-        console.log(`✅ [useStar] 서버 상태 확인 완료 - postId: ${postId}, isStarred: ${isStarred}, starId: ${serverStarId}`);
+        console.log(`✅ [useStar] 서버 상태 확인 완료 - postId: ${postId}, isStarred: ${serverIsStarred}, starId: ${serverStarId}`);
       } else {
-        console.log(`❌ [useStar] 서버 상태 확인 실패 - postId: ${postId}, status: ${response.status}`);
+        console.log(`❌ [useStar] 서버 상태 확인 실패 - postId: ${postId}, error: ${result.error}`);
         // 서버 확인 실패 시 로컬 상태 사용
         const localIsStarred = starLst.includes(postId);
         const localStarId = starIdMap.get(postId);
         
         setIsStarred(localIsStarred);
         setStarId(localStarId || null);
+        setHasCheckedServer(true);
         
         console.log(`🔄 [useStar] 로컬 상태 사용 - postId: ${postId}, isStarred: ${localIsStarred}, starId: ${localStarId}`);
       }
@@ -187,22 +187,24 @@ export const useStar = (postId: string) => {
       
       setIsStarred(localIsStarred);
       setStarId(localStarId || null);
+      setHasCheckedServer(true);
       
       console.log(`🔄 [useStar] 오류로 인한 로컬 상태 사용 - postId: ${postId}, isStarred: ${localIsStarred}, starId: ${localStarId}`);
     }
   }, [postId, user?.memberId, starLst, starIdMap, setStarLst, addStarId, removeStarId]);
 
-  // 로컬 스타 상태 확인 (기존 로직)
-  const checkStarStatus = useCallback(() => {
-    const isStarred = starLst.includes(postId);
+  // 로컬 스타 상태 확인 (서버 확인 전 임시 사용)
+  const checkLocalStarStatus = useCallback(() => {
+    const localIsStarred = starLst.includes(postId);
     const localStarId = starIdMap.get(postId);
     
-    setIsStarred(isStarred);
+    setIsStarred(localIsStarred);
     setStarId(localStarId || null);
     
-    console.log(`🔍 [useStar] 로컬 스타 상태 확인 - postId: ${postId}, isStarred: ${isStarred}, starId: ${localStarId}`);
+    console.log(`🔍 [useStar] 로컬 스타 상태 확인 - postId: ${postId}, isStarred: ${localIsStarred}, starId: ${localStarId}`);
   }, [postId, starLst, starIdMap]);
 
+  // 초기 상태 설정
   useEffect(() => {
     console.log(`🔄 [useStar] useEffect 실행 - postId: ${postId}, user?.memberId: ${user?.memberId}`);
     
@@ -211,13 +213,14 @@ export const useStar = (postId: string) => {
       checkStarStatusFromServer();
     } else {
       console.log(`💾 [useStar] 로컬에서 스타 상태 확인`);
-      checkStarStatus();
+      checkLocalStarStatus();
+      setHasCheckedServer(true);
     }
-  }, [checkStarStatusFromServer, checkStarStatus, user?.memberId, postId]);
+  }, [checkStarStatusFromServer, checkLocalStarStatus, user?.memberId, postId]);
 
   // 스타 토글
   const toggleStar = useCallback(async () => {
-    if (isStarLoading) return;
+    if (isStarLoading || !hasCheckedServer) return;
     
     if (!user?.memberId) {
       alert('로그인이 필요합니다.');
@@ -225,6 +228,7 @@ export const useStar = (postId: string) => {
     }
 
     console.log(`🔄 [useStar] 스타 토글 시작 - postId: ${postId}, 현재 상태: ${isStarred}, starId: ${starId}`);
+    console.log(`📊 [useStar] 현재 전역 상태 - starLst: ${starLst}, starIdMap 크기: ${starIdMap.size}`);
 
     setIsStarLoading(true);
     try {
@@ -237,25 +241,22 @@ export const useStar = (postId: string) => {
         }
 
         console.log(`🗑️ [useStar] 스타 취소 요청 - starId: ${starId}`);
-        const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/star/${starId}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer accessToken'
-          }
-        });
+        const removeResult = await removeStar(starId);
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('❌ [useStar] 스타 취소 실패 - 응답:', errorText);
-          throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+        if (!removeResult.success) {
+          console.error('❌ [useStar] 스타 취소 실패:', removeResult.error);
+          throw new Error(removeResult.error || '스타 취소 실패');
         }
 
         console.log(`✅ [useStar] 스타 취소 성공 - starId: ${starId}`);
 
-        // 낙관적 업데이트
-        setStarLst(starLst.filter((id: string) => id !== postId));
+        // 전역 상태 업데이트
+        const newStarLst = starLst.filter((id: string) => id !== postId);
+        setStarLst(newStarLst);
         removeStarId(postId);
+        console.log(`🗑️ [useStar] 전역 starLst 업데이트 - 새로운 목록:`, newStarLst);
+        
+        // UI 상태 업데이트
         setIsStarred(false);
         setStarId(null);
         
@@ -263,46 +264,38 @@ export const useStar = (postId: string) => {
       } else {
         // 스타 추가
         console.log(`⭐ [useStar] 스타 추가 요청 - postId: ${postId}`);
-        const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/star`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            memberId: user.memberId,
-            postId: postId
-          })
-        });
+        const addResult = await addStar(user.memberId, postId);
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('❌ [useStar] 스타 추가 실패 - 응답:', errorText);
+        if (!addResult.success) {
+          console.error('❌ [useStar] 스타 추가 실패:', addResult.error);
           
-                  // 409 Conflict 에러인 경우 서버 상태를 다시 확인
-        if (response.status === 409) {
-          console.log(`🔄 [useStar] 409 에러 발생 - 서버 상태 재확인`);
-          await checkStarStatusFromServer();
-          console.log(`✅ [useStar] 409 에러 처리 완료 - 서버 상태로 동기화됨`);
-          return; // 에러를 던지지 않고 종료
-        }
-        
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+          // 409 Conflict 에러인 경우 서버 상태를 다시 확인
+          if (addResult.error?.includes('409') || addResult.error?.includes('STAR-002')) {
+            console.log(`🔄 [useStar] 409 에러 발생 - 서버 상태 재확인`);
+            await checkStarStatusFromServer();
+            console.log(`✅ [useStar] 409 에러 처리 완료 - 서버 상태로 동기화됨`);
+            return; // 에러를 던지지 않고 종료
+          }
+          
+          throw new Error(addResult.error || '스타 추가 실패');
         }
 
-        const result = await response.json();
-        console.log(`✅ [useStar] 스타 추가 성공 - 응답:`, result);
+        console.log(`✅ [useStar] 스타 추가 성공 - 응답:`, addResult.data);
         
-        // 낙관적 업데이트
-        setStarLst([...starLst, postId]);
+        // 전역 상태 업데이트
+        const newStarLst = [...starLst, postId];
+        setStarLst(newStarLst);
+        console.log(`💾 [useStar] 전역 starLst 업데이트 - 새로운 목록:`, newStarLst);
         
-        if (result.data?.starId) {
-          console.log(`💾 [useStar] starId 저장 - postId: ${postId}, starId: ${result.data.starId}`);
-          setStarId(result.data.starId);
-          addStarId(postId, result.data.starId);
+        if (addResult.starId) {
+          console.log(`💾 [useStar] starId 저장 - postId: ${postId}, starId: ${addResult.starId}`);
+          setStarId(addResult.starId);
+          addStarId(postId, addResult.starId);
         } else {
-          console.warn('⚠️ [useStar] 응답에 starId가 없습니다:', result);
+          console.warn('⚠️ [useStar] 응답에 starId가 없습니다:', addResult);
         }
         
+        // UI 상태 업데이트
         setIsStarred(true);
         
         alert('스타했습니다');
@@ -323,7 +316,7 @@ export const useStar = (postId: string) => {
     } finally {
       setIsStarLoading(false);
     }
-  }, [isStarred, starId, user?.memberId, postId, starLst, setStarLst, addStarId, removeStarId, isStarLoading, starIdMap, checkStarStatusFromServer]);
+  }, [isStarred, starId, user?.memberId, postId, starLst, setStarLst, addStarId, removeStarId, isStarLoading, starIdMap, checkStarStatusFromServer, hasCheckedServer]);
 
   return {
     isStarred,

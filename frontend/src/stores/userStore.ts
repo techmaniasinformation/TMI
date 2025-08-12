@@ -153,6 +153,24 @@ export const useUserStore = create(
         }
       },
     }),
-    { name: 'userStateStorage' }
+    { 
+      name: 'userStateStorage',
+      serialize: (state) => {
+        // Map 객체를 배열로 변환하여 직렬화
+        const serializedState = {
+          ...state,
+          starIdMap: Array.from(state.starIdMap.entries())
+        };
+        return JSON.stringify(serializedState);
+      },
+      deserialize: (str) => {
+        const parsed = JSON.parse(str);
+        // 배열을 다시 Map으로 변환
+        return {
+          ...parsed,
+          starIdMap: new Map(parsed.starIdMap || [])
+        };
+      }
+    }
   )
 );

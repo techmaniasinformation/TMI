@@ -16,7 +16,7 @@ export default function PopularPosts() {
     loading,
     error,
     formatNumber
-  } = usePopularPosts();
+  } = usePopularPosts(10);
 
   // 게시글 클릭 핸들러를 useCallback으로 메모이제이션
   const handlePostClick = useCallback((postId: number) => {

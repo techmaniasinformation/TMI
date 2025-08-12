@@ -8,9 +8,9 @@ interface PopularPostsState {
 }
 
 // 인기게시글 API 호출 함수
-const fetchPopularPosts = async (): Promise<Post[]> => {
+const fetchPopularPosts = async (size: number = 3): Promise<Post[]> => {
   try {
-    const response = await fetch('https://i13a509.p.ssafy.io/api/v1/post/popular?size=3', {
+    const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/post/popular?size=${size}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -50,7 +50,7 @@ const fetchPopularPosts = async (): Promise<Post[]> => {
   }
 };
 
-export const usePopularPosts = () => {
+export const usePopularPosts = (size: number = 3) => {
   const [state, setState] = useState<PopularPostsState>({
     posts: [],
     loading: false,
@@ -62,7 +62,7 @@ export const usePopularPosts = () => {
       setState(prev => ({ ...prev, loading: true, error: null }));
 
       try {
-        const posts = await fetchPopularPosts();
+        const posts = await fetchPopularPosts(size);
         setState({
           posts,
           loading: false,
@@ -79,7 +79,7 @@ export const usePopularPosts = () => {
     };
 
     loadPopularPosts();
-  }, []);
+  }, [size]);
 
   // 숫자 포맷팅 함수
   const formatNumber = (num: number): string => {

@@ -16,6 +16,9 @@ interface CommentSectionProps {
   onCommentSubmit: () => void;
   formatDate: (date: string) => string;
   formatNumber: (num: number) => string;
+  onCommentRecommend: (commentId: number) => void;
+  userRecommendations: Map<number, number>;
+  recommendLoading: Map<number, boolean>;
 }
 
 export const CommentSection: React.FC<CommentSectionProps> = ({
@@ -32,6 +35,9 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
   onCommentSubmit,
   formatDate,
   formatNumber,
+  onCommentRecommend,
+  userRecommendations,
+  recommendLoading,
 }) => {
   // 안전한 프로필 이미지 URL 사용
   const safeMemberProfileUrl = getSafeProfileUrl(memberProfileUrl);
@@ -130,9 +136,18 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
                         </a>
                       )}
                       <div className="flex items-center gap-4 text-sm text-gray-500">
-                        <button className="flex items-center gap-1 hover:text-blue-600">
-                          <span>👍</span>
+                        <button 
+                          onClick={() => onCommentRecommend(comment.commentId)}
+                          disabled={recommendLoading.get(comment.commentId)}
+                          className={`flex items-center gap-1 transition-colors ${
+                            userRecommendations.has(comment.commentId)
+                              ? 'text-blue-600'
+                              : 'text-gray-500 hover:text-blue-600'
+                          } ${recommendLoading.get(comment.commentId) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                        >
+                          <span>{userRecommendations.has(comment.commentId) ? '👍' : '👍'}</span>
                           <span>{formatNumber(comment.recommendCount)}</span>
+                          {recommendLoading.get(comment.commentId) && <span className="text-xs">...</span>}
                         </button>
                       </div>
                     </div>

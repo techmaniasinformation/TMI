@@ -24,54 +24,54 @@ import IconTab5 from '@/assets/icons/IconTab5';
 // 훅
 import ServerPagination from '@/components/domain/ServerPagination';
 
-// 배지 이미지들을 동적 import로 변경
-const badgeImages: Record<string, () => Promise<any>> = {
-  'ai_1.png': () => import('@/assets/images/ai_1.png'),
-  'amumu.png': () => import('@/assets/images/amumu.png'),
-  'aws_1.png': () => import('@/assets/images/aws_1.png'),
-  'db_1.png': () => import('@/assets/images/db_1.png'),
-  'fctmi_1.png': () => import('@/assets/images/fctmi_1.png'),
-  'first_article.png': () => import('@/assets/images/first_article.png'),
-  'first_comment.png': () => import('@/assets/images/first_comment.png'),
-  'followmany.png': () => import('@/assets/images/followmany.png'),
-  'helloworld.png': () => import('@/assets/images/helloworld.png'),
-  'like10.png': () => import('@/assets/images/like10.png'),
-  'like100.png': () => import('@/assets/images/like100.png'),
-  'like1000.png': () => import('@/assets/images/like1000.png'),
-  'paris.png': () => import('@/assets/images/paris.png'),
-  'react.png': () => import('@/assets/images/react.png'),
-  'spring.png': () => import('@/assets/images/spring.png'),
-  'star_5.png': () => import('@/assets/images/star_5.png'),
-  'star_13.png': () => import('@/assets/images/star_13.png'),
-  'star_42.png': () => import('@/assets/images/star_42.png'),
-  'view_50.png': () => import('@/assets/images/view1.png'),
-  'view_100.png': () => import('@/assets/images/view2.png'),
-  'view_1000.png': () => import('@/assets/images/view3.png'),
-  'locked.png': () => import('@/assets/images/locked.png'),
-};
+// 배지 이미지들을 정적 import로 변경
+import ai_1 from '@/assets/images/ai_1.png';
+import amumu from '@/assets/images/amumu.png';
+import aws_1 from '@/assets/images/aws_1.png';
+import db_1 from '@/assets/images/db_1.png';
+import fctmi_1 from '@/assets/images/fctmi_1.png';
+import first_article from '@/assets/images/first_article.png';
+import first_comment from '@/assets/images/first_comment.png';
+import followmany from '@/assets/images/followmany.png';
+import helloworld from '@/assets/images/helloworld.png';
+import like10 from '@/assets/images/like10.png';
+import like100 from '@/assets/images/like100.png';
+import like1000 from '@/assets/images/like1000.png';
+import paris from '@/assets/images/paris.png';
+import react from '@/assets/images/react.png';
+import spring from '@/assets/images/spring.png';
+import star_5 from '@/assets/images/star_5.png';
+import star_13 from '@/assets/images/star_13.png';
+import star_42 from '@/assets/images/star_42.png';
+import view1 from '@/assets/images/view1.png';
+import view2 from '@/assets/images/view2.png';
+import view3 from '@/assets/images/view3.png';
+import locked from '@/assets/images/locked.png';
 
-// 배지 이미지 캐시
-const badgeImageCache: Record<string, string> = {};
-
-// 배지 이미지를 동적으로 로드하는 함수
-export const getBadgeImage = async (badgeUrl: string): Promise<string> => {
-  if (badgeImageCache[badgeUrl]) {
-    return badgeImageCache[badgeUrl];
-  }
-
-  const importFn = badgeImages[badgeUrl];
-  if (importFn) {
-    try {
-      const module = await importFn();
-      badgeImageCache[badgeUrl] = module.default;
-      return module.default;
-    } catch (error) {
-      console.error(`Failed to load badge image: ${badgeUrl}`, error);
-      return '/fallback.png';
-    }
-  }
-  
-  return '/fallback.png';
+// 배지 이미지 매핑
+const badgeImages: Record<string, string> = {
+  'ai_1.png': ai_1,
+  'amumu.png': amumu,
+  'aws_1.png': aws_1,
+  'db_1.png': db_1,
+  'fctmi_1.png': fctmi_1,
+  'first_article.png': first_article,
+  'first_comment.png': first_comment,
+  'followmany.png': followmany,
+  'helloworld.png': helloworld,
+  'like10.png': like10,
+  'like100.png': like100,
+  'like1000.png': like1000,
+  'paris.png': paris,
+  'react.png': react,
+  'spring.png': spring,
+  'star_5.png': star_5,
+  'star_13.png': star_13,
+  'star_42.png': star_42,
+  'view_50.png': view1,
+  'view_100.png': view2,
+  'view_1000.png': view3,
+  'locked.png': locked,
 };
 
 // 배지 모달
@@ -149,7 +149,6 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   const [memberBadges, setMemberBadges] = useState<MemberBadge[]>([]);
   const [isBadgeModalOpen, setIsBadgeModalOpen] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState<SelectedBadge | null>(null);
-  const [badgeImageUrls, setBadgeImageUrls] = useState<Record<string, string>>({});
   
   function getBadgeNameByUrl(allBadges: Badge[], badgeUrl?: string | null): string | undefined {
     if (!badgeUrl) return undefined;
@@ -159,38 +158,6 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
     const hit = allBadges.find(b => (b.badgeUrl.split('/').pop() || b.badgeUrl) === file);
     return hit?.name;
   }
-
-  // 배지 이미지들을 미리 로드
-  useEffect(() => {
-    const loadBadgeImages = async () => {
-      const urls: Record<string, string> = {};
-      
-      for (const badge of allBadges) {
-        try {
-          const url = await getBadgeImage(badge.badgeUrl);
-          urls[badge.badgeUrl] = url;
-        } catch (error) {
-          console.error(`Failed to load badge image: ${badge.badgeUrl}`, error);
-          urls[badge.badgeUrl] = '/fallback.png';
-        }
-      }
-      
-      // locked.png도 로드
-      try {
-        const lockedUrl = await getBadgeImage('locked.png');
-        urls['locked.png'] = lockedUrl;
-      } catch (error) {
-        console.error('Failed to load locked.png', error);
-        urls['locked.png'] = '/fallback.png';
-      }
-      
-      setBadgeImageUrls(urls);
-    };
-
-    if (allBadges.length > 0) {
-      loadBadgeImages();
-    }
-  }, [allBadges]);
 
   useEffect(() => {
     // 내 정보 or 타 유저의 개인 페이지에서만 배지 정보 로드
@@ -214,9 +181,8 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
       if (rep) {
         const meta = allBadges.find((b) => b.badgeId === rep.badgeId);
         if (meta?.badgeUrl) {
-          getBadgeImage(meta.badgeUrl).then(url => {
-            onRepresentativeBadgeChange({ badgeId: rep.badgeId, badgeUrl: url });
-          });
+          const badgeImage = badgeImages[meta.badgeUrl] || '/fallback.png';
+          onRepresentativeBadgeChange({ badgeId: rep.badgeId, badgeUrl: badgeImage });
         } else {
           onRepresentativeBadgeChange({ badgeId: rep.badgeId, badgeUrl: null });
         }
@@ -473,7 +439,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
                     title={canOpenBadgeModal ? badge.name : undefined}
                   >
                     <img
-                      src={hasBadge ? (badgeImageUrls[badge.badgeUrl] || '/fallback.png') : (badgeImageUrls['locked.png'] || '/fallback.png')}
+                      src={hasBadge ? (badgeImages[badge.badgeUrl] || '/fallback.png') : (badgeImages['locked.png'] || '/fallback.png')}
                       alt={badge.name}
                       className="w-20 h-20 mb-2 rounded-lg object-contain"
                     />

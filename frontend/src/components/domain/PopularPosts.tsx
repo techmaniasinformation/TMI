@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { usePopularPosts } from '@/hooks/posts/usePopularPosts';
 import { Card, CardContent } from '@/components/domain/Card';
 import { Button } from '@/components/foundation/button';
@@ -18,19 +18,19 @@ export default function PopularPosts() {
     formatNumber
   } = usePopularPosts();
 
-  // 게시글 클릭 핸들러
-  const handlePostClick = (postId: number) => {
+  // 게시글 클릭 핸들러를 useCallback으로 메모이제이션
+  const handlePostClick = useCallback((postId: number) => {
     navigate(`/post/${postId}`);
-  };
+  }, [navigate]);
 
   // 이미지 로딩 상태 관리
   const [loadedPosts, setLoadedPosts] = useState<Set<number>>(new Set());
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-  // 이미지 로드 완료 시 호출되는 함수
-  const handleImageLoad = (postId: number) => {
+  // 이미지 로드 완료 시 호출되는 함수를 useCallback으로 메모이제이션
+  const handleImageLoad = useCallback((postId: number) => {
     setLoadedPosts(prev => new Set([...Array.from(prev), postId]));
-  };
+  }, []);
 
   // 로딩 상태나 게시글이 변경될 때 로딩 상태 초기화
   useEffect(() => {

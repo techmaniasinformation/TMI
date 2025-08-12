@@ -422,7 +422,7 @@ const PostEditPage: React.FC = () => {
                 <img
                   src={imagePreview}
                   alt="업로드된 이미지"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                   style={{ objectPosition: 'center' }}
                 />
               ) : (

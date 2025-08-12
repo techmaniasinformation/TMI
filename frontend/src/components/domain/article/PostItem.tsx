@@ -42,7 +42,7 @@ export const PostItem: React.FC<PostItemProps> = ({
           <img
             src={safeProfileUrl}
             alt={post.name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain"
           />
         </div>
         
@@ -88,7 +88,7 @@ export const PostItem: React.FC<PostItemProps> = ({
             <img
               src={safeThumbnailUrl}
               alt={post.title}
-              className="w-full h-full object-cover rounded-lg"
+              className="w-full h-full object-contain rounded-lg"
             />
           </div>
         )}

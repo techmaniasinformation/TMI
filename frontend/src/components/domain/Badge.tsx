@@ -41,7 +41,7 @@ function Badge({ className, variant, imgSrc, imgAlt,  ...props }: BadgeProps) {
         <img
           src={imgSrc}
           
-          className="w-5 h-5 rounded-full object-cover"
+          className="w-5 h-5 rounded-full object-contain"
           />
     )}
 

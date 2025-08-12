@@ -21,7 +21,7 @@ const FollowUserCard: React.FC<FollowUserCardProps> = ({ id, nickname, image, ba
         src={image || DefaultUserImage}
         alt={nickname}
         onError={(e) => { e.currentTarget.src = DefaultUserImage; }}
-        className="w-16 h-16 rounded-full object-cover"
+        className="w-16 h-16 rounded-full object-contain"
       />
 
       <div>

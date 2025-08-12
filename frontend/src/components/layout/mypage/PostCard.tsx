@@ -39,7 +39,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, onClick }) => {
           src={getSafeThumbnailUrl(thumbnail)}
           alt={title}
           onError={handleImageError}
-          className="max-w-full max-h-full object-contain rounded-xl"
+          className="w-full h-full object-contain rounded-xl"
         />
       </div>
 

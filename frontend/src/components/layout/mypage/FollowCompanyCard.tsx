@@ -23,7 +23,7 @@ const FollowCompanyCard: React.FC<FollowCompanyCardProps> = ({ id, name, image, 
         src={image || DefaultCompanyImage}
         alt={name}
         onError={handleImageError}
-        className="w-16 h-16 rounded-lg object-cover"
+        className="w-16 h-16 rounded-lg object-contain"
       />
       <span className="font-medium text-gray-900">{name}</span>
     </div>

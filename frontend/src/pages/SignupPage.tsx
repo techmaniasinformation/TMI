@@ -129,7 +129,7 @@ const SignupPage: React.FC<SignupPageProps> = () => {
                 <img
                   src={formData.memberProfileUrl}
                   alt='Profile'
-                  className='w-full h-full object-cover object-top'
+                  className='w-full h-full object-contain object-top'
                 />
               ) : (
                 <div className='w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-purple-100'>

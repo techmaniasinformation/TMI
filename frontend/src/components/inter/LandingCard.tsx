@@ -23,8 +23,8 @@ const cardVariants = cva(
 );
 
 interface LandingCardProps extends VariantProps<typeof cardVariants> {
-  postId: number;
-  memberProfileUrl?: string | null;
+  postId: string;
+  memberProfile?: string | null;
   companyProfileUrl?: string | null;
   name: string;
   badgeUrl?: string | null;
@@ -43,7 +43,7 @@ interface LandingCardProps extends VariantProps<typeof cardVariants> {
 
 const LandingCard: React.FC<LandingCardProps> = ({
   postId,
-  memberProfileUrl,
+  memberProfile,
   companyProfileUrl,
   name,
   badgeUrl,
@@ -60,7 +60,7 @@ const LandingCard: React.FC<LandingCardProps> = ({
   variant,
   onClick,
 }) => {
-  const profileUrl = memberProfileUrl || companyProfileUrl;
+  const profileUrl = memberProfile || companyProfileUrl;
 
   return (
     <div

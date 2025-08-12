@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '@/stores/userStore';
 
 export const useSignup = () => {
-  const location = useLocation();
   const navigate = useNavigate();
   const {
     socialProvider,
@@ -17,10 +16,11 @@ export const useSignup = () => {
     provider: socialProvider || '',
     providerMemberId: socialProviderId || '',
     nickname: '',
-    memberProfileUrl: '', // This will hold the preview URL
   });
-
+  
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
+
   const isFormValid = !!formData.nickname.trim();
 
   const [isNicknameChecked, setIsNicknameChecked] = useState(false);
@@ -28,14 +28,14 @@ export const useSignup = () => {
   const [isCheckingNickname, setIsCheckingNickname] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Cleanup object URL
   useEffect(() => {
+    // 컴포넌트 언마운트 시 생성된 Object URL 해제
     return () => {
-      if (formData.memberProfileUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(formData.memberProfileUrl);
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
       }
     };
-  }, [formData.memberProfileUrl]);
+  }, [imagePreview]);
 
   const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -47,29 +47,35 @@ export const useSignup = () => {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Revoke previous object URL to prevent memory leaks
-      if (formData.memberProfileUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(formData.memberProfileUrl);
+      // Revoke previous object URL if it exists
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
       }
-      const previewUrl = URL.createObjectURL(file);
-      setFormData((prev) => ({ ...prev, memberProfileUrl: previewUrl }));
       setImageFile(file);
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
     }
   };
 
   const handleNicknameCheck = async () => {
     const nickname = formData.nickname.trim();
-    if (!nickname) return;
-    if (nickname.length > 8) {
-      alert('닉네임은 최대 8자까지 가능합니다.');
+    if (!nickname || nickname.length > 8) {
+      alert('닉네임은 1자 이상 8자 이하로 입력해주세요.');
       return;
     }
     setIsCheckingNickname(true);
     try {
       const res = await fetch(
-        `https://i13a509.p.ssafy.io/api/v1/member/duplicate?nickname=${encodeURIComponent(nickname)}`
+        `https://i13a509.p.ssafy.io/api/v1/member/duplicate?nickname=${encodeURIComponent(formData.nickname)}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
       );
       if (!res.ok) throw new Error('닉네임 확인 요청 실패');
+      
       const json = await res.json();
       setIsNicknameChecked(true);
       setIsNicknameTaken(json.data.isDuplicated);
@@ -84,52 +90,46 @@ export const useSignup = () => {
     if (!isFormValid || !isNicknameChecked || isNicknameTaken) return;
 
     setIsSubmitting(true);
-
-    const signupData = new FormData();
-    const requestDto = {
-        provider: formData.provider,
-        providerMemberId: formData.providerMemberId,
-        nickname: formData.nickname,
-      };
-  
-      const json = JSON.stringify(requestDto);
-      const blob = new Blob([json], { type: "application/json" });
-  
-      signupData.append('req', blob); 
+    
+    const apiFormData = new FormData();
+    
+    const signupRequest = {
+      provider: formData.provider,
+      providerMemberId: formData.providerMemberId,
+      nickname: formData.nickname,
+    };
+    apiFormData.append('signupRequest', new Blob([JSON.stringify(signupRequest)], { type: 'application/json' }));
 
     if (imageFile) {
-        signupData.append('profileImage', imageFile); 
+      apiFormData.append('profileImage', imageFile);
     }
 
     try {
       const res = await fetch('https://i13a509.p.ssafy.io/api/v1/member/signup', {
         method: 'POST',
         credentials: 'include',
-        body: signupData,
+        body: apiFormData,
       });
 
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || '회원가입 요청 실패');
+        throw new Error('회원가입 요청 실패');
       }
 
       const data = await res.json();
       console.log('회원가입 성공:', data);
 
       if (data.data && data.data.memberId) {
-        const { memberId, nickname, memberProfileUrl } = data.data;
-        const user = { memberId, nickname, memberProfileUrl: memberProfileUrl || '' };
-        setUser(user);
-        console.log('회원가입 후 전역변수 저장 완료:', { user });
+        setUser(data.data);
+        console.log('회원가입 후 전역변수 저장 완료:', data.data);
       }
 
       clearSocialLoginInfo();
       alert('회원가입이 완료되었습니다!');
       navigate(prevPath || '/');
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('회원가입 실패:', error);
-      alert(error.message || '회원가입에 실패했습니다. 다시 시도해주세요.');
+      alert('회원가입에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setIsSubmitting(false);
     }
@@ -137,6 +137,7 @@ export const useSignup = () => {
 
   return {
     formData,
+    imagePreview,
     isFormValid,
     isNicknameChecked,
     isNicknameTaken,

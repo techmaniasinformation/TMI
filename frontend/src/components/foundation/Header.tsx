@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/utils/utils';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
@@ -56,8 +56,8 @@ const Header: React.FC<HeaderProps> = ({
   // 로그인 여부
   const isAuthenticated = memberId !== -1;
 
-  // 로그아웃 함수.
-  const handleLogOut = async () => {
+  // 로그아웃 함수를 useCallback으로 메모이제이션
+  const handleLogOut = useCallback(async () => {
     try {
       const response = await fetch(
         `https://i13a509.p.ssafy.io/api/v1/auth/logout/${memberId}`,
@@ -102,24 +102,26 @@ const Header: React.FC<HeaderProps> = ({
 
       navigate(prevPath);
     }
-  };
+  }, [memberId, setMemberId, clearUser, setStarLst, setFollowUser, setFollowCompany, clearSocialLoginInfo, navigate, prevPath, setPrevPath]);
 
-  const addToRecentSearches = (term: string) => {
+  // 최근 검색어 추가 함수를 useCallback으로 메모이제이션
+  const addToRecentSearches = useCallback((term: string) => {
     setRecentSearches((prev) =>
       [term, ...prev.filter((item) => item !== term)].slice(0, 5)
     );
-  };
+  }, []);
 
-  const removeFromRecentSearches = (term: string) => {
+  // 최근 검색어 제거 함수를 useCallback으로 메모이제이션
+  const removeFromRecentSearches = useCallback((term: string) => {
     if (term === '') {
       setRecentSearches([]);
     } else {
       setRecentSearches((prev) => prev.filter((item) => item !== term));
     }
-  };
+  }, []);
 
-  // ✅ 게시글 작성 버튼 클릭시 로그인 여부에 따라 반응
-  const handleWritePost = () => {
+  // 게시글 작성 버튼 클릭 핸들러를 useCallback으로 메모이제이션
+  const handleWritePost = useCallback(() => {
     if (!isAuthenticated) {
       setPrevPath('/post/create'); // 로그인 완료하면 게시글 작성으로 이동하게
       console.log('prevPath', prevPath);
@@ -128,7 +130,19 @@ const Header: React.FC<HeaderProps> = ({
     } else {
       navigate('/post/create'); // 게시글 작성 페이지로 이동 (예: /write)
     }
-  };
+  }, [isAuthenticated, setPrevPath, prevPath, navigate]);
+
+  // 프로필 메뉴 토글 핸들러를 useCallback으로 메모이제이션
+  const handleProfileMenuToggle = useCallback(() => {
+    setShowProfileMenu(!showProfileMenu);
+  }, [showProfileMenu]);
+
+  // 로그인 페이지 이동 핸들러를 useCallback으로 메모이제이션
+  const handleLoginClick = useCallback(() => {
+    if (location.pathname !== '/login') {
+      setPrevPath(location.pathname + location.search);
+    }
+  }, [location.pathname, location.search, setPrevPath]);
 
   // variant에 따른 텍스트 색상 정의
   const textColor =
@@ -172,7 +186,7 @@ const Header: React.FC<HeaderProps> = ({
               <div className='relative flex'>
                 {/* 프로필 */}
                 <button
-                  onClick={() => setShowProfileMenu(!showProfileMenu)}
+                  onClick={handleProfileMenuToggle}
                   className={cn(
                     'relative flex items-center space-x-2 p-2 rounded-lg',
                     textColor,
@@ -264,11 +278,7 @@ const Header: React.FC<HeaderProps> = ({
               <div className='flex items-center space-x-2'>
                 <Link
                   to='/login'
-                  onClick={() => {
-                    if (location.pathname !== '/login') {
-                      setPrevPath(location.pathname + location.search);
-                    }
-                  }}
+                  onClick={handleLoginClick}
                   className='px-4 py-2 text-sm hover:font-bold'
                 >
                   로그인/회원가입

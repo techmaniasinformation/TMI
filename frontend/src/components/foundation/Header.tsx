@@ -78,12 +78,13 @@ const Header: React.FC<HeaderProps> = ({
 
       // 프로필 메뉴 닫기
       setShowProfileMenu(false);
+      setPrevPath(window.location.pathname + window.location.search);
+      console.log(prevPath);
+      navigate(prevPath);
 
       console.log('로그아웃 완료 - 모든 전역변수 정리됨');
       alert('로그아웃 되었습니다.');
 
-      // 홈페이지로 리다이렉트
-      navigate('/');
     } catch (error) {
       console.error('로그아웃 중 오류:', error);
 

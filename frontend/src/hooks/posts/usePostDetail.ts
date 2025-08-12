@@ -122,18 +122,34 @@ export const useStar = (postId: string) => {
   const [isStarLoading, setIsStarLoading] = useState(false);
   const [starId, setStarId] = useState<number | null>(null);
 
+  // starIdMap이 Map 객체인지 확인하는 안전한 getter
+  const getStarId = useCallback((postId: string): number | null => {
+    try {
+      if (starIdMap instanceof Map) {
+        return starIdMap.get(postId) || null;
+      }
+      // starIdMap이 Map이 아닌 경우 (예: 배열이나 객체로 직렬화된 경우)
+      if (Array.isArray(starIdMap)) {
+        const entry = (starIdMap as any[]).find(([key]: [string, number]) => key === postId);
+        return entry ? entry[1] : null;
+      }
+      if (typeof starIdMap === 'object' && starIdMap !== null) {
+        return (starIdMap as any)[postId] || null;
+      }
+      return null;
+    } catch (error) {
+      return null;
+    }
+  }, [starIdMap]);
+
   // 전역 상태에서 스타 상태 확인
   useEffect(() => {
-    console.log(`🔄 [useStar] 전역 상태 확인 - postId: ${postId}`);
-    
     const localIsStarred = starLst.includes(postId);
-    const localStarId = starIdMap.get(postId);
+    const localStarId = getStarId(postId);
     
     setIsStarred(localIsStarred);
-    setStarId(localStarId || null);
-    
-    console.log(`🔍 [useStar] 전역 상태 확인 결과 - postId: ${postId}, isStarred: ${localIsStarred}, starId: ${localStarId}`);
-  }, [postId, starLst, starIdMap]);
+    setStarId(localStarId);
+  }, [postId, starLst, getStarId]);
 
   // 스타 토글
   const toggleStar = useCallback(async () => {
@@ -144,27 +160,20 @@ export const useStar = (postId: string) => {
       return;
     }
 
-    console.log(`🔄 [useStar] 스타 토글 시작 - postId: ${postId}, 현재 상태: ${isStarred}, starId: ${starId}`);
-
     setIsStarLoading(true);
     try {
       if (isStarred) {
         // 스타 취소
         if (!starId) {
-          console.error('❌ [useStar] starId가 없습니다. postId:', postId);
           alert('스타 정보를 찾을 수 없습니다.');
           return;
         }
 
-        console.log(`🗑️ [useStar] 스타 취소 요청 - starId: ${starId}`);
         const removeResult = await removeStar(starId);
 
         if (!removeResult.success) {
-          console.error('❌ [useStar] 스타 취소 실패:', removeResult.error);
           throw new Error(removeResult.error || '스타 취소 실패');
         }
-
-        console.log(`✅ [useStar] 스타 취소 성공 - starId: ${starId}`);
 
         // 전역 상태 업데이트
         const newStarLst = starLst.filter((id: string) => id !== postId);
@@ -178,22 +187,17 @@ export const useStar = (postId: string) => {
         alert('스타를 취소했습니다');
       } else {
         // 스타 추가
-        console.log(`⭐ [useStar] 스타 추가 요청 - postId: ${postId}`);
         const addResult = await addStar(user.memberId, postId);
 
         if (!addResult.success) {
-          console.error('❌ [useStar] 스타 추가 실패:', addResult.error);
           throw new Error(addResult.error || '스타 추가 실패');
         }
-
-        console.log(`✅ [useStar] 스타 추가 성공 - 응답:`, addResult.data);
         
         // 전역 상태 업데이트
         const newStarLst = [...starLst, postId];
         setStarLst(newStarLst);
         
         if (addResult.starId) {
-          console.log(`💾 [useStar] starId 저장 - postId: ${postId}, starId: ${addResult.starId}`);
           setStarId(addResult.starId);
           addStarId(postId, addResult.starId);
         }
@@ -204,12 +208,11 @@ export const useStar = (postId: string) => {
         alert('스타했습니다');
       }
     } catch (err) {
-      console.error('❌ [useStar] 스타 요청 실패:', err);
       alert('스타 요청에 실패했습니다.');
     } finally {
       setIsStarLoading(false);
     }
-  }, [isStarred, starId, user?.memberId, postId, starLst, setStarLst, addStarId, removeStarId, isStarLoading, starIdMap]);
+  }, [isStarred, starId, user?.memberId, postId, starLst, setStarLst, addStarId, removeStarId, isStarLoading]);
 
   return {
     isStarred,
@@ -244,7 +247,13 @@ export const useFollow = (postData: PostDetail | null) => {
 
   // 팔로우 토글
   const toggleFollow = useCallback(async () => {
-    if (!postData || !user?.memberId) {
+    if (!postData) {
+      alert('게시글 정보를 찾을 수 없습니다.');
+      return;
+    }
+    
+    // 로그인 상태 확인을 더 엄격하게 체크
+    if (!user || !user.memberId || user.memberId <= 0) {
       alert('로그인이 필요합니다.');
       return;
     }
@@ -367,7 +376,7 @@ export const useFollow = (postData: PostDetail | null) => {
       console.error('❌ [useFollow] 팔로우 요청 실패:', err);
       alert('팔로우 요청에 실패했습니다.');
     }
-  }, [isFollowing, postData, user?.memberId, followUser, followCompany, setFollowUser, setFollowCompany, memberFollowId, companyFollowId]);
+  }, [isFollowing, postData, user, followUser, followCompany, setFollowUser, setFollowCompany, memberFollowId, companyFollowId]);
 
   return {
     isFollowing,
@@ -444,7 +453,7 @@ export const useComments = (postId: string) => {
         setUserRecommendations(recommendationMap);
       }
     } catch (err) {
-      console.error('❌ [useComments] 댓글 추천 상태 확인 실패:', err);
+      // 에러 무시
     }
   }, [user?.memberId, postId]);
 
@@ -460,8 +469,8 @@ export const useComments = (postId: string) => {
       return;
     }
     
-    const currentUserId = user?.memberId;
-    if (!currentUserId || currentUserId <= 0) {
+    // 로그인 상태 확인을 더 엄격하게 체크
+    if (!user || !user.memberId || user.memberId <= 0) {
       alert('로그인이 필요합니다.');
       return;
     }
@@ -476,7 +485,7 @@ export const useComments = (postId: string) => {
         credentials: 'include',
         body: JSON.stringify({
           postId: postId,
-          memberId: currentUserId,
+          memberId: user.memberId,
           comment: commentText,
           link: linkUrl || null
         })
@@ -498,11 +507,12 @@ export const useComments = (postId: string) => {
     } finally {
       setCommentLoading(false);
     }
-  }, [commentText, postId, user?.memberId, linkUrl, fetchComments]);
+  }, [commentText, postId, user, linkUrl, fetchComments]);
 
   // 댓글 추천
   const toggleCommentRecommend = useCallback(async (commentId: number) => {
-    if (!user?.memberId) {
+    // 로그인 상태 확인을 더 엄격하게 체크
+    if (!user || !user.memberId || user.memberId <= 0) {
       alert('로그인이 필요합니다.');
       return;
     }
@@ -592,7 +602,7 @@ export const useComments = (postId: string) => {
         return newMap;
       });
     }
-  }, [user?.memberId, userRecommendations, recommendLoading]);
+  }, [user, userRecommendations, recommendLoading]);
 
   return {
     comments,

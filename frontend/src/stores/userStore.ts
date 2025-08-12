@@ -60,7 +60,7 @@ interface UserState {
 
 export const useUserStore = create(
   persist<UserState>(
-    (set) => ({
+    (set, get) => ({
       isLogin: false, // 기능 수정 후 isLogin 변수 삭제 예정
       user: null,
       newUser: null, // 신규 회원 정보

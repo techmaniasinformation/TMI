@@ -78,6 +78,9 @@ const Header: React.FC<HeaderProps> = ({
 
       // 프로필 메뉴 닫기
       setShowProfileMenu(false);
+      setPrevPath(window.location.pathname + window.location.search);
+
+      navigate(prevPath);
 
       console.log('로그아웃 완료 - 모든 전역변수 정리됨');
       alert('로그아웃 되었습니다.');

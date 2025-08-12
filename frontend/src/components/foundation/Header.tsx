@@ -34,10 +34,8 @@ const Header: React.FC<HeaderProps> = ({
   size = 'default',
 }) => {
   const {
-    memberId,
     user,
     prevPath,
-    setMemberId,
     setUser,
     clearUser,
     setStarLst,
@@ -54,13 +52,13 @@ const Header: React.FC<HeaderProps> = ({
   const location = useLocation();
 
   // 로그인 여부
-  const isAuthenticated = memberId !== -1;
+  const isAuthenticated = !!user;
 
   // 로그아웃 함수를 useCallback으로 메모이제이션
   const handleLogOut = useCallback(async () => {
     try {
       const response = await fetch(
-        `https://i13a509.p.ssafy.io/api/v1/auth/logout/${memberId}`,
+        `https://i13a509.p.ssafy.io/api/v1/auth/logout/${user?.memberId}`,
         {
           method: 'POST',
           credentials: 'include',
@@ -69,7 +67,6 @@ const Header: React.FC<HeaderProps> = ({
 
       // 서버 응답과 관계없이 클라이언트 상태 정리
       // 모든 전역변수 초기화
-      setMemberId(-1);
       clearUser();
       setStarLst([]);
       setFollowUser([]);
@@ -90,7 +87,6 @@ const Header: React.FC<HeaderProps> = ({
 
       // 서버 오류가 있어도 클라이언트 상태는 정리
       clearUser();
-      setMemberId(-1);
       setStarLst([]);
       setFollowUser([]);
       setFollowCompany([]);
@@ -103,7 +99,7 @@ const Header: React.FC<HeaderProps> = ({
 
       navigate(prevPath);
     }
-  }, [memberId, setMemberId, clearUser, setStarLst, setFollowUser, setFollowCompany, clearSocialLoginInfo, navigate, prevPath, setPrevPath]);
+  }, [user?.memberId, clearUser, setStarLst, setFollowUser, setFollowCompany, clearSocialLoginInfo, navigate, prevPath, setPrevPath]);
 
   // 최근 검색어 추가 함수를 useCallback으로 메모이제이션
   const addToRecentSearches = useCallback((term: string) => {

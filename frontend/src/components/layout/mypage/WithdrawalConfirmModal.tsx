@@ -21,22 +21,21 @@ export default function WithdrawalConfirmModal({
 }: WithdrawalConfirmModalProps) {
   const navigate = useNavigate();
   const {
-    memberId, clearUser, setMemberId, setStarLst, setFollowUser, setFollowCompany, clearSocialLoginInfo,
+    user, clearUser, setStarLst, setFollowUser, setFollowCompany, clearSocialLoginInfo,
   } = useUserStore();
 
   if (!isOpen) return null;
 
   const bestEffortLogout = async () => {
     try {
-      if (memberId && memberId > 0) {
-        await fetch(`https://i13a509.p.ssafy.io/api/v1/auth/logout/${memberId}`, {
+      if (user?.memberId && user.memberId > 0) {
+        await fetch(`https://i13a509.p.ssafy.io/api/v1/auth/logout/${user.memberId}`, {
           method: 'POST',
           credentials: 'include',
         }).catch(() => null);
       }
     } catch {}
     try {
-      setMemberId(-1);
       clearUser();
       setStarLst([]);
       setFollowUser([]);

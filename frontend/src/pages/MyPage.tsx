@@ -69,8 +69,8 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
   const { user } = useUserStore();
   const myId = user?.memberId;
 
-  // 내 페이지 여부 계산 (id 없는 라우트도 고려)
-  const isMyPage = routeId > 0 ? (myId > 0 && myId === routeId) : myId > 0;  // ✅ 가드
+  // 내 페이지 여부 계산
+  const isMyPage = !!(myId && myId > 0 && myId === routeId);
 
   // 초기 탭
   const [activeTab, setActiveTab] = useState<MyTab>('profile');

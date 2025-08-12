@@ -49,9 +49,7 @@ export default function ProfileHeader({
   // ✅ 로그인 사용자 id (store에서 읽기)
   const {
     user,
-    memberId,
     // ▼ 로그아웃 시 상태 정리용
-    setMemberId,
     clearUser,
     setStarLst,
     setFollowUser,
@@ -59,10 +57,10 @@ export default function ProfileHeader({
     clearSocialLoginInfo,
   } = useUserStore();
 
-  const myId = user?.memberId ?? memberId;
+  const myId = user?.memberId;
 
   // ✅ 최종 조회 대상: 내 페이지면 내 id, 아니면 URL id
-  const targetId = isMyPage && myId > 0 ? myId : routeId;
+  const targetId = isMyPage && myId && myId > 0 ? myId : routeId;
 
   const [showWithdrawalConfirm, setShowWithdrawalConfirm] = useState(false);
   const [showWithdrawalComplete, setShowWithdrawalComplete] = useState(false);
@@ -146,7 +144,6 @@ export default function ProfileHeader({
       }
       // 전역/로컬 정리
       try {
-        setMemberId(-1);
         clearUser();
         setStarLst([]);
         setFollowUser([]);

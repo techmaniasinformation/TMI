@@ -28,7 +28,7 @@ export async function updateMemberProfile(
   body: UpdateMemberRequest
 ): Promise<number> {
   const res = await fetch(`https://i13a509.p.ssafy.io/api/v1/member/${memberId}`, {
-    method: "PUT",
+    method: "PATCH",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
     body: JSON.stringify(body),

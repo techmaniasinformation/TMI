@@ -141,66 +141,68 @@ const PostCreatePage: React.FC = () => {
 
 
      const handleSave = async () => {
-     if (!linkUrl || !title) {
-       alert('링크 URL과 제목을 입력해주세요.');
-       return;
-     }
+    if (!linkUrl || !title) {
+      alert('링크 URL과 제목을 입력해주세요.');
+      return;
+    }
 
-     setIsLoading(true);
-     
-     try {
-       const processedUrl = processAndValidateUrl(linkUrl);
-       if (!processedUrl) {
-         setIsLoading(false);
-         return;
-       }
-       
-       // FormData 생성
-       const formData = new FormData();
-       
-       // JSON 데이터를 req 필드에 추가
-       // JSON 데이터를 req 필드에 추가
+    // 사용자 정보 확인
+    if (!user?.memberId) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      const processedUrl = processAndValidateUrl(linkUrl);
+      if (!processedUrl) {
+        setIsLoading(false);
+        return;
+      }
+      
+      // FormData 생성
+      const formData = new FormData();
+      
+      // 포스트맨과 동일한 구조로 JSON 데이터 생성
       const requestData = {
-         memberId: user?.memberId,
-         link: processedUrl,
-         title: title,
-         thumbnailUrl: selectedImage ? '' : imagePreview || '',
-         content: content,
-         tags: tags // 배열 그대로 전송
-       };
+        memberId: user.memberId, // null 체크 후 사용
+        link: processedUrl,
+        title: title,
+        content: content,
+        tags: tags
+        // thumbnailUrl 필드 제거 (서버에서 요구하지 않음)
+      };
       
       const blob = new Blob([JSON.stringify(requestData)], { type: 'application/json' });
       formData.append('req', blob);
       
-      // 이미지가 선택된 경우 FormData에 추가
+      // 이미지가 선택된 경우 FormData에 추가 (필드명 확인 필요)
       if (selectedImage) {
-        formData.append('thumbnail', selectedImage);
+        formData.append('thumbnailImage', selectedImage); // 'thumbnail' -> 'thumbnailImage'로 변경
       }
 
-             console.log('전송할 FormData:', {
-         memberId: user?.memberId || 1,
-         link: processedUrl,
-         title: title,
-         content: content,
-         tags: tags,
-         hasImage: !!selectedImage
-       });
+      console.log('전송할 FormData:', {
+        memberId: user.memberId,
+        link: processedUrl,
+        title: title,
+        content: content,
+        tags: tags,
+        hasImage: !!selectedImage
+      });
 
       // API 호출 - FormData 사용
       console.log('🔍 [PostCreatePage] API 요청 시작:', {
         url: 'https://i13a509.p.ssafy.io/api/v1/post',
         method: 'POST',
         hasFormData: !!formData,
-        userInfo: user ? { memberId: user.memberId, nickname: user.nickname } : 'No user'
+        userInfo: { memberId: user.memberId, nickname: user.nickname }
       });
       
       const response = await fetch('https://i13a509.p.ssafy.io/api/v1/post', {
         method: 'POST',
         credentials: 'include', // 쿠키 자동 전송
-        headers: {
-          // Authorization 헤더 추가 (토큰이 있는 경우)
-          // TODO: 실제 토큰 관리 방식에 맞게 수정 필요
-        },
         body: formData // Content-Type은 브라우저가 자동으로 설정
       });
       
@@ -221,19 +223,18 @@ const PostCreatePage: React.FC = () => {
         throw new Error(`게시글 작성에 실패했습니다. (${response.status}: ${response.statusText})`);
       }
 
-             const result = await response.json();
-       console.log('게시글 작성 응답:', result);
+      const result = await response.json();
+      console.log('게시글 작성 응답:', result);
 
-       
-       alert('게시글이 작성되었습니다!');
-       
-       // 저장 완료 후 상세 페이지로 이동 - 응답에서 받은 게시글 ID 사용
-       if (result.data && result.data.postId) {
-         navigate(`/post/${result.data.postId}`);
-       } else {
-         navigate('/'); // ID가 없으면 홈으로 이동
-       }
+      alert('게시글이 작성되었습니다!');
       
+      // 저장 완료 후 상세 페이지로 이동 - 응답에서 받은 게시글 ID 사용
+      if (result.data && result.data.postId) {
+        navigate(`/post/${result.data.postId}`);
+      } else {
+        navigate('/'); // ID가 없으면 홈으로 이동
+      }
+    
     } catch (error) {
       console.error('저장 실패:', error);
       alert('게시글 작성에 실패했습니다.');
@@ -254,26 +255,18 @@ const PostCreatePage: React.FC = () => {
         return;
       }
 
+      // 파일 크기 체크 (1MB = 1024 * 1024 bytes)
+      const maxSize = 1024 * 1024; // 1MB
+      if (file.size > maxSize) {
+        alert('파일 크기는 1MB 이하여야 합니다.');
+        fileInput.value = '';
+        return;
+      }
+
       setIsImageProcessing(true);
       try {
-        // 이미지 압축 옵션 - 크롭 방식 최적화
-        const options = {
-          maxSizeMB: 5, // 최대 5MB
-          useWebWorker: true,
-          fileType: 'image/jpeg', // JPEG로 변환
-          // 썸네일 크기에 맞춰 크롭하기 위한 설정 (3:2 비율)
-          maxWidth: 1024,
-          maxHeight: 683 // 1024 * (2/3) ≈ 683 (썸네일 비율과 동일)
-        };
 
-        console.log('원본 이미지 크기:', (file.size / 1024 / 1024).toFixed(2), 'MB');
-        
-        // // 이미지 압축
-        // const compressedFile = await imageCompression(file, options);
-        
-        // console.log('압축된 이미지 크기:', (compressedFile.size / 1024 / 1024).toFixed(2), 'MB');
-        
-        // 압축된 파일을 상태에 저장
+        // 파일을 상태에 저장
         setSelectedImage(file);
         
         // 미리보기 생성

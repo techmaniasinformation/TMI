@@ -6,11 +6,10 @@ import PostList from './article/PostList';
 import ServerPagination from './ServerPagination';
 import { Card, CardContent } from '@/components/domain/Card';
 import { Button } from '@/components/foundation/button';
-import { Post } from '@/types';
-import { PostItem } from '@/components/domain/article/PostItem';
 import { useNavigate } from 'react-router-dom';
 import { getSafeThumbnailUrl } from '@/utils/defaultImages';
 import { PostCardSkeleton } from '@/components/foundation/Skeleton';
+import { FollowSection } from './FollowSection';
 
 // 탭 설정
 const HOME_TABS = [
@@ -33,7 +32,8 @@ export default function HomePostList() {
     setActiveTab,
     setCurrentPage,
     formatDate,
-    formatNumber
+    formatNumber,
+    isLoggedIn
   } = usePostsList();
 
   // 게시글 클릭 핸들러
@@ -63,8 +63,8 @@ export default function HomePostList() {
     }
   }, [loading, posts, isInitialLoad]);
 
-  // 로딩 중일 때 스켈레톤 표시
-  if (loading) {
+  // 로딩 중일 때 스켈레톤 표시 (팔로우 탭에서 로그인하지 않았을 때는 제외)
+  if (loading && !(activeTab === 'following' && !isLoggedIn)) {
     return (
       <div className="space-y-4">
         {[1, 2, 3, 4, 5].map((index) => (
@@ -122,19 +122,10 @@ export default function HomePostList() {
             <div className="space-y-3">
               <Button 
                 onClick={() => navigate('/login')}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg mr-3"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
               >
                 <i className="fas fa-sign-in-alt mr-2"></i>
                 로그인
-              </Button>
-              
-              <Button 
-                onClick={() => setActiveTab('latest')}
-                variant="outline"
-                className="border-gray-300 text-gray-700 hover:bg-gray-50 px-6 py-2 rounded-lg"
-              >
-                <i className="fas fa-clock mr-2"></i>
-                최신순으로 보기
               </Button>
             </div>
           </div>
@@ -167,13 +158,44 @@ export default function HomePostList() {
         </div>
       )}
 
-      {/* 팔로우 탭이고 로그인이 필요한 경우 */}
-      {activeTab === 'following' && !posts.length && (
-        renderLoginRequiredCard()
+      {/* 팔로우 탭 UI */}
+      {activeTab === 'following' && (
+        <div>
+          {!isLoggedIn ? (
+            // 로그인하지 않은 경우 로그인 안내
+            renderLoginRequiredCard()
+          ) : (
+            // 팔로우한 모든 사람들의 게시글 목록
+            <div>
+              <div className="mb-6">
+                <h2 className="text-xl font-semibold text-gray-900">팔로우한 사용자들의 게시글</h2>
+                <p className="text-gray-500 mt-1">팔로우한 사용자들의 최신 게시글을 확인할 수 있습니다.</p>
+              </div>
+              
+              {posts.length > 0 ? (
+                <PostList
+                  posts={posts}
+                  formatDate={formatDate}
+                  formatNumber={formatNumber}
+                  onPostClick={handlePostClick}
+                  showThumbnail={true}
+                  maxTags={5}
+                  className="mb-8"
+                />
+              ) : (
+                <div className="text-center py-12">
+                  <i className="fas fa-file-alt text-6xl text-gray-300 mb-4"></i>
+                  <h3 className="text-lg font-semibold text-gray-600 mb-2">팔로우한 사용자의 게시글이 없습니다</h3>
+                  <p className="text-gray-500">팔로우한 사용자들이 아직 게시글을 작성하지 않았습니다.</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       )}
 
-      {/* 게시글 목록 */}
-      {posts.length > 0 && (
+      {/* 최신순 탭 게시글 목록 */}
+      {activeTab === 'latest' && posts.length > 0 && (
         <PostList
           posts={posts}
           formatDate={formatDate}
@@ -185,8 +207,8 @@ export default function HomePostList() {
         />
       )}
 
-      {/* 페이지네이션 */}
-      {totalPages > 1 && (
+      {/* 페이지네이션 - 최신순 탭이거나 팔로우 탭일 때만 */}
+      {totalPages > 1 && (activeTab === 'latest' || activeTab === 'following') && (
         <ServerPagination
           currentPage={currentPage}
           totalCount={totalElements}

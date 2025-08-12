@@ -83,6 +83,8 @@ export const useUserStore = create(
         set({ socialProvider: provider, socialProviderId: providerId }),
       clearSocialLoginInfo: () => set({ socialProvider: null, socialProviderId: null }),
 
+
+
       // 지울 예정
       checkAuth: async () => {
         // ✅ (임시)
@@ -122,8 +124,4 @@ export const useUserStore = create(
   )
 );
 
-// ✅ 브라우저 콘솔 디버깅용: 전역 노출
-// 개발 완료 후 삭제해야함
-if (typeof window !== 'undefined') {
-  (window as any).userStore = useUserStore;
-}
+

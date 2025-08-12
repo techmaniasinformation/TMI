@@ -22,13 +22,7 @@ export default function TagArea({
   searchTechTags = [],
   searchCompanyTags = []
 }: TagAreaProps) {
-  // 디버깅용 로그
-  console.log('🔍 [TagArea] 검색 조건:', {
-    searchKeyword,
-    searchTechTags,
-    searchCompanyTags,
-    tags
-  });
+
   // 태그가 검색 조건과 완전히 일치하는지 확인하는 함수
   const isTagMatched = (tagName: string): boolean => {
     const lowerTagName = tagName.toLowerCase();

@@ -8,6 +8,7 @@ import { PostContent } from "@/components/PostDetail/PostContent";
 import { AuthorInfo } from "@/components/PostDetail/AuthorInfo";
 import { CommentSection } from "@/components/PostDetail/CommentSection";
 import { BestComments } from "@/components/PostDetail/BestComments";
+import { useUserStore } from "@/stores/userStore";
 import { 
   getSafeProfileUrl, 
   getSafeThumbnailUrl, 
@@ -65,6 +66,7 @@ interface CommentResponse {
 const PostDetailPage: React.FC<PostDetailPageProps> = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user, memberId } = useUserStore();
 
   const [isFollowing, setIsFollowing] = useState(false);
   const [isStarred, setIsStarred] = useState(false);
@@ -295,12 +297,13 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
     }
   };
 
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({ title: postData?.title || 'TMI 게시글', url: window.location.href });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
       showToastMessage('링크가 클립보드에 복사되었습니다.');
+    } catch (error) {
+      console.error('링크 복사 실패:', error);
+      showToastMessage('링크 복사에 실패했습니다.');
     }
   };
 
@@ -357,8 +360,14 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
       alert('게시글 ID를 찾을 수 없습니다.');
       return;
     }
-    // TODO: 실제 사용자 정보를 가져오는 로직 구현 필요
-    const mockUserId = 1; // 임시 사용자 ID
+    
+    // 로그인 확인
+    const currentUserId = user?.memberId ?? memberId;
+    if (!currentUserId || currentUserId <= 0) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+      return;
+    }
 
     try {
       const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/comment`, {
@@ -366,9 +375,10 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           postId: postData.postId,
-          memberId: mockUserId,
+          memberId: currentUserId,
           content: newComment,
           link: linkUrl || null
         })

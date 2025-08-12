@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { SearchApiResponse, Post, PageInfo } from '@/types';
+import { useUserStore } from '@/stores/userStore';
 
 interface PostsListState {
   posts: Post[];
@@ -12,20 +13,27 @@ interface PostsListState {
 }
 
 // 실제 API 호출 함수
-const fetchPostsFromAPI = async (params: { page: number; size: number; sort: string }): Promise<SearchApiResponse> => {
-  console.log('🔍 [fetchPostsFromAPI] API 호출 시작:', params);
+const fetchPostsFromAPI = async (params: { page: number; size: number; followMemberId?: number }): Promise<SearchApiResponse> => {
   
-  const { page, size } = params;
-  const apiUrl = `https://i13a509.p.ssafy.io/api/v1/post?page=${page}&size=${size}`;
+  const { page, size, followMemberId } = params;
+  
+  // 팔로우 API와 최신글 API를 명확히 구분
+  let apiUrl: string;
+  if (followMemberId) {
+    // 팔로우 API: /api/v1/post?followMemberId=101&page=1&size=10
+    apiUrl = `https://i13a509.p.ssafy.io/api/v1/post?followMemberId=${followMemberId}&page=${page}&size=${size}`;
+  } else {
+    // 최신글 API: /api/v1/post?page=1&size=10
+    apiUrl = `https://i13a509.p.ssafy.io/api/v1/post?page=${page}&size=${size}`;
+  }
   
   try {
     const response = await fetch(apiUrl, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        // TODO: 실제 인증 토큰이 있다면 추가
-        // 'Authorization': `Bearer ${accessToken}`
-      }
+      },
+      credentials: 'include'
     });
 
     if (!response.ok) {
@@ -34,12 +42,7 @@ const fetchPostsFromAPI = async (params: { page: number; size: number; sort: str
 
     const data: SearchApiResponse = await response.json();
     
-    console.log('✅ [fetchPostsFromAPI] API 호출 성공:', {
-      totalElements: data.data.pageInfo?.totalElements ?? 0,
-      totalPages: data.data.pageInfo?.totalPages ?? 1,
-      currentPage: data.data.pageInfo?.currPage ?? 1,
-      postsCount: data.data.posts.length
-    });
+
 
     return data;
   } catch (error) {
@@ -60,29 +63,28 @@ export const usePostsList = () => {
   });
 
   const [activeTab, setActiveTab] = useState<'latest' | 'following'>('latest');
+  
+  // 로그인 상태 확인
+  const { isLogin, memberId } = useUserStore();
+  const isLoggedIn = isLogin;
 
   // 게시글 목록 가져오기
   const fetchPosts = async (page: number = 1, sort: 'latest' | 'following' = 'latest') => {
     setState(prev => ({ ...prev, loading: true, error: null }));
 
     try {
-      console.log('🔍 [usePostsList] 게시글 목록 가져오기 시작:', { page, sort });
+
       
       // 실제 API에서 데이터 가져오기
       const response: SearchApiResponse = await fetchPostsFromAPI({ 
         page, 
         size: 10, 
-        sort 
+        followMemberId: sort === 'following' ? memberId : undefined
       });
       
       const { posts, pageInfo } = response.data;
 
-      console.log('✅ [usePostsList] 게시글 목록 가져오기 완료:', {
-        totalElements: pageInfo?.totalElements ?? 0,
-        totalPages: pageInfo?.totalPages ?? 1,
-        currentPage: pageInfo?.currPage ?? 1,
-        postsCount: posts.length
-      });
+
 
       setState({
         posts,
@@ -106,16 +108,22 @@ export const usePostsList = () => {
 
   // 컴포넌트 마운트 시 초기 데이터 로드
   useEffect(() => {
+    // 팔로우 탭이고 로그인하지 않았으면 API 호출하지 않음
+    if (activeTab === 'following' && !isLoggedIn) {
+      return;
+    }
     fetchPosts(1, activeTab);
   }, []); // 빈 의존성 배열로 마운트 시 한 번만 실행
 
   // 탭 변경 시 게시글 다시 가져오기
   useEffect(() => {
-    // 초기 로드가 아닌 경우에만 탭 변경 시 API 호출
-    if (state.posts.length > 0) {
-      fetchPosts(1, activeTab);
+    // 팔로우 탭이고 로그인하지 않았으면 게시글 초기화
+    if (activeTab === 'following' && !isLoggedIn) {
+      setState(prev => ({ ...prev, posts: [], loading: false }));
+      return;
     }
-  }, [activeTab]);
+    fetchPosts(1, activeTab);
+  }, [activeTab, isLoggedIn]);
 
   // 페이지 변경 핸들러
   const setCurrentPage = (page: number) => {
@@ -138,6 +146,7 @@ export const usePostsList = () => {
     setActiveTab,
     setCurrentPage,
     formatDate,
-    formatNumber
+    formatNumber,
+    isLoggedIn
   };
 }; 

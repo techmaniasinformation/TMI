@@ -147,7 +147,7 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
     newNickname: string,
     newBlogUrl: string,
     newGithubUrl?: string,
-    newProfileUrl?: string,
+    newProfileUrl?: string | null,
     file?: File | null
   ) => {
     if (!isMyPage || !myId || myId <= 0) {

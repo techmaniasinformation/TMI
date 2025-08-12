@@ -1,4 +1,9 @@
 spring:
+  data:
+    redis:
+      host: redis
+      port: 6379
+      timeout: 2s
   datasource:
     url: ${RDB_URL}
     username: ${RDB_USER}

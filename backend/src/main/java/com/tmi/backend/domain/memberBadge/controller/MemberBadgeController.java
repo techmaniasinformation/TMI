@@ -38,6 +38,7 @@ public class MemberBadgeController implements BaseController {
   public ResponseEntity<ApiResponse<Map<String, Long>>> updateRepresentative(
       @PathVariable Long memberBadgeId
   ) {
+
     return handle(memberBadgeService.updateRepresentative(memberBadgeId));
   }
 }

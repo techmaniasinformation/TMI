@@ -21,6 +21,7 @@ const useSocialLogin = () => {
     prevPath,
     isLogin,
     user,
+    setStarIdMap,
   } = useUserStore();
 
   // 이전 경로 함께 전달하는 소셜 로그인
@@ -127,9 +128,17 @@ const useSocialLogin = () => {
             return res.json();
           })
           .then((response) => {
-            const starIdLst = response.data.stars.map((item: any) => item.starId);
-            setStarLst(starIdLst);
-            console.log('⭐️ 로그인 시 스타 게시글 목록:', starIdLst);
+            // starLst에는 postId를 저장, starIdMap에는 postId -> starId 매핑 저장
+            const postIds = response.data.stars.map((item: any) => item.postId);
+            const starIdMap = new Map();
+            response.data.stars.forEach((item: any) => {
+              starIdMap.set(item.postId, item.starId);
+            });
+            
+            setStarLst(postIds);
+            setStarIdMap(starIdMap);
+            console.log('⭐️ 로그인 시 스타 게시글 목록:', postIds);
+            console.log('⭐️ 로그인 시 스타 ID 매핑:', starIdMap);
           })
           .catch((error) => {
             console.error('⭐️ 스타 목록 가져오기 실패:', error);

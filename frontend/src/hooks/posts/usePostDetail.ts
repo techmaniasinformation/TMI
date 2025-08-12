@@ -1,81 +1,666 @@
-import { useState, useEffect } from 'react';
-import { PostDetail } from '@/types';
+import { useState, useEffect, useCallback } from 'react';
+import { useUserStore } from '@/stores/userStore';
+import { 
+  getSafeProfileUrl, 
+  getSafeThumbnailUrl, 
+  getSafeBadgeUrl, 
+  getSafeCompanyUrl 
+} from '@/utils/defaultImages';
 
-interface PostDetailState {
-  post: PostDetail | null;
-  loading: boolean;
-  error: string | null;
+interface PostDetail {
+  postId: string;
+  title: string;
+  tags: string[];
+  memberProfileUrl: string;
+  companyProfileUrl: string | null;
+  name: string;
+  badgeUrl: string;
+  createAt: string;
+  viewCount: number;
+  starCount: number;
+  commentCount: number;
+  thumbnailUrl: string;
+  content: string;
+  link: string;
+  memberId?: number;
+  companyId?: number;
 }
 
+interface PostDetailResponse {
+  status: string;
+  data: PostDetail;
+}
 
+interface Comment {
+  commentId: number;
+  comment: string;
+  name: string;
+  memberProfileUrl: string;
+  badgeUrl?: string;
+  createAt: string;
+  isRecommend: boolean;
+  recommendCount: number;
+  link?: string;
+}
 
-export const usePostDetail = (postId: string) => {
-  const [state, setState] = useState<PostDetailState>({
-    post: null,
-    loading: true,
-    error: null,
-  });
+interface CommentResponse {
+  status: string;
+  data: {
+    comments: Comment[];
+    bestCommentId: number;
+  };
+}
 
-  // 게시글 상세 정보 가져오기
-  useEffect(() => {
-    const fetchPostDetail = () => {
-      if (!postId) {
-        setState({
-          post: null,
-          loading: false,
-          error: '게시글 ID가 필요합니다.',
-        });
-        return;
+// 게시글 데이터 관리 훅
+export const usePostData = (postId: string) => {
+  const [postData, setPostData] = useState<PostDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchPostDetail = useCallback(async () => {
+    if (!postId) {
+      setError('게시글 ID가 없습니다.');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/post/${postId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      try {
-        console.log('🔍 [usePostDetail] 게시글 상세 정보 가져오기 시작:', postId);
-        setState(prev => ({ ...prev, loading: true, error: null }));
-
-        // 실제 API 호출로 대체 예정
-        const post = null;
-
-        // 현재는 게시글을 찾을 수 없다고 설정 (실제 API 구현 시 수정)
-        console.log('❌ [usePostDetail] 게시글을 찾을 수 없음');
-        setState({
-          post: null,
-          loading: false,
-          error: '게시글을 찾을 수 없습니다.',
-        });
-      } catch (error) {
-        console.error('❌ [usePostDetail] 에러:', error);
-        setState({
-          post: null,
-          loading: false,
-          error: '게시글을 불러오는 중 오류가 발생했습니다.',
-        });
-      }
-    };
-
-    fetchPostDetail();
+      const data: PostDetailResponse = await response.json();
+      
+      // 이미지 URL 처리를 한 번만 수행
+      const postWithDefaultImages = {
+        ...data.data,
+        memberProfileUrl: getSafeProfileUrl(data.data.memberProfileUrl),
+        companyProfileUrl: getSafeCompanyUrl(data.data.companyProfileUrl),
+        badgeUrl: getSafeBadgeUrl(data.data.badgeUrl),
+        thumbnailUrl: getSafeThumbnailUrl(data.data.thumbnailUrl),
+      };
+      
+      setPostData(postWithDefaultImages);
+    } catch (err) {
+      console.error('❌ [usePostData] 게시글 상세 정보 가져오기 실패:', err);
+      setError('게시글을 불러오는데 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
   }, [postId]);
 
-  // 날짜 포맷팅 함수
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
-
-  // 숫자 포맷팅 함수
-  const formatNumber = (num: number): string => {
-    if (num >= 1000) {
-      return `${(num / 1000).toFixed(1)}k`;
-    }
-    return num.toString();
-  };
+  useEffect(() => {
+    fetchPostDetail();
+  }, [fetchPostDetail]);
 
   return {
-    ...state,
-    formatDate,
-    formatNumber,
+    postData,
+    loading,
+    error,
+    refetch: fetchPostDetail
+  };
+};
+
+// 스타 상태 관리 훅
+export const useStar = (postId: string) => {
+  const { user, starLst, starIdMap, setStarLst, addStarId, removeStarId } = useUserStore();
+  const [isStarred, setIsStarred] = useState(false);
+  const [isStarLoading, setIsStarLoading] = useState(false);
+  const [starId, setStarId] = useState<number | null>(null);
+
+  // 스타 상태 확인
+  const checkStarStatus = useCallback(() => {
+    const isStarred = starLst.includes(postId);
+    setIsStarred(isStarred);
+    
+    if (isStarred) {
+      const starId = starIdMap.get(postId);
+      setStarId(starId || null);
+    } else {
+      setStarId(null);
+    }
+  }, [postId, starLst, starIdMap]);
+
+  useEffect(() => {
+    checkStarStatus();
+  }, [checkStarStatus]);
+
+  // 스타 토글
+  const toggleStar = useCallback(async () => {
+    if (isStarLoading) return;
+    
+    if (!user?.memberId) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
+
+    setIsStarLoading(true);
+    try {
+      if (isStarred) {
+        // 스타 취소
+        if (!starId) {
+          alert('스타 정보를 찾을 수 없습니다.');
+          return;
+        }
+
+        const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/star/${starId}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer accessToken'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // 낙관적 업데이트
+        setStarLst(starLst.filter((id: string) => id !== postId));
+        removeStarId(postId);
+        setIsStarred(false);
+        setStarId(null);
+        
+        alert('스타를 취소했습니다');
+      } else {
+        // 스타 추가
+        const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/star`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            memberId: user.memberId,
+            postId: postId
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        
+        // 낙관적 업데이트
+        setStarLst([...starLst, postId]);
+        
+        if (result.data?.starId) {
+          setStarId(result.data.starId);
+          addStarId(postId, result.data.starId);
+        }
+        
+        setIsStarred(true);
+        
+        alert('스타했습니다');
+      }
+    } catch (err) {
+      console.error('❌ [useStar] 스타 요청 실패:', err);
+      alert('스타 요청에 실패했습니다.');
+    } finally {
+      setIsStarLoading(false);
+    }
+  }, [isStarred, starId, user?.memberId, postId, starLst, setStarLst, addStarId, removeStarId, isStarLoading]);
+
+  return {
+    isStarred,
+    isStarLoading,
+    toggleStar
+  };
+};
+
+// 팔로우 상태 관리 훅
+export const useFollow = (postData: PostDetail | null) => {
+  const { user, followUser, followCompany, setFollowUser, setFollowCompany } = useUserStore();
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [memberFollowId, setMemberFollowId] = useState<number | null>(null);
+  const [companyFollowId, setCompanyFollowId] = useState<number | null>(null);
+
+  // 팔로우 상태 확인
+  const checkFollowStatus = useCallback(() => {
+    if (!postData) return;
+
+    if (postData.companyId) {
+      const isFollowingCompany = followCompany.includes(postData.companyId);
+      setIsFollowing(isFollowingCompany);
+    } else if (postData.memberId) {
+      const isFollowingUser = followUser.includes(postData.memberId);
+      setIsFollowing(isFollowingUser);
+    }
+  }, [postData, followUser, followCompany]);
+
+  useEffect(() => {
+    checkFollowStatus();
+  }, [checkFollowStatus]);
+
+  // 팔로우 토글
+  const toggleFollow = useCallback(async () => {
+    if (!postData || !user?.memberId) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
+
+    try {
+      if (isFollowing) {
+        // 팔로우 취소
+        if (postData.memberId === 1) {
+          alert('해당 사용자는 팔로우할 수 없습니다.');
+          return;
+        }
+        
+        if (postData.companyId) {
+          // 회사 팔로우 취소
+          if (!companyFollowId) {
+            alert('팔로우 정보를 찾을 수 없습니다.');
+            return;
+          }
+          
+          const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/companyFollow/${companyFollowId}`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          });
+
+          if (response.ok) {
+            setFollowCompany(followCompany.filter(id => id !== postData.companyId));
+            setIsFollowing(false);
+            setCompanyFollowId(null);
+            alert('회사 팔로우를 취소했습니다.');
+          } else {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+        } else if (postData.memberId) {
+          // 개인 사용자 팔로우 취소
+          if (!memberFollowId) {
+            alert('팔로우 정보를 찾을 수 없습니다.');
+            return;
+          }
+          
+          const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/memberFollow/${memberFollowId}`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          });
+
+          if (response.ok) {
+            setFollowUser(followUser.filter(id => id !== postData.memberId));
+            setIsFollowing(false);
+            setMemberFollowId(null);
+            alert('사용자 팔로우를 취소했습니다.');
+          } else {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+        }
+      } else {
+        // 팔로우 추가
+        if (postData.memberId === 1) {
+          alert('해당 사용자는 팔로우할 수 없습니다.');
+          return;
+        }
+        
+        if (postData.companyId) {
+          // 회사 팔로우 추가
+          const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/companies/${postData.companyId}/follow`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              followerId: user.memberId,
+              companyId: postData.companyId
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const result = await response.json();
+          
+          if (result.data?.companyFollowId) {
+            setCompanyFollowId(result.data.companyFollowId);
+          }
+
+          setFollowCompany([...followCompany, postData.companyId]);
+          setIsFollowing(true);
+          alert('회사를 팔로우했습니다.');
+        } else if (postData.memberId) {
+          // 개인 사용자 팔로우 추가
+          const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/memberFollow`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              followerId: user.memberId,
+              followeeId: postData.memberId
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const result = await response.json();
+          
+          if (result.data?.memberFollowId) {
+            setMemberFollowId(result.data.memberFollowId);
+          }
+          
+          setFollowUser([...followUser, postData.memberId]);
+          setIsFollowing(true);
+          alert('사용자를 팔로우했습니다.');
+        }
+      }
+    } catch (err) {
+      console.error('❌ [useFollow] 팔로우 요청 실패:', err);
+      alert('팔로우 요청에 실패했습니다.');
+    }
+  }, [isFollowing, postData, user?.memberId, followUser, followCompany, setFollowUser, setFollowCompany, memberFollowId, companyFollowId]);
+
+  return {
+    isFollowing,
+    toggleFollow
+  };
+};
+
+// 댓글 관리 훅
+export const useComments = (postId: string) => {
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [bestCommentId, setBestCommentId] = useState<number>(-1);
+  const [commentText, setCommentText] = useState('');
+  const [showLinkInput, setShowLinkInput] = useState(false);
+  const [linkUrl, setLinkUrl] = useState('');
+  const [commentLoading, setCommentLoading] = useState(false);
+  const [userRecommendations, setUserRecommendations] = useState<Map<number, number>>(new Map());
+  const [recommendLoading, setRecommendLoading] = useState<Map<number, boolean>>(new Map());
+  const { user } = useUserStore();
+
+  // 댓글 목록 가져오기
+  const fetchComments = useCallback(async () => {
+    if (!postId) return;
+
+    try {
+      const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/comment?postId=${postId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      const commentsWithDefaultImages = (data.data?.comments || []).map((comment: Comment) => ({
+        ...comment,
+        memberProfileUrl: getSafeProfileUrl(comment.memberProfileUrl),
+        badgeUrl: getSafeBadgeUrl(comment.badgeUrl),
+      }));
+      
+      setComments(commentsWithDefaultImages);
+      setBestCommentId(data.data?.bestCommentId || -1);
+    } catch (err) {
+      console.error('❌ [useComments] 댓글 가져오기 실패:', err);
+      setComments([]);
+      setBestCommentId(-1);
+    }
+  }, [postId]);
+
+  // 댓글 추천 상태 확인
+  const checkUserRecommendations = useCallback(async () => {
+    if (!user?.memberId || !postId) return;
+
+    try {
+      const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/recommendation?memberId=${user.memberId}&postId=${postId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        const recommendations = result.data?.recommendations || [];
+        
+        const recommendationMap = new Map();
+        recommendations.forEach((rec: any) => {
+          recommendationMap.set(rec.commentId, rec.recommendationId);
+        });
+        
+        setUserRecommendations(recommendationMap);
+      }
+    } catch (err) {
+      console.error('❌ [useComments] 댓글 추천 상태 확인 실패:', err);
+    }
+  }, [user?.memberId, postId]);
+
+  useEffect(() => {
+    fetchComments();
+    checkUserRecommendations();
+  }, [fetchComments, checkUserRecommendations]);
+
+  // 댓글 추가
+  const addComment = useCallback(async () => {
+    if (!commentText.trim()) {
+      alert('댓글 내용을 입력해주세요.');
+      return;
+    }
+    
+    const currentUserId = user?.memberId;
+    if (!currentUserId || currentUserId <= 0) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
+
+    setCommentLoading(true);
+    try {
+      const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/comment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          postId: postId,
+          memberId: currentUserId,
+          comment: commentText,
+          link: linkUrl || null
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      await fetchComments();
+      
+      setCommentText('');
+      setLinkUrl('');
+      setShowLinkInput(false);
+      alert('댓글이 작성되었습니다.');
+    } catch (error) {
+      console.error('댓글 작성 실패:', error);
+      alert('댓글 작성에 실패했습니다.');
+    } finally {
+      setCommentLoading(false);
+    }
+  }, [commentText, postId, user?.memberId, linkUrl, fetchComments]);
+
+  // 댓글 추천
+  const toggleCommentRecommend = useCallback(async (commentId: number) => {
+    if (!user?.memberId) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
+
+    if (recommendLoading.get(commentId)) return;
+
+    setRecommendLoading(prev => new Map(prev).set(commentId, true));
+
+    try {
+      const isCurrentlyRecommended = userRecommendations.has(commentId);
+
+      if (isCurrentlyRecommended) {
+        // 추천 취소
+        const recommendationId = userRecommendations.get(commentId);
+        if (!recommendationId) {
+          alert('추천 정보를 찾을 수 없습니다.');
+          return;
+        }
+
+        const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/recommendation/${recommendationId}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({})
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        setUserRecommendations(prev => {
+          const newMap = new Map(prev);
+          newMap.delete(commentId);
+          return newMap;
+        });
+
+        setComments(prev => prev.map(comment => 
+          comment.commentId === commentId 
+            ? { ...comment, recommendCount: Math.max(0, comment.recommendCount - 1) }
+            : comment
+        ));
+
+        alert('추천을 취소했습니다.');
+      } else {
+        // 추천 추가
+        const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/recommendation`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            memberId: user.memberId,
+            commentId: commentId
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        
+        if (result.data?.recommendationId) {
+          setUserRecommendations(prev => {
+            const newMap = new Map(prev);
+            newMap.set(commentId, result.data.recommendationId);
+            return newMap;
+          });
+        }
+
+        setComments(prev => prev.map(comment => 
+          comment.commentId === commentId 
+            ? { ...comment, recommendCount: comment.recommendCount + 1 }
+            : comment
+        ));
+
+        alert('댓글을 추천했습니다.');
+      }
+    } catch (err) {
+      console.error('❌ [useComments] 댓글 추천 요청 실패:', err);
+      alert('추천 요청에 실패했습니다.');
+    } finally {
+      setRecommendLoading(prev => {
+        const newMap = new Map(prev);
+        newMap.delete(commentId);
+        return newMap;
+      });
+    }
+  }, [user?.memberId, userRecommendations, recommendLoading]);
+
+  return {
+    comments,
+    bestCommentId,
+    commentText,
+    setCommentText,
+    showLinkInput,
+    setShowLinkInput,
+    linkUrl,
+    setLinkUrl,
+    commentLoading,
+    userRecommendations,
+    recommendLoading,
+    addComment,
+    toggleCommentRecommend
+  };
+};
+
+// 통합 훅
+export const usePostDetail = (postId: string) => {
+  const { postData, loading, error, refetch } = usePostData(postId);
+  const { isStarred, isStarLoading, toggleStar } = useStar(postId);
+  const { isFollowing, toggleFollow } = useFollow(postData);
+  const {
+    comments,
+    bestCommentId,
+    commentText,
+    setCommentText,
+    showLinkInput,
+    setShowLinkInput,
+    linkUrl,
+    setLinkUrl,
+    commentLoading,
+    userRecommendations,
+    recommendLoading,
+    addComment,
+    toggleCommentRecommend
+  } = useComments(postId);
+
+  return {
+    // 게시글 데이터
+    postData,
+    loading,
+    error,
+    refetch,
+    
+    // 스타 관련
+    isStarred,
+    isStarLoading,
+    toggleStar,
+    
+    // 팔로우 관련
+    isFollowing,
+    toggleFollow,
+    
+    // 댓글 관련
+    comments,
+    bestCommentId,
+    commentText,
+    setCommentText,
+    showLinkInput,
+    setShowLinkInput,
+    linkUrl,
+    setLinkUrl,
+    commentLoading,
+    userRecommendations,
+    recommendLoading,
+    addComment,
+    toggleCommentRecommend
   };
 }; 

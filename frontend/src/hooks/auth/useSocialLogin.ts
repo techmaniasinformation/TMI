@@ -17,6 +17,7 @@ const useSocialLogin = () => {
     setSocialLoginInfo,
     clearUser,
     setPrevPath,
+    setSocialProvider,
     prevPath,
     isLogin,
     user,
@@ -29,6 +30,8 @@ const useSocialLogin = () => {
   ) => {
     // 현재 경로를 sessionStorage에 저장
     sessionStorage.setItem('redirectAfterLogin', from);
+    setSocialProvider(provider);
+    console.log('provider', provider);
     // 로그인 URL로 이동
     window.location.href = `https://i13a509.p.ssafy.io/api/v1/oauth2/authorization/${provider}`;
   };

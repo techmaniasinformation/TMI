@@ -40,6 +40,8 @@ interface UserState {
 
   setPrevPath: (path:string) => void;
 
+  setSocialProvider: (provider:string) => void;
+
   // checkAuth는 지울 예정
   checkAuth: () => Promise<void>; // ✅ (임시) 서버로부터 사용자 인증 상태 확인
   // 위의 checkAuth는 지울 예정
@@ -59,7 +61,6 @@ export const useUserStore = create(
 
       prevPath: '/',  // 이전 페이지
 
-      
 
       toggleIsLogin: () => set((state) => ({ isLogin: !state.isLogin })),
 
@@ -81,10 +82,12 @@ export const useUserStore = create(
       setFollowCompany: (list: number[]) => set({ followCompany: list }),
       setSocialLoginInfo: (provider: string, providerId: string) => 
         set({ socialProvider: provider, socialProviderId: providerId }),
-      clearSocialLoginInfo: () => set({ socialProvider: null, socialProviderId: null }),
+      clearSocialLoginInfo: () => set({ socialProviderId: null }),
       
       // 이전 페이지 지정
       setPrevPath: (path:string) => set({prevPath:path}),
+
+      setSocialProvider: (provider:string) => set({socialProvider:provider}),
       // 지울 예정
       checkAuth: async () => {
         // ✅ (임시)

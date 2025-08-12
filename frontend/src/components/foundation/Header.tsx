@@ -40,9 +40,9 @@ const Header: React.FC<HeaderProps> = ({
     setMemberId,
     setUser,
     clearUser,
-    setStarLst,       
-    setFollowUser,    
-    setFollowCompany, 
+    setStarLst,
+    setFollowUser,
+    setFollowCompany,
     clearSocialLoginInfo,
     setPrevPath,
   } = useUserStore(); // 로그인 상태 확인
@@ -52,10 +52,9 @@ const Header: React.FC<HeaderProps> = ({
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const navigate = useNavigate();
   const location = useLocation();
-  
 
   // 로그인 여부
-  const isAuthenticated = memberId !== -1; 
+  const isAuthenticated = memberId !== -1;
 
   // 로그아웃 함수.
   const handleLogOut = async () => {
@@ -72,9 +71,9 @@ const Header: React.FC<HeaderProps> = ({
       // 모든 전역변수 초기화
       setMemberId(-1);
       clearUser();
-      setStarLst([]);   
-      setFollowUser([]);  
-      setFollowCompany([]); 
+      setStarLst([]);
+      setFollowUser([]);
+      setFollowCompany([]);
       clearSocialLoginInfo();
 
       // 프로필 메뉴 닫기
@@ -98,7 +97,10 @@ const Header: React.FC<HeaderProps> = ({
       setShowProfileMenu(false);
 
       alert('로그아웃 되었습니다.');
-      navigate('/');
+
+      setPrevPath(window.location.pathname + window.location.search);
+
+      navigate(prevPath);
     }
   };
 
@@ -119,7 +121,6 @@ const Header: React.FC<HeaderProps> = ({
   // ✅ 게시글 작성 버튼 클릭시 로그인 여부에 따라 반응
   const handleWritePost = () => {
     if (!isAuthenticated) {
-      
       setPrevPath('/post/create'); // 로그인 완료하면 게시글 작성으로 이동하게
       console.log('prevPath', prevPath);
       alert('로그인이 필요합니다.'); // 알림 표시
@@ -142,11 +143,7 @@ const Header: React.FC<HeaderProps> = ({
           {/* 로고 */}
           <div className='flex items-center'>
             <Link to='/' className='flex items-center space-x-2'>
-              <img
-                src={logo}
-                alt='TMI Logo'
-                className='w-20 h-20'
-              />
+              <img src={logo} alt='TMI Logo' className='w-20 h-20' />
               <span className='text-xl font-bold'>TMI</span>
             </Link>
           </div>
@@ -170,7 +167,7 @@ const Header: React.FC<HeaderProps> = ({
               />
             </button>
             {/* ############## 로그인 여부에 따라 다르게 */}
-            
+
             {isAuthenticated ? (
               <div className='relative flex'>
                 {/* 프로필 */}
@@ -265,9 +262,15 @@ const Header: React.FC<HeaderProps> = ({
             ) : (
               // 로그아웃 상태일 때
               <div className='flex items-center space-x-2'>
-                <Link to='/login' 
-                onClick={() => setPrevPath(location.pathname + location.search)}
-                className='px-4 py-2 text-sm hover:font-bold'>
+                <Link
+                  to='/login'
+                  onClick={() => {
+                    if (location.pathname !== '/login') {
+                      setPrevPath(location.pathname + location.search);
+                    }
+                  }}
+                  className='px-4 py-2 text-sm hover:font-bold'
+                >
                   로그인/회원가입
                 </Link>
               </div>

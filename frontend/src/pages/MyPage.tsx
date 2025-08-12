@@ -33,7 +33,7 @@ import {
   findCompanyFollowId,
 } from '@/api/followService';
 
-// ✅ store는 읽기만 사용
+// ✅ store
 import { useUserStore } from '@/stores/userStore';
 
 interface MyPageProps {
@@ -63,14 +63,17 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
   });
 
   const { id } = useParams();
-  const routeId = Number(id) || 0;                 // ✅ 숫자 가드
+  const routeId = Number(id) || 0; // ✅ 숫자 가드
 
-  // store에서 내 id 읽기 (수정 X)
-  const { user } = useUserStore();
+  // store에서 내 id/업데이트 액션 읽기
+  const { user, updateUserProfile } = useUserStore();
   const myId = user?.memberId;
 
   // 내 페이지 여부 계산
   const isMyPage = !!(myId && myId > 0 && myId === routeId);
+
+  // [ADD] ProfileHeader를 재조회하기 위한 키
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // 초기 탭
   const [activeTab, setActiveTab] = useState<MyTab>('profile');
@@ -147,7 +150,7 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
     newNickname: string,
     newBlogUrl: string,
     newGithubUrl?: string,
-    newProfileUrl?: string,
+    newProfileUrl?: string | null,
     file?: File | null
   ) => {
     if (!isMyPage || !myId || myId <= 0) {
@@ -183,8 +186,10 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
         }
       }
 
+      // PATCH
       await updateMemberProfile(myId, payload);
 
+      // 닉네임 쿨타임 기록
       if (nicknameChanged) {
         localStorage.setItem(
           NICK_COOLDOWN_KEY(myId),
@@ -192,8 +197,26 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
         );
       }
 
-      // NOTE: ProfileHeader가 자체적으로 fetch하는 구조라, 간단히 전체 새로고침
-      window.location.reload();
+      // ✅ 최신 데이터 재조회 → 전역 헤더 즉시 반영
+      const updated = await fetchMemberProfile(myId);
+      updateUserProfile({
+        nickname: updated.nickname,
+        memberProfileUrl: updated.memberProfileUrl,
+      });
+
+      // 모달 초기값도 동기화 (페이지 내 표시 일관성)
+      setModalInit({
+        nickname: updated.nickname ?? '',
+        blogUrl: updated.blogUrl ?? '',
+        githubUrl: updated.githubUrl ?? '',
+        profileUrl: updated.memberProfileUrl ?? '',
+      });
+
+      // [ADD] 헤더 즉시 리프레시 (ProfileHeader useEffect가 refreshKey를 의존성으로 가지는 전제)
+      setRefreshKey((k) => k + 1);
+
+      // (선택) 모달 닫기
+      setIsEditModalOpen(false);
     } catch (e: any) {
       console.error('프로필 저장 실패:', e);
       alert(e?.message || '프로필 저장에 실패했습니다. 잠시 후 다시 시도해 주세요.');
@@ -311,7 +334,7 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!isCompany || routeId <= 0) return;   // ✅ 불필요 호출 방지
+    if (!isCompany || routeId <= 0) return; // ✅ 불필요 호출 방지
     setLoading(true);
     getCompany(routeId)
       .then((res) => setCompany(res.data))
@@ -320,7 +343,7 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
   }, [isCompany, routeId]);
 
   const lastUpdateText =
-    isCompany && company?.lastUpdatedAt ? company.lastUpdatedAt.slice(0, 10) : '';  // ✅ 포맷
+    isCompany && company?.lastUpdatedAt ? company.lastUpdatedAt.slice(0, 10) : ''; // ✅ 포맷
 
   return (
     <div className="max-w-[1232px] mx-auto px-4 py-8">
@@ -333,6 +356,7 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
           isFollowing={isFollowing}
           onEditClick={() => setIsEditModalOpen(true)}
           repBadgeUrl={repBadge.url}
+          refreshKey={refreshKey} // ✅ 추가된 키 전달
         />
 
         <MyPageTabs

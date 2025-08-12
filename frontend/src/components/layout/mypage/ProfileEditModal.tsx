@@ -23,8 +23,8 @@ interface ProfileEditModalProps {
     nickname: string,
     blogUrl: string,
     githubUrl?: string,
-    profileImageUrl?: string,
-    file?: File | null 
+    profileImageUrl?: string | null, // ← 삭제 의도면 null 전달
+    file?: File | null
   ) => Promise<void>;
 }
 
@@ -48,9 +48,12 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   const [imgLoading, setImgLoading] = useState(false);
   const fallbackAppliedRef = useRef(false);
 
-  // 파일 업로드용 (저장에는 사용하지 않음)
+  // 파일 업로드 상태
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // ✅ 이미지 제거 의도 플래그
+  const [removed, setRemoved] = useState(false);
 
   // blob URL 정리용
   const prevUrlRef = useRef<string | null>(null);
@@ -78,6 +81,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
     setSelectedFile(null);
     setImgLoading(!!initialProfileImageUrl);
     fallbackAppliedRef.current = false;
+    setRemoved(false); // ✅ 모달 열릴 때 제거 플래그 리셋
   }, [isOpen, initialNickname, initialBlogUrl, initialGithubUrl, initialProfileImageUrl]);
 
   // 기본 이미지로 1회만 안전하게 대체 (무한 onError 방지)
@@ -95,8 +99,9 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
+    setRemoved(false); // ✅ 파일 선택하면 제거 의도 해제
     if (file) {
-      const MAX = 5 * 1024 * 1024; // 5MB
+      const MAX = 10 * 1024 * 1024; // 20MB
       const okType = /^image\//.test(file.type);
       if (!okType) {
         alert('이미지 파일만 업로드 가능합니다.');
@@ -104,7 +109,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
         return;
       }
       if (file.size > MAX) {
-        alert('이미지는 5MB 이하만 업로드 가능합니다.');
+        alert('이미지는 10MB 이하만 업로드 가능합니다.');
         e.target.value = '';
         return;
       }
@@ -132,13 +137,18 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
         !selectedFile &&
         (previewUrl ?? '') === (initialProfileImageUrl ?? '');
 
-      // 아무 것도 안 바뀐 경우 요청 자체를 생략
+      // ✅ 제거면 null, 유지면 undefined, 프리뷰 변경이면 그 값
+      const profileArg: string | null | undefined =
+        removed ? null : (isSameAsInitial ? undefined : (previewUrl ?? undefined));
+
+      // ✅ 아무 것도 안 바뀐 경우만 스킵 (제거 의도면 변경으로 간주)
       const nothingChanged =
+        !removed &&
         (nickname ?? '') === (initialNickname ?? '') &&
         (blogUrl ?? '') === (initialBlogUrl ?? '') &&
         (githubUrl ?? '') === (initialGithubUrl ?? '') &&
         !selectedFile &&
-        (isSameAsInitial || (previewUrl ?? '') === (initialProfileImageUrl ?? ''));
+        isSameAsInitial;
 
       if (nothingChanged) {
         onClose();
@@ -149,7 +159,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
         nickname,
         blogUrl,
         githubUrl,
-        isSameAsInitial ? undefined : (previewUrl ?? undefined),
+        profileArg,
         selectedFile
       );
       onClose();
@@ -205,12 +215,16 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
           </button>
 
           <p className="text-sm text-gray-500 mt-2">
-            Click the camera icon to change profile image
+             이미지는 20MB 이하만 업로드할 수 있어요.
           </p>
           {(previewUrl || selectedFile) && (
             <button
               type="button"
-              onClick={() => { setSelectedFile(null); setPreviewUrl(null); }}
+              onClick={() => {
+                setSelectedFile(null);
+                setPreviewUrl(null);
+                setRemoved(true); // ✅ 제거 의도 ON
+              }}
               className="mt-2 text-xs text-gray-500 underline"
             >
               이미지 제거

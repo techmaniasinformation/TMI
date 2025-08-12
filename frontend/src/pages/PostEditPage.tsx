@@ -148,7 +148,8 @@ const PostEditPage: React.FC = () => {
       return;
     }
     if (!postId) {
-      alert('게시글 ID가 없어 수정할 수 없습니다.');
+      alert('게시글 ID가 없어 수정할 수 없습니다. 다시 시도해주세요.');
+      navigate('/home');
       return;
     }
 
@@ -194,7 +195,8 @@ const PostEditPage: React.FC = () => {
 
       alert('게시글이 수정되었습니다!');
       
-      navigate(`/post/${postId}`);
+      // 수정 완료 후 상세 페이지로 이동
+      navigate(`/post/${postId}`, { replace: true });
       
     } catch (error) {
       console.error('저장 실패:', error);
@@ -220,7 +222,7 @@ const PostEditPage: React.FC = () => {
       try {
         // 이미지 압축 옵션 - 크롭 방식 최적화
         const options = {
-          maxSizeMB: 5, // 최대 5MB
+          maxSizeMB: 10, // 최대 10MB
           useWebWorker: true,
           fileType: 'image/jpeg', // JPEG로 변환
           // 썸네일 크기에 맞춰 크롭하기 위한 설정 (3:2 비율)
@@ -334,7 +336,7 @@ const PostEditPage: React.FC = () => {
     } else {
       console.log('게시글 데이터가 없습니다. 잘못된 접근입니다.');
       alert('잘못된 접근입니다.');
-      navigate('/');
+      navigate('/home');
     }
   }, [location.state, navigate]);
 

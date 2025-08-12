@@ -1,8 +1,11 @@
+import { useSearchParams } from 'react-router-dom';
+
 interface ServerPaginationProps {
   currentPage: number;  // 현재 페이지 번호
   totalCount: number;   // 전체 데이터 개수
   pageSize?: number;    // 페이지당 데이터 개수 (기본값: 10)
   onPageChange: (page: number) => void; // 페이지 변경 시 실행할 함수
+  updateUrl?: boolean;  // URL 업데이트 여부 (기본값: true)
 }
 
 // 서버 페이지네이션 버튼 만들어주는 함수
@@ -10,14 +13,16 @@ function ServerPagination({
   currentPage, 
   totalCount, 
   pageSize = 10, 
-  onPageChange 
+  onPageChange,
+  updateUrl = true
 }: ServerPaginationProps) {
+  const [searchParams, setSearchParams] = useSearchParams();
+  
   // 전체 페이지 수 계산
   const totalPages = Math.ceil(totalCount / pageSize);
 
   // 페이지가 0개 이하면 페이지네이션 숨김
   if (totalPages <= 0) {
-
     return null;
   }
 
@@ -72,11 +77,31 @@ function ServerPagination({
 
   const pageNumbers = getPageNumbers();
 
+  // 페이지 변경 핸들러
+  const handlePageChange = (page: number) => {
+    if (page === currentPage || page < 1 || page > totalPages) {
+      return;
+    }
+    
+    // URL 업데이트 (updateUrl이 true인 경우)
+    if (updateUrl) {
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.set('page', page.toString());
+      setSearchParams(newSearchParams);
+    }
+    
+    // 콜백 함수 호출
+    onPageChange(page);
+  };
+
   return (
     <div className="flex justify-center items-center space-x-2 mt-8">
       {/* 이전 페이지 버튼 */}
       <button
-        onClick={() => onPageChange(currentPage - 1)}
+        onClick={(e) => {
+          e.preventDefault();
+          handlePageChange(currentPage - 1);
+        }}
         disabled={currentPage === 1}
         className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         aria-label="이전 페이지"
@@ -88,7 +113,10 @@ function ServerPagination({
       {pageNumbers.map((page) => (
         <button
           key={page}
-          onClick={() => onPageChange(page)}
+          onClick={(e) => {
+            e.preventDefault();
+            handlePageChange(page);
+          }}
           className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
             currentPage === page
               ? 'bg-blue-600 text-white'
@@ -103,7 +131,10 @@ function ServerPagination({
 
       {/* 다음 페이지 버튼 */}
       <button
-        onClick={() => onPageChange(currentPage + 1)}
+        onClick={(e) => {
+          e.preventDefault();
+          handlePageChange(currentPage + 1);
+        }}
         disabled={currentPage === totalPages}
         className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         aria-label="다음 페이지"

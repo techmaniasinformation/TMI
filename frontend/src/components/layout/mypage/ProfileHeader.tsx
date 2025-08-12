@@ -2,13 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 import UserStatsCard from './UserStatsCard';
-import { fetchMemberProfile, deleteMember } from '@/api/mypage/memberSevice'; // ✅ 경로 수정
+import { fetchMemberProfile, deleteMember } from '@/api/mypage/memberSevice';
 import { getCompany } from '@/api/company/company';
 
 import type { MemberData } from '@/types/mypage/member';
 import type { Company } from '@/types/company/company';
 
-// import Star from '@/assets/icons/star.svg'; // 사용 안 하면 제거
 import GitHub from '@/assets/icons/Github.svg';
 import Blog from '@/assets/icons/blog.svg';
 import Follow from '@/assets/icons/Follow.svg';
@@ -20,7 +19,6 @@ import { getSafeProfileUrl } from '@/utils/defaultImages';
 import WithdrawalConfirmModal from '@/components/layout/mypage/WithdrawalConfirmModal';
 import WithdrawalCompleteModal from '@/components/layout/mypage/WithdrawalCompleteModal';
 
-// ✅ store는 읽기만…이었지만, 로그아웃 시 상태 정리를 위해 일부 setter도 사용
 import { useUserStore } from '@/stores/userStore';
 
 interface ProfileHeaderProps {
@@ -31,6 +29,9 @@ interface ProfileHeaderProps {
   onFollowToggle: () => void;
   onEditClick: () => void;
   repBadgeUrl?: string | null;
+
+  /** 🔹 저장 후 재조회 트리거 용 키 */
+  refreshKey?: number; // [ADD]
 }
 
 export default function ProfileHeader({
@@ -41,15 +42,14 @@ export default function ProfileHeader({
   onFollowToggle,
   onEditClick,
   repBadgeUrl,
+  refreshKey = 0, // [ADD] 기본값
 }: ProfileHeaderProps) {
   const { id } = useParams();
   const routeId = Number(id);
   const navigate = useNavigate();
 
-  // ✅ 로그인 사용자 id (store에서 읽기)
   const {
     user,
-    // ▼ 로그아웃 시 상태 정리용
     clearUser,
     setStarLst,
     setFollowUser,
@@ -69,11 +69,10 @@ export default function ProfileHeader({
   const [companyData, setCompanyData] = useState<Company | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // 탈퇴 로딩/에러
   const [withdrawing, setWithdrawing] = useState(false);
   const [withdrawError, setWithdrawError] = useState<string | null>(null);
 
-  // ✅ targetId 변경될 때마다 재요청
+  // ✅ targetId / refreshKey 변경될 때마다 재요청
   useEffect(() => {
     if (!targetId || Number.isNaN(targetId) || targetId <= 0) return;
 
@@ -99,10 +98,8 @@ export default function ProfileHeader({
       }
     }
     load();
-    return () => {
-      ignore = true;
-    };
-  }, [isCompany, targetId]);
+    return () => { ignore = true; };
+  }, [isCompany, targetId, refreshKey]); // [CHANGE] refreshKey 추가
 
   const getProfileImage = (url: string | null | undefined) => getSafeProfileUrl(url);
 
@@ -117,24 +114,23 @@ export default function ProfileHeader({
     setWithdrawing(true);
     setWithdrawError(null);
     try {
-      await deleteMember(targetId);               // ✅ 실제 탈퇴 API 호출 (PATCH /member/{id}/delete)
+      await deleteMember(targetId);
       setShowWithdrawalConfirm(false);
-      setShowWithdrawalComplete(true);           // ✅ 완료 모달 오픈
+      setShowWithdrawalComplete(true);
     } catch (e) {
       setWithdrawError((e as Error)?.message || '회원 탈퇴 중 오류가 발생했습니다.');
-      throw e; // ConfirmModal에서 errorMessage로 노출할 수 있게 (선택)
+      throw e;
     } finally {
       setWithdrawing(false);
     }
   };
 
   const handleWithdrawalComplete = async () => {
-    // ✅ 서버 로그아웃(베스트에포트) → 전역 상태/토큰 정리 → 메인 이동
     try {
       const idForLogout = myId || targetId;
       if (idForLogout && idForLogout > 0) {
         const controller = new AbortController();
-        const t = setTimeout(() => controller.abort(), 3000); // 3초 타임아웃
+        const t = setTimeout(() => controller.abort(), 3000);
         await fetch(`https://i13a509.p.ssafy.io/api/v1/auth/logout/${idForLogout}`, {
           method: 'POST',
           credentials: 'include',
@@ -142,7 +138,6 @@ export default function ProfileHeader({
         }).catch(() => null);
         clearTimeout(t);
       }
-      // 전역/로컬 정리
       try {
         clearUser();
         setStarLst([]);
@@ -181,25 +176,20 @@ export default function ProfileHeader({
           <img
             src={getProfileImage(isCompany ? companyData?.companyProfileUrl : memberData?.memberProfileUrl)}
             alt="profile"
-            className="w-20 h-20 ms-4 rounded-full object-contain"
+            className="w-20 h-20 ms-4 rounded-full object-cover"
             onError={(e) => {
               const img = (e.target as HTMLImageElement);
-              img.src = getSafeProfileUrl(null); // 안전 폴백
+              img.src = getSafeProfileUrl(null);
             }}
           />
-
           <div className="flex-1">
             <div className="flex items-center mt-3">
               <h1 className="text-2xl font-bold text-gray-900">
                 {isCompany ? companyData?.name : memberData?.nickname}
               </h1>
-
-              {/* 개인 대표배지 */}
               {!isCompany && repBadgeUrl && (
                 <img src={repBadgeUrl} alt="대표 배지" className="w-8 h-8 rounded-md ml-1" />
               )}
-
-              {/* 기업 라벨 */}
               {isCompany && (
                 <span className="bg-blue-100 text-blue-800 text-sm font-medium px-2 py-0.5 rounded-md ml-3">
                   기업
@@ -211,25 +201,15 @@ export default function ProfileHeader({
             {!isCompany && (
               <div className="flex space-x-6 mt-6">
                 {memberData?.blogUrl && (
-                  <a
-                    href={memberData.blogUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center text-sm text-gray-600 hover:text-gray-900"
-                    title="블로그로 이동 (새 탭)"
-                  >
+                  <a href={memberData.blogUrl} target="_blank" rel="noopener noreferrer"
+                     className="flex items-center text-sm text-gray-600 hover:text-gray-900" title="블로그로 이동 (새 탭)">
                     <img src={Blog} alt="blog" className="w-4 h-4 mr-2" />
                     블로그
                   </a>
                 )}
                 {memberData?.githubUrl && (
-                  <a
-                    href={memberData.githubUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center text-sm text-gray-600 hover:text-gray-900"
-                    title="GitHub로 이동 (새 탭)"
-                  >
+                  <a href={memberData.githubUrl} target="_blank" rel="noopener noreferrer"
+                     className="flex items-center text-sm text-gray-600 hover:text-gray-900" title="GitHub로 이동 (새 탭)">
                     <img src={GitHub} alt="github" className="w-4 h-4 mr-2" />
                     깃허브
                   </a>
@@ -246,13 +226,8 @@ export default function ProfileHeader({
                 </div>
                 {companyData?.techBlogUrl && (
                   <div className="flex items-center mt-4">
-                    <a
-                      href={companyData.techBlogUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center text-sm text-gray-600 hover:text-gray-900"
-                      title="기업 블로그로 이동 (새 탭)"
-                    >
+                    <a href={companyData.techBlogUrl} target="_blank" rel="noopener noreferrer"
+                       className="flex items-center text-sm text-gray-600 hover:text-gray-900" title="기업 블로그로 이동 (새 탭)">
                       <img src={Blog} alt="blog" className="w-4 h-4 mr-2" />
                       블로그
                     </a>

@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 interface ClientPaginationProps<T> {
   data: T[];                    // 전체 데이터 배열
@@ -7,6 +8,7 @@ interface ClientPaginationProps<T> {
   onPageChange: (page: number) => void; // 페이지 변경 시 실행할 함수
   renderItem: (item: T, index: number) => React.ReactNode; // 각 아이템을 렌더링하는 함수
   className?: string;           // 추가 스타일링을 위한 클래스명
+  updateUrl?: boolean;          // URL 업데이트 여부 (기본값: true)
 }
 
 // 클라이언트 페이지네이션 컴포넌트
@@ -16,8 +18,10 @@ function ClientPagination<T>({
   pageSize = 10, 
   onPageChange,
   renderItem,
-  className = ""
+  className = "",
+  updateUrl = true
 }: ClientPaginationProps<T>) {
+  const [searchParams, setSearchParams] = useSearchParams();
   
   // 현재 페이지의 데이터 계산
   const { currentPageData, totalPages, totalCount } = useMemo(() => {
@@ -107,7 +111,10 @@ function ClientPagination<T>({
         <div className="flex justify-center items-center space-x-2 mt-8">
           {/* 이전 페이지 버튼 */}
           <button
-            onClick={() => onPageChange(currentPage - 1)}
+            onClick={(e) => {
+              e.preventDefault();
+              onPageChange(currentPage - 1);
+            }}
             disabled={currentPage === 1}
             className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             aria-label="이전 페이지"
@@ -119,7 +126,12 @@ function ClientPagination<T>({
           {pageNumbers.map((page, index) => (
             <button
               key={index}
-              onClick={() => typeof page === 'number' ? onPageChange(page) : undefined}
+              onClick={(e) => {
+                e.preventDefault();
+                if (typeof page === 'number') {
+                  onPageChange(page);
+                }
+              }}
               disabled={typeof page === 'string'}
               className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                 typeof page === 'number' && currentPage === page
@@ -137,7 +149,10 @@ function ClientPagination<T>({
 
           {/* 다음 페이지 버튼 */}
           <button
-            onClick={() => onPageChange(currentPage + 1)}
+            onClick={(e) => {
+              e.preventDefault();
+              onPageChange(currentPage + 1);
+            }}
             disabled={currentPage === totalPages}
             className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             aria-label="다음 페이지"

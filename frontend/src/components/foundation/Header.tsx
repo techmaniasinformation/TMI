@@ -58,13 +58,16 @@ const Header: React.FC<HeaderProps> = ({
   // 로그아웃 함수를 useCallback으로 메모이제이션
   const handleLogOut = useCallback(async () => {
     try {
+      if (socialProvider === 'google'){
       const response = await fetch(
         `https://i13a509.p.ssafy.io/api/v1/auth/logout/${user?.memberId}/${socialProvider}`,
         {
           method: 'GET',
           credentials: 'include',
         }
-      );
+      );} else{
+        window.location.href =`https://i13a509.p.ssafy.io/api/v1/auth/logout/${user?.memberId}/${socialProvider}`
+      }
 
       // 서버 응답과 관계없이 클라이언트 상태 정리
       // 모든 전역변수 초기화

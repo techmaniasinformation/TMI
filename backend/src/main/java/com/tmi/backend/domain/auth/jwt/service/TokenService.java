@@ -17,7 +17,7 @@ public class TokenService {
 
   private final JwtTokenProvider jwtTokenProvider;
   private final RefreshTokenService refreshTokenService;
-
+  
   public void createAndAddRegistCookie(HttpServletResponse response, String provider,
       String providerMemberId) {
 

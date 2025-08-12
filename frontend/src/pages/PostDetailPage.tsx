@@ -286,7 +286,11 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         if (postData.companyId) {
           // 회사 팔로우 취소 API 호출
           try {
-            const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/companyFollow?followerId=${user.memberId}&companyId=${postData.companyId}`, {
+            if (!companyFollowId) {
+              throw new Error('팔로우 정보를 찾을 수 없습니다.');
+            }
+            
+            const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/companyFollow/${companyFollowId}`, {
               method: 'DELETE',
               headers: {
                 'Content-Type': 'application/json',
@@ -297,6 +301,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
               // 전역 상태에서 회사 팔로우 목록 업데이트
               setFollowCompany(followCompany.filter(id => id !== postData.companyId));
               setIsFollowing(false);
+              setCompanyFollowId(null);
               showToastMessage('회사 팔로우를 취소했습니다.');
             } else {
               throw new Error(`HTTP error! status: ${response.status}`);
@@ -308,7 +313,11 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         } else if (postData.memberId) {
           // 개인 사용자 팔로우 취소 API 호출
           try {
-            const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/memberFollow?followerId=${user.memberId}&followeeId=${postData.memberId}`, {
+            if (!memberFollowId) {
+              throw new Error('팔로우 정보를 찾을 수 없습니다.');
+            }
+            
+            const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/memberFollow/${memberFollowId}`, {
               method: 'DELETE',
               headers: {
                 'Content-Type': 'application/json',
@@ -319,6 +328,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
               // 전역 상태에서 개인 사용자 팔로우 목록 업데이트
               setFollowUser(followUser.filter(id => id !== postData.memberId));
               setIsFollowing(false);
+              setMemberFollowId(null);
               showToastMessage('사용자 팔로우를 취소했습니다.');
             } else {
               throw new Error(`HTTP error! status: ${response.status}`);
@@ -337,7 +347,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         
         if (postData.companyId) {
           // 회사 팔로우 추가
-          const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/companyFollow`, {
+          const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/companies/${postData.companyId}/follow`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

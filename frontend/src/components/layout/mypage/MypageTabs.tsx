@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import type { Dispatch, SetStateAction } from 'react';
 
@@ -149,7 +149,13 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   const [memberBadges, setMemberBadges] = useState<MemberBadge[]>([]);
   const [isBadgeModalOpen, setIsBadgeModalOpen] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState<SelectedBadge | null>(null);
-  
+
+  // 기본(빈) 배지 badgeId=22의 memberBadgeId 구해두기
+  const defaultMemberBadgeId = useMemo(
+    () => memberBadges.find((mb) => mb.badgeId === 22)?.memberBadgeId ?? null,
+    [memberBadges]
+  );
+
   function getBadgeNameByUrl(allBadges: Badge[], badgeUrl?: string | null): string | undefined {
     if (!badgeUrl) return undefined;
     // 파일명만 추출
@@ -702,9 +708,29 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
           isOpen={isBadgeModalOpen}
           badge={selectedBadge}
           onClose={() => setIsBadgeModalOpen(false)}
-          onSelect={(badge) => {
-            // 배지 선택 로직
-            console.log('Selected badge:', badge);
+          // 필요하면 defaultMemberBadgeId도 넘길 수 있음 (아래 선택 섹션 참고)
+          onSelect={(changed) => {
+            // ✅ 낙관적 업데이트: 새로고침 없이 즉시 반영
+            setMemberBadges((prev) => {
+              if (changed?.isRepresentative) {
+                // 대표 "설정" 성공 → 해당 배지만 true, 나머지는 false
+                return prev.map((mb) => ({
+                  ...mb,
+                  isRepresentative: mb.memberBadgeId === changed.memberBadgeId,
+                }));
+              }
+              // 대표 "해제" 성공
+              if (defaultMemberBadgeId) {
+                // 기본배지(22)가 있으면 그걸 대표로
+                return prev.map((mb) => ({
+                  ...mb,
+                  isRepresentative: mb.memberBadgeId === defaultMemberBadgeId,
+                }));
+              }
+              // 기본배지가 없으면 모두 해제
+              return prev.map((mb) => ({ ...mb, isRepresentative: false }));
+            });
+            setIsBadgeModalOpen(false);
           }}
         />
       )}

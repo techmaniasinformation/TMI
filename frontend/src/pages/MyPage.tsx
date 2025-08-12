@@ -64,14 +64,7 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
 
   const { id } = useParams();
   const routeId = Number(id);
-  
-  const { followUser, followCompany } = useUserStore();
 
-  useEffect(() => {
-    console.log('[FOLLOW DEBUG] 현재 팔로우 사용자 ID 목록:', followUser);
-    console.log('[FOLLOW DEBUG] 현재 팔로우 기업 ID 목록:', followCompany);
-  }, [followUser, followCompany]);
-  
   // store에서 내 id 읽기 (수정 X)
   const { user, memberId } = useUserStore();
   const myId = user?.memberId ?? memberId;

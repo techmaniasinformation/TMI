@@ -2,14 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 import UserStatsCard from './UserStatsCard';
-import { fetchMemberProfile, deleteMember } from '@/api/mypage/memberSevice'; // ✅ 경로/파일명 수정
+import { fetchMemberProfile, deleteMember } from '@/api/mypage/memberSevice'; // ✅ 경로 수정
 import { getCompany } from '@/api/company/company';
 
 import type { MemberData } from '@/types/mypage/member';
 import type { Company } from '@/types/company/company';
 
-// (Star 아이콘은 사용 안 하므로 필요 없으면 지워도 됨)
-// import Star from '@/assets/icons/star.svg';
+// import Star from '@/assets/icons/star.svg'; // 사용 안 하면 제거
 import GitHub from '@/assets/icons/Github.svg';
 import Blog from '@/assets/icons/blog.svg';
 import Follow from '@/assets/icons/Follow.svg';
@@ -21,7 +20,7 @@ import { getSafeProfileUrl } from '@/utils/defaultImages';
 import WithdrawalConfirmModal from '@/components/layout/mypage/WithdrawalConfirmModal';
 import WithdrawalCompleteModal from '@/components/layout/mypage/WithdrawalCompleteModal';
 
-// ✅ store는 읽기만
+// ✅ store는 읽기만…이었지만, 로그아웃 시 상태 정리를 위해 일부 setter도 사용
 import { useUserStore } from '@/stores/userStore';
 
 interface ProfileHeaderProps {
@@ -48,7 +47,18 @@ export default function ProfileHeader({
   const navigate = useNavigate();
 
   // ✅ 로그인 사용자 id (store에서 읽기)
-  const { user, memberId } = useUserStore();
+  const {
+    user,
+    memberId,
+    // ▼ 로그아웃 시 상태 정리용
+    setMemberId,
+    clearUser,
+    setStarLst,
+    setFollowUser,
+    setFollowCompany,
+    clearSocialLoginInfo,
+  } = useUserStore();
+
   const myId = user?.memberId ?? memberId;
 
   // ✅ 최종 조회 대상: 내 페이지면 내 id, 아니면 URL id
@@ -114,13 +124,14 @@ export default function ProfileHeader({
       setShowWithdrawalComplete(true);           // ✅ 완료 모달 오픈
     } catch (e) {
       setWithdrawError((e as Error)?.message || '회원 탈퇴 중 오류가 발생했습니다.');
+      throw e; // ConfirmModal에서 errorMessage로 노출할 수 있게 (선택)
     } finally {
       setWithdrawing(false);
     }
   };
 
   const handleWithdrawalComplete = async () => {
-    // ✅ 서버 로그아웃(베스트에포트) → 로컬 토큰 정리 → 메인 이동
+    // ✅ 서버 로그아웃(베스트에포트) → 전역 상태/토큰 정리 → 메인 이동
     try {
       const idForLogout = myId || targetId;
       if (idForLogout && idForLogout > 0) {
@@ -133,7 +144,14 @@ export default function ProfileHeader({
         }).catch(() => null);
         clearTimeout(t);
       }
+      // 전역/로컬 정리
       try {
+        setMemberId(-1);
+        clearUser();
+        setStarLst([]);
+        setFollowUser([]);
+        setFollowCompany([]);
+        clearSocialLoginInfo();
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
       } catch {}

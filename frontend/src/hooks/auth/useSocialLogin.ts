@@ -185,7 +185,7 @@ const useSocialLogin = () => {
             return res.json();
           })
           .then((response) => {
-            const followUserIds = response.data.follows.map((item: any) => item.memberId);
+            const followUserIds = response.data.memberFollows.map((item: any) => item.memberId);
             setFollowUser(followUserIds);
             console.log('팔로우 사용자 목록:', followUserIds);
           })
@@ -205,7 +205,7 @@ const useSocialLogin = () => {
           })
           .then((response) => {
             const followCompanyIds = response.data.companyFollows.map((item: any) => item.companyId);
-            setFollowUser(followCompanyIds);
+            setFollowCompany(followCompanyIds);
             console.log('팔로우 사용자 목록:', followCompanyIds);
           })
           .catch((error) => {

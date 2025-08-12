@@ -147,7 +147,8 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
     newNickname: string,
     newBlogUrl: string,
     newGithubUrl?: string,
-    newProfileUrl?: string
+    newProfileUrl?: string,
+    file?: File | null            // ✅ 파일 추가
   ) => {
     if (!isMyPage || !myId || myId <= 0) {
       alert('내 프로필에서만 수정할 수 있습니다.');
@@ -162,12 +163,13 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
     }
 
     try {
-      // ✅ 업로드 API 없이 URL만 그대로 전송
+      // ✅ 파일이 있으면 파일 우선, 없으면 URL로 전송
       await updateMemberProfile(myId, {
         nickname: newNickname,
         blogUrl: newBlogUrl || null,
         githubUrl: (newGithubUrl ?? '') || null,
-        memberProfileUrl: (newProfileUrl ?? '') || null,
+        memberProfileUrl: file ? null : ((newProfileUrl ?? '') || null),
+        file: file ?? null,
       });
 
       // ✅ 닉네임이 실제로 바뀐 경우에만 변경시각 기록

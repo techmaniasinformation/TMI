@@ -24,10 +24,11 @@ export interface MemberResponse {
 
 // 회원 정보 수정 요청 바디
 export interface UpdateMemberRequest {
-  nickname: string;
-  memberProfileUrl?: string | null;
+  nickname?: string | null;
   blogUrl?: string | null;
   githubUrl?: string | null;
+  memberProfileUrl?: string | null; // 파일 안 보낼 때만 사용
+  file?: File | null;               // 추가: 업로드할 이미지
 }
 
 // 회원 정보 수정 응답 (서버 예시: { status: "SUCCESS", data: { memberId: 789 } })

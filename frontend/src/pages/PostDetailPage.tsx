@@ -701,7 +701,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         body: JSON.stringify({
           postId: postData.postId,
           memberId: currentUserId,
-          content: commentText,
+          comment: commentText,
           link: linkUrl || null
         })
       });

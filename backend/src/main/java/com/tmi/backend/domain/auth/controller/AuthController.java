@@ -97,9 +97,9 @@ public class AuthController implements BaseController {
       url = "https://kauth.kakao.com/oauth/logout"
           + "?client_id=" + restKey
           + "&logout_redirect_uri=" + kakaoLogoutRedirectUri;
-      System.out.println("===");
+    } else {
+      url = kakaoLogoutRedirectUri;
     }
-    url = kakaoLogoutRedirectUri;
     return ResponseEntity.status(302).header(HttpHeaders.LOCATION, url).build();
   }
 

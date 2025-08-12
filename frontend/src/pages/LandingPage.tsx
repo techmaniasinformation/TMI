@@ -72,50 +72,70 @@ const LandingPage: React.FC<LandingPageProps> = () => {
       {/* 별똥별 애니메이션 */}
       <div className='absolute inset-0'>
         <div className='absolute top-10 left-10 w-1 h-1 bg-white rounded-full animate-pulse'></div>
+
         <div className='absolute top-32 right-20 w-1 h-1 bg-blue-300 rounded-full animate-pulse delay-500'></div>
+
         <div className='absolute top-64 left-1/4 w-1 h-1 bg-white rounded-full animate-pulse delay-1000'></div>
+
         <div className='absolute bottom-40 right-1/3 w-1 h-1 bg-purple-300 rounded-full animate-pulse delay-700'></div>
+
         <div className='absolute bottom-20 left-1/2 w-1 h-1 bg-blue-200 rounded-full animate-pulse delay-300'></div>
+
         <div className='absolute top-1/3 right-10 w-1 h-1 bg-white rounded-full animate-pulse delay-1200'></div>
+
         <div className='absolute top-1/2 left-16 w-1 h-1 bg-purple-200 rounded-full animate-pulse delay-800'></div>
+
         <div className='absolute bottom-1/3 right-1/4 w-1 h-1 bg-blue-100 rounded-full animate-pulse delay-400'></div>
+
       </div>
 
       {/* Shooting Stars */}
       <div className='absolute inset-0'>
         {/* Shooting Star 1 */}
         <div className='absolute top-1/4 left-0 w-1 h-1 bg-white rounded-full opacity-0 animate-shooting-star-1'>
+
           <div className='absolute w-20 h-0.5 bg-gradient-to-r from-white via-blue-200 to-transparent -translate-y-0.5'></div>
+
         </div>
         {/* Shooting Star 2 */}
         <div className='absolute top-1/3 right-0 w-1 h-1 bg-purple-200 rounded-full opacity-0 animate-shooting-star-2'>
+
           <div className='absolute w-16 h-0.5 bg-gradient-to-l from-purple-200 via-white to-transparent -translate-y-0.5 right-0'></div>
+
         </div>
         {/* Shooting Star 3 */}
         <div className='absolute top-2/3 left-1/4 w-1 h-1 bg-blue-200 rounded-full opacity-0 animate-shooting-star-3'>
+
           <div className='absolute w-12 h-0.5 bg-gradient-to-r from-blue-200 via-white to-transparent -translate-y-0.5'></div>
+
         </div>
       </div>
 
       {/* Blue Gradient Overlay */}
       <div className='absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/15 to-indigo-900/25'></div>
 
+
       <main className='relative z-10 flex flex-col items-center justify-center min-h-screen px-6 py-12'>
+
         <div className='text-center max-w-4xl'>
           {/* Main Heading */}
           <h1 className='text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-12 leading-tight'>
+
             <span className='text-white'>
               <span className='text-2xl md:text-3xl lg:text-4xl xl:text-5xl whitespace-nowrap'>
+
                 테크 블로그를 표류하는 디벨로퍼를 위한
               </span>
               <br />
               <span className='text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black'>
+
                 TMI
               </span>
             </span>
           </h1>
 
           <p className='text-sm md:text-base text-blue-200 mb-12 tracking-wider uppercase'>
+
             easy search, high quality by sharing
           </p>
           {/* Subheading */}
@@ -125,6 +145,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
 
           {/* Navigation Buttons */}
           <div className='flex flex-col sm:flex-row gap-6 justify-center items-center'>
+
             {!isLogin && (
               <Button
                 variant={'primary'}
@@ -138,6 +159,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
                 <div className='flex items-center justify-center space-x-2'>
                   {/* 로켓 아이콘 건의 */}
                   <i className='fa-solid fa-rocket w-5 h-5 flex items-center justify-center'></i>
+
                   <span>로그인/회원가입</span>
                 </div>
               </Button>
@@ -154,6 +176,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
               <div className='flex items-center justify-center space-x-2'>
                 {/* 돋보기 아이콘 건의 */}
                 <i className='fa-solid fa-magnifying-glass w-5 h-5 flex items-center justify-center'></i>
+
                 <span>둘러보기</span>
               </div>
             </Button>
@@ -161,16 +184,20 @@ const LandingPage: React.FC<LandingPageProps> = () => {
 
           {/* Additional Info */}
           <div className='flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-8 mt-16 text-gray-400 text-sm'>
+
             <div className='flex items-center space-x-2'>
               <div className='w-2 h-2 bg-blue-400 rounded-full animate-pulse'></div>
+
               <span>Curated by developers, for developers</span>
             </div>
             <div className='flex items-center space-x-2'>
               <i className='ri-star-line w-4 h-4 flex items-center justify-center'></i>
+
               <span>Quality content, zero noise</span>
             </div>
             <div className='flex items-center space-x-2'>
               <i className='ri-team-line w-4 h-4 flex items-center justify-center'></i>
+
               <span>Join the community</span>
             </div>
           </div>
@@ -178,18 +205,22 @@ const LandingPage: React.FC<LandingPageProps> = () => {
           {/* Floating Elements */}
           <div className='absolute top-20 left-10 opacity-30'>
             <div className='w-20 h-20 border border-blue-300/30 rounded-full animate-pulse'></div>
+
           </div>
           <div className='absolute bottom-32 right-16 opacity-20'>
             <div className='w-16 h-16 border border-purple-300/30 rounded-full animate-pulse delay-1000'></div>
+
           </div>
           <div className='absolute top-1/2 right-8 opacity-25'>
             <div className='w-12 h-12 border border-white/20 rounded-full animate-pulse delay-500'></div>
+
           </div>
         </div>
 
         {/* Featured Posts Section */}
         <div className='w-full max-w-6xl mt-24 mb-12'>
           <h2 className='text-2xl md:text-3xl font-bold text-white text-center mb-12'>
+
             인기 게시글
           </h2>
           {/* 각 카드는 inter에다가 컴포넌트 만들기 */}
@@ -199,6 +230,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
             {loading ? (
               <div className='text-gray-400 text-center w-full'>
                 <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2'></div>
+
                 인기게시글을 불러오는 중입니다...
               </div>
             ) : error ? (
@@ -242,6 +274,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
             <div className='flex items-center justify-center space-x-2'>
               {/* 돋보기 아이콘 건의 */}
               <i className='fa-solid fa-magnifying-glass w-5 h-5 flex items-center justify-center'></i>
+
               <span>둘러보기</span>
             </div>
           </Button>
@@ -250,6 +283,7 @@ const LandingPage: React.FC<LandingPageProps> = () => {
 
       {/* Bottom Gradient */}
       <div className='absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-gray-900/80 to-transparent'></div>
+
     </div>
   );
 };

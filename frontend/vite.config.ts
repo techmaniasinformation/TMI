@@ -11,16 +11,6 @@ export default defineConfig({
   },
   build: {
     outDir: 'build',
-    // 소스맵 생성 비활성화 (프로덕션에서)
-    sourcemap: false,
-    // 미니파이 옵션
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true, // console.log 제거
-        drop_debugger: true // debugger 제거
-      }
-    }
   },
   resolve: {
     alias: {

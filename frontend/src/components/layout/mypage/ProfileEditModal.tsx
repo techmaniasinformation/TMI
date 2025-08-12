@@ -23,8 +23,9 @@ interface ProfileEditModalProps {
     nickname: string,
     blogUrl: string,
     githubUrl?: string,
-    profileImageUrl?: string
-  ) => void;
+    profileImageUrl?: string,
+    file?: File | null 
+  ) => Promise<void>;
 }
 
 const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
@@ -96,6 +97,20 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
+    if (file) {
+      const MAX = 5 * 1024 * 1024; // 5MB
+      const okType = /^image\//.test(file.type);
+      if (!okType) {
+        alert('이미지 파일만 업로드 가능합니다.');
+        e.target.value = ''; // 같은 파일 다시 선택 가능하게 초기화
+        return;
+      }
+      if (file.size > MAX) {
+        alert('이미지는 5MB 이하만 업로드 가능합니다.');
+        e.target.value = '';
+        return;
+      }
+    }
     setSelectedFile(file);
     fallbackAppliedRef.current = false;
     if (file) {
@@ -109,9 +124,19 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
 
   const openFilePicker = () => fileInputRef.current?.click();
 
-  const handleSubmit = () => {
-    onSave(nickname, blogUrl, githubUrl); // 파일/이미지 URL 전송 안 함
-    onClose();
+  const [saving, setSaving] = useState(false);
+  const handleSubmit = async () => {
+    if (saving) return;
+    setSaving(true);
+    try {
+      await onSave(nickname, blogUrl, githubUrl, previewUrl ?? undefined, selectedFile);
+      onClose();
+    } catch (e) {
+      // 실패 시 모달 유지, 에러 토스트/알럿은 부모에서 해도 됨
+      console.error(e);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -161,7 +186,15 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
           <p className="text-sm text-gray-500 mt-2">
             Click the camera icon to change profile image
           </p>
-
+          {(previewUrl || selectedFile) && (
+            <button
+              type="button"
+              onClick={() => { setSelectedFile(null); setPreviewUrl(null); }}
+              className="mt-2 text-xs text-gray-500 underline"
+            >
+              이미지 제거
+            </button>
+          )}
           {/* 숨김 파일 인풋 */}
           <input
             ref={fileInputRef}
@@ -200,9 +233,10 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
           <Button
             variant="primary"
             onClick={handleSubmit}
-            className="w-full h-10 text-white font-semibold"
+            disabled={saving}
+            className={`w-full h-10 text-white font-semibold ${saving ? 'opacity-60 cursor-not-allowed' : ''}`}
           >
-            저장하기
+            {saving ? '저장 중…' : '저장하기'}
           </Button>
         </div>
       </DialogContent>

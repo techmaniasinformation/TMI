@@ -33,7 +33,7 @@ import {
   findCompanyFollowId,
 } from '@/api/followService';
 
-// ✅ store는 읽기만 사용
+// ✅ store
 import { useUserStore } from '@/stores/userStore';
 
 interface MyPageProps {
@@ -65,8 +65,8 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
   const { id } = useParams();
   const routeId = Number(id) || 0;                 // ✅ 숫자 가드
 
-  // store에서 내 id 읽기 (수정 X)
-  const { user } = useUserStore();
+  // store에서 내 id/업데이트 액션 읽기
+  const { user, updateUserProfile } = useUserStore();
   const myId = user?.memberId;
 
   // 내 페이지 여부 계산
@@ -183,8 +183,10 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
         }
       }
 
+      // PATCH
       await updateMemberProfile(myId, payload);
 
+      // 닉네임 쿨타임 기록
       if (nicknameChanged) {
         localStorage.setItem(
           NICK_COOLDOWN_KEY(myId),
@@ -192,8 +194,23 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
         );
       }
 
-      // NOTE: ProfileHeader가 자체적으로 fetch하는 구조라, 간단히 전체 새로고침
-      window.location.reload();
+      // ✅ 최신 데이터 재조회 → 전역 헤더 즉시 반영
+      const updated = await fetchMemberProfile(myId);
+      updateUserProfile({
+        nickname: updated.nickname,
+        memberProfileUrl: updated.memberProfileUrl,
+      });
+
+      // 모달 초기값도 동기화 (페이지 내 표시 일관성)
+      setModalInit({
+        nickname: updated.nickname ?? '',
+        blogUrl: updated.blogUrl ?? '',
+        githubUrl: updated.githubUrl ?? '',
+        profileUrl: updated.memberProfileUrl ?? '',
+      });
+
+      // ✅ 전체 새로고침 불필요 (즉시 반영)
+      // window.location.reload();
     } catch (e: any) {
       console.error('프로필 저장 실패:', e);
       alert(e?.message || '프로필 저장에 실패했습니다. 잠시 후 다시 시도해 주세요.');

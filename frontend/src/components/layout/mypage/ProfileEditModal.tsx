@@ -101,7 +101,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
     const file = e.target.files?.[0] || null;
     setRemoved(false); // ✅ 파일 선택하면 제거 의도 해제
     if (file) {
-      const MAX = 5 * 1024 * 1024; // 5MB
+      const MAX = 20 * 1024 * 1024; // 20MB
       const okType = /^image\//.test(file.type);
       if (!okType) {
         alert('이미지 파일만 업로드 가능합니다.');
@@ -215,7 +215,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
           </button>
 
           <p className="text-sm text-gray-500 mt-2">
-            Click the camera icon to change profile image
+             이미지는 20MB 이하만 업로드할 수 있어요.
           </p>
           {(previewUrl || selectedFile) && (
             <button

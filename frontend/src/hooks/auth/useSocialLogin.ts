@@ -123,7 +123,7 @@ const useSocialLogin = () => {
         console.log('useSocialLogin - memberId:', numericMemberId);
         
         // memberId 전역변수 저장 (isLogin은 자동으로 true로 변경됨)
-        setMemberId(numericMemberId);
+        // setMemberId(numericMemberId);
 
         // ✅ 사용자 정보 요청 후 저장
         fetch(`https://i13a509.p.ssafy.io/api/v1/member/${numericMemberId}`, {
@@ -146,9 +146,11 @@ const useSocialLogin = () => {
              // 전역변수 상태 확인
              console.log('🔍 기존 회원 처리 후 전역변수 상태:', {
                isLogin,
-               memberId: globalMemberId,
-               user: user ? { memberId: user.memberId, nickname: user.nickname } : null
-             });
+              //  memberId: globalMemberId,
+              memberId: numericMemberId,
+              //  user: user ? { memberId: user.memberId, nickname: user.nickname } : null
+            user: { memberId: user.memberId, nickname: user.nickname } 
+            });
           })
           .catch((error) => {
             console.error('유저 정보 가져오기 실패:', error);

@@ -78,9 +78,11 @@ const Header: React.FC<HeaderProps> = ({
 
       // 프로필 메뉴 닫기
       setShowProfileMenu(false);
-      setPrevPath(window.location.pathname + window.location.search);
-      console.log(prevPath);
-      navigate(prevPath);
+      const currentPath = window.location.pathname + window.location.search;
+setPrevPath(currentPath);
+console.log('prevPath', prevPath);
+navigate(currentPath);
+setPrevPath('/');
 
       console.log('로그아웃 완료 - 모든 전역변수 정리됨');
       alert('로그아웃 되었습니다.');
@@ -99,9 +101,11 @@ const Header: React.FC<HeaderProps> = ({
 
       alert('로그아웃 되었습니다.');
 
-      setPrevPath(window.location.pathname + window.location.search);
-
-      navigate(prevPath);
+      const currentPath = window.location.pathname + window.location.search;
+setPrevPath(currentPath);
+console.log('prevPath', prevPath);
+navigate(currentPath);
+setPrevPath('/');
     }
   }, [memberId, setMemberId, clearUser, setStarLst, setFollowUser, setFollowCompany, clearSocialLoginInfo, navigate, prevPath, setPrevPath]);
 

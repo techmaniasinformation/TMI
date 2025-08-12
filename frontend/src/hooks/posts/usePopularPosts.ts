@@ -1,20 +1,15 @@
-import { useState, useEffect } from 'react';
-import { SearchApiResponse, Post } from '@/types';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { Post, SearchApiResponse } from '@/types';
 
 // 실제 API 호출 함수
 const fetchPopularPostsFromAPI = async (): Promise<SearchApiResponse> => {
-  console.log('🔍 [fetchPopularPostsFromAPI] 인기 게시글 API 호출 시작');
-  
-  const apiUrl = 'https://i13a509.p.ssafy.io/api/v1/post/popular';
-  
   try {
-    const response = await fetch(apiUrl, {
+    const response = await fetch('https://i13a509.p.ssafy.io/api/v1/post?page=1&size=10', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        // TODO: 실제 인증 토큰이 있다면 추가
-        // 'Authorization': `Bearer ${accessToken}`
-      }
+      },
+      credentials: 'include'
     });
 
     if (!response.ok) {
@@ -22,14 +17,9 @@ const fetchPopularPostsFromAPI = async (): Promise<SearchApiResponse> => {
     }
 
     const data: SearchApiResponse = await response.json();
-    
-    console.log('✅ [fetchPopularPostsFromAPI] 인기 게시글 API 호출 성공:', {
-      postsCount: data.data.posts.length
-    });
-
     return data;
   } catch (error) {
-    console.error('❌ [fetchPopularPostsFromAPI] 인기 게시글 API 호출 실패:', error);
+    console.error('❌ [fetchPopularPostsFromAPI] API 호출 실패:', error);
     throw error;
   }
 };
@@ -39,40 +29,44 @@ export const usePopularPosts = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // 인기 게시글 가져오기
-  useEffect(() => {
-    const fetchPopularPosts = async () => {
-      try {
-        console.log('🔍 [usePopularPosts] 인기 게시글 가져오기 시작');
-        setLoading(true);
-        
-        // 실제 API에서 데이터 가져오기
-        const response: SearchApiResponse = await fetchPopularPostsFromAPI();
-        const posts = response.data.posts;
-        
-        console.log('✅ [usePopularPosts] 인기 게시글 가져오기 완료:', {
-          postsCount: posts.length
-        });
-        
-        setPopularPosts(posts);
-        setError(null);
-      } catch (err) {
-        console.error('❌ Error loading popular posts:', err);
-        setError('인기 게시글을 불러오는데 실패했습니다.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPopularPosts();
+  // 인기 게시글 가져오기 함수를 useCallback으로 메모이제이션
+  const fetchPopularPosts = useCallback(async () => {
+    try {
+      console.log('🔍 [usePopularPosts] 인기 게시글 가져오기 시작');
+      setLoading(true);
+      
+      // 실제 API에서 데이터 가져오기
+      const response: SearchApiResponse = await fetchPopularPostsFromAPI();
+      const posts = response.data.posts;
+      
+      console.log('✅ [usePopularPosts] 인기 게시글 가져오기 완료:', {
+        postsCount: posts.length
+      });
+      
+      setPopularPosts(posts);
+      setError(null);
+    } catch (err) {
+      console.error('❌ Error loading popular posts:', err);
+      setError('인기 게시글을 불러오는데 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const formatNumber = (num: number): string => {
-    if (num >= 1000) {
-      return `${(num / 1000).toFixed(1)}k`;
-    }
-    return num.toString();
-  };
+  // 인기 게시글 가져오기
+  useEffect(() => {
+    fetchPopularPosts();
+  }, [fetchPopularPosts]);
+
+  // 숫자 포맷팅 함수를 useMemo로 메모이제이션
+  const formatNumber = useMemo(() => {
+    return (num: number): string => {
+      if (num >= 1000) {
+        return `${(num / 1000).toFixed(1)}k`;
+      }
+      return num.toString();
+    };
+  }, []);
 
   return {
     popularPosts,

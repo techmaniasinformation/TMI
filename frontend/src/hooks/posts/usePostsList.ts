@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { SearchApiResponse, Post, PageInfo } from '@/types';
 import { useUserStore } from '@/stores/userStore';
 
@@ -43,7 +43,6 @@ const fetchPostsFromAPI = async (params: { page: number; size: number; followMem
     const data: SearchApiResponse = await response.json();
     
 
-
     return data;
   } catch (error) {
     console.error('❌ [fetchPostsFromAPI] API 호출 실패:', error);
@@ -68,13 +67,11 @@ export const usePostsList = () => {
   const { isLogin, memberId } = useUserStore();
   const isLoggedIn = isLogin;
 
-  // 게시글 목록 가져오기
-  const fetchPosts = async (page: number = 1, sort: 'latest' | 'following' = 'latest') => {
+  // 게시글 목록 가져오기 함수를 useCallback으로 메모이제이션
+  const fetchPosts = useCallback(async (page: number = 1, sort: 'latest' | 'following' = 'latest') => {
     setState(prev => ({ ...prev, loading: true, error: null }));
 
     try {
-
-      
       // 실제 API에서 데이터 가져오기
       const response: SearchApiResponse = await fetchPostsFromAPI({ 
         page, 
@@ -83,8 +80,6 @@ export const usePostsList = () => {
       });
       
       const { posts, pageInfo } = response.data;
-
-
 
       setState({
         posts,
@@ -104,7 +99,7 @@ export const usePostsList = () => {
         error: '게시글을 불러오는 중 오류가 발생했습니다.'
       }));
     }
-  };
+  }, [memberId]);
 
   // 컴포넌트 마운트 시 초기 데이터 로드
   useEffect(() => {
@@ -113,7 +108,7 @@ export const usePostsList = () => {
       return;
     }
     fetchPosts(1, activeTab);
-  }, []); // 빈 의존성 배열로 마운트 시 한 번만 실행
+  }, [fetchPosts, activeTab, isLoggedIn]); // 의존성 배열 수정
 
   // 탭 변경 시 게시글 다시 가져오기
   useEffect(() => {
@@ -123,22 +118,26 @@ export const usePostsList = () => {
       return;
     }
     fetchPosts(1, activeTab);
-  }, [activeTab, isLoggedIn]);
+  }, [activeTab, isLoggedIn, fetchPosts]);
 
-  // 페이지 변경 핸들러
-  const setCurrentPage = (page: number) => {
+  // 페이지 변경 핸들러를 useCallback으로 메모이제이션
+  const setCurrentPage = useCallback((page: number) => {
     fetchPosts(page, activeTab);
-  };
+  }, [fetchPosts, activeTab]);
 
-  // 날짜 포맷팅 함수
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('ko-KR');
-  };
+  // 날짜 포맷팅 함수를 useMemo로 메모이제이션
+  const formatDate = useMemo(() => {
+    return (date: string) => {
+      return new Date(date).toLocaleDateString('ko-KR');
+    };
+  }, []);
 
-  // 숫자 포맷팅 함수
-  const formatNumber = (num: number) => {
-    return num.toLocaleString('ko-KR');
-  };
+  // 숫자 포맷팅 함수를 useMemo로 메모이제이션
+  const formatNumber = useMemo(() => {
+    return (num: number) => {
+      return num.toLocaleString('ko-KR');
+    };
+  }, []);
 
   return {
     ...state,

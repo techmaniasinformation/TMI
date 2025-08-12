@@ -1,5 +1,5 @@
 // The exported code uses Tailwind CSS. Install Tailwind CSS in your dev environment to ensure all styles work.
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/foundation/button";
 import { PostHeader } from "@/components/PostDetail/PostHeader";
@@ -90,107 +90,110 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // 게시글 상세 정보 가져오기 함수를 useCallback으로 메모이제이션
+  const fetchPostDetail = useCallback(async () => {
+    if (!id) {
+      setError('게시글 ID가 없습니다.');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/post/${id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          // TODO: 실제 인증 토큰이 있다면 추가
+          // 'Authorization': `Bearer ${accessToken}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data: PostDetailResponse = await response.json();
+      
+      // 이미지 URL 처리를 한 번만 수행
+      const postWithDefaultImages = {
+        ...data.data,
+        memberProfileUrl: getSafeProfileUrl(data.data.memberProfileUrl),
+        companyProfileUrl: getSafeCompanyUrl(data.data.companyProfileUrl),
+        badgeUrl: getSafeBadgeUrl(data.data.badgeUrl),
+        thumbnailUrl: getSafeThumbnailUrl(data.data.thumbnailUrl),
+      };
+      
+      setPostData(postWithDefaultImages);
+    } catch (err) {
+      console.error('❌ [PostDetailPage] 게시글 상세 정보 가져오기 실패:', err);
+      setError('게시글을 불러오는데 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
+
   // 게시글 상세 정보 가져오기
   useEffect(() => {
-    const fetchPostDetail = async () => {
-      if (!id) {
-        setError('게시글 ID가 없습니다.');
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        setError(null);
-        
-        const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/post/${id}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            // TODO: 실제 인증 토큰이 있다면 추가
-            // 'Authorization': `Bearer ${accessToken}`
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data: PostDetailResponse = await response.json();
-        
-        // 이미지 URL 처리를 한 번만 수행
-        const postWithDefaultImages = {
-          ...data.data,
-          memberProfileUrl: getSafeProfileUrl(data.data.memberProfileUrl),
-          companyProfileUrl: getSafeCompanyUrl(data.data.companyProfileUrl),
-          badgeUrl: getSafeBadgeUrl(data.data.badgeUrl),
-          thumbnailUrl: getSafeThumbnailUrl(data.data.thumbnailUrl),
-        };
-        
-        setPostData(postWithDefaultImages);
-      } catch (err) {
-        console.error('❌ [PostDetailPage] 게시글 상세 정보 가져오기 실패:', err);
-        setError('게시글을 불러오는데 실패했습니다.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchPostDetail();
-  }, [id]);
+  }, [fetchPostDetail]);
+
+  // 댓글 목록 가져오기 함수를 useCallback으로 메모이제이션
+  const fetchComments = useCallback(async () => {
+    if (!postData?.postId) return;
+
+    try {
+      const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/comment?postId=${postData.postId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      // 댓글에 기본 이미지 적용 (한 번만 처리)
+      const commentsWithDefaultImages = (data.data?.comments || []).map((comment: Comment) => ({
+        ...comment,
+        memberProfileUrl: getSafeProfileUrl(comment.memberProfileUrl),
+        badgeUrl: getSafeBadgeUrl(comment.badgeUrl),
+      }));
+      
+      setComments(commentsWithDefaultImages);
+      setBestCommentId(data.data?.bestCommentId || -1);
+    } catch (err) {
+      console.error('❌ [PostDetailPage] 댓글 가져오기 실패:', err);
+      setComments([]);
+      setBestCommentId(-1);
+    }
+  }, [postData?.postId]);
 
   // 댓글 목록 가져오기
   useEffect(() => {
-    const fetchComments = async () => {
-      if (!postData?.postId) return;
-
-      try {
-        const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/comment?postId=${postData.postId}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        
-        // 댓글에 기본 이미지 적용 (한 번만 처리)
-        const commentsWithDefaultImages = (data.data?.comments || []).map((comment: Comment) => ({
-          ...comment,
-          memberProfileUrl: getSafeProfileUrl(comment.memberProfileUrl),
-          badgeUrl: getSafeBadgeUrl(comment.badgeUrl),
-        }));
-        
-        setComments(commentsWithDefaultImages);
-        setBestCommentId(data.data?.bestCommentId || -1);
-      } catch (err) {
-        console.error('❌ [PostDetailPage] 댓글 가져오기 실패:', err);
-        setComments([]);
-        setBestCommentId(-1);
-      }
-    };
-
     fetchComments();
-  }, [postData?.postId]);
+  }, [fetchComments]);
 
-
-
-  const showToastMessage = (message: string) => {
+  // 토스트 메시지 표시 함수를 useCallback으로 메모이제이션
+  const showToastMessage = useCallback((message: string) => {
     setToastMessage(message);
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
-  };
+  }, []);
 
-  const handleFollow = () => {
+  // 팔로우 핸들러를 useCallback으로 메모이제이션
+  const handleFollow = useCallback(() => {
     setIsFollowing(!isFollowing);
     showToastMessage(isFollowing ? '팔로우를 취소했습니다.' : '팔로우했습니다.');
-  };
+  }, [isFollowing, showToastMessage]);
 
-  const handleStar = async () => {
+  // 스타 핸들러를 useCallback으로 메모이제이션
+  const handleStar = useCallback(async () => {
     if (isStarLoading) return; // 이미 요청 중이면 무시
     
     if (!postData?.postId) {
@@ -296,9 +299,10 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
     } finally {
       setIsStarLoading(false);
     }
-  };
+  }, [isStarLoading, postData?.postId, isStarred, starId, showToastMessage]);
 
-  const handleShare = async () => {
+  // 공유 핸들러를 useCallback으로 메모이제이션
+  const handleShare = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
       showToastMessage('링크가 클립보드에 복사되었습니다.');
@@ -306,9 +310,10 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
       console.error('링크 복사 실패:', error);
       showToastMessage('링크 복사에 실패했습니다.');
     }
-  };
+  }, [showToastMessage]);
 
-  const handleAuthorClick = () => {
+  // 작성자 클릭 핸들러를 useCallback으로 메모이제이션
+  const handleAuthorClick = useCallback(() => {
     if (!postData) {
       showToastMessage('게시글 정보를 찾을 수 없습니다.');
       return;
@@ -321,9 +326,10 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
     } else {
       showToastMessage(postData.companyProfileUrl ? '회사 프로필 ID 정보가 없습니다.' : '개인 프로필 ID 정보가 없습니다.');
     }
-  };
+  }, [postData, navigate, showToastMessage]);
 
-  const handleDelete = async () => {
+  // 삭제 핸들러를 useCallback으로 메모이제이션
+  const handleDelete = useCallback(async () => {
     if (!postData?.postId || !window.confirm('정말로 이 게시글을 삭제하시겠습니까?')) {
       return;
     }
@@ -345,14 +351,15 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
       console.error('❌ [PostDetailPage] 게시글 삭제 실패:', err);
       showToastMessage('게시글 삭제에 실패했습니다.');
     }
-  };
+  }, [postData?.postId, showToastMessage, navigate]);
 
-  // 댓글 관련 함수들
-  const handleCommentChange = (text: string) => setCommentText(text);
-  const handleLinkToggle = () => setShowLinkInput(!showLinkInput);
-  const handleLinkChange = (url: string) => setLinkUrl(url);
+  // 댓글 관련 함수들을 useCallback으로 메모이제이션
+  const handleCommentChange = useCallback((text: string) => setCommentText(text), []);
+  const handleLinkToggle = useCallback(() => setShowLinkInput(!showLinkInput), [showLinkInput]);
+  const handleLinkChange = useCallback((url: string) => setLinkUrl(url), []);
 
-  const handleCommentSubmit = async () => {
+  // 댓글 제출 핸들러를 useCallback으로 메모이제이션
+  const handleCommentSubmit = useCallback(async () => {
     if (!newComment.trim()) {
       alert('댓글 내용을 입력해주세요.');
       return;
@@ -397,38 +404,45 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
       console.error('댓글 작성 실패:', error);
       alert('댓글 작성에 실패했습니다.');
     }
-  };
+  }, [newComment, postData?.postId, user?.memberId, memberId, navigate, linkUrl]);
 
+  // 날짜 포맷팅 함수를 useMemo로 메모이제이션
+  const formatDate = useMemo(() => {
+    return (dateString: string) => {
+      const diffInMs = Date.now() - new Date(dateString).getTime();
+      const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+      const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+      const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
 
+      if (diffInMinutes < 1) return '방금 전';
+      if (diffInMinutes < 60) return `${diffInMinutes}분 전`;
+      if (diffInHours < 24) return `${diffInHours}시간 전`;
+      if (diffInDays < 7) return `${diffInDays}일 전`;
+      
+      return new Date(dateString).toLocaleDateString('ko-KR');
+    };
+  }, []);
 
-  const formatDate = (dateString: string) => {
-    const diffInMs = Date.now() - new Date(dateString).getTime();
-    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
-    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+  // 숫자 포맷팅 함수를 useMemo로 메모이제이션
+  const formatNumber = useMemo(() => {
+    return (num: number) => {
+      if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+      if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+      return num.toString();
+    };
+  }, []);
 
-    if (diffInMinutes < 1) return '방금 전';
-    if (diffInMinutes < 60) return `${diffInMinutes}분 전`;
-    if (diffInHours < 24) return `${diffInHours}시간 전`;
-    if (diffInDays < 7) return `${diffInDays}일 전`;
-    
-    return new Date(dateString).toLocaleDateString('ko-KR');
-  };
-
-  const formatNumber = (num: number) => {
-    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-    return num.toString();
-  };
-
-  const renderMarkdown = (content: string) => content
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/`(.*?)`/g, '<code>$1</code>')
-    .replace(/\n/g, '<br>')
-    .replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/&lt;(strong|em|code|br)&gt;/g, '<$1>')
-    .replace(/&lt;\/(strong|em|code)&gt;/g, '</$1>');
+  // 마크다운 렌더링 함수를 useMemo로 메모이제이션
+  const renderMarkdown = useMemo(() => {
+    return (content: string) => content
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/`(.*?)`/g, '<code>$1</code>')
+      .replace(/\n/g, '<br>')
+      .replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/&lt;(strong|em|code|br)&gt;/g, '<$1>')
+      .replace(/&lt;\/(strong|em|code)&gt;/g, '</$1>');
+  }, []);
 
   // 로딩 상태
   if (loading) {

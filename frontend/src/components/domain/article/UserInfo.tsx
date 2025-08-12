@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { getSafeProfileUrl } from '@/utils/defaultImages';
 
 interface UserInfoBoxProps {
@@ -29,8 +29,10 @@ export default function UserInfoBox({
   imageSize = '40px', // 기본값 설정
   onClick,
 }: UserInfoBoxProps) {
-  // 안전한 프로필 이미지 URL 사용
-  const safeProfileUrl = getSafeProfileUrl(profileImageUrl);
+  // 안전한 프로필 이미지 URL을 메모이제이션
+  const safeProfileUrl = useMemo(() => {
+    return getSafeProfileUrl(profileImageUrl);
+  }, [profileImageUrl]);
 
   return (
     <div

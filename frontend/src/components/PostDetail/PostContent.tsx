@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Button } from '@/components/foundation/button';
 import { getSafeThumbnailUrl, DEFAULT_IMAGES } from '@/utils/defaultImages';
 
@@ -12,8 +12,10 @@ export const PostContent: React.FC<PostContentProps> = ({ post, onStarClick, onS
   // 이미지 로드 실패 상태 관리
   const [imageError, setImageError] = useState(false);
   
-  // 안전한 썸네일 이미지 URL 사용
-  const safeThumbnailUrl = getSafeThumbnailUrl(post.thumbnailUrl);
+  // 안전한 썸네일 이미지 URL을 메모이제이션
+  const safeThumbnailUrl = useMemo(() => {
+    return getSafeThumbnailUrl(post.thumbnailUrl);
+  }, [post.thumbnailUrl]);
   
   // 이미지 로드 실패 시 디폴트 이미지로 대체
   const handleImageError = () => {

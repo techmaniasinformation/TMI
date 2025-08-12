@@ -1,5 +1,5 @@
 // The exported code uses Tailwind CSS. Install Tailwind CSS in your dev environment to ensure all styles work.
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/foundation/button";
 import { PostHeader } from "@/components/PostDetail/PostHeader";
@@ -118,6 +118,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
 
         const data: PostDetailResponse = await response.json();
         
+        // 이미지 URL 처리를 한 번만 수행
         const postWithDefaultImages = {
           ...data.data,
           memberProfileUrl: getSafeProfileUrl(data.data.memberProfileUrl),
@@ -157,7 +158,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
 
         const data = await response.json();
         
-        // 댓글에 기본 이미지 적용
+        // 댓글에 기본 이미지 적용 (한 번만 처리)
         const commentsWithDefaultImages = (data.data?.comments || []).map((comment: Comment) => ({
           ...comment,
           memberProfileUrl: getSafeProfileUrl(comment.memberProfileUrl),

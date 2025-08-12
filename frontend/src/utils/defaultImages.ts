@@ -39,30 +39,36 @@ export const isValidImageUrl = (url: string | null | undefined): boolean => {
   return true;
 };
 
-// 안전한 이미지 URL을 반환하는 함수
+// 안전한 이미지 URL을 반환하는 함수 (메모이제이션을 위해 수정)
 export const getSafeImageUrl = (
   url: string | null | undefined, 
   defaultImage: string = DEFAULT_IMAGES.PROFILE
 ): string => {
-  return isValidImageUrl(url) ? (url as string) : defaultImage;
+  // 이미 기본 이미지인 경우 그대로 반환
+  if (url === defaultImage) return url;
+  
+  // 유효하지 않은 URL인 경우 기본 이미지 반환
+  if (!isValidImageUrl(url)) return defaultImage;
+  
+  return url as string;
 };
 
-// 프로필 이미지용 안전한 URL
+// 프로필 이미지용 안전한 URL (메모이제이션을 위해 수정)
 export const getSafeProfileUrl = (url: string | null | undefined): string => {
   return getSafeImageUrl(url, DEFAULT_IMAGES.PROFILE);
 };
 
-// 썸네일 이미지용 안전한 URL
+// 썸네일 이미지용 안전한 URL (메모이제이션을 위해 수정)
 export const getSafeThumbnailUrl = (url: string | null | undefined): string => {
   return getSafeImageUrl(url, DEFAULT_IMAGES.THUMBNAIL);
 };
 
-// 뱃지 이미지용 안전한 URL
+// 뱃지 이미지용 안전한 URL (메모이제이션을 위해 수정)
 export const getSafeBadgeUrl = (url: string | null | undefined): string => {
   return getSafeImageUrl(url, DEFAULT_IMAGES.BADGE);
 };
 
-// 회사 프로필 이미지용 안전한 URL
+// 회사 프로필 이미지용 안전한 URL (메모이제이션을 위해 수정)
 export const getSafeCompanyUrl = (url: string | null | undefined): string => {
   return getSafeImageUrl(url, DEFAULT_IMAGES.COMPANY);
 };

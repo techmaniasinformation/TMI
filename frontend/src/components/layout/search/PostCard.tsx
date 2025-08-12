@@ -41,7 +41,7 @@ const PostCard: React.FC<PostCardProps> = ({
           <img
             src={getSafeProfileUrl(post.author.avatar)}
             alt={post.author.name}
-            className="w-12 h-12 rounded-full object-cover"
+            className="w-12 h-12 rounded-full object-contain"
           />
         </div>
         

@@ -64,7 +64,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
             <img
               src={notification.userAvatar ?? getDefaultAvatar(notification.type)}
               alt="프로필"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
           </div>
         </div>

@@ -25,11 +25,11 @@ export const PostContent: React.FC<PostContentProps> = ({ post, onStarClick, onS
      return (
      <div className="bg-white rounded-lg shadow-md mb-12">
               {/* 썸네일 이미지 */}
-        <div className="px-16 pt-12 pb-12">
+        <div className="px-16 pt-12 pb-12 flex justify-center">
           <img
             src={imageError ? DEFAULT_IMAGES.THUMBNAIL : safeThumbnailUrl}
             alt="게시글 썸네일"
-            className="w-full h-96 object-cover rounded-lg"
+            className="max-w-4xl h-96 object-contain rounded-lg"
             onError={handleImageError}
           />
         </div>

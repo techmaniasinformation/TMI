@@ -71,7 +71,7 @@ export default function PostList({
                 <img
                   src={getSafeThumbnailUrl(post.thumbnailUrl)}
                   alt={post.title}
-                  className="w-full h-full object-cover rounded-r-lg"
+                  className="w-full h-full object-contain rounded-r-lg"
                 />
               </div>
             )}

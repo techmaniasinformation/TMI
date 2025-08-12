@@ -45,7 +45,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
           <img
             src={safeMemberProfileUrl}
             alt="프로필"
-            className="w-10 h-10 rounded-full object-cover"
+            className="w-10 h-10 rounded-full object-contain"
           />
           <div className="flex-1">
             <textarea
@@ -102,7 +102,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
                     <img
                       src={safeCommentProfileUrl}
                       alt="프로필"
-                      className="w-10 h-10 rounded-full object-cover"
+                      className="w-10 h-10 rounded-full object-contain"
                     />
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">

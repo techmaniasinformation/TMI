@@ -36,7 +36,7 @@ export const BestComments: React.FC<BestCommentsProps> = ({
         <img
           src={safeBestCommentProfileUrl}
           alt="프로필"
-          className="w-12 h-12 rounded-full object-cover"
+          className="w-12 h-12 rounded-full object-contain"
         />
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">

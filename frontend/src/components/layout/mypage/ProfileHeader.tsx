@@ -184,7 +184,7 @@ export default function ProfileHeader({
           <img
             src={getProfileImage(isCompany ? companyData?.companyProfileUrl : memberData?.memberProfileUrl)}
             alt="profile"
-            className="w-20 h-20 ms-4 rounded-full object-cover"
+            className="w-20 h-20 ms-4 rounded-full object-contain"
             onError={(e) => {
               const img = (e.target as HTMLImageElement);
               img.src = getSafeProfileUrl(null); // 안전 폴백

@@ -92,7 +92,7 @@ const LandingCard: React.FC<LandingCardProps> = ({
                 <img
                   src={profileUrl}
                   alt={`${name} 프로필`}
-                  className='w-8 h-8 rounded-full object-cover'
+                  className='w-8 h-8 rounded-full object-contain'
                 />
               ) : (
                 <div className='w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center'>
@@ -118,7 +118,7 @@ const LandingCard: React.FC<LandingCardProps> = ({
                   <img
                     src={thumbnailUrl}
                     alt={`${title} 썸네일`}
-                    className='w-full h-full object-cover rounded-lg object-top'
+                    className='w-full h-full object-contain rounded-lg object-top'
                   />
                 ) : (
                   <div className='w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg flex items-center justify-center'>

@@ -200,7 +200,7 @@ const Header: React.FC<HeaderProps> = ({
                         'https://readdy.ai/api/search-image?query=professional%20headshot%20developer&width=32&height=32&orientation=squarish'
                       }
                       alt='Profile'
-                      className='w-8 h-8 rounded-full object-cover'
+                      className='w-8 h-8 rounded-full object-contain'
                     />
                     {/* 알림 뱃지 */}
                     {hasUnreadNotifications && (

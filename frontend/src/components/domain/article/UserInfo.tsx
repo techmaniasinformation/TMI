@@ -57,7 +57,7 @@ export default function UserInfoBox({
           width: imageSize,
           height: imageSize,
         }}
-        className="rounded-full object-cover"
+        className="rounded-full object-contain"
         onError={(e) => {
           const target = e.target as HTMLImageElement;
           if (target.src !== safeProfileUrl) {

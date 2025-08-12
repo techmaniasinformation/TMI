@@ -423,7 +423,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
                     <img
                       src={hasBadge ? (badgeImageMap[badge.badgeUrl] || '/fallback.png') : badgeImageMap['locked.png']}
                       alt={badge.name}
-                      className="w-20 h-20 mb-2 rounded-lg object-cover"
+                      className="w-20 h-20 mb-2 rounded-lg object-contain"
                     />
                     <p className="text-sm font-medium text-center text-gray-700">{badge.name}</p>
                   </div>

@@ -123,100 +123,23 @@ export const useStar = (postId: string) => {
   const [isStarred, setIsStarred] = useState(false);
   const [isStarLoading, setIsStarLoading] = useState(false);
   const [starId, setStarId] = useState<number | null>(null);
-  const [hasCheckedServer, setHasCheckedServer] = useState(false);
 
-
-
-  // 초기 상태 설정
+  // 전역 상태에서 스타 상태 확인
   useEffect(() => {
-    console.log(`🔄 [useStar] useEffect 실행 - postId: ${postId}, user?.memberId: ${user?.memberId}`);
+    console.log(`🔄 [useStar] 전역 상태 확인 - postId: ${postId}`);
     
-    if (user?.memberId) {
-      console.log(`🌐 [useStar] 서버에서 스타 상태 확인`);
-      // 서버에서 스타 상태 확인을 위한 직접 호출
-      const checkServerStatus = async () => {
-        try {
-          console.log(`🔍 [useStar] 서버에서 스타 상태 확인 시작 - postId: ${postId}, memberId: ${user.memberId}`);
-          
-          const result = await fetchUserStarList(user.memberId);
-          
-          if (result.success) {
-            console.log(`📋 [useStar] 서버에서 받은 스타 목록:`, result.stars);
-            
-            // 현재 게시글의 스타 상태 확인
-            console.log(`🔍 [useStar] postId 타입 확인 - postId: "${postId}" (타입: ${typeof postId})`);
-            const { isStarred: serverIsStarred, starId: serverStarId } = checkPostStarStatus(postId, result.stars);
-            
-            console.log(`🎯 [useStar] 현재 게시글 스타 상태 - postId: ${postId}, isStarred: ${serverIsStarred}, serverStarId: ${serverStarId}`);
-            
-            // 서버 상태를 기준으로 로컬 상태와 전역 상태 동기화
-            const localIsStarred = starLst.includes(postId);
-            const localStarId = starIdMap.get(postId);
-            
-            console.log(`🔄 [useStar] 상태 비교 - 로컬: ${localIsStarred}(starId: ${localStarId}), 서버: ${serverIsStarred}(starId: ${serverStarId})`);
-            
-            // 서버 상태가 다르면 전역 상태 업데이트
-            if (serverIsStarred && !localIsStarred) {
-              console.log(`➕ [useStar] 전역 상태 동기화 - postId: ${postId}를 스타 목록에 추가`);
-              setStarLst([...starLst, postId]);
-              if (serverStarId) {
-                addStarId(postId, serverStarId);
-              }
-            } else if (!serverIsStarred && localIsStarred) {
-              console.log(`➖ [useStar] 전역 상태 동기화 - postId: ${postId}를 스타 목록에서 제거`);
-              setStarLst(starLst.filter((id: string) => id !== postId));
-              removeStarId(postId);
-            }
-            
-            // UI 상태 업데이트 (서버 상태 기준)
-            setIsStarred(serverIsStarred);
-            setStarId(serverStarId);
-            setHasCheckedServer(true);
-            
-            console.log(`✅ [useStar] 서버 상태 확인 완료 - postId: ${postId}, isStarred: ${serverIsStarred}, starId: ${serverStarId}`);
-          } else {
-            console.log(`❌ [useStar] 서버 상태 확인 실패 - postId: ${postId}, error: ${result.error}`);
-            // 서버 확인 실패 시 로컬 상태 사용
-            const localIsStarred = starLst.includes(postId);
-            const localStarId = starIdMap.get(postId);
-            
-            setIsStarred(localIsStarred);
-            setStarId(localStarId || null);
-            setHasCheckedServer(true);
-            
-            console.log(`🔄 [useStar] 로컬 상태 사용 - postId: ${postId}, isStarred: ${localIsStarred}, starId: ${localStarId}`);
-          }
-        } catch (err) {
-          console.error('❌ [useStar] 서버 상태 확인 중 오류:', err);
-          // 오류 발생 시 로컬 상태 사용
-          const localIsStarred = starLst.includes(postId);
-          const localStarId = starIdMap.get(postId);
-          
-          setIsStarred(localIsStarred);
-          setStarId(localStarId || null);
-          setHasCheckedServer(true);
-          
-          console.log(`🔄 [useStar] 오류로 인한 로컬 상태 사용 - postId: ${postId}, isStarred: ${localIsStarred}, starId: ${localStarId}`);
-        }
-      };
-      
-      checkServerStatus();
-    } else {
-      console.log(`💾 [useStar] 로컬에서 스타 상태 확인`);
-      const localIsStarred = starLst.includes(postId);
-      const localStarId = starIdMap.get(postId);
-      
-      setIsStarred(localIsStarred);
-      setStarId(localStarId || null);
-      setHasCheckedServer(true);
-      
-      console.log(`🔍 [useStar] 로컬 스타 상태 확인 - postId: ${postId}, isStarred: ${localIsStarred}, starId: ${localStarId}`);
-    }
-  }, [user?.memberId, postId, starLst, starIdMap, setStarLst, addStarId, removeStarId, fetchUserStarList, checkPostStarStatus]);
+    const localIsStarred = starLst.includes(postId);
+    const localStarId = starIdMap.get(postId);
+    
+    setIsStarred(localIsStarred);
+    setStarId(localStarId || null);
+    
+    console.log(`🔍 [useStar] 전역 상태 확인 결과 - postId: ${postId}, isStarred: ${localIsStarred}, starId: ${localStarId}`);
+  }, [postId, starLst, starIdMap]);
 
   // 스타 토글
   const toggleStar = useCallback(async () => {
-    if (isStarLoading || !hasCheckedServer) return;
+    if (isStarLoading) return;
     
     if (!user?.memberId) {
       alert('로그인이 필요합니다.');
@@ -224,14 +147,13 @@ export const useStar = (postId: string) => {
     }
 
     console.log(`🔄 [useStar] 스타 토글 시작 - postId: ${postId}, 현재 상태: ${isStarred}, starId: ${starId}`);
-    console.log(`📊 [useStar] 현재 전역 상태 - starLst: ${starLst}, starIdMap 크기: ${starIdMap.size}`);
 
     setIsStarLoading(true);
     try {
       if (isStarred) {
         // 스타 취소
         if (!starId) {
-          console.error('❌ [useStar] starId가 없습니다. postId:', postId, 'starIdMap:', starIdMap);
+          console.error('❌ [useStar] starId가 없습니다. postId:', postId);
           alert('스타 정보를 찾을 수 없습니다.');
           return;
         }
@@ -250,7 +172,6 @@ export const useStar = (postId: string) => {
         const newStarLst = starLst.filter((id: string) => id !== postId);
         setStarLst(newStarLst);
         removeStarId(postId);
-        console.log(`🗑️ [useStar] 전역 starLst 업데이트 - 새로운 목록:`, newStarLst);
         
         // UI 상태 업데이트
         setIsStarred(false);
@@ -264,38 +185,6 @@ export const useStar = (postId: string) => {
 
         if (!addResult.success) {
           console.error('❌ [useStar] 스타 추가 실패:', addResult.error);
-          
-          // 409 Conflict 에러인 경우 서버 상태를 다시 확인
-          if (addResult.error?.includes('409') || addResult.error?.includes('STAR-002')) {
-            console.log(`🔄 [useStar] 409 에러 발생 - 서버 상태 재확인`);
-            // 서버 상태 재확인을 위한 직접 호출
-            if (user?.memberId) {
-              try {
-                const result = await fetchUserStarList(user.memberId);
-                if (result.success) {
-                  const { isStarred: serverIsStarred, starId: serverStarId } = checkPostStarStatus(postId, result.stars);
-                  setIsStarred(serverIsStarred);
-                  setStarId(serverStarId);
-                  
-                  // 전역 상태 동기화
-                  if (serverIsStarred && !starLst.includes(postId)) {
-                    setStarLst([...starLst, postId]);
-                    if (serverStarId) {
-                      addStarId(postId, serverStarId);
-                    }
-                  } else if (!serverIsStarred && starLst.includes(postId)) {
-                    setStarLst(starLst.filter((id: string) => id !== postId));
-                    removeStarId(postId);
-                  }
-                }
-              } catch (recheckError) {
-                console.error('❌ [useStar] 서버 상태 재확인 실패:', recheckError);
-              }
-            }
-            console.log(`✅ [useStar] 409 에러 처리 완료 - 서버 상태로 동기화됨`);
-            return; // 에러를 던지지 않고 종료
-          }
-          
           throw new Error(addResult.error || '스타 추가 실패');
         }
 
@@ -304,14 +193,11 @@ export const useStar = (postId: string) => {
         // 전역 상태 업데이트
         const newStarLst = [...starLst, postId];
         setStarLst(newStarLst);
-        console.log(`💾 [useStar] 전역 starLst 업데이트 - 새로운 목록:`, newStarLst);
         
         if (addResult.starId) {
           console.log(`💾 [useStar] starId 저장 - postId: ${postId}, starId: ${addResult.starId}`);
           setStarId(addResult.starId);
           addStarId(postId, addResult.starId);
-        } else {
-          console.warn('⚠️ [useStar] 응답에 starId가 없습니다:', addResult);
         }
         
         // UI 상태 업데이트
@@ -321,44 +207,11 @@ export const useStar = (postId: string) => {
       }
     } catch (err) {
       console.error('❌ [useStar] 스타 요청 실패:', err);
-      
-      // 에러 메시지에서 이미 스타했다는 내용이 있으면 서버 상태 재확인
-      const errorMessage = err instanceof Error ? err.message : String(err);
-      if (errorMessage.includes('STAR-002') || errorMessage.includes('이미 스타를 누른')) {
-        console.log(`🔄 [useStar] STAR-002 에러 - 서버 상태 재확인`);
-        // 서버 상태 재확인을 위한 직접 호출
-        if (user?.memberId) {
-          try {
-            const result = await fetchUserStarList(user.memberId);
-            if (result.success) {
-              const { isStarred: serverIsStarred, starId: serverStarId } = checkPostStarStatus(postId, result.stars);
-              setIsStarred(serverIsStarred);
-              setStarId(serverStarId);
-              
-              // 전역 상태 동기화
-              if (serverIsStarred && !starLst.includes(postId)) {
-                setStarLst([...starLst, postId]);
-                if (serverStarId) {
-                  addStarId(postId, serverStarId);
-                }
-              } else if (!serverIsStarred && starLst.includes(postId)) {
-                setStarLst(starLst.filter((id: string) => id !== postId));
-                removeStarId(postId);
-              }
-            }
-          } catch (recheckError) {
-            console.error('❌ [useStar] 서버 상태 재확인 실패:', recheckError);
-          }
-        }
-        console.log(`✅ [useStar] STAR-002 에러 처리 완료 - 서버 상태로 동기화됨`);
-      } else {
-        console.error('❌ [useStar] 알 수 없는 에러:', errorMessage);
-        alert('스타 요청에 실패했습니다.');
-      }
+      alert('스타 요청에 실패했습니다.');
     } finally {
       setIsStarLoading(false);
     }
-  }, [isStarred, starId, user?.memberId, postId, starLst, setStarLst, addStarId, removeStarId, isStarLoading, starIdMap, hasCheckedServer, fetchUserStarList, checkPostStarStatus]);
+  }, [isStarred, starId, user?.memberId, postId, starLst, setStarLst, addStarId, removeStarId, isStarLoading, starIdMap]);
 
   return {
     isStarred,

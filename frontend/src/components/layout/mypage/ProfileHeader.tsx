@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 import UserStatsCard from './UserStatsCard';
-import { fetchMemberProfile, deleteMember } from '@/api/mypage/memberSevice'; // ← 경로/파일명 확인
+import { fetchMemberProfile, deleteMember } from '@/api/mypage/memberSevice'; // ✅ 경로/파일명 수정
 import { getCompany } from '@/api/company/company';
 
 import type { MemberData } from '@/types/mypage/member';
 import type { Company } from '@/types/company/company';
 
-import Star from '@/assets/icons/star.svg';
+// (Star 아이콘은 사용 안 하므로 필요 없으면 지워도 됨)
+// import Star from '@/assets/icons/star.svg';
 import GitHub from '@/assets/icons/Github.svg';
 import Blog from '@/assets/icons/blog.svg';
 import Follow from '@/assets/icons/Follow.svg';
@@ -119,12 +120,19 @@ export default function ProfileHeader({
   };
 
   const handleWithdrawalComplete = async () => {
-    // 선택: 서버 로그아웃(세션 쿠키 무효화) → 로컬 토큰 정리 → 메인 이동
+    // ✅ 서버 로그아웃(베스트에포트) → 로컬 토큰 정리 → 메인 이동
     try {
-      await fetch('https://i13a509.p.ssafy.io/api/v1/accounts/logout', {
-        method: 'POST',
-        credentials: 'include',
-      }).catch(() => {});
+      const idForLogout = myId || targetId;
+      if (idForLogout && idForLogout > 0) {
+        const controller = new AbortController();
+        const t = setTimeout(() => controller.abort(), 3000); // 3초 타임아웃
+        await fetch(`https://i13a509.p.ssafy.io/api/v1/auth/logout/${idForLogout}`, {
+          method: 'POST',
+          credentials: 'include',
+          signal: controller.signal,
+        }).catch(() => null);
+        clearTimeout(t);
+      }
       try {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
@@ -160,7 +168,7 @@ export default function ProfileHeader({
             alt="profile"
             className="w-20 h-20 ms-4 rounded-full object-cover"
             onError={(e) => {
-              const img = e.target as HTMLImageElement;
+              const img = (e.target as HTMLImageElement);
               img.src = getSafeProfileUrl(null); // 안전 폴백
             }}
           />

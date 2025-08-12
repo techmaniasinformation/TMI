@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { SearchApiResponse, Post, PageInfo } from '@/types';
 import { useUserStore } from '@/stores/userStore';
+import { useSearchParams } from 'react-router-dom';
 
 interface PostsListState {
   posts: Post[];
@@ -51,17 +52,23 @@ const fetchPostsFromAPI = async (params: { page: number; size: number; followMem
 };
 
 export const usePostsList = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  // URL에서 페이지와 탭 상태 읽기
+  const urlPage = parseInt(searchParams.get('page') || '1');
+  const urlTab = searchParams.get('tab') as 'latest' | 'following' || 'latest';
+  
   const [state, setState] = useState<PostsListState>({
     posts: [],
     loading: false,
     error: null,
-    currentPage: 1,
+    currentPage: urlPage,
     totalPages: 0,
     totalElements: 0,
     isLast: false
   });
 
-  const [activeTab, setActiveTab] = useState<'latest' | 'following'>('latest');
+  const [activeTab, setActiveTab] = useState<'latest' | 'following'>(urlTab);
   
   // 로그인 상태 확인
   const { isLogin, user } = useUserStore();
@@ -101,29 +108,52 @@ export const usePostsList = () => {
     }
   }, [user?.memberId]);
 
+  // URL 변경 감지하여 상태 동기화
+  useEffect(() => {
+    const currentUrlPage = parseInt(searchParams.get('page') || '1');
+    const currentUrlTab = searchParams.get('tab') as 'latest' | 'following' || 'latest';
+    
+    // URL과 상태가 다르면 동기화
+    if (currentUrlPage !== state.currentPage || currentUrlTab !== activeTab) {
+      setState(prev => ({ ...prev, currentPage: currentUrlPage }));
+      setActiveTab(currentUrlTab);
+    }
+  }, [searchParams, state.currentPage, activeTab]);
+
   // 컴포넌트 마운트 시 초기 데이터 로드
   useEffect(() => {
     // 팔로우 탭이고 로그인하지 않았으면 API 호출하지 않음
     if (activeTab === 'following' && !isLoggedIn) {
       return;
     }
-    fetchPosts(1, activeTab);
-  }, [fetchPosts, activeTab, isLoggedIn]); // 의존성 배열 수정
+    fetchPosts(state.currentPage, activeTab);
+  }, [fetchPosts, activeTab, isLoggedIn, state.currentPage]); // 의존성 배열 수정
 
   // 탭 변경 시 게시글 다시 가져오기
   useEffect(() => {
+    // URL 업데이트
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set('tab', activeTab);
+    newSearchParams.set('page', '1'); // 탭 변경 시 페이지 1로 리셋
+    setSearchParams(newSearchParams);
+    
     // 팔로우 탭이고 로그인하지 않았으면 게시글 초기화
     if (activeTab === 'following' && !isLoggedIn) {
       setState(prev => ({ ...prev, posts: [], loading: false }));
       return;
     }
     fetchPosts(1, activeTab);
-  }, [activeTab, isLoggedIn, fetchPosts]);
+  }, [activeTab, isLoggedIn, fetchPosts, searchParams, setSearchParams]);
 
   // 페이지 변경 핸들러를 useCallback으로 메모이제이션
   const setCurrentPage = useCallback((page: number) => {
+    // URL 업데이트
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set('page', page.toString());
+    setSearchParams(newSearchParams);
+    
     fetchPosts(page, activeTab);
-  }, [fetchPosts, activeTab]);
+  }, [fetchPosts, activeTab, searchParams, setSearchParams]);
 
   // 날짜 포맷팅 함수를 useMemo로 메모이제이션
   const formatDate = useMemo(() => {

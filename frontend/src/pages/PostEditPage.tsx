@@ -220,7 +220,7 @@ const PostEditPage: React.FC = () => {
       try {
         // 이미지 압축 옵션 - 크롭 방식 최적화
         const options = {
-          maxSizeMB: 5, // 최대 5MB
+          maxSizeMB: 10, // 최대 10MB
           useWebWorker: true,
           fileType: 'image/jpeg', // JPEG로 변환
           // 썸네일 크기에 맞춰 크롭하기 위한 설정 (3:2 비율)

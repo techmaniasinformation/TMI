@@ -277,63 +277,64 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
 
     try {
       if (isFollowing) {
-        // 팔로우 취소
+        // 팔로우 취소 - memberID 1은 제외
+        if (postData.memberId === 1) {
+          showToastMessage('해당 사용자는 팔로우할 수 없습니다.');
+          return;
+        }
+        
         if (postData.companyId) {
-          // 회사 팔로우 취소 - companyFollowId가 없으면 전역 상태에서만 제거
-          if (!companyFollowId) {
-            // 전역 상태에서만 제거하고 API 호출하지 않음
-            setFollowCompany(followCompany.filter(id => id !== postData.companyId));
-            setIsFollowing(false);
-            showToastMessage('회사 팔로우를 취소했습니다.');
-            return;
-          }
+          // 회사 팔로우 취소 API 호출
+          try {
+            const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/companyFollow?followerId=${user.memberId}&companyId=${postData.companyId}`, {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+              }
+            });
 
-          const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/companyFollow/${companyFollowId}`, {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
+            if (response.ok) {
+              // 전역 상태에서 회사 팔로우 목록 업데이트
+              setFollowCompany(followCompany.filter(id => id !== postData.companyId));
+              setIsFollowing(false);
+              showToastMessage('회사 팔로우를 취소했습니다.');
+            } else {
+              throw new Error(`HTTP error! status: ${response.status}`);
             }
-          });
-
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+          } catch (error) {
+            console.error('회사 팔로우 취소 실패:', error);
+            showToastMessage('회사 팔로우 취소에 실패했습니다.');
           }
-
-          // 전역 상태에서 회사 팔로우 목록 업데이트
-          setFollowCompany(followCompany.filter(id => id !== postData.companyId));
-          setIsFollowing(false);
-          setCompanyFollowId(null);
-          showToastMessage('회사 팔로우를 취소했습니다.');
         } else if (postData.memberId) {
-          // 개인 사용자 팔로우 취소 - memberFollowId가 없으면 전역 상태에서만 제거
-          if (!memberFollowId) {
-            // 전역 상태에서만 제거하고 API 호출하지 않음
-            setFollowUser(followUser.filter(id => id !== postData.memberId));
-            setIsFollowing(false);
-            showToastMessage('사용자 팔로우를 취소했습니다.');
-            return;
+          // 개인 사용자 팔로우 취소 API 호출
+          try {
+            const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/memberFollow?followerId=${user.memberId}&followeeId=${postData.memberId}`, {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+              }
+            });
+
+            if (response.ok) {
+              // 전역 상태에서 개인 사용자 팔로우 목록 업데이트
+              setFollowUser(followUser.filter(id => id !== postData.memberId));
+              setIsFollowing(false);
+              showToastMessage('사용자 팔로우를 취소했습니다.');
+            } else {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+          } catch (error) {
+            console.error('사용자 팔로우 취소 실패:', error);
+            showToastMessage('사용자 팔로우 취소에 실패했습니다.');
           }
-
-          const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/memberFollow/${memberFollowId}`, {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({}) // 빈 객체를 body로 전송
-          });
-
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-
-          // 전역 상태에서 개인 사용자 팔로우 목록 업데이트
-          setFollowUser(followUser.filter(id => id !== postData.memberId));
-          setIsFollowing(false);
-          setMemberFollowId(null);
-          showToastMessage('사용자 팔로우를 취소했습니다.');
         }
       } else {
-        // 팔로우 추가
+        // 팔로우 추가 - memberID 1은 제외
+        if (postData.memberId === 1) {
+          showToastMessage('해당 사용자는 팔로우할 수 없습니다.');
+          return;
+        }
+        
         if (postData.companyId) {
           // 회사 팔로우 추가
           const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/companyFollow`, {
@@ -799,35 +800,37 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
       {/* 뒤로가기 버튼 */}
       <PostHeader onBack={() => navigate('/home')} />
 
-      {/* 상단 수정/삭제 버튼 */}
-      <div className="flex justify-end gap-2 mb-4">
-        <Button
-          variant="outline"
-          className="!rounded-button cursor-pointer whitespace-nowrap"
-          onClick={() => navigate(`/post/${postData.postId}/edit`, {
-            state: {
-              postData: {
-                link: postData.link,
-                title: postData.title,
-                content: postData.content,
-                tags: postData.tags,
-                thumbnailUrl: postData.thumbnailUrl
+      {/* 상단 수정/삭제 버튼 - 작성자만 보임 */}
+      {user?.memberId === postData.memberId && (
+        <div className="flex justify-end gap-2 mb-4">
+          <Button
+            variant="outline"
+            className="!rounded-button cursor-pointer whitespace-nowrap"
+            onClick={() => navigate(`/post/${postData.postId}/edit`, {
+              state: {
+                postData: {
+                  link: postData.link,
+                  title: postData.title,
+                  content: postData.content,
+                  tags: postData.tags,
+                  thumbnailUrl: postData.thumbnailUrl
+                }
               }
-            }
-          })}
-        >
-          <i className="fas fa-edit mr-2"></i>
-          수정하기
-        </Button>
-        <Button
-          variant="outline"
-          className="!rounded-button cursor-pointer whitespace-nowrap text-red-600 hover:bg-red-50"
-          onClick={handleDelete}
-        >
-          <i className="fas fa-trash-alt mr-2"></i>
-          삭제하기
-        </Button>
-      </div>
+            })}
+          >
+            <i className="fas fa-edit mr-2"></i>
+            수정하기
+          </Button>
+          <Button
+            variant="outline"
+            className="!rounded-button cursor-pointer whitespace-nowrap text-red-600 hover:bg-red-50"
+            onClick={handleDelete}
+          >
+            <i className="fas fa-trash-alt mr-2"></i>
+            삭제하기
+          </Button>
+        </div>
+      )}
 
       {/* 제목 섹션 */}
       <PostTitle 
@@ -852,7 +855,8 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
       <PostContent 
         post={{
           ...postData,
-          content: renderMarkdown(postData.content)
+          content: renderMarkdown(postData.content),
+          isStar: isStarred
         }}
         onStarClick={handleStar}
         onShareClick={handleShare}

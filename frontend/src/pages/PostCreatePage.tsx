@@ -255,10 +255,10 @@ const PostCreatePage: React.FC = () => {
         return;
       }
 
-      // 파일 크기 체크 (1MB = 1024 * 1024 bytes)
-      const maxSize = 1024 * 1024; // 1MB
+      // 파일 크기 체크 (10MB = 10 * 1024 * 1024 bytes)
+      const maxSize = 10 * 1024 * 1024; // 10MB
       if (file.size > maxSize) {
-        alert('파일 크기는 1MB 이하여야 합니다.');
+        alert('파일 크기는 10MB 이하여야 합니다.');
         fileInput.value = '';
         return;
       }

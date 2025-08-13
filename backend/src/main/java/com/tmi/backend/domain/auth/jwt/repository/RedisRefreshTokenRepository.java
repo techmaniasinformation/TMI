@@ -8,11 +8,13 @@ import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
+@Slf4j
 public class RedisRefreshTokenRepository {
 
   private final StringRedisTemplate redis;
@@ -30,6 +32,7 @@ public class RedisRefreshTokenRepository {
   }
 
   public RefreshToken findByMemberId(Long memberId) {
+    log.info("redis 확인 합니까?");
     String token = redis.opsForValue().get(key(memberId));
     if (token == null) {
       return null;
@@ -38,6 +41,7 @@ public class RedisRefreshTokenRepository {
   }
 
   public RefreshToken save(RefreshToken entity) {
+
     Instant now = Instant.now();
     Instant exp = entity.getExpiresAt() == null
         ? now : entity.getExpiresAt().atZone(ZoneOffset.UTC).toInstant();

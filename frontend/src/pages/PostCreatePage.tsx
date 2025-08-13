@@ -40,6 +40,8 @@ const PostCreatePage: React.FC = () => {
   // 에러 상태
   const [urlError, setUrlError] = useState<string>('');
   const [aiError, setAiError] = useState<string>('');
+  const [titleError, setTitleError] = useState<string>('');
+  const [contentError, setContentError] = useState<string>('');
   
   // 태그 관련 상태
   const [newTag, setNewTag] = useState('');
@@ -151,18 +153,30 @@ const PostCreatePage: React.FC = () => {
 
 
      const handleSave = async () => {
+    // 에러 상태 초기화
+    setTitleError('');
+    setContentError('');
+    setUrlError('');
+    
+    let hasError = false;
+    
     if (!linkUrl || !title) {
-      alert('링크 URL과 제목을 입력해주세요.');
-      return;
+      if (!linkUrl) setUrlError('링크 URL을 입력해주세요.');
+      if (!title) setTitleError('제목을 입력해주세요.');
+      hasError = true;
     }
 
     if (content.length < 50) {
-      alert('게시글 내용은 50자 이상 입력해주세요.');
-      return;
+      setContentError('게시글 내용은 50자 이상 입력해주세요.');
+      hasError = true;
     }
 
     if (content.length > 6000) {
-      alert('게시글 내용은 6000자 이하여야 합니다.');
+      setContentError('게시글 내용은 6000자 이하여야 합니다.');
+      hasError = true;
+    }
+
+    if (hasError) {
       return;
     }
 
@@ -178,6 +192,7 @@ const PostCreatePage: React.FC = () => {
     try {
       const processedUrl = processAndValidateUrl(linkUrl);
       if (!processedUrl) {
+        setUrlError('올바른 URL을 입력해주세요.');
         setIsLoading(false);
         return;
       }
@@ -396,6 +411,9 @@ const PostCreatePage: React.FC = () => {
                 {title.length}/20
               </span>
             </div>
+            {titleError && (
+              <p className="text-sm text-red-500 mt-1">{titleError}</p>
+            )}
           </div>
 
           {/* Thumbnail Image */}
@@ -535,6 +553,17 @@ const PostCreatePage: React.FC = () => {
                   hideToolbar={isPreviewMode}
                   height={300}
                   data-color-mode="light"
+                  onClick={(e) => {
+                    // 빈 공간 클릭 시 마지막에 커서 이동
+                    const editor = e.currentTarget.querySelector('.w-md-editor-text');
+                    if (editor) {
+                      const textArea = editor.querySelector('textarea');
+                      if (textArea) {
+                        textArea.focus();
+                        textArea.setSelectionRange(textArea.value.length, textArea.value.length);
+                      }
+                    }
+                  }}
                 />
                 <div className="flex justify-between items-center mt-2">
                   <div className="text-sm text-gray-500">
@@ -552,6 +581,9 @@ const PostCreatePage: React.FC = () => {
                     {isPreviewMode ? '편집 모드' : '미리보기'}
                   </button>
                 </div>
+                {contentError && (
+                  <p className="text-sm text-red-500 mt-1">{contentError}</p>
+                )}
               </div>
             )}
 

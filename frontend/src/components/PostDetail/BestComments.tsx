@@ -6,6 +6,9 @@ interface BestCommentsProps {
   bestCommentId: number;
   formatDate: (date: string) => string;
   formatNumber: (num: number) => string;
+  onCommentRecommend: (commentId: number) => void;
+  userRecommendations: Map<number, number>;
+  recommendLoading: Map<number, boolean>;
 }
 
 export const BestComments: React.FC<BestCommentsProps> = ({
@@ -13,6 +16,9 @@ export const BestComments: React.FC<BestCommentsProps> = ({
   bestCommentId,
   formatDate,
   formatNumber,
+  onCommentRecommend,
+  userRecommendations,
+  recommendLoading,
 }) => {
   // 베스트 댓글 찾기
   const bestComment = comments.find(comment => comment.commentId === bestCommentId);
@@ -66,10 +72,21 @@ export const BestComments: React.FC<BestCommentsProps> = ({
             </a>
           )}
           <div className="flex items-center gap-4 text-sm text-gray-500 mt-2">
-            <span className="flex items-center gap-1">
+            <button
+              onClick={() => onCommentRecommend(bestComment.commentId)}
+              className={`flex items-center gap-1 ${
+                userRecommendations.has(bestComment.commentId)
+                  ? 'text-blue-600'
+                  : 'text-gray-500 hover:text-blue-600'
+              }`}
+              disabled={recommendLoading.has(bestComment.commentId)}
+            >
               <span>👍</span>
-              <span>{formatNumber(bestComment.recommendCount)}</span>
-            </span>
+              <span>
+                {userRecommendations.has(bestComment.commentId) ? '추천됨' : '추천'}
+              </span>
+              <span className="ml-1">{formatNumber(bestComment.recommendCount)}</span>
+            </button>
           </div>
         </div>
       </div>

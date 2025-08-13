@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '@/stores/userStore';
 import { useTagAutocomplete } from '@/hooks/tags/useTagAutocomplete';
+import { useImageCompression } from '@/hooks/useImageCompression';
 import MDEditor from '@uiw/react-md-editor';
 import '@uiw/react-md-editor/markdown-editor.css';
 import '@uiw/react-markdown-preview/markdown.css';
-import imageCompression from 'browser-image-compression';
 
 const PostCreatePage: React.FC = () => {
   const navigate = useNavigate();
@@ -26,11 +26,16 @@ const PostCreatePage: React.FC = () => {
   const [isAILoading, setIsAILoading] = useState(false);
   const [aiSummary, setAiSummary] = useState('');
 
-  // 이미지 관련 상태
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>('');
-  const [isImageProcessing, setIsImageProcessing] = useState(false);
-  const [originalFileSize, setOriginalFileSize] = useState<number>(0);
+  // 이미지 압축 커스텀 훅 사용
+  const {
+    selectedImage,
+    imagePreview,
+    isImageProcessing,
+    originalFileSize,
+    handleImageUpload,
+    handleImageCancel,
+    setImagePreview
+  } = useImageCompression();
   
   // 에러 상태
   const [urlError, setUrlError] = useState<string>('');
@@ -106,7 +111,6 @@ const PostCreatePage: React.FC = () => {
       }
 
       const result = await response.json();
-      console.log('AI 요약 API 응답 데이터:', result);
       
       if (result.status === 'SUCCESS' && result.data) {
                  // AI 요약 내용 설정
@@ -115,9 +119,14 @@ const PostCreatePage: React.FC = () => {
          setContent(summary); // content에도 AI 요약 내용 설정
         
         // AI 태그 설정 (최대 5개)
-        if (result.data.tags && Array.isArray(result.data.tags)) {
-          const tagsToSet = result.data.tags.slice(0, 5);
-          setTags(tagsToSet);
+        if (result.data.tags && Array.isArray(result.data.tags) && result.data.tags.length > 0) {
+          try {
+            const tagsToSet = result.data.tags.slice(0, 5);
+            setTags(tagsToSet);
+          } catch (error) {
+            console.warn('AI 태그 처리 중 오류 발생:', error);
+            setTags([]);
+          }
         }
         
         alert('AI 요약이 완료되었습니다!');
@@ -147,8 +156,8 @@ const PostCreatePage: React.FC = () => {
       return;
     }
 
-    if (content.length > 3000) {
-      alert('게시글 내용은 3000자 이하여야 합니다.');
+    if (content.length > 6000) {
+      alert('게시글 내용은 6000자 이하여야 합니다.');
       return;
     }
 
@@ -171,40 +180,32 @@ const PostCreatePage: React.FC = () => {
       // FormData 생성
       const formData = new FormData();
       
+      // 태그 데이터 검증 및 정리
+      const validatedTags = Array.isArray(tags) ? tags.filter(tag => 
+        typeof tag === 'string' && tag.trim().length > 0
+      ).slice(0, 5) : [];
+      
       // 포스트맨과 동일한 구조로 JSON 데이터 생성
       const requestData = {
         memberId: user.memberId, // null 체크 후 사용
         link: processedUrl,
         title: title,
         content: content,
-        tags: tags
+        tags: validatedTags
         // thumbnailUrl 필드 제거 (서버에서 요구하지 않음)
       };
       
       const blob = new Blob([JSON.stringify(requestData)], { type: 'application/json' });
       formData.append('req', blob);
       
-      // 이미지가 선택된 경우 FormData에 추가 (필드명 확인 필요)
+      // 이미지가 선택된 경우 FormData에 추가
       if (selectedImage) {
-        formData.append('thumbnailImage', selectedImage); // 'thumbnail' -> 'thumbnailImage'로 변경
+        formData.append('thumbnailImage', selectedImage);
       }
 
-      console.log('전송할 FormData:', {
-        memberId: user.memberId,
-        link: processedUrl,
-        title: title,
-        content: content,
-        tags: tags,
-        hasImage: !!selectedImage
-      });
 
-      // API 호출 - FormData 사용
-      console.log('🔍 [PostCreatePage] API 요청 시작:', {
-        url: 'https://i13a509.p.ssafy.io/api/v1/post',
-        method: 'POST',
-        hasFormData: !!formData,
-        userInfo: { memberId: user.memberId, nickname: user.nickname }
-      });
+
+
       
       const response = await fetch('https://i13a509.p.ssafy.io/api/v1/post', {
         method: 'POST',
@@ -212,12 +213,7 @@ const PostCreatePage: React.FC = () => {
         body: formData // Content-Type은 브라우저가 자동으로 설정
       });
       
-      console.log('🔍 [PostCreatePage] API 응답 받음:', {
-        status: response.status,
-        statusText: response.statusText,
-        ok: response.ok,
-        headers: Object.fromEntries(response.headers.entries())
-      });
+
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -230,7 +226,6 @@ const PostCreatePage: React.FC = () => {
       }
 
       const result = await response.json();
-      console.log('게시글 작성 응답:', result);
 
       alert('게시글이 작성되었습니다!');
       
@@ -249,77 +244,7 @@ const PostCreatePage: React.FC = () => {
     }
   };
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    const fileInput = event.target;
 
-    if (file) {
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-      if (!allowedTypes.includes(file.type)) {
-        alert('jpg, jpeg, png, gif 형식의 이미지만 업로드할 수 있습니다.');
-        fileInput.value = '';
-        return;
-      }
-
-      // 파일 크기 체크 (10MB = 10 * 1024 * 1024 bytes)
-      const maxSize = 10 * 1024 * 1024; // 10MB
-      if (file.size > maxSize) {
-        alert('파일 크기는 10MB 이하여야 합니다.');
-        fileInput.value = '';
-        return;
-      }
-
-      setIsImageProcessing(true);
-      try {
-        // 원본 파일 크기 저장
-        setOriginalFileSize(file.size);
-        
-        // 이미지 압축 옵션 설정
-        const options = {
-          maxSizeMB: 1, // 최대 1MB
-          maxWidthOrHeight: 1920, // 최대 너비/높이
-          useWebWorker: true,
-          fileType: file.type
-        };
-
-        // 이미지 압축 실행
-        const compressedFile = await imageCompression(file, options);
-        
-        console.log('이미지 압축 결과:', {
-          원본크기: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
-          압축크기: `${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`,
-          압축률: `${((1 - compressedFile.size / file.size) * 100).toFixed(1)}%`
-        });
-
-        // 압축된 파일을 상태에 저장
-        setSelectedImage(compressedFile);
-        
-        // 미리보기 생성
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          setImagePreview(e.target?.result as string);
-        };
-        reader.readAsDataURL(compressedFile);
-        
-      } catch (error) {
-        console.error('이미지 압축 실패:', error);
-        alert('이미지 처리 중 오류가 발생했습니다.');
-      } finally {
-        setIsImageProcessing(false);
-      }
-    }
-  };
-
-  const handleImageCancel = () => {
-    setSelectedImage(null);
-    setImagePreview('');
-    setOriginalFileSize(0);
-    // 파일 입력 필드 초기화
-    const fileInput = document.getElementById('image-upload') as HTMLInputElement;
-    if (fileInput) {
-      fileInput.value = '';
-    }
-  };
 
   const handleAddTag = (tagName?: string) => {
     const tagToAdd = (tagName || newTag).trim();
@@ -597,7 +522,7 @@ const PostCreatePage: React.FC = () => {
                   value={content}
                   onChange={(val) => {
                     const newContent = val || '';
-                    if (newContent.length <= 3000) {
+                    if (newContent.length <= 6000) {
                       setContent(newContent);
                     }
                   }}
@@ -608,10 +533,10 @@ const PostCreatePage: React.FC = () => {
                 />
                 <div className="flex justify-between items-center mt-2">
                   <div className="text-sm text-gray-500">
-                    {content.length > 3000 ? (
-                      <span className="text-red-500">글자 수 제한을 초과했습니다 ({content.length}/3000)</span>
+                    {content.length > 6000 ? (
+                      <span className="text-red-500">글자 수 제한을 초과했습니다 ({content.length}/6000)</span>
                     ) : (
-                      <span>{content.length}/3000</span>
+                      <span>{content.length}/6000</span>
                     )}
                   </div>
                   <button

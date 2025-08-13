@@ -55,7 +55,7 @@ const Header: React.FC<HeaderProps> = ({
   // 로그인 여부
   const isAuthenticated = !!user;
 
-    // &&& 페이지 렌더링 시 알림 데이터 요청
+    //페이지 렌더링 시 알림 데이터 요청
   useEffect(() => {
     if (isAuthenticated && user?.memberId) {
       fetch(
@@ -79,7 +79,7 @@ const Header: React.FC<HeaderProps> = ({
           setUnreadCount(0);
         });
     }
-  }, [isAuthenticated, user?.memberId]); // &&& 로그인/사용자 ID 변경 시 재요청
+  }, [isAuthenticated, user?.memberId]); // 로그인/사용자 ID 변경 시 재요청
 
   // 로그아웃 함수를 useCallback으로 메모이제이션
   const handleLogOut = useCallback(async () => {
@@ -168,6 +168,21 @@ const Header: React.FC<HeaderProps> = ({
       setPrevPath(location.pathname + location.search);
     }
   }, [location.pathname, location.search, setPrevPath]);
+
+  // 알림 페이지로 이동 시 드롭다운 닫기
+  const handleNotificationClick = () => {
+    setShowProfileMenu(false);
+    navigate('/notifications');
+  };
+
+
+  // 마이페이지로 이동 시 드롭다운 닫기
+  const handleMyPageClick = () => {
+    setShowProfileMenu(false);
+    navigate('/my-page');
+  };
+
+
 
   // variant에 따른 텍스트 색상 정의
   const textColor =
@@ -262,10 +277,10 @@ const Header: React.FC<HeaderProps> = ({
                   >
                     <div className='py-1'>
                       {/* 알림 */}
-                      <Link
-                        to='/notifications'
+                      <button
+                        onClick={handleNotificationClick} // &&& 클릭 시 닫기 + 이동
                         className={cn(
-                          'flex items-center justify-between px-4 py-2 text-sm hover:bg-gray-100 hover:text-dark-bg',
+                          'flex items-center justify-between px-4 py-2 text-sm hover:bg-gray-100 hover:text-dark-bg w-full text-left',
                           textColor
                         )}
                       >
@@ -276,17 +291,17 @@ const Header: React.FC<HeaderProps> = ({
                             {unreadCount}
                           </span>
                         )}
-                      </Link>
+                      </button>
                       {/* 마이 페이지로 */}
-                      <Link
-                        to='/my-page'
+                      <button
+                        onClick={handleMyPageClick} // &&& 클릭 시 닫기 + 이동
                         className={cn(
-                          'flex items-center justify-between px-4 py-2 text-sm hover:bg-gray-100 hover:text-dark-bg',
+                          'flex items-center justify-between px-4 py-2 text-sm hover:bg-gray-100 hover:text-dark-bg w-full text-left',
                           textColor
                         )}
                       >
                         마이페이지
-                      </Link>
+                      </button>
                       <hr className='my-1' />
                       <button
                         onClick={handleLogOut}

@@ -47,6 +47,10 @@ export const useSignup = () => {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Revoke previous object URL if it exists
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
       setImageFile(file);
       const previewUrl = URL.createObjectURL(file);
       setImagePreview(previewUrl);
@@ -97,16 +101,40 @@ export const useSignup = () => {
     };
     apiFormData.append('signupRequest', new Blob([JSON.stringify(signupRequest)], { type: 'application/json' }));
 
-    // 2. 이미지 파일이 있으면 FormData에 추가
-    if (imageFile) {
-      apiFormData.append('profileImage', imageFile);
-    }
+    let profileImageUrl = '';
 
     try {
+      if (imageFile) {
+        const imageFormData = new FormData();
+        imageFormData.append('image', imageFile);
+
+        const imageRes = await fetch('https://i13a509.p.ssafy.io/api/v1/images', {
+          method: 'POST',
+          body: imageFormData,
+        });
+
+        if (!imageRes.ok) {
+          throw new Error('이미지 업로드 실패');
+        }
+
+        const imageData = await imageRes.json();
+        profileImageUrl = imageData.data.imageUrl;
+      }
+
+      const signupRequest = {
+        provider: formData.provider,
+        providerMemberId: formData.providerMemberId,
+        nickname: formData.nickname,
+        memberProfileUrl: profileImageUrl,
+      };
+
       const res = await fetch('https://i13a509.p.ssafy.io/api/v1/member/signup', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         credentials: 'include',
-        body: apiFormData, // FormData를 직접 body에 전달
+        body: JSON.stringify(signupRequest),
       });
 
       if (!res.ok) {
@@ -117,7 +145,6 @@ export const useSignup = () => {
       console.log('회원가입 성공:', data);
 
       if (data.data && data.data.memberId) {
-        // 서버로부터 받은 사용자 정보로 전역 상태 업데이트
         setUser(data.data);
         console.log('회원가입 후 전역변수 저장 완료:', data.data);
       }

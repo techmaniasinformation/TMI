@@ -146,7 +146,7 @@ export const FollowSection: React.FC<FollowSectionProps> = ({ onFollowClick }) =
                     <img
                       src={getSafeProfileUrl(user.memberProfileUrl)}
                       alt={user.nickname}
-                      className="w-full h-full rounded-full object-contain"
+                      className="w-full h-full rounded-full object-cover"
                     />
                   </div>
                   <h3 className="font-medium text-gray-900 truncate">{user.nickname}</h3>
@@ -174,7 +174,7 @@ export const FollowSection: React.FC<FollowSectionProps> = ({ onFollowClick }) =
                     <img
                       src={getSafeCompanyUrl(company.companyProfileUrl)}
                       alt={company.companyName}
-                      className="w-full h-full rounded-full object-contain"
+                      className="w-full h-full rounded-full object-cover"
                     />
                   </div>
                   <h3 className="font-medium text-gray-900 truncate">{company.companyName}</h3>

@@ -101,7 +101,7 @@ const LandingCard: React.FC<LandingCardProps> = ({
                 <img
                   src={safeProfileUrl}
                   alt={`${name} 프로필`}
-                  className='w-8 h-8 rounded-full object-contain'
+                  className='w-8 h-8 rounded-full object-cover'
                   onError={() => setProfileImageError(true)}
                 />
               ) : (
@@ -129,7 +129,7 @@ const LandingCard: React.FC<LandingCardProps> = ({
                   <img
                     src={thumbnailUrl}
                     alt={`${title} 썸네일`}
-                    className='w-full h-full object-contain rounded-lg object-top'
+                    className='w-full h-full object-cover rounded-lg object-top'
                     onError={() => setThumbnailImageError(true)}
                   />
                 ) : (

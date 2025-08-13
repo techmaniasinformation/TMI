@@ -84,7 +84,7 @@ export default function PostList({
                   <img
                     src={hasImageError ? DEFAULT_IMAGES.THUMBNAIL : getSafeThumbnailUrl(post.thumbnailUrl)}
                     alt={post.title}
-                    className="w-full h-full object-contain rounded-r-lg"
+                    className="w-full h-full object-cover rounded-r-lg"
                     onError={() => handleImageError(post.postId)}
                   />
                 </div>

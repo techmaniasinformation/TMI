@@ -14,7 +14,7 @@ export const PostTitle: React.FC<PostTitleProps> = ({ post, onStarClick, isStarL
                <div className="flex items-center justify-between">
          {/* 좌측: 제목과 태그 */}
          <div className="flex-1 pr-4">
-           <h1 className="text-3xl font-bold text-gray-900 mb-4">
+           <h1 className="text-3xl font-bold text-gray-900 mb-4 break-words break-all">
              {post.title}
            </h1>
            

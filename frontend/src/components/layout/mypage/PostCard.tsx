@@ -42,13 +42,13 @@ const PostCard: React.FC<PostCardProps> = ({ post, onClick }) => {
           src={imageError ? DEFAULT_IMAGES.THUMBNAIL : getSafeThumbnailUrl(thumbnail)}
           alt={title}
           onError={handleImageError}
-          className="w-full h-full object-contain rounded-xl"
+                        className="w-full h-full object-cover rounded-xl"
         />
       </div>
 
       {/* 게시글 정보 */}
       <div className="flex-1">
-        <h3 className="font-medium text-gray-900 mb-2">{title}</h3>
+        <h3 className="font-medium text-gray-900 mb-2 break-words break-all">{title}</h3>
 
         {/* 태그 목록 */}
         <div className="flex flex-wrap gap-2 mb-3">

@@ -300,16 +300,14 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
         // 언팔
         setIsFollowing(false); // 낙관적
         if (!isCompany) {
-          const idToDelete =
-            memberFollowId ??
-            (targetMemberId ? await findMemberFollowId(currentUserId, targetMemberId) : null);
-          if (idToDelete) await deleteMemberFollow(idToDelete);
+          if (targetMemberId) {
+            await deleteMemberFollow(currentUserId, targetMemberId);
+          }
           setMemberFollowId(null);
         } else {
-          const idToDelete =
-            companyFollowId ??
-            (targetCompanyId ? await findCompanyFollowId(currentUserId, targetCompanyId) : null);
-          if (idToDelete) await deleteCompanyFollow(idToDelete);
+          if (targetCompanyId) {
+            await deleteCompanyFollow(currentUserId, targetCompanyId);
+          }
           setCompanyFollowId(null);
         }
       }

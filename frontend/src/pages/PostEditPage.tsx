@@ -371,7 +371,7 @@ const PostEditPage: React.FC = () => {
               onChange={(e) => setTitle(e.target.value)}
               placeholder="제목을 입력하세요"
               maxLength={100}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent break-words break-all"
             />
             <div className="flex justify-between items-center mt-1">
               <span className="text-xs text-gray-500">
@@ -475,7 +475,7 @@ const PostEditPage: React.FC = () => {
                     onFocus={handleTagInputFocus}
                     onBlur={handleTagInputBlur}
                     placeholder="태그를 입력하세요 (DB에서 검색)"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent break-words break-all"
                   />
                   
                   {/* 태그 제안 드롭다운 */}

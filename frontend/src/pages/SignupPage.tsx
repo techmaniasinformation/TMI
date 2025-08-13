@@ -141,10 +141,11 @@ const SignupPage: React.FC<SignupPageProps> = () => {
                 이미지 업로드
               </label>
             </div>
-            <p className="text-sm text-gray-500 mt-2">
+            
+          </div>
+          <p className="text-sm text-gray-500 mt-2">
             이미지는 10MB 이하, 정해진 비율에 맞는 이미지만 업로드 가능해요.
           </p>
-          </div>
         </div>
 
         <button

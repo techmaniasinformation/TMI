@@ -34,21 +34,17 @@ export async function updateMemberProfile(
   const form = new FormData();
   const usingFile = !!body.file && body.file instanceof File;
 
-  // req(JSON) 구성
-  const reqPayload: any = {
-    nickname: body.nickname ?? "",
-    blogUrl: body.blogUrl ?? null,
-    githubUrl: body.githubUrl ?? null,
-  };
+  // req(JSON) 구성 — 수정 의도가 있는 필드만 추가
+  const reqPayload: any = {};
+
+  if ("nickname" in body) reqPayload.nickname = body.nickname; // 수정 의도 있을 때만
+  if ("blogUrl" in body) reqPayload.blogUrl = body.blogUrl ?? null;
+  if ("githubUrl" in body) reqPayload.githubUrl = body.githubUrl ?? null;
 
   if (usingFile) {
-    // 파일 업로드 시 서버가 새 파일 기준으로 URL을 세팅하므로 굳이 URL을 보낼 필요 없음
-    // (서버 요구가 'null'을 기대한다면 아래 주석 해제)
-    // reqPayload.memberProfileUrl = null;
+    // 새 파일 업로드 시 memberProfileUrl 키는 안 보냄
   } else if ("memberProfileUrl" in body) {
-    // 키가 존재하면(= 변경 의도 있음) 그대로 전달
-    //  - null  → 이미지 삭제
-    //  - string → 외부 URL로 교체
+    // null → 삭제, string → 외부 URL 교체
     reqPayload.memberProfileUrl = body.memberProfileUrl;
   }
 
@@ -60,7 +56,7 @@ export async function updateMemberProfile(
 
   const res = await fetch(`https://i13a509.p.ssafy.io/api/v1/member/${memberId}`, {
     method: "PATCH",
-    body: form,              // Content-Type 수동 지정 금지 (브라우저가 boundary 붙임)
+    body: form, // Content-Type 수동 지정 금지 (브라우저가 boundary 붙임)
     credentials: "include",
   });
 

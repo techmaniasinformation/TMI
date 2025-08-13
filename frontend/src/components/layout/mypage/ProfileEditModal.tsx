@@ -271,13 +271,14 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
 
     setSaving(true);
     try {
-      const defaultUrl = getSafeProfileUrl(null);
-      const isDefaultImage = imagePreview === defaultUrl;
+      // 삭제 상태: 미리보기/기존 URL/선택 이미지 모두 없음
+      const isDelete = !imagePreview && !existingImageUrl && !selectedImage;
+
       await onSave(
         cleanNickname,
         blogCheck.value || '',
         githubCheck.value || '',
-        isDefaultImage ? null : undefined,
+        isDelete ? null : undefined, // 삭제면 null, 유지면 undefined
         selectedImage ?? null
       );
       onClose();
@@ -337,10 +338,9 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
                 type="button"
                 className={`text-xs underline ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
                 onClick={() => {
-                  // 기본이미지로 변경
-                  const defaultUrl = getSafeProfileUrl(null); // 기본이미지 URL 반환
-                  setImagePreview(defaultUrl);
-                  setExistingImageUrl(defaultUrl);
+                  // 완전 삭제 상태로 만들기
+                  setImagePreview('');
+                  setExistingImageUrl('');
                   const input = document.getElementById('image-upload') as HTMLInputElement | null;
                   if (input) input.value = '';
                 }}

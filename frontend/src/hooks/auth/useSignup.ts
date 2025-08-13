@@ -223,6 +223,7 @@ const countAllowed = (s: string) =>
     if (data.data && data.data.memberId) {
       setUser(data.data);
       console.log('회원가입 후 전역변수 저장 완료:', data.data);
+      console.log('User object after signup:', data.data);
     }
 
     clearSocialLoginInfo();

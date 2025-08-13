@@ -207,7 +207,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'light', size = 'default' }) 
                       key={safeProfileSrc}
                       src={safeProfileSrc}
                       alt="Profile"
-                      className="w-8 h-8 rounded-full object-contain"
+                      className="w-8 h-8 rounded-full object-cover"
                       onError={(e) => {
                         // 네트워크/404 시 최종 폴백
                         (e.currentTarget as HTMLImageElement).src = getSafeProfileUrl(null);

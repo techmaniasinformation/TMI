@@ -63,4 +63,14 @@ public class MemberFollowController implements BaseController {
   ) {
     return handle(memberFollowService.deleteFollow(memberFollowId));
   }
+
+  @DeleteMapping
+  public ResponseEntity<ApiResponse<Map<String, Boolean>>> deleteMemberFollows(
+      @RequestParam Long followerId,
+      @RequestParam Long followeeId
+  ) {
+    return handle(memberFollowService.deleteMemberFollow(followerId, followeeId));
+  }
+
+
 }

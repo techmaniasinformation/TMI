@@ -64,4 +64,11 @@ public class CompanyFollowController implements BaseController {
   ) {
     return handle(companyFollowService.deleteFollow(companyFollowId));
   }
+
+  @DeleteMapping
+  public ResponseEntity<ApiResponse<Map<String, Boolean>>> deleteCompanyFollow(
+      @RequestParam Long followerId, @RequestParam Long companyId
+  ) {
+    return handle(companyFollowService.deleteCompanyFollow(followerId, companyId));
+  }
 }

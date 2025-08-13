@@ -6,12 +6,19 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface MemberFollowRepository extends JpaRepository<MemberFollow, Long> {
 
   Page<MemberFollow> findByFollowerId(Long followerId, Pageable pageable);
 
   boolean existsByFollowerIdAndFolloweeId(Long followerId, Long followeeId);
+
+  @Modifying
+  @Query("DELETE FROM MemberFollow mf WHERE mf.follower.id = :followerId AND mf.followee.id = :followeeId")
+  void deleteByFollowerIdAndFolloweeId(@Param("followerId") Long followerId,
+      @Param("followeeId") Long followeeId);
 
   @Modifying
   void deleteByFollowerIdOrFolloweeId(Long memberId, Long memberId2);

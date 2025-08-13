@@ -110,4 +110,15 @@ public class MemberFollowService {
     return ServiceResult.ok(Map.of("memberFollowId", memberFollowId));
   }
 
+  @Transactional
+  public ServiceResult<Map<String, Boolean>> deleteMemberFollow(Long followerId,
+      Long followeeId) {
+
+    if (!memberRepository.existsById(followerId) || !memberRepository.existsById(followeeId)) {
+      return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
+    }
+    followRepository.deleteByFollowerIdAndFolloweeId(followerId, followeeId);
+
+    return ServiceResult.ok(Map.of("isDeleted", true));
+  }
 }

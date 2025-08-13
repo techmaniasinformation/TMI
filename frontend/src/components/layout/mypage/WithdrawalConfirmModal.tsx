@@ -71,10 +71,10 @@ export default function WithdrawalConfirmModal({
           &times;
         </button>
         <div className="mt-8">
-          <p className="text-center text-gray-800 mb-12">
-            탈퇴 시 모든 정보가 영구 삭제됩니다.<br />
-            진행하시겠습니까?
-          </p>
+          <div className="text-center text-gray-800 mb-12">
+            <p>탈퇴 시 모든 정보가 영구 삭제됩니다.</p>
+            <p className="mt-3">진행하시겠습니까?</p>
+          </div>
 
           {errorMessage && (
             <p role="alert" className="text-center text-sm text-red-600 mb-2">{errorMessage}</p>

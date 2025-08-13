@@ -198,7 +198,7 @@ const PostEditPage: React.FC = () => {
       }
 
       const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/post/${postId}`, {
-        method: 'PATCH',
+        method: 'PUT',
         credentials: 'include',
         body: formData
       });

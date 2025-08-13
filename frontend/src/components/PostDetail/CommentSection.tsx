@@ -91,10 +91,10 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
   }, [memberProfileUrl]);
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
+    <div className="bg-light-header dark:bg-dark-header rounded-lg shadow-md dark:shadow-lg p-6">
       {/* 댓글 작성 섹션 */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-4">댓글 작성</h3>
+        <h3 className="text-lg font-semibold mb-4 dark:text-white">댓글 작성</h3>
         <div className="flex gap-3">
           <img
             src={safeMemberProfileUrl}
@@ -107,12 +107,12 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
               value={commentText}
               onChange={(e) => onCommentChange(e.target.value)}
               placeholder="댓글을 입력하세요..."
-              className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800"
               rows={3}
               maxLength={200}
             />
             <div className="flex justify-between items-center mt-1">
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-gray-500 dark:text-gray-400">
                 {commentText.length}/200
               </span>
             </div>
@@ -124,12 +124,12 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
                   onChange={(e) => handleLinkChange(e.target.value)}
                   maxLength={255}
                   placeholder="링크 URL을 입력하세요 (선택사항)"
-                  className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 {urlError && (
-                  <p className="text-red-500 text-xs mt-1">{urlError}</p>
+                  <p className="text-red-500 dark:text-red-400 text-xs mt-1">{urlError}</p>
                 )}
-                <span className="absolute right-2 top-2 text-xs text-gray-500">
+                <span className="absolute right-2 top-2 text-xs text-gray-500 dark:text-gray-400">
                   {linkUrl.length}/255
                 </span>
               </div>
@@ -154,11 +154,11 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
 
       {/* 댓글 목록 */}
       <div>
-        <h3 className="text-lg font-semibold mb-4">
+        <h3 className="text-lg font-semibold mb-4 dark:text-white">
           댓글 {formatNumber(commentCount)}
         </h3>
         {comments.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">아직 댓글이 없습니다.</p>
+          <p className="text-gray-500 dark:text-gray-400 text-center py-8">아직 댓글이 없습니다.</p>
         ) : (
           <div className="space-y-4">
             {comments.map((comment) => {
@@ -167,7 +167,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
               const safeCommentBadgeUrl = getSafeBadgeUrl(comment.badgeUrl);
 
               return (
-                <div key={comment.commentId} className="border-b border-gray-200 pb-4">
+                <div key={comment.commentId} className="border-b border-gray-200 dark:border-gray-700 pb-4">
                   <div className="flex gap-3">
                                          <img
                        src={safeCommentProfileUrl}
@@ -177,12 +177,12 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
                      />
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="font-semibold text-sm">{comment.name}</span>
-                        <span className="text-gray-500 text-xs">
+                        <span className="font-semibold text-sm dark:text-white">{comment.name}</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-xs">
                           {formatDate(comment.createAt)}
                         </span>
                       </div>
-                      <p className="text-gray-700 mb-2 break-words break-all">{comment.comment}</p>
+                      <p className="text-gray-700 dark:text-gray-200 mb-2 break-words break-all">{comment.comment}</p>
                       {comment.link && (
                         <a
                           href={comment.link}
@@ -199,7 +199,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
                           className={`flex items-center gap-1 text-sm ${
                             userRecommendations.has(comment.commentId)
                               ? 'text-blue-600'
-                              : 'text-gray-500 hover:text-blue-600'
+                              : 'text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'
                           }`}
                           disabled={recommendLoading.has(comment.commentId)}
                         >
@@ -218,7 +218,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
                               }
                             }}
                             disabled={deleteLoading.has(comment.commentId)}
-                            className={`flex items-center gap-1 text-sm text-red-600 hover:text-red-800 ${
+                            className={`flex items-center gap-1 text-sm text-red-600 dark:text-red-500 hover:text-red-800 dark:hover:text-red-400 ${
                               deleteLoading.has(comment.commentId) ? 'opacity-50 cursor-not-allowed' : ''
                             }`}
                           >

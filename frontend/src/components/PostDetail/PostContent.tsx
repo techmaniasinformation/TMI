@@ -25,7 +25,7 @@ export const PostContent: React.FC<PostContentProps> = ({ post, onStarClick, onS
   };
 
      return (
-     <div className="bg-white rounded-lg shadow-md mb-12">
+     <div className="bg-light-header dark:bg-dark-header rounded-lg shadow-md dark:shadow-lg mb-12">
               {/* 썸네일 이미지 */}
         <div className="px-16 pt-12 pb-12 flex justify-center">
           <img
@@ -39,13 +39,13 @@ export const PostContent: React.FC<PostContentProps> = ({ post, onStarClick, onS
                {/* 본문 텍스트 */}
         <div className="prose max-w-none">
           <div 
-            className="text-gray-700 leading-relaxed text-lg px-16 pb-12 break-words break-all"
+            className="text-gray-700 dark:text-gray-200 leading-relaxed text-lg px-16 pb-12 break-words break-all"
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
         </div>
 
         {/* 상호작용 버튼들 */}
-        <div className="pt-6 border-t border-gray-200">
+        <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
         </div>
 
         {/* 3-1. Action Buttons Section (액션 버튼 영역) */}
@@ -69,7 +69,7 @@ export const PostContent: React.FC<PostContentProps> = ({ post, onStarClick, onS
          <Button
            variant="default"
            size="sm"
-           className="bg-white text-black border border-gray-300 px-4 py-2 rounded-md flex items-center space-x-2 hover:bg-gray-50"
+           className="bg-light-header dark:bg-dark-header text-black dark:text-white border border-gray-300 dark:border-gray-600 px-4 py-2 rounded-md flex items-center space-x-2 hover:bg-gray-50 dark:hover:bg-gray-800"
            onClick={onShareClick}
          >
            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

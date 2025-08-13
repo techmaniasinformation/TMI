@@ -10,11 +10,11 @@ interface PostTitleProps {
 
 export const PostTitle: React.FC<PostTitleProps> = ({ post, onStarClick, isStarLoading = false, showStarButton = true }) => {
   return (
-         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+         <div className="bg-light-header dark:bg-dark-header rounded-lg shadow-md dark:shadow-lg p-6 mb-6">
                <div className="flex items-center justify-between">
          {/* 좌측: 제목과 태그 */}
          <div className="flex-1 pr-4">
-           <h1 className="text-3xl font-bold text-gray-900 mb-4 break-words break-all">
+           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 break-words break-all">
              {post.title}
            </h1>
            
@@ -24,7 +24,7 @@ export const PostTitle: React.FC<PostTitleProps> = ({ post, onStarClick, isStarL
                {post.tags.map((tag: string, index: number) => (
                  <span
                    key={index}
-                   className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors cursor-pointer"
+                   className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors cursor-pointer"
                  >
                    #{tag}
                  </span>

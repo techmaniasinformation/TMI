@@ -215,12 +215,8 @@ export default function ProfileHeader({
                     href={memberData.blogUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-<<<<<<< HEAD
                     className="flex items-center text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
                     title="블로그로 이동 (새 탭)"
-=======
-                    className="flex items-center text-sm text-gray-600 hover:text-gray-900"
->>>>>>> FE
                   >
                     <img src={Blog} alt="blog" className="w-4 h-4 mr-2" />
                     블로그
@@ -231,12 +227,8 @@ export default function ProfileHeader({
                     href={memberData.githubUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-<<<<<<< HEAD
                     className="flex items-center text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
                     title="GitHub로 이동 (새 탭)"
-=======
-                    className="flex items-center text-sm text-gray-600 hover:text-gray-900"
->>>>>>> FE
                   >
                     <img src={GitHub} alt="github" className="w-4 h-4 mr-2" />
                     깃허브
@@ -248,13 +240,8 @@ export default function ProfileHeader({
             {/* 기업 정보 */}
             {isCompany && (
               <>
-<<<<<<< HEAD
                 <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-1">
                   <img src={Update} alt="update icon" className="w-4 h-4 mr-2" />
-=======
-                <div className="flex items-center text-sm text-gray-500 mt-1">
-                  <img src={Update} alt="update" className="w-4 h-4 mr-2" />
->>>>>>> FE
                   최근 업데이트: {lastUpdate}
                 </div>
                 {companyData?.techBlogUrl && (
@@ -263,12 +250,8 @@ export default function ProfileHeader({
                       href={companyData.techBlogUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-<<<<<<< HEAD
                       className="flex items-center text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
                       title="기업 블로그로 이동 (새 탭)"
-=======
-                      className="flex items-center text-sm text-gray-600 hover:text-gray-900"
->>>>>>> FE
                     >
                       <img src={Blog} alt="blog" className="w-4 h-4 mr-2" />
                       블로그

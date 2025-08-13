@@ -121,6 +121,7 @@ public class PostService {
           public void afterCompletion(int status) {
             if (status == STATUS_ROLLED_BACK) {
               try {
+                log.info("롤백되다가 삭제");
                 fileUtil.deleteFile(urlToDeleteOnRollback, "post");
               } catch (IOException e) {
                 log.error("게시글 썸네일 롤백 중 파일 삭제 실패", e);
@@ -140,6 +141,7 @@ public class PostService {
       if ((urlFromRequest == null || urlFromRequest.isEmpty()) && (newThumbnailUrl != null
           && !newThumbnailUrl.isEmpty())) {
         try {
+          log.info("새 파일은 없지만 DTO의 URL 값으로 이미지 삭제를 요청한 경우 {}", newThumbnailUrl);
           fileUtil.deleteFile(newThumbnailUrl, "post");
           newThumbnailUrl = null; // DB에 저장할 URL도 null로 변경
         } catch (IOException e) {

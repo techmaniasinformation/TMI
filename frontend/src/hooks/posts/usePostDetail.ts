@@ -160,13 +160,57 @@ export const useStar = (postId: string) => {
       return;
     }
 
+    console.log('🔍 스타 토글 디버깅:', {
+      postId,
+      isStarred,
+      starId,
+      starIdMap: starIdMap instanceof Map ? Array.from(starIdMap.entries()) : starIdMap,
+      starLst
+    });
+
     setIsStarLoading(true);
     try {
       if (isStarred) {
         // 스타 취소
         if (!starId) {
-          alert('스타 정보를 찾을 수 없습니다.');
-          return;
+          console.error('❌ starId가 없음:', { postId, starId, starIdMap });
+          
+          // starIdMap에서 다시 찾아보기
+          const recoveredStarId = getStarId(postId);
+          if (recoveredStarId) {
+            console.log('🔍 starId 복구됨:', recoveredStarId);
+            setStarId(recoveredStarId);
+          } else {
+            // 서버에서 스타 정보 다시 가져오기
+            try {
+              console.log('🔍 서버에서 스타 정보 재조회 시도');
+              const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/star?memberId=${user.memberId}`, {
+                credentials: 'include'
+              });
+              
+              if (response.ok) {
+                const data = await response.json();
+                const starList = data.data?.posts || [];
+                const foundStar = starList.find((star: any) => star.postId.toString() === postId);
+                
+                if (foundStar) {
+                  console.log('🔍 서버에서 starId 찾음:', foundStar.starId);
+                  setStarId(foundStar.starId);
+                  addStarId(postId, foundStar.starId);
+                } else {
+                  alert('스타 정보를 찾을 수 없습니다.');
+                  return;
+                }
+              } else {
+                alert('스타 정보를 찾을 수 없습니다.');
+                return;
+              }
+            } catch (error) {
+              console.error('❌ 스타 정보 재조회 실패:', error);
+              alert('스타 정보를 찾을 수 없습니다.');
+              return;
+            }
+          }
         }
 
         const removeResult = await removeStar(starId);

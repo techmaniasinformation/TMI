@@ -138,6 +138,34 @@ export const useUserStore = create(
               isLogin: true,
               user: data, // ✅ (임시)
             });
+            
+            // 스타 정보도 함께 로드
+            try {
+              const starRes = await fetch(`https://i13a509.p.ssafy.io/api/v1/star?memberId=${data.memberId}`, {
+                credentials: 'include'
+              });
+              
+              if (starRes.ok) {
+                const starData = await starRes.json();
+                const starList = starData.data?.posts || [];
+                const starIds = starList.map((star: any) => star.postId.toString());
+                const starIdMap = new Map();
+                
+                starList.forEach((star: any) => {
+                  starIdMap.set(star.postId.toString(), star.starId);
+                });
+                
+                set((state) => ({
+                  ...state,
+                  starLst: starIds,
+                  starIdMap: starIdMap
+                }));
+                
+                console.log('🔍 checkAuth에서 스타 정보 로드:', { starIds, starIdMap: Array.from(starIdMap.entries()) });
+              }
+            } catch (starError) {
+              console.error('스타 정보 로드 실패:', starError);
+            }
           } else {
             set({
               isLogin: false,

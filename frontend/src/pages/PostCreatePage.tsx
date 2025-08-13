@@ -91,7 +91,7 @@ const PostCreatePage: React.FC = () => {
 
          setIsAILoading(true);
      try {
-       const apiUrl = `https://i13a509.p.ssafy.io/api/v1/summary?url=${encodeURIComponent(processedUrl)}`;
+       const apiUrl = `https://i13a509.p.ssafy.io/api/v1/summary?url=${processedUrl}`;
        console.log('AI 요약 API 요청:', apiUrl);
       
       // API 요청 - 백엔드 서버 URL 사용
@@ -553,17 +553,7 @@ const PostCreatePage: React.FC = () => {
                   hideToolbar={isPreviewMode}
                   height={300}
                   data-color-mode="light"
-                  onClick={(e) => {
-                    // 빈 공간 클릭 시 마지막에 커서 이동
-                    const editor = e.currentTarget.querySelector('.w-md-editor-text');
-                    if (editor) {
-                      const textArea = editor.querySelector('textarea');
-                      if (textArea) {
-                        textArea.focus();
-                        textArea.setSelectionRange(textArea.value.length, textArea.value.length);
-                      }
-                    }
-                  }}
+                  
                 />
                 <div className="flex justify-between items-center mt-2">
                   <div className="text-sm text-gray-500">

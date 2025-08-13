@@ -577,16 +577,21 @@ const PostEditPage: React.FC = () => {
               <MDEditor
                 value={content}
                 onChange={(val) => setContent(val || '')}
-                height={400}
+                height={120}
                 preview="edit"
                 onClick={(e) => {
                   // 빈 공간 클릭 시 마지막에 커서 이동
-                  const editor = e.currentTarget.querySelector('.w-md-editor-text');
-                  if (editor) {
-                    const textArea = editor.querySelector('textarea');
+                  const target = e.target as HTMLElement;
+                  // MDEditor의 빈 공간을 클릭했을 때만 처리
+                  if (target.classList.contains('w-md-editor') || 
+                      target.classList.contains('w-md-editor-content') ||
+                      target.classList.contains('w-md-editor-text-input')) {
+                    const textArea = target.querySelector('textarea') || 
+                                   target.closest('.w-md-editor')?.querySelector('textarea');
                     if (textArea) {
                       textArea.focus();
-                      textArea.setSelectionRange(textArea.value.length, textArea.value.length);
+                      const length = textArea.value.length;
+                      textArea.setSelectionRange(length, length);
                     }
                   }
                 }}

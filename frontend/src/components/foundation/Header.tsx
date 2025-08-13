@@ -336,3 +336,4 @@ const Header: React.FC<HeaderProps> = ({ variant = 'light', size = 'default' }) 
 };
 
 export default Header;
+

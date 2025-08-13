@@ -7,9 +7,11 @@ import { Post } from '@/types';
 import { PopularPostItem } from '@/components/domain/article/PopularPostItem';
 import { useNavigate } from 'react-router-dom';
 import { PopularPostSkeleton } from '@/components/foundation/Skeleton';
+import { useThemeStore } from '@/stores/themeStore'; // Import useThemeStore
 
 export default function PopularPosts() {
   const navigate = useNavigate();
+  const { isDarkMode } = useThemeStore(); // Get isDarkMode state
 
   const {
     posts: popularPosts,
@@ -46,7 +48,7 @@ export default function PopularPosts() {
   }, [loading, popularPosts, isInitialLoad]);
 
   return (
-    <div className="bg-light-bg dark:bg-dark-bg rounded-lg shadow p-6">
+    <div className={`rounded-lg shadow p-6 ${isDarkMode ? 'bg-dark-bg border border-white' : 'bg-light-bg'}`}>
       <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white"> 📊 인기 게시글</h3>
 
       {/* 숨겨진 이미지 프리로딩 - 초기 로드 완료 후에만 실행 */}

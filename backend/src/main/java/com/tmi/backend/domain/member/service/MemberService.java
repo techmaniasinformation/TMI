@@ -111,19 +111,19 @@ public class MemberService {
       }
     }
 
-//    // 이미지 삭제
-//    else {
-//      String urlFromRequest = req.memberProfileUrl();
-//      if ((urlFromRequest == null || urlFromRequest.isEmpty()) && (newProfileUrl != null
-//          && !newProfileUrl.isEmpty())) {
-//        try {
-//          fileUtil.deleteFile(newProfileUrl, "profile");
-//          newProfileUrl = "default.png"; // DB에 저장할 URL도 null로 변경
-//        } catch (IOException e) {
-//          log.error("프로필 이미지 삭제 실패: {}", newProfileUrl, e);
-//        }
-//      }
-//    }
+    // 이미지 삭제
+    else {
+      String urlFromRequest = req.memberProfileUrl();
+      if ((urlFromRequest == null || urlFromRequest.isEmpty()) && (newProfileUrl != null
+          && !newProfileUrl.isEmpty())) {
+        try {
+          fileUtil.deleteFile(newProfileUrl, "profile");
+          newProfileUrl = "default.png"; // DB에 저장할 URL도 null로 변경
+        } catch (IOException e) {
+          log.error("프로필 이미지 삭제 실패: {}", newProfileUrl, e);
+        }
+      }
+    }
 
     member.updateProfile(req.nickname(), newProfileUrl, req.blogUrl(), req.githubUrl());
 

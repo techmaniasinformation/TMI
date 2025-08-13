@@ -72,6 +72,17 @@ const PostEditPage: React.FC = () => {
     }
   }, [location.state, postId, setExistingImageUrl]);
 
+  // 기존 썸네일 URL 추적
+  const [originalThumbnailUrl, setOriginalThumbnailUrl] = useState<string>('');
+
+  // 기존 게시글 데이터 로드 시 원본 썸네일 URL 저장
+  useEffect(() => {
+    const postData = location.state?.postData;
+    if (postData?.thumbnailUrl) {
+      setOriginalThumbnailUrl(postData.thumbnailUrl);
+    }
+  }, [location.state]);
+
   // URL 처리 및 유효성 검사 함수
   const processAndValidateUrl = (url: string) => {
     setUrlError('');
@@ -182,13 +193,25 @@ const PostEditPage: React.FC = () => {
       const formData = new FormData();
       const validatedTags = Array.isArray(tags) ? tags.filter(tag => typeof tag === 'string' && tag.trim().length > 0).slice(0, 5) : [];
       
-      const requestData = {
+      const requestData: {
+        memberId: number;
+        link: string;
+        title: string;
+        content: string;
+        tags: string[];
+        thumbnailUrl?: string;
+      } = {
         memberId: user.memberId,
         link: processedUrl,
         title: title,
         content: content,
         tags: validatedTags
       };
+
+      // 이미지가 업로드되지 않았거나 변경되지 않았다면 기존 썸네일 URL 포함
+      if (!selectedImage && originalThumbnailUrl) {
+        requestData.thumbnailUrl = originalThumbnailUrl;
+      }
 
       const blob = new Blob([JSON.stringify(requestData)], { type: 'application/json' });
       formData.append('req', blob);

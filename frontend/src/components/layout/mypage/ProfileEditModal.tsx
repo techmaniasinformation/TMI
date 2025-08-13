@@ -28,7 +28,8 @@ interface ProfileEditModalProps {
   ) => Promise<void>;
 }
 
-const NICKNAME_RE = /^[ㄱ-ㅎ가-힣a-zA-Z0-9]{2,16}$/;
+// ✅ 2~8자 제한으로 변경
+const NICKNAME_RE = /^[ㄱ-ㅎ가-힣a-zA-Z0-9]{2,8}$/;
 const isValidNickname = (v: string) => NICKNAME_RE.test(v);
 
 const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
@@ -103,29 +104,29 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
     fallbackAppliedRef.current = false;
   };
 
-  // ✅ 닉네임: 한글/영문/숫자만 허용 (공백·특수문자 제거) + 길이 검증
+  // ✅ 닉네임: 한글/영문/숫자만 허용 + 2~8자
   const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    // 허용 문자 외 제거 (공백, 특수문자, 이모지 등)
-    const filtered = value.replace(/[^ㄱ-ㅎ가-힣a-zA-Z0-9]/g, '');
+    // 허용 문자 외 제거 (공백, 특수문자, 이모지 등) + 8자 제한
+    const filtered = value.replace(/[^ㄱ-ㅎ가-힣a-zA-Z0-9]/g, '').slice(0, 8);
     setNickname(filtered);
 
     // 실시간 길이/형식 체크
     if (filtered.length === 0) {
       setNicknameError('닉네임을 입력해 주세요.');
     } else if (!isValidNickname(filtered)) {
-      setNicknameError('닉네임은 2~16자의 한글/영문/숫자만 가능합니다.');
+      setNicknameError('닉네임은 2~8자의 한글/영문/숫자만 가능합니다.');
     } else {
       setNicknameError(null);
     }
   };
 
-  // 포커스 아웃 시 안전망(공백은 이미 입력 단계에서 제거되지만 한 번 더 보정)
+  // 포커스 아웃 시 안전망
   const handleNicknameBlur = () => {
     const v = (nickname ?? '').trim();
     setNickname(v);
     if (!isValidNickname(v)) {
-      setNicknameError('닉네임은 2~16자의 한글/영문/숫자만 가능합니다.');
+      setNicknameError('닉네임은 2~8자의 한글/영문/숫자만 가능합니다.');
     } else {
       setNicknameError(null);
     }
@@ -197,7 +198,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
     const cleanNickname = (nickname ?? '').trim();
     // 저장 직전 최종 검증(서버 호출 차단)
     if (!isValidNickname(cleanNickname)) {
-      setNicknameError('닉네임은 2~16자의 한글/영문/숫자만 가능합니다.');
+      setNicknameError('닉네임은 2~8자의 한글/영문/숫자만 가능합니다.');
       return;
     }
 
@@ -232,7 +233,10 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
         profileArg,
         selectedFile
       );
+
+      // ✅ 저장 성공 시 모달 닫고 마이페이지 새로고침
       onClose();
+      window.location.reload();
     } catch (e) {
       console.error(e);
     } finally {
@@ -319,7 +323,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
               onChange={handleNicknameChange}
               onBlur={handleNicknameBlur}
               disabled={!!nicknameDisabled}
-              placeholder="한글/영문/숫자만 입력 (2~16자)"
+              placeholder="한글/영문/숫자만 입력 (2~8자)"
               aria-invalid={!!nicknameError}
               aria-describedby={nicknameError ? 'nickname-error' : undefined}
             />
@@ -347,7 +351,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
           <Button
             variant="primary"
             onClick={handleSubmit}
-            disabled={saving || !!nicknameError || (nickname ?? '').length === 0}
+            disabled={saving || !!nicknameError || (nickname ?? '').length < 2}
             className={`w-full h-10 text-white font-semibold ${saving ? 'opacity-60 cursor-not-allowed' : ''}`}
           >
             {saving ? '저장 중…' : '저장하기'}

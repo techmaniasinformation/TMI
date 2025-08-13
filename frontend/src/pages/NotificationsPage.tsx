@@ -10,8 +10,14 @@ import NoNotifications from '@/components/layout/notifications/NoNotifications';
 import NotificationLoader from '@/components/layout/notifications/NotificationLoader';
 
 import { useUserStore } from '@/stores/userStore';
-import { fetchNotifications } from '@/api/notification';
-import type { NotificationStatus } from '@/types/notification/notificatios';
+import {
+  fetchNotifications,
+  deleteNotification as apiDeleteNotification,
+  deleteAllNotifications as apiDeleteAllNotifications,
+  markNotificationRead as apiMarkNotificationRead,
+  markAllNotificationsRead as apiMarkAllNotificationsRead,
+} from '@/api/notification';
+import type { NotificationStatus } from '@/types/notification/notifications';
 
 // 화면에서 사용하던 인터페이스(유지)
 interface Notification {
@@ -99,35 +105,83 @@ const NotificationsPage: React.FC = () => {
     load();
   }, [load]);
 
-  // 클릭 시 읽음 처리(로컬 UI)
-  const handleNotificationClick = (notification: Notification) => {
+  // ✅ 클릭 시 읽음 처리(서버 연동 + 낙관적) 후, 댓글/게시글이면 해당 게시글로 이동
+  const handleNotificationClick = async (notification: Notification) => {
+    // 1) 낙관적 업데이트
     setNotifications(prev =>
       prev.map(n => (n.id === notification.id ? { ...n, isRead: true } : n))
     );
-    // TODO: 서버 읽음처리 API 있으면 여기서 호출
+
+    // 2) 서버 읽음 처리
+    try {
+      await apiMarkNotificationRead(Number(notification.id));
+    } catch (e) {
+      // 실패 시 롤백
+      setNotifications(prev =>
+        prev.map(n => (n.id === notification.id ? { ...n, isRead: false } : n))
+      );
+      console.error(e);
+      alert('읽음 처리에 실패했습니다.');
+      return;
+    }
+
+    // 3) 댓글/게시글 알림이면 해당 게시글로 이동
+    const isPostType =
+      (notification.type === 'comment' || notification.type === 'post') &&
+      notification.postId;
+
+    if (isPostType) {
+      navigate(`/post/${notification.postId}`);
+    }
   };
 
-  // 개별 삭제(로컬 UI)
-  const handleDeleteNotification = (id: string, e: React.MouseEvent) => {
+  // 개별 삭제(서버 연동 + 낙관적 업데이트)
+  const handleDeleteNotification = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setNotifications(prev => prev.filter(n => n.id !== id));
-    // TODO: 서버 삭제 API 있으면 호출
+    if (!memberId) return;
+
+    const prev = notifications;
+    setNotifications(prev.filter(n => n.id !== id)); // 낙관적 제거
+    try {
+      await apiDeleteNotification(Number(id), memberId);
+    } catch (err) {
+      setNotifications(prev); // 롤백
+      console.error(err);
+      alert('알림 삭제에 실패했습니다.');
+    }
   };
 
-  const handleMarkAllAsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
-    // TODO: 서버 일괄 읽음 API 있으면 호출
+  // 전체 읽음(서버 연동 + 낙관적 업데이트)
+  const handleMarkAllAsRead = async () => {
+    if (!memberId) return;
+    const prev = notifications;
+    setNotifications(prev.map(n => ({ ...n, isRead: true })));
+    try {
+      await apiMarkAllNotificationsRead(memberId);
+    } catch (err) {
+      setNotifications(prev); // 롤백
+      console.error(err);
+      alert('전체 읽음 처리에 실패했습니다.');
+    }
   };
 
-  const handleDeleteAll = () => {
-    setNotifications([]);
-    // TODO: 서버 일괄 삭제 API 있으면 호출
+  // 전체 삭제(서버 연동 + 낙관적 업데이트)
+  const handleDeleteAll = async () => {
+    if (!memberId) return;
+    const prev = notifications;
+    setNotifications([]); // 낙관적
+    try {
+      await apiDeleteAllNotifications(memberId);
+    } catch (err) {
+      setNotifications(prev); // 롤백
+      console.error(err);
+      alert('전체 삭제에 실패했습니다.');
+    }
   };
 
   if (loading) return <NotificationLoader />;
 
-  // 필터링은 서버에 맡겼으므로 클라이언트 필터링 제거
-  const filteredNotifications = notifications;
+  const filteredNotifications = notifications; // 서버에서 status로 필터링됨
 
   return (
     <div className="max-w-[848px] mx-auto">

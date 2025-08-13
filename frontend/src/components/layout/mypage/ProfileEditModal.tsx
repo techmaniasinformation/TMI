@@ -6,9 +6,10 @@ import {
   DialogTitle,
   DialogOverlay,
 } from '@/components/domain/Dialog';
-  import { Input } from '@/components/domain/Input';
+import { Input } from '@/components/domain/Input';
 import { Button } from '@/components/foundation/button';
 import { Camera } from 'lucide-react';
+import { getSafeProfileUrl } from '@/utils/defaultImages';
 
 interface ProfileEditModalProps {
   isOpen: boolean;
@@ -23,7 +24,7 @@ interface ProfileEditModalProps {
     nickname: string,
     blogUrl: string,
     githubUrl?: string,
-    profileImageUrl?: string | null, // ← 삭제 의도면 null 전달
+    profileImageUrl?: string | null,
     file?: File | null
   ) => Promise<void>;
 }
@@ -33,10 +34,13 @@ const NICKNAME_RE = /^[가-힣a-zA-Z0-9]{2,8}$/;
 const isValidNickname = (v: string) => NICKNAME_RE.test(v);
 
 // ✅ 유효 글자(완성형 한글/영문/숫자) 카운트 & 금지문자 체크 헬퍼
-const ALLOWED_CHAR_RE = /[가-힣a-zA-Z0-9]/;           // 단일 문자 테스트용
+const ALLOWED_CHAR_RE = /[가-힣a-zA-Z0-9]/;
 const hasDisallowed = (s: string) => /[^가-힣a-zA-Z0-9]/.test(s);
 const countAllowed = (s: string) =>
   Array.from(s).reduce((n, ch) => n + (ALLOWED_CHAR_RE.test(ch) ? 1 : 0), 0);
+
+// 🔗 닉네임 중복 확인 API
+const DUP_API = 'https://i13a509.p.ssafy.io/api/v1/member/duplicate?nickname=';
 
 const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   isOpen,
@@ -67,6 +71,12 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   // ✅ 이미지 제거 의도 플래그
   const [removed, setRemoved] = useState(false);
 
+  // ✅ 닉네임 중복 검사 상태
+  const [isCheckingDup, setIsCheckingDup] = useState(false);
+  const [isDuplicated, setIsDuplicated] = useState(false);
+  const dupAbortRef = useRef<AbortController | null>(null);
+  const dupTimerRef = useRef<number | null>(null);
+
   // blob URL 정리용
   const prevUrlRef = useRef<string | null>(null);
   useEffect(() => {
@@ -94,10 +104,11 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
     setSelectedFile(null);
     setImgLoading(!!initialProfileImageUrl);
     fallbackAppliedRef.current = false;
-    setRemoved(false); // ✅ 모달 열릴 때 제거 플래그 리셋
+    setRemoved(false);
+    setIsDuplicated(false);
+    setIsCheckingDup(false);
   }, [isOpen, initialNickname, initialBlogUrl, initialGithubUrl, initialProfileImageUrl]);
 
-  // 기본 이미지로 1회만 안전하게 대체 (무한 onError 방지)
   const handleImgError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     if (fallbackAppliedRef.current) return;
     fallbackAppliedRef.current = true;
@@ -117,21 +128,16 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
     const currentAllowed = countAllowed(nickname);
     const nextAllowed = countAllowed(next);
 
-    // (1) 유효 글자 수가 줄거나 같아지는 경우(삭제/교체 등): 그대로 허용
     if (nextAllowed <= currentAllowed) {
       setNickname(next);
     } else {
-      // (2) 유효 글자가 증가하려는 입력인 경우: 8자 이내만 허용
       if (nextAllowed <= 8) {
         setNickname(next);
       }
-      // nextAllowed > 8 이면 무시 → 더 이상 유효 글자 추가 불가
     }
 
-    // 에러 갱신 (입력값은 그대로 보이게 유지)
-    const effective = next; // 화면 표시값 그대로
-    const allowedCount = countAllowed(effective);
-    if (hasDisallowed(effective)) {
+    const allowedCount = countAllowed(next);
+    if (hasDisallowed(next)) {
       setNicknameError('허용 외 문자가 포함되어 있어요 (자모·특수·공백 등).');
     } else if (allowedCount < 2) {
       setNicknameError('닉네임은 2~8자의 완성형 한글/영문/숫자만 가능합니다.');
@@ -140,12 +146,72 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
     }
   };
 
-  // 포커스 아웃 시 최종 검증 (정규식 기준)
+  // ✅ 닉네임 중복 검사 (디바운스 + AbortController)
+  useEffect(() => {
+    const value = (nickname ?? '').trim();
+
+    // 타이머/요청 정리
+    if (dupTimerRef.current) {
+      clearTimeout(dupTimerRef.current);
+      dupTimerRef.current = null;
+    }
+    dupAbortRef.current?.abort();
+
+    // 검사 필요 조건: 유효 형식 통과 + 기존 닉네임과 다를 때 + 수정 가능할 때
+    if (!nicknameDisabled && isValidNickname(value) && value !== (initialNickname ?? '')) {
+      setIsCheckingDup(true);
+      setIsDuplicated(false);
+
+      dupTimerRef.current = window.setTimeout(async () => {
+        const controller = new AbortController();
+        dupAbortRef.current = controller;
+        try {
+          const res = await fetch(DUP_API + encodeURIComponent(value), {
+            method: 'GET',
+            signal: controller.signal,
+          });
+          const json = await res.json().catch(() => null);
+          const duplicated = !!json?.data?.isDuplicated;
+
+          setIsDuplicated(duplicated);
+          // 에러 메시지는 여기서도 업데이트(형식 에러가 없는 경우에만)
+          setNicknameError((prev) => {
+            // 기존에 형식/기타 에러가 있으면 그대로 두고, 없으면 중복 에러 반영
+            if (prev && prev !== '이미 사용 중인 닉네임입니다.') return prev;
+            return duplicated ? '이미 사용 중인 닉네임입니다.' : null;
+          });
+        } catch {
+          // 네트워크 오류는 저장 자체를 막진 않고 안내만
+          setNicknameError((prev) => prev ?? null);
+        } finally {
+          setIsCheckingDup(false);
+          dupAbortRef.current = null;
+        }
+      }, 400); // 400ms 디바운스
+    } else {
+      // 검사 조건이 아니면 상태 초기화
+      setIsCheckingDup(false);
+      setIsDuplicated(false);
+      // 형식 에러는 유지, 중복 에러는 제거
+      setNicknameError((prev) => (prev === '이미 사용 중인 닉네임입니다.' ? null : prev));
+    }
+
+    return () => {
+      if (dupTimerRef.current) {
+        clearTimeout(dupTimerRef.current);
+        dupTimerRef.current = null;
+      }
+      dupAbortRef.current?.abort();
+    };
+  }, [nickname, initialNickname, nicknameDisabled]);
+
   const handleNicknameBlur = () => {
     const v = (nickname ?? '').trim();
     setNickname(v);
     if (!isValidNickname(v)) {
       setNicknameError('닉네임은 2~8자의 완성형 한글/영문/숫자만 가능합니다.');
+    } else if (isDuplicated) {
+      setNicknameError('이미 사용 중인 닉네임입니다.');
     } else {
       setNicknameError(null);
     }
@@ -153,7 +219,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
-    setRemoved(false); // ✅ 파일 선택하면 제거 의도 해제
+    setRemoved(false);
 
     if (file) {
       const MAX_SIZE = 10 * 1024 * 1024; // 10MB
@@ -172,13 +238,12 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
         return;
       }
 
-      // 📏 가로/세로 길이 제한 검사
       const tempUrl = URL.createObjectURL(file);
       const img = new Image();
       img.onload = () => {
         const w = img.width;
         const h = img.height;
-        URL.revokeObjectURL(tempUrl); // 임시 URL 정리
+        URL.revokeObjectURL(tempUrl);
 
         if (w > MAX_WIDTH || h > MAX_HEIGHT) {
           alert(`이미지 크기는 ${MAX_WIDTH}x${MAX_HEIGHT}px 이하만 가능합니다.\n(현재: ${w}x${h}px)`);
@@ -186,7 +251,6 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
           return;
         }
 
-        // ✅ 통과 시 미리보기/상태 반영
         setSelectedFile(file);
         fallbackAppliedRef.current = false;
         setImgLoading(true);
@@ -201,7 +265,6 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
       return;
     }
 
-    // 파일 선택 취소
     setSelectedFile(null);
     fallbackAppliedRef.current = false;
     setImgLoading(!!initialProfileImageUrl);
@@ -215,23 +278,25 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
     if (saving) return;
 
     const cleanNickname = (nickname ?? '').trim();
-    // 저장 직전 최종 검증(서버 호출 차단)
+    // 최종 가드
     if (!isValidNickname(cleanNickname)) {
       setNicknameError('닉네임은 2~8자의 완성형 한글/영문/숫자만 가능합니다.');
+      return;
+    }
+    if (isCheckingDup) return;         // 검사 중엔 저장 불가
+    if (isDuplicated && cleanNickname !== (initialNickname ?? '')) {
+      setNicknameError('이미 사용 중인 닉네임입니다.');
       return;
     }
 
     setSaving(true);
     try {
-      // 파일 없음 + 프리뷰가 초기 이미지와 같으면 URL은 보내지 않음(= undefined)
       const isSameAsInitial =
         !selectedFile && (previewUrl ?? '') === (initialProfileImageUrl ?? '');
 
-      // ✅ 제거면 null, 유지면 undefined, 프리뷰 변경이면 그 값
       const profileArg: string | null | undefined =
         removed ? null : (isSameAsInitial ? undefined : (previewUrl ?? undefined));
 
-      // ✅ 아무 것도 안 바뀐 경우만 스킵 (제거 의도면 변경으로 간주)
       const nothingChanged =
         !removed &&
         cleanNickname === (initialNickname ?? '') &&
@@ -245,15 +310,8 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
         return;
       }
 
-      await onSave(
-        cleanNickname,
-        blogUrl,
-        githubUrl,
-        profileArg,
-        selectedFile
-      );
+      await onSave(cleanNickname, blogUrl, githubUrl, profileArg, selectedFile);
 
-      // ✅ 저장 성공 시 모달 닫고 마이페이지 새로고침
       onClose();
       window.location.reload();
     } catch (e) {
@@ -265,28 +323,27 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      {/* 어두운 배경 (모달 외부만) */}
       <DialogOverlay className="fixed inset-0 bg-black/70 backdrop-blur-none z-40" />
-
-      {/* 하얀색 모달 */}
       <DialogContent className="w-[512px] bg-white z-50 rounded-lg shadow-lg">
         <DialogHeader>
           <DialogTitle className="text-lg font-bold">프로필 수정</DialogTitle>
         </DialogHeader>
 
-        {/* 프로필 이미지 + 카메라 아이콘 업로드 */}
+        {/* 프로필 이미지 + 카메라 아이콘 업로드 (중앙 오버레이) */}
         <div className="flex flex-col items-center justify-center mt-4 mb-2">
-          <div className="w-24 h-24 rounded-full border border-gray-300 overflow-hidden flex items-center justify-center">
+          <div className="relative w-24 h-24 rounded-full border border-gray-300 overflow-hidden flex items-center justify-center">
             {previewUrl ? (
               <>
                 {imgLoading && <div className="w-full h-full animate-pulse bg-gray-100" />}
                 <img
                   key={previewUrl}
-                  src={previewUrl}
+                  src={getSafeProfileUrl(previewUrl)}
                   alt="Profile"
                   className={`w-24 h-24 object-contain ${imgLoading ? 'hidden' : 'block'}`}
                   onLoad={handleImgLoad}
-                  onError={handleImgError}
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = getSafeProfileUrl(null);
+                  }}
                   draggable={false}
                 />
               </>
@@ -295,17 +352,17 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
                 No Image
               </div>
             )}
-          </div>
 
-          <button
-            type="button"
-            onClick={openFilePicker}
-            className="mt-4 flex itemscenter justify-center w-10 h-10 rounded-full bg-[#7C3AED] hover:bg-[#6D28D9] transition"
-            aria-label="Change profile image"
-            title="Change profile image"
-          >
-            <Camera className="w-5 h-5 text-white" />
-          </button>
+            <button
+              type="button"
+              onClick={openFilePicker}
+              className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/50 transition"
+              aria-label="Change profile image"
+              title="Change profile image"
+            >
+              <Camera className="w-6 h-6 text-white" />
+            </button>
+          </div>
 
           <p className="text-sm text-gray-500 mt-2">
             이미지는 10MB 이하, 최대 1024×1024px만 업로드할 수 있어요.
@@ -316,14 +373,13 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
               onClick={() => {
                 setSelectedFile(null);
                 setPreviewUrl(null);
-                setRemoved(true); // ✅ 제거 의도 ON
+                setRemoved(true);
               }}
               className="mt-2 text-xs text-gray-500 underline"
             >
               이미지 제거
             </button>
           )}
-          {/* 숨김 파일 인풋 */}
           <input
             ref={fileInputRef}
             type="file"
@@ -336,10 +392,22 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
         {/* 입력 필드 */}
         <div className="space-y-4 mt-2">
           <div>
-            {/* ✅ 글자수 카운트: 유효 글자 기준 */}
+            {/* ✅ 글자수 + 중복 상태 표시 */}
             <label className="text-sm font-medium text-gray-700 flex items-center justify-between">
               <span>닉네임</span>
-              <span className="text-xs text-gray-500">{countAllowed(nickname)}/8</span>
+              <span className="text-xs text-gray-500 flex items-center gap-2">
+                {isCheckingDup ? (
+                  <span className="animate-pulse">중복 확인 중…</span>
+                ) : isValidNickname((nickname ?? '').trim()) &&
+                  (nickname ?? '').trim() !== (initialNickname ?? '') ? (
+                  isDuplicated ? (
+                    <span className="text-red-500">사용 불가</span>
+                  ) : (
+                    <span className="text-green-600">사용 가능</span>
+                  )
+                ) : null}
+                <span>{countAllowed(nickname)}/8</span>
+              </span>
             </label>
             <Input
               value={nickname}
@@ -349,7 +417,6 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
               placeholder="완성형 한글/영문/숫자 (2~8자)"
               aria-invalid={!!nicknameError}
               aria-describedby={nicknameError ? 'nickname-error' : undefined}
-              // maxLength 제거: 자모 표시를 위해 브라우저 레벨 컷 사용 안 함
               inputMode="text"
             />
             {(nicknameHelperText || nicknameError) && (
@@ -376,8 +443,16 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
           <Button
             variant="primary"
             onClick={handleSubmit}
-            disabled={saving || !!nicknameError || !isValidNickname((nickname ?? '').trim())}
-            className={`w-full h-10 text-white font-semibold ${saving ? 'opacity-60 cursor-not-allowed' : ''}`}
+            disabled={
+              saving ||
+              !!nicknameError ||
+              !isValidNickname((nickname ?? '').trim()) ||
+              isCheckingDup ||
+              (isDuplicated && (nickname ?? '').trim() !== (initialNickname ?? ''))
+            }
+            className={`w-full h-10 text-white font-semibold ${
+              saving ? 'opacity-60 cursor-not-allowed' : ''
+            }`}
           >
             {saving ? '저장 중…' : '저장하기'}
           </Button>

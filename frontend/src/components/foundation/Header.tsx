@@ -8,6 +8,7 @@ import { useThemeStore } from '@/stores/themeStore'; // 테마 불러오기
 import { useUserStore } from '@/stores/userStore'; // 로그인 관련 전역변수
 
 import logo from '@/assets/icons/tmiLogo.svg';
+import { getSafeProfileUrl } from '@/utils/defaultImages'; // 디폴트 프로필 이미지
 
 const headerVariants = cva('text-white', {
   variants: {
@@ -236,10 +237,7 @@ const Header: React.FC<HeaderProps> = ({
                 >
                   <div className='relative'>
                     <img
-                      src={
-                        user?.memberProfileUrl ||
-                        'https://readdy.ai/api/search-image?query=professional%20headshot%20developer&width=32&height=32&orientation=squarish'
-                      }
+                      src={getSafeProfileUrl(user?.memberProfileUrl)}
                       alt='Profile'
                       className='w-8 h-8 rounded-full object-contain'
                     />

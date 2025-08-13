@@ -40,6 +40,6 @@ public record OpenAiRequest(
         new Message(prompt + "\n\n" + content, "user")
     );
 
-    return new OpenAiRequest("gpt-4o", messages);
+    return new OpenAiRequest("gpt-4o-mini", messages);
   }
 }

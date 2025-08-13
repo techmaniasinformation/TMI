@@ -41,9 +41,9 @@ export const PopularPostItem: React.FC<PopularPostItemProps> = ({
           <div className="flex items-center gap-2 text-xs text-gray-500">
             <span>{post.name}</span>
             <span>•</span>
-            <span>{formatNumber(post.starCount)}</span>
+            <span>⭐ {formatNumber(post.starCount)}</span>
             <span>•</span>
-            <span>{formatNumber(post.viewCount)}</span>
+            <span>👁️ {formatNumber(post.viewCount)}</span>
           </div>
         </div>
       </div>

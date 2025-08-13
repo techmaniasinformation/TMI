@@ -142,6 +142,14 @@ export default function HomePostList() {
         activeTab={activeTab}
         onTabChange={(tabId) => {
           console.log('🔍 HomeTabBar에서 탭 클릭:', tabId);
+          
+          // 팔로우 탭으로 변경하려고 하는데 로그인하지 않은 경우
+          if (tabId === 'following' && !isLoggedIn) {
+            console.log('🔍 팔로우 탭 클릭했지만 로그인하지 않음');
+            setActiveTab(tabId);
+            return;
+          }
+          
           // 탭 변경 시 페이지를 1로 초기화
           setCurrentPage(1);
           setActiveTab(tabId);

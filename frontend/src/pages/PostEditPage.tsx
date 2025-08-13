@@ -464,7 +464,7 @@ const PostEditPage: React.FC = () => {
           </div>
 
           {/* 태그 */}
-          <div>
+          <div className="mt-8">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               태그
             </label>

@@ -166,6 +166,13 @@ export const usePostsList = () => {
   const handleTabChange = useCallback((newTab: 'latest' | 'following') => {
     console.log('🔍 탭 변경 시도:', newTab, '현재 탭:', activeTab);
     
+    // 팔로우 탭으로 변경하려고 하는데 로그인하지 않은 경우
+    if (newTab === 'following' && !isLoggedIn) {
+      console.log('🔍 팔로우 탭 클릭했지만 로그인하지 않음 - 탭 변경만 허용');
+      setActiveTab('following');
+      return;
+    }
+    
     // 같은 탭을 클릭한 경우에도 페이지를 1로 초기화
     if (newTab === activeTab) {
       console.log('🔍 같은 탭 클릭 - 페이지를 1로 초기화');
@@ -197,7 +204,7 @@ export const usePostsList = () => {
     }
     console.log('🔍 새로운 URL 파라미터:', newSearchParams.toString());
     setSearchParams(newSearchParams);
-  }, [activeTab, searchParams, setSearchParams, user?.memberId]);
+  }, [activeTab, searchParams, setSearchParams, user?.memberId, isLoggedIn]);
 
   // 페이지 변경 핸들러를 useCallback으로 메모이제이션
   const setCurrentPage = useCallback((page: number) => {

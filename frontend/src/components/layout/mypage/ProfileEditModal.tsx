@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -34,7 +34,7 @@ interface ProfileEditModalProps {
 const NICKNAME_RE = /^[가-힣a-zA-Z0-9]{2,8}$/;
 const isValidNickname = (v: string) => NICKNAME_RE.test(v);
 
-// 블로그 허용 도메인 (Medium 제거됨)
+// 블로그 허용 도메인
 const ALLOWED_BLOG_HOSTS = [
   'tistory.com',
   'velog.io',
@@ -115,6 +115,36 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
 
   const [saving, setSaving] = useState(false);
 
+  // 닉네임 중복 확인 상태
+  const [isChecking, setIsChecking] = useState(false);
+  const [isDuplicate, setIsDuplicate] = useState(false);
+  const abortRef = useRef<AbortController | null>(null);
+
+  // ✅ 모달 열릴 때마다 최신 props 값으로 초기화
+  useEffect(() => {
+    if (isOpen) {
+      setNickname(initialNickname);
+      setBlogUrl(initialBlogUrl || '');
+      setGithubUrl(initialGithubUrl || '');
+      setImagePreview('');
+      setExistingImageUrl(initialProfileImageUrl || '');
+      setSelectedImage(null);
+      setNicknameError(null);
+      setBlogError('');
+      setGithubError('');
+      setIsDuplicate(false);
+    }
+  }, [
+    isOpen,
+    initialNickname,
+    initialBlogUrl,
+    initialGithubUrl,
+    initialProfileImageUrl,
+    setImagePreview,
+    setExistingImageUrl,
+    setSelectedImage,
+  ]);
+
   // 닉네임 변경
   const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const next = e.target.value;
@@ -133,6 +163,43 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
       setNicknameError('닉네임은 2~8자의 완성형 한글/영문/숫자만 가능합니다.');
     }
   };
+
+  // 닉네임 중복 확인 API 호출 (디바운스)
+  useEffect(() => {
+    if (!nickname || nickname === initialNickname || nicknameError) {
+      setIsDuplicate(false);
+      setIsChecking(false);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      if (!isValidNickname(nickname)) return;
+
+      abortRef.current?.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
+
+      try {
+        setIsChecking(true);
+        const res = await fetch(
+          `https://i13a509.p.ssafy.io/api/v1/member/duplicate?nickname=${encodeURIComponent(
+            nickname
+          )}`,
+          { signal: controller.signal }
+        );
+        const data = await res.json();
+        setIsDuplicate(data.data.isDuplicated);
+      } catch (err) {
+        if ((err as any).name !== 'AbortError') {
+          console.error(err);
+        }
+      } finally {
+        setIsChecking(false);
+      }
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [nickname, nicknameError, initialNickname]);
 
   // 블로그/GitHub URL
   const onBlogChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -251,7 +318,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
                   if (input) input.value = '';
                 }}
               >
-                이미지 삭제
+                이미지 제거
               </button>
             </div>
           )}
@@ -276,13 +343,23 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
               placeholder="완성형 한글/영문/숫자 (2~8자)"
               aria-invalid={!!nicknameError}
             />
-            {(nicknameHelperText || nicknameError) && (
+            {(nicknameHelperText || nicknameError || isChecking || isDuplicate) && (
               <p
                 className={`mt-1 text-xs ${
-                  nicknameError ? 'text-red-500' : 'text-gray-500'
+                  nicknameError
+                    ? 'text-red-500'
+                    : isDuplicate
+                    ? 'text-red-500'
+                    : 'text-gray-500'
                 }`}
               >
-                {nicknameError ?? nicknameHelperText}
+                {nicknameError
+                  ? nicknameError
+                  : isChecking
+                  ? '중복 확인 중...'
+                  : isDuplicate
+                  ? '이미 사용 중인 닉네임입니다.'
+                  : nicknameHelperText || '사용 가능한 닉네임입니다.'}
               </p>
             )}
           </div>
@@ -342,7 +419,8 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
               !!nicknameError ||
               !isValidNickname((nickname ?? '').trim()) ||
               !!blogError ||
-              !!githubError
+              !!githubError ||
+              isDuplicate
             }
             className={`w-full h-10 text-white font-semibold ${
               saving ? 'opacity-60 cursor-not-allowed' : ''

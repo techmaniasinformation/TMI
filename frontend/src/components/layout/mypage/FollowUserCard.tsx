@@ -14,7 +14,7 @@ const FollowUserCard: React.FC<FollowUserCardProps> = ({ id, nickname, image, ba
   return (
     <div
       key={id}
-      className="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors duration-200"
+      className="flex items-center space-x-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors duration-200"
       onClick={onClick}
     >
       <img
@@ -26,11 +26,11 @@ const FollowUserCard: React.FC<FollowUserCardProps> = ({ id, nickname, image, ba
 
       <div>
         {/* 닉네임 */}
-        <div className="font-medium text-gray-900">{nickname}</div>
+        <div className="font-medium text-gray-900 dark:text-white">{nickname}</div>
 
         {/* 대표 배지 '이름' 표시 (있을 때만) */}
         {badgeName && (
-          <span className="inline-block mt-1 px-2 py-0.5 rounded bg-purple-100 text-purple-800 text-xs">
+          <span className="inline-block mt-1 px-2 py-0.5 rounded bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-300 text-xs">
             {badgeName}
           </span>
         )}

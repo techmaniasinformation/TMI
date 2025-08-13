@@ -191,6 +191,15 @@ const Header: React.FC<HeaderProps> = ({ variant = 'light', size = 'default' }) 
 
           {/* 우측 메뉴 */}
           <div className="flex items-center space-x-4">
+            {/* 라이트/다크 토글 */}
+            <button
+              onClick={toggleTheme}
+              className='p-2 text-gray-500 hover:text-gray-700 w-10 h-10 flex items-center justify-center'
+            >
+              <i
+                className={`fas ${isDarkMode ? 'fa-sun' : 'fa-moon'} text-lg`}
+              />
+            </button>
             {isAuthenticated ? (
               <div className="relative flex">
                 {/* 프로필 */}

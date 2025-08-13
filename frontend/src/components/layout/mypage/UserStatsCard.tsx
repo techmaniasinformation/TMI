@@ -28,28 +28,28 @@ export default function UserStatsCard({
     <div className="flex space-x-8 text-center">
       {/* 게시글 수 */}
       <div>
-        <div className="text-2xl font-bold text-gray-900">{formatNumber(posts)}</div>
-        <div className="text-sm text-gray-600">게시글 수</div>
+        <div className="text-2xl font-bold text-gray-900 dark:text-white">{formatNumber(posts)}</div>
+        <div className="text-sm text-gray-600 dark:text-gray-300">게시글 수</div>
       </div>
 
       {/* 개인 유저일 경우에만 댓글 수 표시 */}
       {!isCompany && (
         <div>
-          <div className="text-2xl font-bold text-gray-900">{formatNumber(comments || 0)}</div>
-          <div className="text-sm text-gray-600">댓글 수</div>
+          <div className="text-2xl font-bold text-gray-900 dark:text-white">{formatNumber(comments || 0)}</div>
+          <div className="text-sm text-gray-600 dark:text-gray-300">댓글 수</div>
         </div>
       )}
 
       {/* 팔로워 수 */}
       <div>
-        <div className="text-2xl font-bold text-gray-900">{formatNumber(followers)}</div>
-        <div className="text-sm text-gray-600">팔로워 수</div>
+        <div className="text-2xl font-bold text-gray-900 dark:text-white">{formatNumber(followers)}</div>
+        <div className="text-sm text-gray-600 dark:text-gray-300">팔로워 수</div>
       </div>
 
       {/* 누적 조회 수 */}
       <div>
-        <div className="text-2xl font-bold text-gray-900">{formatNumber(views)}</div>
-        <div className="text-sm text-gray-600">누적 조회 수</div>
+        <div className="text-2xl font-bold text-gray-900 dark:text-white">{formatNumber(views)}</div>
+        <div className="text-sm text-gray-600 dark:text-gray-300">누적 조회 수</div>
       </div>
     </div>
   );

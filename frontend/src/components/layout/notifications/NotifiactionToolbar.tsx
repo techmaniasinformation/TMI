@@ -21,7 +21,7 @@ const NotificationToolbar: React.FC<NotificationToolbarProps> = ({
   onDeleteAll,
 }) => {
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+    <div className="bg-light-header dark:bg-dark-header rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         {/* 읽지 않은 알림만 보기 스위치 */}
         <UnreadOnlyToggle checked={showUnreadOnly} onChange={onToggleUnreadOnly} />

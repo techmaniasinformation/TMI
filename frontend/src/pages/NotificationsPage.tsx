@@ -294,7 +294,7 @@ const NotificationsPage: React.FC = () => {
   const filteredNotifications = notifications;
 
   return (
-    <div className="max-w-[848px] mx-auto">
+    <div className="max-w-[848px] mx-auto bg-light-bg dark:bg-dark-bg">
       <NotificationToolbar
         showUnreadOnly={showUnreadOnly}
         onToggleUnreadOnly={setShowUnreadOnly}
@@ -303,7 +303,7 @@ const NotificationsPage: React.FC = () => {
       />
 
       {loadError && (
-        <div className="mb-4 p-3 rounded bg-red-50 text-red-600 text-sm">{loadError}</div>
+        <div className="mb-4 p-3 rounded bg-red-50 dark:bg-red-900 text-red-600 dark:text-red-300 text-sm">{loadError}</div>
       )}
 
       {filteredNotifications.length === 0 ? (

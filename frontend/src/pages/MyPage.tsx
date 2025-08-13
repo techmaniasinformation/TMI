@@ -344,7 +344,7 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
     isCompany && company?.lastUpdatedAt ? company.lastUpdatedAt.slice(0, 10) : ''; // ✅ 포맷
 
   return (
-    <div className="max-w-[1232px] mx-auto px-4 py-8">
+    <div className="max-w-[1232px] mx-auto px-4 py-8 bg-light-bg dark:bg-dark-bg">
       <div className="max-w-[1232px] mx-auto">
         <ProfileHeader
           isCompany={isCompany}

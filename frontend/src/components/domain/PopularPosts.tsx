@@ -46,8 +46,8 @@ export default function PopularPosts() {
   }, [loading, popularPosts, isInitialLoad]);
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <h3 className="text-lg font-semibold mb-4">🔥 인기 게시글</h3>
+    <div className="bg-light-bg dark:bg-dark-bg rounded-lg shadow p-6">
+      <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">🔥 인기 게시글</h3>
 
       {/* 숨겨진 이미지 프리로딩 - 초기 로드 완료 후에만 실행 */}
       {!isInitialLoad && (
@@ -83,10 +83,10 @@ export default function PopularPosts() {
       ) : error ? (
         <div className="text-center py-8">
           <div className="mb-4">
-            <i className="fas fa-exclamation-triangle text-4xl text-red-300 mb-4"></i>
+            <i className="fas fa-exclamation-triangle text-4xl text-red-300 dark:text-red-400 mb-4"></i>
 
-            <h4 className="text-lg font-semibold text-red-600 mb-2">인기 게시글을 불러오는 중 오류가 발생했습니다</h4>
-            <p className="text-gray-600 mb-4">{error}</p>
+            <h4 className="text-lg font-semibold text-red-600 dark:text-red-500 mb-2">인기 게시글을 불러오는 중 오류가 발생했습니다</h4>
+            <p className="text-gray-600 dark:text-gray-300 mb-4">{error}</p>
           </div>
 
           <div className="space-y-3">
@@ -110,9 +110,9 @@ export default function PopularPosts() {
       ) : popularPosts.length === 0 ? (
         <div className="text-center py-8">
           <div className="mb-4">
-            <i className="fas fa-chart-line text-4xl text-gray-300 mb-4"></i>
-            <h4 className="text-lg font-semibold text-gray-600 mb-2">인기 게시글이 없습니다</h4>
-            <p className="text-gray-500">아직 인기 게시글이 없습니다. 첫 번째 게시글을 작성해보세요!</p>
+            <i className="fas fa-chart-line text-4xl text-gray-300 dark:text-gray-600 mb-4"></i>
+            <h4 className="text-lg font-semibold text-gray-600 dark:text-gray-300 mb-2">인기 게시글이 없습니다</h4>
+            <p className="text-gray-500 dark:text-gray-400">아직 인기 게시글이 없습니다. 첫 번째 게시글을 작성해보세요!</p>
           </div>
 
           <Button

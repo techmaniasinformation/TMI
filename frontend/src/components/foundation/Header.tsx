@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react'; // ✅ NEW: useRef 추가
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/utils/utils';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
@@ -51,6 +51,9 @@ const Header: React.FC<HeaderProps> = ({ variant = 'light', size = 'default' }) 
   const [unreadCount, setUnreadCount] = useState(0);
 
   const isAuthenticated = !!user;
+
+  // ✅ NEW: 드롭다운 래퍼 ref (트리거+메뉴)
+  const menuRootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isAuthenticated && user?.memberId) {
@@ -159,7 +162,33 @@ const Header: React.FC<HeaderProps> = ({ variant = 'light', size = 'default' }) 
     navigate('/my-page');
   };
 
-  // ✅ 안전한 프로필 URL (유효하지 않으면 기본 이미지로 대체)
+  // ✅ NEW: 바깥 클릭 & ESC로 닫기
+  useEffect(() => {
+    if (!showProfileMenu) return;
+
+    const onPointerDown = (e: MouseEvent | TouchEvent) => {
+      const root = menuRootRef.current;
+      if (!root) return;
+      if (!root.contains(e.target as Node)) {
+        setShowProfileMenu(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowProfileMenu(false);
+    };
+
+    document.addEventListener('mousedown', onPointerDown);
+    document.addEventListener('touchstart', onPointerDown, { passive: true });
+    document.addEventListener('keydown', onKey);
+
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown);
+      document.removeEventListener('touchstart', onPointerDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [showProfileMenu]);
+
+  // ✅ 안전한 프로필 URL
   const safeProfileSrc = useMemo(
     () => getSafeProfileUrl(user?.memberProfileUrl),
     [user?.memberProfileUrl]
@@ -192,7 +221,8 @@ const Header: React.FC<HeaderProps> = ({ variant = 'light', size = 'default' }) 
           {/* 우측 메뉴 */}
           <div className="flex items-center space-x-4">
             {isAuthenticated ? (
-              <div className="relative flex">
+              // ✅ NEW: ref 부착 (트리거+메뉴 감싸는 래퍼)
+              <div ref={menuRootRef} className="relative flex">
                 {/* 프로필 */}
                 <button
                   onClick={handleProfileMenuToggle}
@@ -201,6 +231,8 @@ const Header: React.FC<HeaderProps> = ({ variant = 'light', size = 'default' }) 
                     textColor,
                     'hover:bg-opacity-70'
                   )}
+                  aria-haspopup="menu"           // ✅ 접근성
+                  aria-expanded={showProfileMenu} // ✅ 접근성
                 >
                   <div className="relative">
                     <img
@@ -208,8 +240,8 @@ const Header: React.FC<HeaderProps> = ({ variant = 'light', size = 'default' }) 
                       src={safeProfileSrc}
                       alt="Profile"
                       className="w-8 h-8 rounded-full object-cover"
+                      draggable={false} // ✅ 드래그 방지(의도치 않은 이동 방지)
                       onError={(e) => {
-                        // 네트워크/404 시 최종 폴백
                         (e.currentTarget as HTMLImageElement).src = getSafeProfileUrl(null);
                       }}
                     />
@@ -244,6 +276,11 @@ const Header: React.FC<HeaderProps> = ({ variant = 'light', size = 'default' }) 
                         ? 'bg-dark-header border-light-header'
                         : 'bg-light-header border-dark-header'
                     )}
+                    role="menu"
+                    aria-label="사용자 메뉴"
+                    // ✅ 메뉴 내부 클릭은 닫히지 않도록 버블링 차단 (선택)
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onTouchStart={(e) => e.stopPropagation()}
                   >
                     <div className="py-1">
                       <button
@@ -252,6 +289,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'light', size = 'default' }) 
                           'flex items-center justify-between px-4 py-2 text-sm hover:bg-gray-100 hover:text-dark-bg w-full text-left',
                           textColor
                         )}
+                        role="menuitem"
                       >
                         <span>알림 확인</span>
                         {hasUnreadNotifications && (
@@ -264,6 +302,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'light', size = 'default' }) 
                           'flex items-center justify-between px-4 py-2 text-sm hover:bg-gray-100 hover:text-dark-bg w-full text-left',
                           textColor
                         )}
+                        role="menuitem"
                       >
                         마이페이지
                       </button>
@@ -271,6 +310,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'light', size = 'default' }) 
                       <button
                         onClick={handleLogOut}
                         className="block w-full text-left px-4 py-2 text-sm text-warning font-bold hover:bg-gray-100 hover:font-bold"
+                        role="menuitem"
                       >
                         로그아웃
                       </button>

@@ -140,7 +140,10 @@ export default function HomePostList() {
       <HomeTabBar 
         tabs={HOME_TABS}
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={(tabId) => {
+          console.log('🔍 HomeTabBar에서 탭 클릭:', tabId);
+          setActiveTab(tabId);
+        }}
       />
 
       {/* 숨겨진 이미지 프리로딩 - 초기 로드 완료 후에만 실행 */}

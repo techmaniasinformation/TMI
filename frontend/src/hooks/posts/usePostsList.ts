@@ -217,7 +217,10 @@ export const usePostsList = () => {
   return {
     ...state,
     activeTab,
-    setActiveTab: (tabId: string) => handleTabChange(tabId as 'latest' | 'following'),
+    setActiveTab: (tabId: string) => {
+      console.log('🔍 setActiveTab 호출됨:', tabId);
+      handleTabChange(tabId as 'latest' | 'following');
+    },
     setCurrentPage,
     formatDate,
     formatNumber,

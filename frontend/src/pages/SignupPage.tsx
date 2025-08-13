@@ -110,7 +110,7 @@ const SignupPage: React.FC<SignupPageProps> = () => {
 
         <div className='mb-12'>
           <div className='flex items-start gap-4'>
-            <div className='w-32 h-32 rounded-lg overflow-hidden bg-gray-100 border-2 border-gray-200 shadow-lg flex-shrink-0'>
+            <div className='w-32 h-32 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200 shadow-lg flex-shrink-0'>
               {imagePreview ? (
                 <img
                                     src={imagePreview}

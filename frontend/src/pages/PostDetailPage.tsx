@@ -240,7 +240,12 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         onFollowClick={toggleFollow}
         onAuthorClick={handleAuthorClick}
         isFollowing={isFollowing}
-        showFollowButton={postData.memberId !== 1 || (postData.memberId === 1 && postData.companyId !== null)}
+        showFollowButton={
+          // 1. 멤버ID가 현재 전역변수 ID와 같지 않음
+          user?.memberId !== postData.memberId &&
+          // 2. 상대방 멤버ID가 1이지만 companyId가 있음
+          (postData.memberId !== 1 || (postData.memberId === 1 && postData.companyId !== null))
+        }
       />
 
       {/* 본문 콘텐츠 */}

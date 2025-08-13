@@ -110,7 +110,7 @@ const SignupPage: React.FC<SignupPageProps> = () => {
 
         <div className='mb-12'>
           <div className='flex items-start gap-4'>
-            <div className='w-32 h-32 rounded-lg overflow-hidden bg-gray-100 border-2 border-gray-200 shadow-lg flex-shrink-0'>
+            <div className='w-32 h-32 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200 shadow-lg flex-shrink-0'>
               {imagePreview ? (
                 <img
                                     src={imagePreview}
@@ -124,7 +124,7 @@ const SignupPage: React.FC<SignupPageProps> = () => {
               )}
             </div>
             <div className='flex-1'>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <label className='block text-sm font-medium text-gray-700 mb-2 object-cover'>
                 프로필 이미지
               </label>
               <input
@@ -141,6 +141,9 @@ const SignupPage: React.FC<SignupPageProps> = () => {
                 이미지 업로드
               </label>
             </div>
+            <p className="text-sm text-gray-500 mt-2">
+            이미지는 10MB 이하, 정해진 비율에 맞는 이미지만 업로드 가능해요.
+          </p>
           </div>
         </div>
 

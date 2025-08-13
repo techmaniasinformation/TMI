@@ -15,7 +15,6 @@ import OAuthCallbackPage from '../pages/OAuthCallbackPage';
 import { ROUTES } from './routes';
 import { useUserStore } from '@/stores/userStore';
 import { useLocation } from 'react-router-dom';
-import LogoutRedirectHandler from './LogoutRedirectHandler'; // Import the new component
 
 // 로그인 페이지 접근 확인 위함.
 function LoginRouteGuard() {
@@ -49,69 +48,63 @@ function MyPageRedirect() {
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <LogoutRedirectHandler />,
+    element: <Layout />,
     children: [
       {
-        path: '/',
-        element: <Layout />,
-        children: [
-          {
-            index: true,
-            element: <LandingPage />,
-          },
-          {
-            path: ROUTES.HOME,
-            element: <HomePage />,
-          },
-          {
-            // isLogin=treu일 때, home으로 라우팅
-            path: ROUTES.LOGIN,
-            element: <LoginRouteGuard />,
-          },
-          {
-            path: '/signup',
-            element: <SignupPage />,
-          },
-          {
-            path: '/oauth/callback',
-            element: <OAuthCallbackPage />,
-          },
-          {
-            path: ROUTES.POST,
-            element: <PostDetailPage />,
-          },
-          {
-            path: ROUTES.POST_CREATE,
-            element: <PostCreatePage />,
-          },
-          {
-            path: ROUTES.POST_EDIT,
-            element: <PostEditPage />,
-          },
-          {
-            path: ROUTES.SEARCH,
-            element: <SearchResultsPage />,
-          },
-          {
-            path: ROUTES.MY_PAGE, // 내 사용자 마이페이지
-            element: <MyPageRedirect />
-          },
-          
-          {
-            path: '/member/:id', // 동적 유저 페이지 라우트 추가
-            element: <MyPage isCompany={false} />,
-          },
+        index: true,
+        element: <LandingPage />,
+      },
+      {
+        path: ROUTES.HOME,
+        element: <HomePage />,
+      },
+      {
+        // isLogin=treu일 때, home으로 라우팅
+        path: ROUTES.LOGIN,
+        element: <LoginRouteGuard />,
+      },
+      {
+        path: '/signup',
+        element: <SignupPage />,
+      },
+      {
+        path: '/oauth/callback',
+        element: <OAuthCallbackPage />,
+      },
+      {
+        path: ROUTES.POST,
+        element: <PostDetailPage />,
+      },
+      {
+        path: ROUTES.POST_CREATE,
+        element: <PostCreatePage />,
+      },
+      {
+        path: ROUTES.POST_EDIT,
+        element: <PostEditPage />,
+      },
+      {
+        path: ROUTES.SEARCH,
+        element: <SearchResultsPage />,
+      },
+      {
+        path: ROUTES.MY_PAGE, // 내 사용자 마이페이지
+        element: <MyPageRedirect />
+      },
+      
+      {
+        path: '/member/:id', // 동적 유저 페이지 라우트 추가
+        element: <MyPage isCompany={false} />,
+      },
 
-          {
-            path: '/company/:id', // 동적 기업 페이지 라우트 추가
-            element: <MyPage isCompany={true} />,
-          },
+      {
+        path: '/company/:id', // 동적 기업 페이지 라우트 추가
+        element: <MyPage isCompany={true} />,
+      },
 
-          {
-            path: ROUTES.NOTIFICATIONS,
-            element: <NotificationsPage />,
-          },
-        ],
+      {
+        path: ROUTES.NOTIFICATIONS,
+        element: <NotificationsPage />,
       },
     ],
   },

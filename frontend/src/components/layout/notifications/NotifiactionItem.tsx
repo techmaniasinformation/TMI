@@ -1,10 +1,12 @@
 import React from 'react';
 
-// 사용할 이미지 아이콘들을 불러옵니다
 import DeleteIcon from '@/assets/icons/graytrash.svg';
-import ExBadge from '@/assets/icons/exbadge.svg';
-import ExPeople from '@/assets/icons/expeople.svg';
-import ExCompany from '@/assets/icons/excompany.svg';
+import {
+  DEFAULT_IMAGES,
+  getSafeImageUrl,
+  createImageErrorHandler,
+} from '@/utils/defaultImages';
+
 
 // 알림 하나의 정보 구조 (타입 지정)
 interface Notification {
@@ -29,15 +31,18 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
   onClick,
   onDelete,
 }) => {
-  // 알림 타입에 따라 기본 프로필 이미지를 선택하는 함수
-  const getDefaultAvatar = (type: string) => {
-    switch (type) {
-      case 'badge': return ExBadge;
-      case 'comment': return ExPeople;
-      case 'post': return ExCompany;
-      default: return ExPeople;
-    }
-  };
+  // 알림 타입별 기본 이미지 (유틸의 DEFAULT_IMAGES 사용)
+  const fallbackType: keyof typeof DEFAULT_IMAGES =
+    notification.type === 'badge'
+      ? 'BADGE'
+      : notification.type === 'post'
+      ? 'COMPANY'
+      : 'PROFILE';
+  const fallbackSrc = DEFAULT_IMAGES[fallbackType];
+  // 비정상/빈 URL이면 기본값으로 치환
+  const initialSrc = getSafeImageUrl(notification.userAvatar, fallbackSrc);
+  // 로드 실패 시 기본값으로 교체
+  const handleImgError = createImageErrorHandler(fallbackType);
 
   // 시간 문자열을 '방금 전', '3시간 전' 처럼 보기 쉽게 바꾸는 함수 (UTC -> KST 변환)
   const formatTimestamp = (timestamp: string) => {
@@ -67,9 +72,12 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
           {/* 동그란 프로필 영역 */}
           <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
             <img
-              src={notification.userAvatar ?? getDefaultAvatar(notification.type)}
+              src={initialSrc}
               alt="프로필"
               className="w-full h-full object-contain"
+              loading="lazy"
+              referrerPolicy="no-referrer"
+              onError={handleImgError}
             />
           </div>
         </div>

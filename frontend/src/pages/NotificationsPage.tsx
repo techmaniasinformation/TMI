@@ -18,6 +18,7 @@ import {
   markAllNotificationsRead as apiMarkAllNotificationsRead,
 } from '@/api/notification';
 import type { NotificationStatus } from '@/types/notification/notifications';
+import { getSafeProfileUrl, DEFAULT_IMAGES } from "@/utils/defaultImages";
 
 // ===== 배지 이미지 import & 매핑 (BadgeModal 과 동일) =====
 import ai_1 from '@/assets/images/ai_1.png';
@@ -299,7 +300,11 @@ const NotificationsPage: React.FC = () => {
           renderItem={(notification) => (
             <NotificationItem
               key={notification.id}
-              notification={notification}
+              // ⚠️ 비어있거나 'null' 같은 값이면 기본 프로필로 치환
+              notification={{
+                ...notification,
+                userAvatar: getSafeProfileUrl(notification.userAvatar) || DEFAULT_IMAGES.PROFILE,
+              }}
               onClick={handleNotificationClick}
               onDelete={handleDeleteNotification}
             />

@@ -257,14 +257,6 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
             <div className="mt-2 flex items-center gap-3">
               <button
                 type="button"
-                className="text-xs text-gray-600 underline"
-                onClick={handleImageCancel}     // ⬅️ 변경 취소(기존 이미지로 복구)
-                disabled={isImageProcessing}
-              >
-                변경 취소
-              </button>
-              <button
-                type="button"
                 className="text-xs text-red-600 underline"
                 onClick={() => {
                   // 완전 삭제: 미리보기/기존URL 비우기 → 저장 시 null 전달됨

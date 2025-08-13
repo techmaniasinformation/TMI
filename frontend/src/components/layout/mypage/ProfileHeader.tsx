@@ -168,68 +168,53 @@ export default function ProfileHeader({
   }
 
   return (
-    <div className="w-[1232px] h-[150px] bg-light-header dark:bg-dark-header rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
-      <div className="flex justify-between h-full">
+    <div className="w-full max-w-[1232px] mx-auto bg-light-header dark:bg-dark-header rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-6">
         {/* 왼쪽: 프로필 */}
         <div className="flex items-start space-x-4">
           <img
             src={getProfileImage(isCompany ? companyData?.companyProfileUrl : memberData?.memberProfileUrl)}
             alt="profile"
-            className="w-20 h-20 ms-4 rounded-full object-cover"
+            className="w-20 h-20 rounded-full object-cover"
             onError={(e) => {
               (e.target as HTMLImageElement).src = getSafeProfileUrl(null);
             }}
           />
           <div className="flex-1">
-            <div className="flex items-center mt-3">
+            {/* 이름 + 배지 */}
+            <div className="flex items-center flex-wrap gap-2 mt-2">
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                 {isCompany ? companyData?.name : memberData?.nickname}
               </h1>
-
-              {/* 대표 배지 */}
               {!isCompany && repBadgeUrl && (
                 <img
                   key={repBadgeUrl}
                   src={repBadgeUrl}
                   alt="대표 배지"
-                  className="w-8 h-8 rounded-md ml-1"
+                  className="w-8 h-8 rounded-md"
                   onError={(e) => {
                     (e.currentTarget as HTMLImageElement).style.display = 'none';
                   }}
-                  title="대표 배지"
                 />
               )}
-
               {isCompany && (
-                <span className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 text-sm font-medium px-2 py-0.5 rounded-md ml-3">
+                <span className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 text-sm font-medium px-2 py-0.5 rounded-md">
                   기업
                 </span>
               )}
             </div>
 
-            {/* 개인 블로그 / 깃허브 */}
+            {/* 블로그 / 깃허브 */}
             {!isCompany && (
-              <div className="flex space-x-6 mt-6">
+              <div className="flex flex-wrap gap-4 mt-4">
                 {memberData?.blogUrl && (
-                  <a
-                    href={memberData.blogUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-                    title="블로그로 이동 (새 탭)"
-                  >
+                  <a href={memberData.blogUrl} target="_blank" rel="noopener noreferrer" className="flex items-center text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
                     <img src={Blog} alt="blog" className="w-4 h-4 mr-2" />
                     블로그
                   </a>
                 )}
                 {memberData?.githubUrl && (
-                  <a
-                    href={memberData.githubUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-                    title="GitHub로 이동 (새 탭)"
-                  >
+                  <a href={memberData.githubUrl} target="_blank" rel="noopener noreferrer" className="flex items-center text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
                     <img src={GitHub} alt="github" className="w-4 h-4 mr-2" />
                     깃허브
                   </a>
@@ -251,7 +236,6 @@ export default function ProfileHeader({
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-                      title="기업 블로그로 이동 (새 탭)"
                     >
                       <img src={Blog} alt="blog" className="w-4 h-4 mr-2" />
                       블로그
@@ -264,7 +248,7 @@ export default function ProfileHeader({
         </div>
 
         {/* 오른쪽: 통계 + 버튼 */}
-        <div className="flex flex-col items-end justify-between h-full space-y-5">
+        <div className="flex flex-col items-start md:items-end gap-4">
           <UserStatsCard
             posts={isCompany ? companyData?.stats.postCount ?? 0 : memberData?.memberStats.postCount ?? 0}
             comments={isCompany ? 0 : memberData?.memberStats.commentCount ?? 0}
@@ -272,9 +256,8 @@ export default function ProfileHeader({
             views={isCompany ? companyData?.stats.totalViewCount ?? 0 : memberData?.memberStats.totalViewCount ?? 0}
             isCompany={isCompany}
           />
-
           {isMyPage && !isCompany ? (
-            <div className="flex space-x-2">
+            <div className="flex flex-wrap gap-2">
               <button
                 className="w-[132px] bg-prime-btn text-white text-sm rounded-md py-2 px-3 hover:bg-prime-btn-hover flex items-center justify-center"
                 onClick={onEditClick}

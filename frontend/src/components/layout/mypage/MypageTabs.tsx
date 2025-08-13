@@ -315,8 +315,12 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
 
   /* 렌더링 */
   return (
-    <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as MyTab)} className='w-[1232px]'>
-      <TabsList className="bg-light-header dark:bg-dark-header rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6 w-full flex justify-start p-0 h-auto">
+    <Tabs
+      value={activeTab}
+      onValueChange={(v) => setActiveTab(v as MyTab)}
+      className="w-full max-w-[1232px] mx-auto"
+    >
+      <TabsList className="bg-light-header dark:bg-dark-header rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6 w-full flex flex-wrap justify-start p-0 h-auto">
         {(isMyPage || isOtherUser) && isPersonal && (
           <TabsTrigger value="profile" className="flex items-center px-6 py-4 text-gray-500 dark:text-gray-400 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600">
             <IconTab1 className="w-4 h-4 mr-2 text-inherit" />
@@ -376,7 +380,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
       {(isMyPage || isOtherUser) && isPersonal && (
         <TabsContent value="profile" className="p-6 bg-light-header dark:bg-dark-header border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm">
           <h2 className="text-lg font-semibold mb-6 text-gray-900 dark:text-white">업적</h2>
-          <div className="grid grid-cols-7 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-4">
             {[...allBadges]
               .filter((b) => !HIDDEN_BADGE_IDS.has(b.badgeId))
               .sort((a, b) => {
@@ -577,7 +581,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
               {followedCompanies.length === 0 ? (
                 <p className="text-sm text-gray-500 dark:text-gray-400">팔로우한 기업이 없습니다.</p>
               ) : (
-                <div className="grid grid-cols-3 gap-4 w-full max-w-full">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full max-w-full">
                   {followedCompanies.map((company) => (
                     <FollowCompanyCard
                       key={company.companyFollowId}

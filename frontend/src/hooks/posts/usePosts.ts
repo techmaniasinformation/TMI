@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useUserStore } from '@/stores/userStore';
 
 interface Post {
   id: number;
@@ -19,7 +20,8 @@ type TabType = 'latest' | 'following';
 export const usePosts = () => {
   const [activeTab, setActiveTab] = useState<TabType>('latest');
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [isLoggedIn] = useState<boolean>(false);
+  const { user } = useUserStore();
+  const isLoggedIn = user !== null && user.memberId > 0;
   const [hasFollows] = useState<boolean>(false);
 
   const allPosts: Post[] = [

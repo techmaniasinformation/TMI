@@ -83,13 +83,13 @@ export const useUserStore = create(
       setUser: (user: User) =>
         set({
           user,
-          // isLogin: user !== null
+          isLogin: user !== null
         }),
 
       clearUser: () =>
         set({
           user: null,
-          // isLogin: false
+          isLogin: false
         }),
 
       setStarLst: (list: string[]) => set({ starLst: list }),

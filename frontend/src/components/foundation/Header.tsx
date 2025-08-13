@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/utils/utils';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
@@ -51,9 +51,36 @@ const Header: React.FC<HeaderProps> = ({
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const navigate = useNavigate();
   const location = useLocation();
+  const [unreadCount, setUnreadCount] = useState(0); //알림 갯수
 
   // 로그인 여부
   const isAuthenticated = !!user;
+
+    // &&& 페이지 렌더링 시 알림 데이터 요청
+  useEffect(() => {
+    if (isAuthenticated && user?.memberId) {
+      fetch(
+        `/myService/api/v1/notification?memberId=${user.memberId}&status=unread`, // &&& API 호출
+        { method: 'GET', credentials: 'include' }
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.status === 'SUCCESS') {
+            const contentList = data.data?.content || [];
+            setHasUnreadNotifications(contentList.length > 0);
+            setUnreadCount(contentList.length);
+          } else {
+            setHasUnreadNotifications(false);
+            setUnreadCount(0);
+          }
+        })
+        .catch((err) => {
+          console.error('알림 조회 실패:', err);
+          setHasUnreadNotifications(false);
+          setUnreadCount(0);
+        });
+    }
+  }, [isAuthenticated, user?.memberId]); // &&& 로그인/사용자 ID 변경 시 재요청
 
   // 로그아웃 함수를 useCallback으로 메모이제이션
   const handleLogOut = useCallback(async () => {
@@ -204,8 +231,8 @@ const Header: React.FC<HeaderProps> = ({
                       className='w-8 h-8 rounded-full object-contain'
                     />
                     {/* 알림 뱃지 */}
-                    {hasUnreadNotifications && (
-                      <span className='absolute top-0 right-0 block w-3 h-3 bg-warning rounded-full border-2 border-blue'></span>
+                    {hasUnreadNotifications && ( // &&& 조건부 렌더링
+                      <span className="absolute top-0 right-0 block w-3 h-3 bg-warning rounded-full border-2 border-blue"></span>
                     )}
                   </div>
                   <span
@@ -249,7 +276,7 @@ const Header: React.FC<HeaderProps> = ({
                         {hasUnreadNotifications && (
                           // db랑 연결되면 알림 갯수는 db에서 가져오기로
                           <span className='ml-2 text-red-600 font-bold'>
-                            100
+                            {unreadCount}
                           </span>
                         )}
                       </Link>

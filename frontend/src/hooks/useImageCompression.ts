@@ -1,78 +1,6 @@
 import { useState, useEffect } from 'react';
 import imageCompression from 'browser-image-compression';
 
-// 이미지 비율 검증 및 조정을 위한 유틸리티 함수
-const validateAndAdjustImageRatio = (file: File): Promise<File> => {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      const ratio = img.width / img.height;
-      
-      // 비율이 0.5 이상 2.0 이하인 경우 그대로 반환
-      if (ratio >= 0.5 && ratio <= 2.0) {
-        resolve(file);
-        return;
-      }
-      
-      // 비율 조정이 필요한 경우
-      let newWidth = img.width;
-      let newHeight = img.height;
-      
-      if (ratio < 0.5) {
-        // 너무 세로로 긴 경우 - 가로를 늘려서 비율 조정
-        newWidth = img.height * 0.5;
-      } else if (ratio > 2.0) {
-        // 너무 가로로 긴 경우 - 세로를 늘려서 비율 조정
-        newHeight = img.width / 2.0;
-      }
-      
-      // Canvas를 사용하여 이미지 크기 조정
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      
-      if (!ctx) {
-        reject(new Error('Canvas context를 생성할 수 없습니다.'));
-        return;
-      }
-      
-      canvas.width = newWidth;
-      canvas.height = newHeight;
-      
-      // 흰색 배경으로 채우기
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(0, 0, newWidth, newHeight);
-      
-      // 이미지를 중앙에 그리기
-      const offsetX = (newWidth - img.width) / 2;
-      const offsetY = (newHeight - img.height) / 2;
-      ctx.drawImage(img, offsetX, offsetY);
-      
-      // Canvas를 Blob으로 변환
-      canvas.toBlob((blob) => {
-        if (blob) {
-          const adjustedFile = new File([blob], file.name, {
-            type: file.type,
-            lastModified: Date.now()
-          });
-          resolve(adjustedFile);
-        } else {
-          reject(new Error('이미지 비율 조정에 실패했습니다.'));
-        }
-      }, file.type, 0.9);
-    };
-    
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error('이미지를 로드할 수 없습니다.'));
-    };
-    
-    img.src = url;
-  });
-};
-
 /**
  * 이미지 압축 커스텀 훅
  * 
@@ -84,7 +12,7 @@ const validateAndAdjustImageRatio = (file: File): Promise<File> => {
  * - 미리보기 생성 (base64 또는 URL)
  * - 기존 이미지 URL 관리 (수정 페이지용)
  * - 파일 형식 및 크기 검증
- * - 이미지 비율 검증 및 자동 조정 (가로/세로 비율 0.5~2.0)
+ * - 이미지 비율 검증 (가로/세로 비율 0.5~2.0, 범위 벗어나면 alert)
  * 
  * 사용법:
  * 1. 훅을 import하고 사용
@@ -98,7 +26,7 @@ const validateAndAdjustImageRatio = (file: File): Promise<File> => {
  * 최대 파일 크기: 10MB (초과 시 팝업창 표시)
  * 압축 후 최대 크기: 1MB
  * 최대 해상도: 1920px
- * 허용 이미지 비율: 0.5 ~ 2.0 (가로/세로)
+ * 허용 이미지 비율: 0.5 ~ 2.0 (가로/세로, 범위 벗어나면 alert)
  * 
  * @returns {UseImageCompressionReturn} 이미지 압축 관련 상태와 함수들
  */
@@ -181,13 +109,39 @@ export const useImageCompression = (): UseImageCompressionReturn => {
         // 원본 파일 크기 저장
         setOriginalFileSize(file.size);
         
-        // 이미지 비율 검증 및 조정
-        let processedFile = file;
+        // 이미지 비율 검증
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        
+        const ratioCheck = new Promise<File>((resolve, reject) => {
+          img.onload = () => {
+            URL.revokeObjectURL(url);
+            const ratio = img.width / img.height;
+            
+            // 비율이 0.5 이상 2.0 이하인 경우만 허용
+            if (ratio >= 0.5 && ratio <= 2.0) {
+              resolve(file);
+            } else {
+              alert(`이미지 비율이 허용 범위를 벗어났습니다.\n\n현재 비율: ${ratio.toFixed(2)} (가로/세로)\n허용 범위: 0.5 ~ 2.0\n\n이미지 비율을 조정해주세요.`);
+              reject(new Error('이미지 비율이 허용 범위를 벗어남'));
+            }
+          };
+          
+          img.onerror = () => {
+            URL.revokeObjectURL(url);
+            reject(new Error('이미지를 로드할 수 없습니다.'));
+          };
+          
+          img.src = url;
+        });
+        
+        let processedFile: File;
         try {
-          processedFile = await validateAndAdjustImageRatio(file);
+          processedFile = await ratioCheck;
         } catch (ratioError) {
-          console.warn('이미지 비율 조정 실패, 원본 파일 사용:', ratioError);
-          // 비율 조정에 실패해도 원본 파일로 계속 진행
+          fileInput.value = '';
+          setIsImageProcessing(false);
+          return;
         }
         
         // 이미지 압축 옵션 설정

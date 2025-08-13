@@ -129,7 +129,7 @@ const LandingCard: React.FC<LandingCardProps> = ({
                   <img
                     src={thumbnailUrl}
                     alt={`${title} 썸네일`}
-                    className='w-full h-full object-contain rounded-lg object-top'
+                    className='w-full h-full object-cover rounded-lg object-top'
                     onError={() => setThumbnailImageError(true)}
                   />
                 ) : (

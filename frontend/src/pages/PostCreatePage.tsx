@@ -405,7 +405,7 @@ const PostCreatePage: React.FC = () => {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 maxLength={20}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent break-words break-all"
               />
               <span className="absolute right-3 top-2 text-sm text-gray-500">
                 {title.length}/20
@@ -428,7 +428,7 @@ const PostCreatePage: React.FC = () => {
                  <img
                    src={imagePreview}
                    alt="업로드된 이미지"
-                   className="w-full h-full object-contain"
+                   className="w-full h-full object-cover"
                    style={{ objectPosition: 'center' }}
                  />
                ) : (
@@ -605,7 +605,7 @@ const PostCreatePage: React.FC = () => {
               <>
                 {/* 태그 입력 영역 */}
                 <div className="relative">
-                  <div className="flex items-center gap-2 mb-3">
+                  <div className="mb-3">
                     <div className="flex-1 relative">
                       <input
                         type="text"
@@ -616,20 +616,12 @@ const PostCreatePage: React.FC = () => {
                         onFocus={() => newTag.trim() && setShowTagSuggestions(true)}
                         // maxLength={20} // 임시 주석처리
                         placeholder="태그를 입력하세요 (기존 태그 검색 가능)"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent break-words break-all"
                       />
                       <span className="absolute right-3 top-2 text-sm text-gray-500">
                         {newTag.length}/20 {/* 임시 주석처리 */}
                       </span>
                     </div>
-                                         <button
-                       type="button"
-                       onClick={() => handleAddTag()}
-                       disabled={!newTag.trim() || tags.length >= 5}
-                       className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm"
-                     >
-                       추가
-                     </button>
                   </div>
                   {tagError && <p className="text-sm text-red-500 mt-1">{tagError}</p>}
                   

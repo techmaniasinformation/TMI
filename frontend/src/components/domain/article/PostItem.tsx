@@ -46,7 +46,7 @@ export const PostItem: React.FC<PostItemProps> = ({
           <img
             src={profileImageError ? DEFAULT_IMAGES.PROFILE : safeProfileUrl}
             alt={post.name}
-            className="w-full h-full object-contain"
+                          className="w-full h-full object-cover"
             onError={() => setProfileImageError(true)}
           />
         </div>
@@ -54,7 +54,7 @@ export const PostItem: React.FC<PostItemProps> = ({
         {/* 컨텐츠 영역 */}
         <div className="flex-1 min-w-0">
           {/* 제목 */}
-          <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 break-words break-all">
             {post.title}
           </h3>
           
@@ -93,7 +93,7 @@ export const PostItem: React.FC<PostItemProps> = ({
             <img
               src={thumbnailImageError ? DEFAULT_IMAGES.THUMBNAIL : safeThumbnailUrl}
               alt={post.title}
-              className="w-full h-full object-contain rounded-lg"
+              className="w-full h-full object-cover rounded-lg"
               onError={() => setThumbnailImageError(true)}
             />
           </div>

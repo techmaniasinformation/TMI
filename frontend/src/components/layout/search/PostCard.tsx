@@ -41,7 +41,7 @@ const PostCard: React.FC<PostCardProps> = ({
           <img
             src={getSafeProfileUrl(post.author.avatar)}
             alt={post.author.name}
-            className="w-12 h-12 rounded-full object-contain"
+            className="w-12 h-12 rounded-full object-cover"
             onError={handleProfileImageError}
           />
         </div>
@@ -49,7 +49,7 @@ const PostCard: React.FC<PostCardProps> = ({
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between mb-2">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">
+              <h3 className="text-lg font-semibold text-gray-900 mb-1 break-words break-all">
                 {post.title}
               </h3>
               <div className="flex items-center space-x-2 text-sm text-gray-600 mb-2">
@@ -62,7 +62,7 @@ const PostCard: React.FC<PostCardProps> = ({
             </div>
           </div>
           
-          <p className="text-gray-700 mb-3 line-clamp-2">
+          <p className="text-gray-700 mb-3 line-clamp-2 break-words break-all">
             {post.content}
           </p>
           

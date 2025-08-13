@@ -42,7 +42,7 @@ export const BestComments: React.FC<BestCommentsProps> = ({
         <img
           src={safeBestCommentProfileUrl}
           alt="프로필"
-          className="w-12 h-12 rounded-full object-contain"
+          className="w-12 h-12 rounded-full object-cover"
           onError={handleProfileImageError}
         />
         <div className="flex-1">
@@ -60,7 +60,7 @@ export const BestComments: React.FC<BestCommentsProps> = ({
               {formatDate(bestComment.createAt)}
             </span>
           </div>
-          <p className="text-gray-700 mb-2">{bestComment.comment}</p>
+          <p className="text-gray-700 mb-2 break-words break-all">{bestComment.comment}</p>
           {bestComment.link && (
             <a
               href={bestComment.link}

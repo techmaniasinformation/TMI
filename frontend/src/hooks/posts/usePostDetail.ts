@@ -271,12 +271,7 @@ export const useFollow = (postData: PostDetail | null, companyId?: string) => {
         if (companyId || postData.companyId) {
           // 회사 팔로우 취소
           const targetCompanyId = companyId || postData.companyId;
-          if (!companyFollowId) {
-            alert('팔로우 정보를 찾을 수 없습니다.');
-            return;
-          }
-          
-          const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/companyFollow/${companyFollowId}`, {
+          const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/companyFollow/followerId=${user.memberId}&companyId=${targetCompanyId}`, {
             method: 'DELETE',
             headers: {
               'Content-Type': 'application/json',
@@ -293,12 +288,7 @@ export const useFollow = (postData: PostDetail | null, companyId?: string) => {
           }
         } else if (postData.memberId) {
           // 개인 사용자 팔로우 취소
-          if (!memberFollowId) {
-            alert('팔로우 정보를 찾을 수 없습니다.');
-            return;
-          }
-          
-          const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/memberFollow/${memberFollowId}`, {
+          const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/memberFollow/followerId=${user.memberId}&followeeId=${postData.memberId}`, {
             method: 'DELETE',
             headers: {
               'Content-Type': 'application/json',

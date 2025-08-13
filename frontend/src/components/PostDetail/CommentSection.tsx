@@ -61,7 +61,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
           <img
             src={safeMemberProfileUrl}
             alt="프로필"
-            className="w-10 h-10 rounded-full object-contain"
+            className="w-10 h-10 rounded-full object-cover"
             onError={handleProfileImageError}
           />
           <div className="flex-1">
@@ -131,7 +131,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
                                          <img
                        src={safeCommentProfileUrl}
                        alt="프로필"
-                       className="w-10 h-10 rounded-full object-contain"
+                       className="w-10 h-10 rounded-full object-cover"
                        onError={handleProfileImageError}
                      />
                     <div className="flex-1">
@@ -149,7 +149,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
                           {formatDate(comment.createAt)}
                         </span>
                       </div>
-                      <p className="text-gray-700 mb-2">{comment.comment}</p>
+                      <p className="text-gray-700 mb-2 break-words break-all">{comment.comment}</p>
                       {comment.link && (
                         <a
                           href={comment.link}

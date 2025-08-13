@@ -114,16 +114,22 @@ export async function createCompanyFollow(
 /** ===================== 삭제 ===================== **/
 
 // 회원 언팔
-export async function deleteMemberFollow(memberFollowId: number): Promise<FollowMutateResp> {
-  const res = await fetch(`${BASE}/memberFollow/${memberFollowId}`, { method: 'DELETE' });
+export async function deleteMemberFollow(followerId: number, followeeId: number): Promise<FollowMutateResp> {
+  const res = await fetch(`${BASE}/memberFollow/followerId=${followerId}&followeeId=${followeeId}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+  });
   const body = await parseBody(res);
   if (!res.ok) throw buildError(res, body, '언팔로우 처리 중 오류가 발생했습니다.');
   return body as FollowMutateResp;
 }
 
 // 회사 언팔
-export async function deleteCompanyFollow(companyFollowId: number): Promise<FollowMutateResp> {
-  const res = await fetch(`${BASE}/companyFollow/${companyFollowId}`, { method: 'DELETE' });
+export async function deleteCompanyFollow(followerId: number, companyId: number): Promise<FollowMutateResp> {
+  const res = await fetch(`${BASE}/companyFollow/followerId=${followerId}&companyId=${companyId}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+  });
   const body = await parseBody(res);
   if (!res.ok) throw buildError(res, body, '기업 언팔로우 처리 중 오류가 발생했습니다.');
   return body as FollowMutateResp;

@@ -41,6 +41,8 @@ import imageCompression from 'browser-image-compression';
 interface UseImageCompressionReturn {
   /** 압축된 이미지 파일 (File 객체) */
   selectedImage: File | null;
+  // 추가
+  setSelectedImage: React.Dispatch<React.SetStateAction<File | null>>;
   /** 이미지 미리보기 URL (base64 또는 URL) */
   imagePreview: string;
   /** 이미지 압축 처리 중 여부 */
@@ -348,6 +350,7 @@ export const useImageCompression = (): UseImageCompressionReturn => {
 
   return {
     selectedImage,
+    setSelectedImage,
     imagePreview,
     isImageProcessing,
     originalFileSize,

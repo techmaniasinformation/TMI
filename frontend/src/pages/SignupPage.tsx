@@ -2,7 +2,7 @@ import React from 'react';
 import { useSignup } from '@/hooks/auth/useSignup';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect} from 'react';
 import { useUserStore } from '@/stores/userStore';
 
 const signupPageVariants = cva(
@@ -31,6 +31,7 @@ const SignupPage: React.FC<SignupPageProps> = () => {
     isNicknameTaken,
     isCheckingNickname,
     isSubmitting,
+    nicknameError,
     handleNicknameChange,
     handleImageUpload,
     handleNicknameCheck,
@@ -65,8 +66,17 @@ const SignupPage: React.FC<SignupPageProps> = () => {
                 value={formData.nickname}
                 onChange={handleNicknameChange}
                 placeholder='닉네임을 입력해 주세요'
-                className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors text-sm'
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-blue-500 outline-none transition-colors text-sm
+                  ${nicknameError ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'}
+                `}
               />
+              {/* 닉네임 에러 메시지 */}
+              {nicknameError && (
+                <p className='mt-1 text-xs text-red-600 flex items-center'>
+                  <i className='fas fa-exclamation-circle mr-1'></i>
+                  {nicknameError}
+                </p>
+              )}
             </div>
             <button
               onClick={handleNicknameCheck}

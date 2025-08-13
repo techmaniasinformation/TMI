@@ -29,13 +29,21 @@ export const useSignup = () => {
   const nicknameLength = Array.from(formData.nickname).length;
   
   // 닉네임 관련 에러 메시지
-  const [nicknameError, setNicknameError] = useState('');
+  // ✅ 자모 금지(완성형만 허용), 2~8자
+const NICKNAME_RE = /^[가-힣a-zA-Z0-9]{2,8}$/;
+const isValidNickname = (v: string) => NICKNAME_RE.test(v);
 
-    //조건: 닉네임이 공백X, 1~8자, 중복 확인 완료, 중복 아님
+// ✅ 유효 글자(완성형 한글/영문/숫자) 카운트 & 금지문자 체크 헬퍼
+const ALLOWED_CHAR_RE = /[가-힣a-zA-Z0-9]/;           // 단일 문자 테스트용
+const hasDisallowed = (s: string) => /[^가-힣a-zA-Z0-9]/.test(s);
+const countAllowed = (s: string) =>
+  Array.from(s).reduce((n, ch) => n + (ALLOWED_CHAR_RE.test(ch) ? 1 : 0), 0);
+
+  const [nicknameError, setNicknameError] = useState<string | null>(null);
+
+    //조건: 닉네임이 공백X, 2~8자, 중복 확인 완료, 중복 아님
   const isFormValid =
-    !!formData.nickname.trim() &&
-    formData.nickname.length > 0 &&
-    formData.nickname.length <= 8 &&
+    isValidNickname(formData.nickname.trim()) &&
     isNicknameChecked &&
     !isNicknameTaken;
 
@@ -50,30 +58,34 @@ export const useSignup = () => {
 
 
   const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value;
+    const next = e.target.value;
 
-    // 한글, 영어, 숫자만 허용
-    value = value.replace(/[^가-힣a-zA-Z0-9]/g, '');
+    const currentAllowed = countAllowed(formData.nickname);
+    const nextAllowed = countAllowed(next);
 
-    // 8글자 제한 (한글 고려)
-    const arr = Array.from(value);
-    if (arr.length > 8) {
-      value = arr.slice(0, 8).join('');
-    }
-
-    setFormData({ ...formData, nickname: value });
-    setIsNicknameChecked(false);
-
-    // 에러 메시지 설정
-    if (value.length === 0) {
-      setNicknameError('닉네임을 입력해주세요.');
-    } else if (arr.length > 8) {
-      setNicknameError('닉네임은 8자 이하로 입력해주세요.');
+    // (1) 유효 글자 수가 줄거나 같아지는 경우(삭제/교체 등): 그대로 허용
+    if (nextAllowed <= currentAllowed) {
+      setFormData({ ...formData, nickname: next });
     } else {
-      setNicknameError('');
+      // (2) 유효 글자가 증가하려는 입력인 경우: 8자 이내만 허용
+      if (nextAllowed <= 8) {
+        setFormData({ ...formData, nickname: next });
+      }
+      // nextAllowed > 8 이면 무시 → 더 이상 유효 글자 추가 불가
     }
+
+    // 에러 갱신 (입력값은 그대로 보이게 유지)
+    const effective = next; // 화면 표시값 그대로
+    const allowedCount = countAllowed(effective);
+    if (hasDisallowed(effective)) {
+      setNicknameError('허용 외 문자가 포함되어 있어요 (자모·특수·공백 등).');
+    } else if (allowedCount < 2) {
+      setNicknameError('닉네임은 2~8자의 완성형 한글/영문/숫자만 가능합니다.');
+    } else {
+      setNicknameError(null);
+    }
+    setIsNicknameChecked(false);
   };
-;
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -90,13 +102,8 @@ export const useSignup = () => {
  const handleNicknameCheck = async () => {
     const nickname = formData.nickname.trim();
 
-    //alert → 상태 기반 에러 메시지로 변경
-    if (!nickname) {
-      setNicknameError('닉네임을 입력해주세요.');
-      return;
-    }
-    if (nickname.length > 8) {
-      setNicknameError('닉네임은 8자 이하로 입력해주세요.');
+    if (!isValidNickname(nickname)) {
+      setNicknameError('닉네임은 2~8자의 완성형 한글/영문/숫자만 가능합니다.');
       return;
     }
 
@@ -120,7 +127,7 @@ export const useSignup = () => {
       if (json.data.isDuplicated) {
         setNicknameError('이미 사용 중인 닉네임입니다.');
       } else {
-        setNicknameError('');
+        setNicknameError(null);
       }
     } catch (err) {
       console.error(err);
@@ -133,12 +140,8 @@ export const useSignup = () => {
 
   const handleSubmit = async () => {
     // 에러 메시지 기반 유효성 검사
-    if (!formData.nickname.trim()) {
-      setNicknameError('닉네임을 입력해주세요.');
-      return;
-    }
-    if (formData.nickname.length > 8) {
-      setNicknameError('닉네임은 8자 이하로 입력해주세요.');
+    if (!isValidNickname(formData.nickname.trim())) {
+      setNicknameError('닉네임은 2~8자의 완성형 한글/영문/숫자만 가능합니다.');
       return;
     }
     if (!isNicknameChecked || isNicknameTaken) {
@@ -204,6 +207,7 @@ export const useSignup = () => {
     isCheckingNickname,
     isSubmitting,
     nicknameError,
+    nicknameLength: countAllowed(formData.nickname),
     handleNicknameChange,
     handleImageUpload,
     handleNicknameCheck,

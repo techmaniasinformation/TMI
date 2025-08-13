@@ -32,6 +32,7 @@ const SignupPage: React.FC<SignupPageProps> = () => {
     isCheckingNickname,
     isSubmitting,
     nicknameError,
+    nicknameLength,
     handleNicknameChange,
     handleImageUpload,
     handleNicknameCheck,
@@ -56,8 +57,9 @@ const SignupPage: React.FC<SignupPageProps> = () => {
 
       <div className='bg-white rounded-2xl shadow-lg p-10'>
         <div className='mb-10'>
-          <label className='block text-sm font-medium text-gray-700 mb-2'>
-            닉네임 <span className='text-red-500'>*</span>
+          <label className='block text-sm font-medium text-gray-700 mb-2 flex items-center justify-between'>
+            <span>닉네임 <span className='text-red-500'>*</span></span>
+            <span className="text-xs text-gray-500">{nicknameLength}/8</span>
           </label>
           <div className='flex gap-3'>
             <div className='flex-1'>

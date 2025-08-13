@@ -109,11 +109,18 @@ export const useImageCompression = (): UseImageCompressionReturn => {
           throw new Error('이미지 압축 결과가 유효하지 않습니다.');
         }
         
-        // File 객체로 저장
+        // 미리보기 생성
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setImagePreview(e.target?.result as string);
+        };
+        reader.readAsDataURL(finalFile); // finalFile 사용
+        
+        // File 객체로 저장 (미리보기 생성 후)
         setSelectedImage(finalFile);
         
         // 디버깅 로그
-        console.log('최종 File 객체:', {
+        console.log('최종 File 객체 (커스텀 훅):', {
           finalFile,
           isFile: finalFile instanceof File,
           isBlob: finalFile instanceof Blob,
@@ -121,13 +128,6 @@ export const useImageCompression = (): UseImageCompressionReturn => {
           size: finalFile.size,
           type: finalFile.type
         });
-        
-        // 미리보기 생성
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          setImagePreview(e.target?.result as string);
-        };
-        reader.readAsDataURL(compressedFile);
         
       } catch (error) {
         console.error('이미지 압축 실패:', error);

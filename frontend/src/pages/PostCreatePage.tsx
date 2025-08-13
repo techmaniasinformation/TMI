@@ -200,6 +200,14 @@ const PostCreatePage: React.FC = () => {
       
       // 이미지가 선택된 경우 FormData에 추가
       if (selectedImage) {
+        console.log('작성 페이지 - FormData에 추가할 이미지:', {
+          selectedImage,
+          isFile: selectedImage instanceof File,
+          isBlob: selectedImage instanceof Blob,
+          name: selectedImage.name,
+          size: selectedImage.size,
+          type: selectedImage.type
+        });
         formData.append('thumbnailImage', selectedImage);
       }
 

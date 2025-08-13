@@ -202,6 +202,14 @@ const PostEditPage: React.FC = () => {
       formData.append('req', blob);
       
       if (selectedImage) {
+        console.log('수정 페이지 - FormData에 추가할 이미지:', {
+          selectedImage,
+          isFile: selectedImage instanceof File,
+          isBlob: selectedImage instanceof Blob,
+          name: selectedImage.name,
+          size: selectedImage.size,
+          type: selectedImage.type
+        });
         formData.append('thumbnailImage', selectedImage);
       }
 
@@ -300,8 +308,10 @@ const PostEditPage: React.FC = () => {
       setTags(postData.tags || []);
       // 기존 이미지가 있는 경우 미리보기 설정
       if (postData.thumbnailUrl) {
+        // 기존 이미지 URL을 미리보기로 설정
         setImagePreview(postData.thumbnailUrl);
         // selectedImage는 null로 유지 (새로운 이미지를 업로드할 때만 설정됨)
+        console.log('기존 이미지 URL 설정:', postData.thumbnailUrl);
       }
     } else {
       console.log('게시글 데이터가 없습니다. 잘못된 접근입니다.');

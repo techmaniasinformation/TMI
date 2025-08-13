@@ -107,6 +107,13 @@ const PostCreatePage: React.FC = () => {
 
       const result = await response.json();
       console.log('AI 요약 API 응답 데이터:', result);
+      console.log('AI 태그 데이터 상세:', {
+        hasTags: !!result.data?.tags,
+        tagsType: typeof result.data?.tags,
+        tagsIsArray: Array.isArray(result.data?.tags),
+        tagsLength: result.data?.tags?.length,
+        tagsValue: result.data?.tags
+      });
       
       if (result.status === 'SUCCESS' && result.data) {
                  // AI 요약 내용 설정
@@ -176,13 +183,25 @@ const PostCreatePage: React.FC = () => {
       // FormData 생성
       const formData = new FormData();
       
+      // 태그 데이터 검증 및 정리
+      const validatedTags = Array.isArray(tags) ? tags.filter(tag => 
+        typeof tag === 'string' && tag.trim().length > 0
+      ).slice(0, 5) : [];
+      
+      console.log('검증된 태그:', {
+        originalTags: tags,
+        validatedTags: validatedTags,
+        originalType: typeof tags,
+        validatedType: typeof validatedTags
+      });
+      
       // 포스트맨과 동일한 구조로 JSON 데이터 생성
       const requestData = {
         memberId: user.memberId, // null 체크 후 사용
         link: processedUrl,
         title: title,
         content: content,
-        tags: tags
+        tags: validatedTags
         // thumbnailUrl 필드 제거 (서버에서 요구하지 않음)
       };
       
@@ -191,14 +210,21 @@ const PostCreatePage: React.FC = () => {
       
       // 이미지가 선택된 경우 FormData에 추가 (필드명 확인 필요)
       if (selectedImage) {
-        formData.append('thumbnailImage', selectedImage); // 'thumbnail' -> 'thumbnailImage'로 변경
-        console.log('이미지 추가됨:', {
-          fileName: selectedImage.name,
-          fileSize: selectedImage.size,
-          fileType: selectedImage.type,
-          isFile: selectedImage instanceof File,
-          isBlob: selectedImage instanceof Blob
-        });
+        try {
+          formData.append('thumbnailImage', selectedImage); // 'thumbnail' -> 'thumbnailImage'로 변경
+          console.log('이미지 추가됨:', {
+            fileName: selectedImage.name,
+            fileSize: selectedImage.size,
+            fileType: selectedImage.type,
+            isFile: selectedImage instanceof File,
+            isBlob: selectedImage instanceof Blob
+          });
+        } catch (error) {
+          console.error('이미지 FormData 추가 실패:', error);
+          throw new Error('이미지 처리 중 오류가 발생했습니다.');
+        }
+      } else {
+        console.log('이미지 없음 - selectedImage:', selectedImage);
       }
 
       console.log('전송할 FormData:', {
@@ -207,6 +233,9 @@ const PostCreatePage: React.FC = () => {
         title: title,
         content: content,
         tags: tags,
+        tagsType: typeof tags,
+        tagsLength: tags.length,
+        tagsIsArray: Array.isArray(tags),
         hasImage: !!selectedImage,
         selectedImage: selectedImage
       });
@@ -223,6 +252,16 @@ const PostCreatePage: React.FC = () => {
         method: 'POST',
         hasFormData: !!formData,
         userInfo: { memberId: user.memberId, nickname: user.nickname }
+      });
+      
+      console.log('🔍 API 요청 전 최종 확인:', {
+        hasImage: !!selectedImage,
+        imageInfo: selectedImage ? {
+          name: selectedImage.name,
+          size: selectedImage.size,
+          type: selectedImage.type
+        } : null,
+        formDataSize: formData.entries ? Array.from(formData.entries()).length : 'unknown'
       });
       
       const response = await fetch('https://i13a509.p.ssafy.io/api/v1/post', {
@@ -311,16 +350,21 @@ const PostCreatePage: React.FC = () => {
         });
 
         // 압축된 파일을 상태에 저장
-        setSelectedImage(compressedFile);
-        
-        console.log('압축된 이미지 상태 저장:', {
-          compressedFile: compressedFile,
-          isFile: compressedFile instanceof File,
-          isBlob: compressedFile instanceof Blob,
-          name: compressedFile.name,
-          size: compressedFile.size,
-          type: compressedFile.type
-        });
+        if (compressedFile && compressedFile instanceof File) {
+          setSelectedImage(compressedFile);
+          
+          console.log('압축된 이미지 상태 저장:', {
+            compressedFile: compressedFile,
+            isFile: compressedFile instanceof File,
+            isBlob: compressedFile instanceof Blob,
+            name: compressedFile.name,
+            size: compressedFile.size,
+            type: compressedFile.type
+          });
+        } else {
+          console.error('압축된 파일이 유효하지 않음:', compressedFile);
+          throw new Error('이미지 압축 결과가 유효하지 않습니다.');
+        }
         
         // 미리보기 생성
         const reader = new FileReader();

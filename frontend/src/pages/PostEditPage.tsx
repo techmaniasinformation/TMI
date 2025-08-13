@@ -174,12 +174,24 @@ const PostEditPage: React.FC = () => {
       
       const formData = new FormData();
       
+      // 태그 데이터 검증 및 정리
+      const validatedTags = Array.isArray(tags) ? tags.filter(tag => 
+        typeof tag === 'string' && tag.trim().length > 0
+      ).slice(0, 5) : [];
+      
+      console.log('검증된 태그 (수정):', {
+        originalTags: tags,
+        validatedTags: validatedTags,
+        originalType: typeof tags,
+        validatedType: typeof validatedTags
+      });
+      
       const requestData = {
         memberId: user?.memberId,
         link: processedUrl,
         title: title,
         content: content,
-        tags: tags
+        tags: validatedTags
       };
       
       const blob = new Blob([JSON.stringify(requestData)], { type: 'application/json' });

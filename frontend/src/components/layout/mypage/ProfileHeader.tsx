@@ -28,10 +28,8 @@ interface ProfileHeaderProps {
   lastUpdate: string;
   onFollowToggle: () => void;
   onEditClick: () => void;
-  repBadgeUrl?: string | null;
-
-  /** 🔹 저장 후 재조회 트리거 용 키 */
-  refreshKey?: number; // [ADD]
+  repBadgeUrl?: string | null;          // ✅ 상단 대표 배지 이미지 URL(부모에서 전달)
+  refreshKey?: number;                  // ✅ 저장 후 재조회 트리거 키
 }
 
 export default function ProfileHeader({
@@ -42,7 +40,7 @@ export default function ProfileHeader({
   onFollowToggle,
   onEditClick,
   repBadgeUrl,
-  refreshKey = 0, // [ADD] 기본값
+  refreshKey = 0,
 }: ProfileHeaderProps) {
   const { id } = useParams();
   const routeId = Number(id);
@@ -99,7 +97,7 @@ export default function ProfileHeader({
     }
     load();
     return () => { ignore = true; };
-  }, [isCompany, targetId, refreshKey]); // [CHANGE] refreshKey 추가
+  }, [isCompany, targetId, refreshKey]); // ✅ refreshKey 의존성 포함
 
   const getProfileImage = (url: string | null | undefined) => getSafeProfileUrl(url);
 
@@ -187,9 +185,22 @@ export default function ProfileHeader({
               <h1 className="text-2xl font-bold text-gray-900">
                 {isCompany ? companyData?.name : memberData?.nickname}
               </h1>
-              {!isCompany && repBadgeUrl && (
-                <img src={repBadgeUrl} alt="대표 배지" className="w-8 h-8 rounded-md ml-1" />
+
+              {/* ✅ 대표 배지: URL 변경 시 강제 리프레시를 위해 key 사용 + 에러시 숨김 */}
+              {!isCompany && !!repBadgeUrl && (
+                <img
+                  key={repBadgeUrl || 'empty'}            // 🔸 URL 변경 즉시 이미지 리로드
+                  src={repBadgeUrl}
+                  alt="대표 배지"
+                  className="w-8 h-8 rounded-md ml-1"
+                  onError={(e) => {
+                    // URL이 잘못돼도 레이아웃 깨지지 않게 숨김
+                    (e.currentTarget as HTMLImageElement).style.display = 'none';
+                  }}
+                  title="대표 배지"
+                />
               )}
+
               {isCompany && (
                 <span className="bg-blue-100 text-blue-800 text-sm font-medium px-2 py-0.5 rounded-md ml-3">
                   기업
@@ -201,15 +212,25 @@ export default function ProfileHeader({
             {!isCompany && (
               <div className="flex space-x-6 mt-6">
                 {memberData?.blogUrl && (
-                  <a href={memberData.blogUrl} target="_blank" rel="noopener noreferrer"
-                     className="flex items-center text-sm text-gray-600 hover:text-gray-900" title="블로그로 이동 (새 탭)">
+                  <a
+                    href={memberData.blogUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center text-sm text-gray-600 hover:text-gray-900"
+                    title="블로그로 이동 (새 탭)"
+                  >
                     <img src={Blog} alt="blog" className="w-4 h-4 mr-2" />
                     블로그
                   </a>
                 )}
                 {memberData?.githubUrl && (
-                  <a href={memberData.githubUrl} target="_blank" rel="noopener noreferrer"
-                     className="flex items-center text-sm text-gray-600 hover:text-gray-900" title="GitHub로 이동 (새 탭)">
+                  <a
+                    href={memberData.githubUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center text-sm text-gray-600 hover:text-gray-900"
+                    title="GitHub로 이동 (새 탭)"
+                  >
                     <img src={GitHub} alt="github" className="w-4 h-4 mr-2" />
                     깃허브
                   </a>
@@ -226,8 +247,13 @@ export default function ProfileHeader({
                 </div>
                 {companyData?.techBlogUrl && (
                   <div className="flex items-center mt-4">
-                    <a href={companyData.techBlogUrl} target="_blank" rel="noopener noreferrer"
-                       className="flex items-center text-sm text-gray-600 hover:text-gray-900" title="기업 블로그로 이동 (새 탭)">
+                    <a
+                      href={companyData.techBlogUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center text-sm text-gray-600 hover:text-gray-900"
+                      title="기업 블로그로 이동 (새 탭)"
+                    >
                       <img src={Blog} alt="blog" className="w-4 h-4 mr-2" />
                       블로그
                     </a>

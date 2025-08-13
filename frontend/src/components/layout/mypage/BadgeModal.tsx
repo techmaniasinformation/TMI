@@ -1,7 +1,11 @@
+// src/components/layout/mypage/BadgeModal.tsx
 import React, { useState, useEffect } from 'react';
-import { patchRepresentativeBadge } from '@/api/mypage/representativebadgeService';
+import {
+  patchRepresentativeBadge,
+  DEFAULT_BADGE_ID,
+} from '@/api/mypage/badgeService';
 
-// 배지 이미지들 import
+// 배지 이미지 import
 import ai_1 from '@/assets/images/ai_1.png';
 import amumu from '@/assets/images/amumu.png';
 import aws_1 from '@/assets/images/aws_1.png';
@@ -25,7 +29,6 @@ import view2 from '@/assets/images/view2.png';
 import view3 from '@/assets/images/view3.png';
 import locked from '@/assets/images/locked.png';
 
-// 배지 이미지 매핑
 const badgeImages: Record<string, string> = {
   'ai_1.png': ai_1,
   'amumu.png': amumu,
@@ -55,7 +58,7 @@ interface BadgeModalProps {
   isOpen: boolean;
   badge: {
     badgeId: number;
-    memberBadgeId?: number; // 반드시 있어야 PATCH 가능
+    memberBadgeId?: number;
     name: string;
     description: string;
     badgeUrl: string;
@@ -63,22 +66,27 @@ interface BadgeModalProps {
     isRepresentative?: boolean;
   } | null;
   onClose: () => void;
-  onSelect: (badge: BadgeModalProps['badge']) => void;
+
+  /** 성공 후 서버 재조회 콜백 */
+  onRefetch?: () => Promise<void>;
+
+  /** 내가 가진 배지 목록의 (badgeId, memberBadgeId)만 전달 */
+  allMemberBadges: { badgeId: number; memberBadgeId: number }[];
 }
 
 export default function BadgeModal({
   isOpen,
-  onClose,
   badge,
-  onSelect,
+  onClose,
+  onRefetch,
+  allMemberBadges,
 }: BadgeModalProps) {
   const [badgeImageUrl, setBadgeImageUrl] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (badge?.badgeUrl) {
-      const imageUrl = badgeImages[badge.badgeUrl] || '/fallback.png';
-      setBadgeImageUrl(imageUrl);
+      setBadgeImageUrl(badgeImages[badge.badgeUrl] || '/fallback.png');
     }
   }, [badge?.badgeUrl]);
 
@@ -87,28 +95,41 @@ export default function BadgeModal({
   const isOwned = !!badge.memberBadgeId;
   const isRep = !!badge.isRepresentative;
 
+  // 기본 배지(22)의 memberBadgeId를 보유 목록에서 찾는다.
+  const getDefaultMemberBadgeId = () =>
+    allMemberBadges.find(mb => mb.badgeId === DEFAULT_BADGE_ID)?.memberBadgeId;
+
   const handleToggleRepresentative = async () => {
     if (!isOwned && !isRep) {
       alert('획득한 배지만 대표 배지로 설정할 수 있습니다.');
       return;
     }
+
     try {
       setSubmitting(true);
 
       if (isRep) {
-        // 해제: 22번(기본 배지)로 설정
-        await patchRepresentativeBadge(22);
-        onSelect?.({ ...badge, isRepresentative: false });
+        // 해제: 기본 배지(22)의 memberBadgeId로 다시 설정
+        const defaultId = getDefaultMemberBadgeId();
+        if (!defaultId) {
+          alert('기본 배지를 찾을 수 없습니다.');
+          return;
+        }
+        await patchRepresentativeBadge(defaultId);
       } else {
-        // 설정
-        await patchRepresentativeBadge(badge.memberBadgeId!);
-        onSelect?.({ ...badge, isRepresentative: true });
+        // 설정: 선택 배지의 memberBadgeId로 설정
+        if (!badge.memberBadgeId) {
+          alert('이 배지는 아직 획득하지 않았습니다.');
+          return;
+        }
+        await patchRepresentativeBadge(badge.memberBadgeId);
       }
 
+      await onRefetch?.(); // 서버 최신값 재동기화
       onClose();
     } catch (e: any) {
       console.error(e);
-      alert(e?.message || '대표 배지 변경에 실패했습니다.');
+      alert(e?.message || '대표 배지 변경 실패');
     } finally {
       setSubmitting(false);
     }
@@ -123,7 +144,7 @@ export default function BadgeModal({
     : '아직 획득하지 않은 배지';
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" role="dialog" aria-modal="true">
       <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
         <div className="text-center">
           <img
@@ -143,8 +164,8 @@ export default function BadgeModal({
                 ${submitting || (!isOwned && !isRep)
                   ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   : isRep
-                    ? 'bg-red-600 text-white hover:bg-red-700'   // 해제일 때 빨간색
-                    : 'bg-blue-600 text-white hover:bg-blue-700' // 설정일 때 파란색
+                    ? 'bg-red-600 text-white hover:bg-red-700'
+                    : 'bg-blue-600 text-white hover:bg-blue-700'
                 }`}
             >
               {submitting

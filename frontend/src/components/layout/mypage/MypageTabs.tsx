@@ -1,30 +1,23 @@
-import React, { useState, useEffect, useMemo } from 'react';
+// src/components/layout/mypage/MypageTabs.tsx
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import type { Dispatch, SetStateAction } from 'react';
 
-// 대표 배지 수정 API
-import { patchRepresentativeBadge } from "@/api/mypage/representativebadgeService";
-
-// 기본 UI
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/domain/Tabs";
-
-// 카드들
 import PostCard from './PostCard';
 import CommentCard from './CommentCard';
 import FollowCompanyCard from './FollowCompanyCard';
 import FollowUserCard from './FollowUserCard';
 
-// 아이콘
 import IconTab1 from '@/assets/icons/IconTab1';
 import IconTab2 from '@/assets/icons/IconTab2';
 import IconTab3 from '@/assets/icons/IconTab3';
 import IconTab4 from '@/assets/icons/IconTab4';
 import IconTab5 from '@/assets/icons/IconTab5';
 
-// 훅
 import ServerPagination from '@/components/domain/ServerPagination';
 
-// 배지 이미지들을 정적 import로 변경
+// 이미지
 import ai_1 from '@/assets/images/ai_1.png';
 import amumu from '@/assets/images/amumu.png';
 import aws_1 from '@/assets/images/aws_1.png';
@@ -48,7 +41,6 @@ import view2 from '@/assets/images/view2.png';
 import view3 from '@/assets/images/view3.png';
 import locked from '@/assets/images/locked.png';
 
-// 배지 이미지 매핑
 const badgeImages: Record<string, string> = {
   'ai_1.png': ai_1,
   'amumu.png': amumu,
@@ -74,27 +66,25 @@ const badgeImages: Record<string, string> = {
   'locked.png': locked,
 };
 
-// 배지 모달
 import BadgeModal from '@/components/layout/mypage/BadgeModal';
-import { fetchAllBadges, fetchMemberBadges } from "@/api/mypage/badgeService";
 
-// API (게시글/댓글/스타)
+// ✅ 통합 API 모듈 사용
+import { fetchAllBadges } from "@/api/mypage/badgeService"; // (전체 메타가 별도 서비스에 있다면 유지)
+import { fetchMemberBadges } from "@/api/mypage/badgeService";
+
 import { getCompanyPosts } from "@/api/company/companyPost";
 import { fetchStarredPosts } from "@/api/mypage/starService";
 import { fetchMemberComments } from "@/api/mypage/commentService";
 import { fetchMemberPosts } from "@/api/mypage/postService";
 
-// 팔로우 목록 API (fetch)
 import { getCompanyFollows, getMemberFollows } from '@/api/followService';
 
-// 타입
 import type { CompanyPost } from "@/types/company/companyPost";
 import type { Post as StarPost } from "@/types/mypage/star";
 import type { Comment } from "@/types/mypage/comment";
 import type { MyPagePost } from "@/types/mypage/post";
 import type { Badge, MemberBadge } from "@/types/mypage/badge";
 
-// 선택 배지 타입: 기본 Badge + 사용자가 가진 정보(선택)
 type SelectedBadge = Badge & {
   memberBadgeId?: number;
   receivedAt?: string | null;
@@ -103,7 +93,6 @@ type SelectedBadge = Badge & {
 
 export type MyTab = 'profile' | 'comments' | 'posts' | 'follow' | 'starred';
 
-// props
 interface MyPageTabsProps {
   isCompany: boolean;
   isMyPage: boolean;
@@ -120,67 +109,70 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   isMyPage,
   activeTab,
   setActiveTab,
-  currentPage, // eslint-disable-line @typescript-eslint/no-unused-vars
-  setCurrentPage, // eslint-disable-line @typescript-eslint/no-unused-vars
+  currentPage,
+  setCurrentPage,
   onRepresentativeBadgeChange,
 }) => {
-  // 현재 화면이 개인(회사 아님)인지
   const isPersonal = !isCompany;
   const isOtherUser = isPersonal && !isMyPage;
-
-  // ✅ 내 페이지(개인)에서만 배지 모달 허용
   const canOpenBadgeModal = isMyPage && isPersonal;
 
-  // URL 파라미터 (개인/기업 공통으로 id 사용)
   const { id } = useParams();
   const routeId = id ? Number(id) : 1;
 
-  // 개인 화면에서 사용할 멤버ID / 기업 화면에서 사용할 기업ID
-  const memberId = isPersonal ? routeId : 1; // TODO: 내 페이지면 auth에서 대체
+  const memberId = isPersonal ? routeId : 1;
   const companyId = isCompany ? routeId : null;
 
-  // 숨길 배지 (예: 기본 빈 배지 22)
   const HIDDEN_BADGE_IDS = new Set<number>([22]);
 
-  /* -----------------------------
-   * 배지 관련 상태 및 동기화
-   * ----------------------------- */
+  // 배지 상태
   const [allBadges, setAllBadges] = useState<Badge[]>([]);
   const [memberBadges, setMemberBadges] = useState<MemberBadge[]>([]);
   const [isBadgeModalOpen, setIsBadgeModalOpen] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState<SelectedBadge | null>(null);
 
-  // 기본(빈) 배지 badgeId=22의 memberBadgeId 구해두기
-  const defaultMemberBadgeId = useMemo(
-    () => memberBadges.find((mb) => mb.badgeId === 22)?.memberBadgeId ?? null,
-    [memberBadges]
-  );
+  // 서버 재조회
+  const refetchMemberBadges = async () => {
+    if (!memberId) return;
+    try {
+      const list = await fetchMemberBadges(memberId);
+      setMemberBadges(list);
 
-  function getBadgeNameByUrl(allBadges: Badge[], badgeUrl?: string | null): string | undefined {
-    if (!badgeUrl) return undefined;
-    // 파일명만 추출
-    const file = badgeUrl.split('/').pop() || badgeUrl;
-    // 전체 배지에서 파일명이 같은 항목 찾기 → name 반환
-    const hit = allBadges.find(b => (b.badgeUrl.split('/').pop() || b.badgeUrl) === file);
+      const rep = list.find((mb) => mb.isRepresentative);
+      if (onRepresentativeBadgeChange) {
+        if (rep) {
+          const meta = allBadges.find((b) => b.badgeId === rep.badgeId);
+          if (meta?.badgeUrl) {
+            const badgeImage = badgeImages[meta.badgeUrl] || '/fallback.png';
+            onRepresentativeBadgeChange({ badgeId: rep.badgeId, badgeUrl: badgeImage });
+          } else {
+            onRepresentativeBadgeChange({ badgeId: rep.badgeId, badgeUrl: null });
+          }
+        } else {
+          onRepresentativeBadgeChange({ badgeId: null, badgeUrl: null });
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  function getBadgeNameByUrl(all: Badge[], url?: string | null) {
+    if (!url) return undefined;
+    const file = url.split('/').pop() || url;
+    const hit = all.find(b => (b.badgeUrl.split('/').pop() || b.badgeUrl) === file);
     return hit?.name;
   }
 
+  // 초기 로드
   useEffect(() => {
-    // 내 정보 or 타 유저의 개인 페이지에서만 배지 정보 로드
     if ((isMyPage || isOtherUser) && isPersonal && memberId) {
-      // 전체 배지
-      fetchAllBadges()
-        .then(setAllBadges)
-        .catch(console.error);
-
-      // 해당 멤버 보유 배지
-      fetchMemberBadges(memberId)
-        .then(setMemberBadges)
-        .catch(console.error);
+      fetchAllBadges().then(setAllBadges).catch(console.error);
+      fetchMemberBadges(memberId).then(setMemberBadges).catch(console.error);
     }
   }, [isMyPage, isOtherUser, isPersonal, memberId]);
 
-  // 대표 배지 변경 시 상단(MyPage)과 동기화
+  // 대표배지 변경 → 상단 동기화
   useEffect(() => {
     const rep = memberBadges.find((mb) => mb.isRepresentative);
     if (onRepresentativeBadgeChange) {
@@ -198,9 +190,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
     }
   }, [memberBadges, allBadges, onRepresentativeBadgeChange]);
 
-  /* -----------------------------
-   * 댓글 탭
-   * ----------------------------- */
+  /* 댓글 */
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentTotalPages, setCommentTotalPages] = useState(1);
   const [commentTotalElements, setCommentTotalElements] = useState(0);
@@ -222,10 +212,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
     }
   }, [isMyPage, isPersonal, memberId, currentCommentPage]);
 
-  /* -----------------------------
-   * 작성한 게시글 탭 (개인/기업)
-   * ----------------------------- */
-  // 개인
+  /* 작성한 게시글(개인/기업) */
   const [memberPosts, setMemberPosts] = useState<MyPagePost[]>([]);
   const [postTotalPages, setPostTotalPages] = useState(1);
   const [postTotalElements, setPostTotalElements] = useState(0);
@@ -247,7 +234,6 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
     }
   }, [isPersonal, memberId, currentPostPage]);
 
-  // 기업
   const [companyPosts, setCompanyPosts] = useState<CompanyPost[]>([]);
   const [companyPostTotalPages, setCompanyPostTotalPages] = useState(1);
   const [companyPostTotalElements, setCompanyPostTotalElements] = useState(0);
@@ -267,24 +253,18 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
     }
   }, [isCompany, companyId, currentPostPage]);
 
-  /* -----------------------------
-   * 팔로우 탭 (목록 조회만)
-   * ----------------------------- */
+  /* 팔로우 */
   const [followSubTab, setFollowSubTab] = useState<'company' | 'user'>('company');
-
-  // 기업 팔로우 목록
   const [followedCompanies, setFollowedCompanies] = useState<any[]>([]);
   const [totalCompanyPages, setTotalCompanyPages] = useState(1);
   const [currentCompanyPage, setCurrentCompanyPage] = useState(1);
   const [companyTotalElements, setCompanyTotalElements] = useState(0);
 
-  // 개인 팔로우 목록
   const [followedUsers, setFollowedUsers] = useState<any[]>([]);
   const [totalUserPages, setTotalUserPages] = useState(1);
   const [currentUserPage, setCurrentUserPage] = useState(1);
   const [userTotalElements, setUserTotalElements] = useState(0);
 
-  // 기업 팔로우 리스트 조회
   useEffect(() => {
     if (isMyPage && isPersonal) {
       getCompanyFollows(memberId, currentCompanyPage - 1, 9)
@@ -297,7 +277,6 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
     }
   }, [isMyPage, isPersonal, memberId, currentCompanyPage]);
 
-  // 개인 팔로우 리스트 조회
   useEffect(() => {
     if (isMyPage && isPersonal) {
       getMemberFollows(memberId, currentUserPage - 1, 9)
@@ -310,9 +289,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
     }
   }, [isMyPage, isPersonal, memberId, currentUserPage]);
 
-  /* -----------------------------
-   * 스타 게시글 탭
-   * ----------------------------- */
+  /* 스타 게시글 */
   const [starredPosts, setStarredPosts] = useState<StarPost[]>([]);
   const [starTotalPages, setStarTotalPages] = useState(1);
   const [starTotalElements, setStarTotalElements] = useState(0);
@@ -334,14 +311,10 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
     }
   }, [isMyPage, isPersonal, memberId, currentStarPage]);
 
-  /* -----------------------------
-   * 렌더링
-   * ----------------------------- */
+  /* 렌더링 */
   return (
     <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as MyTab)} className='w-[1232px]'>
-      {/* 탭 목록 */}
       <TabsList className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 w-full flex justify-start p-0 h-auto">
-        {/* 내 정보 */}
         {(isMyPage || isOtherUser) && isPersonal && (
           <TabsTrigger value="profile" className="flex items-center px-6 py-4 text-gray-500 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600">
             <IconTab1 className="w-4 h-4 mr-2 text-inherit" />
@@ -349,7 +322,6 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
           </TabsTrigger>
         )}
 
-        {/* 작성한 댓글 (본인만) */}
         {isMyPage && isPersonal && (
           <TabsTrigger
             value="comments"
@@ -361,7 +333,6 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
           </TabsTrigger>
         )}
 
-        {/* 작성한 게시글 */}
         <TabsTrigger
           value="posts"
           className="flex items-center px-6 py-4 text-gray-500 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600"
@@ -373,7 +344,6 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
           </span>
         </TabsTrigger>
 
-        {/* 팔로우 / 스타 (본인만 노출) */}
         {isMyPage && isPersonal && (
           <>
             <TabsTrigger
@@ -399,7 +369,6 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
         )}
       </TabsList>
 
-      {/* 내 정보 */}
       {(isMyPage || isOtherUser) && isPersonal && (
         <TabsContent value="profile" className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
           <h2 className="text-lg font-semibold mb-6">업적</h2>
@@ -415,9 +384,10 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
               })
               .map((badge: Badge) => {
                 const hasBadge = memberBadges.some((mb) => mb.badgeId === badge.badgeId);
-                const matchedBadge = hasBadge ? memberBadges.find((mb) => mb.badgeId === badge.badgeId) : null;
+                const matchedBadge = hasBadge
+                  ? memberBadges.find((mb) => mb.badgeId === badge.badgeId)
+                  : null;
 
-                // ✅ 내 페이지가 아니면 클릭 무시
                 const handleClick = () => {
                   if (!canOpenBadgeModal || !hasBadge) return;
                   setSelectedBadge({
@@ -432,7 +402,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
                 return (
                   <div
                     key={badge.badgeId}
-                    onClick={handleClick} // ✅ 가드된 핸들러
+                    onClick={handleClick}
                     className={`aspect-square border rounded-xl shadow-sm flex flex-col items-center justify-center transition 
                       ${
                         hasBadge
@@ -571,7 +541,6 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
       {/* 팔로우 */}
       {isMyPage && isPersonal && (
         <TabsContent value="follow" className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-          {/* 서브 탭 버튼 */}
           <div className="flex space-x-2 mb-4">
             <button
               onClick={() => {
@@ -582,7 +551,6 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
                 followSubTab === 'company' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-500'
               }`}
             >
-              {/* 총합 보여주려면 companyTotalElements 사용 가능 */}
               기업 ({followedCompanies.length})
             </button>
             <button
@@ -594,12 +562,10 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
                 followSubTab === 'user' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-500'
               }`}
             >
-              {/* 총합 보여주려면 userTotalElements 사용 가능 */}
               개인 ({followedUsers.length})
             </button>
           </div>
 
-          {/* 기업 팔로우 목록 */}
           {followSubTab === 'company' && (
             <>
               {followedCompanies.length === 0 ? (
@@ -620,7 +586,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
               {totalCompanyPages > 1 && (
                 <ServerPagination
                   currentPage={currentCompanyPage}
-                  totalCount={companyTotalElements} // 정확한 총합
+                  totalCount={companyTotalElements}
                   pageSize={9}
                   onPageChange={setCurrentCompanyPage}
                 />
@@ -628,7 +594,6 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
             </>
           )}
 
-          {/* 개인 팔로우 목록 */}
           {followSubTab === 'user' && (
             <>
               {followedUsers.length === 0 ? (
@@ -650,7 +615,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
               {totalUserPages > 1 && (
                 <ServerPagination
                   currentPage={currentUserPage}
-                  totalCount={userTotalElements} // 정확한 총합
+                  totalCount={userTotalElements}
                   pageSize={9}
                   onPageChange={setCurrentUserPage}
                 />
@@ -662,7 +627,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
 
       {/* 스타 게시글 */}
       {isMyPage && isPersonal && (
-        <TabsContent value="starred" className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+        <TabsContent value="starred" className="p-6 bg-white border border-gray-200 rounded-lg shadow_sm">
           <h2 className="text-lg font-semibold mb-4">스타 게시글</h2>
 
           {starLoading ? (
@@ -670,7 +635,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
           ) : starError ? (
             <p className="text-sm text-red-500">에러: {starError}</p>
           ) : starredPosts.length === 0 ? (
-            <p className="text-sm text-gray-500">스타한 게시글이 없습니다.</p>
+            <p className="text_sm text-gray-500">스타한 게시글이 없습니다.</p>
           ) : (
             <div className="space-y-4">
               {starredPosts.map((post) => (
@@ -702,36 +667,17 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
         </TabsContent>
       )}
 
-      {/* ✅ 배지 모달 (내 페이지일 때만 렌더) */}
+      {/* ✅ 배지 모달 */}
       {canOpenBadgeModal && isBadgeModalOpen && selectedBadge && (
         <BadgeModal
           isOpen={isBadgeModalOpen}
           badge={selectedBadge}
           onClose={() => setIsBadgeModalOpen(false)}
-          // 필요하면 defaultMemberBadgeId도 넘길 수 있음 (아래 선택 섹션 참고)
-          onSelect={(changed) => {
-            // ✅ 낙관적 업데이트: 새로고침 없이 즉시 반영
-            setMemberBadges((prev) => {
-              if (changed?.isRepresentative) {
-                // 대표 "설정" 성공 → 해당 배지만 true, 나머지는 false
-                return prev.map((mb) => ({
-                  ...mb,
-                  isRepresentative: mb.memberBadgeId === changed.memberBadgeId,
-                }));
-              }
-              // 대표 "해제" 성공
-              if (defaultMemberBadgeId) {
-                // 기본배지(22)가 있으면 그걸 대표로
-                return prev.map((mb) => ({
-                  ...mb,
-                  isRepresentative: mb.memberBadgeId === defaultMemberBadgeId,
-                }));
-              }
-              // 기본배지가 없으면 모두 해제
-              return prev.map((mb) => ({ ...mb, isRepresentative: false }));
-            });
-            setIsBadgeModalOpen(false);
-          }}
+          onRefetch={refetchMemberBadges}
+          allMemberBadges={memberBadges.map(mb => ({
+            badgeId: mb.badgeId,
+            memberBadgeId: mb.memberBadgeId,
+          }))}
         />
       )}
     </Tabs>

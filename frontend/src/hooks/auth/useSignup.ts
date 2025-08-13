@@ -28,6 +28,9 @@ export const useSignup = () => {
   const [isCheckingNickname, setIsCheckingNickname] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+   // 닉네임 관련 에러 메시지 상태 추가
+  const [nicknameError, setNicknameError] = useState('');
+
   useEffect(() => {
     // 컴포넌트 언마운트 시 생성된 Object URL 해제
     return () => {
@@ -37,19 +40,27 @@ export const useSignup = () => {
     };
   }, [imagePreview]);
 
-const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  let value = e.target.value;
+  const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
 
-  // 1) 길이 제한
-  if (value.length > 8) return;
+    // &&& 허용 문자만 필터링 (한글, 영어, 숫자)
+    value = value.replace(/[^가-힣a-zA-Z0-9]/g, '');
 
-  // 2) 허용 문자만 필터링 (한글, 영어, 숫자)
-  // 정규식에 맞는 문자만 남기기
-  value = value.replace(/[^가-힣a-zA-Z0-9]/g, '');
+    // &&& 8글자 초과 시 잘라내기
+    if (value.length > 8) {
+      value = value.slice(0, 8);
+    }
 
-  setFormData({ ...formData, nickname: value });
-  setIsNicknameChecked(false);
-};
+    setFormData({ ...formData, nickname: value });
+    setIsNicknameChecked(false);
+
+    // &&& 입력 시 에러 메시지 초기화
+    if (value.length === 0) {
+      setNicknameError('닉네임을 입력해주세요.');
+    } else {
+      setNicknameError('');
+    }
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -64,16 +75,23 @@ const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     }
   };
 
-  const handleNicknameCheck = async () => {
+ const handleNicknameCheck = async () => {
     const nickname = formData.nickname.trim();
-    if (!nickname || nickname.length > 8) {
-      alert('닉네임은 1자 이상 8자 이하로 입력해주세요.');
+
+    // &&& alert → 상태 기반 에러 메시지로 변경
+    if (!nickname) {
+      setNicknameError('닉네임을 입력해주세요.');
       return;
     }
+    if (nickname.length > 8) {
+      setNicknameError('닉네임은 8자 이하로 입력해주세요.');
+      return;
+    }
+
     setIsCheckingNickname(true);
     try {
       const res = await fetch(
-        `https://i13a509.p.ssafy.io/api/v1/member/duplicate?nickname=${encodeURIComponent(formData.nickname)}`,
+        `https://i13a509.p.ssafy.io/api/v1/member/duplicate?nickname=${encodeURIComponent(nickname)}`,
         {
           method: 'GET',
           headers: {
@@ -82,20 +100,39 @@ const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         }
       );
       if (!res.ok) throw new Error('닉네임 확인 요청 실패');
-      
+
       const json = await res.json();
       setIsNicknameChecked(true);
       setIsNicknameTaken(json.data.isDuplicated);
+
+      if (json.data.isDuplicated) {
+        setNicknameError('이미 사용 중인 닉네임입니다.');
+      } else {
+        setNicknameError('');
+      }
     } catch (err) {
       console.error(err);
+      setNicknameError('닉네임 중복 확인 중 오류가 발생했습니다.');
     } finally {
       setIsCheckingNickname(false);
     }
   };
 
-  const handleSubmit = async () => {
-    if (!isFormValid || !isNicknameChecked || isNicknameTaken) return;
 
+  const handleSubmit = async () => {
+    // 에러 메시지 기반 유효성 검사
+    if (!formData.nickname.trim()) {
+      setNicknameError('닉네임을 입력해주세요.');
+      return;
+    }
+    if (formData.nickname.length > 8) {
+      setNicknameError('닉네임은 8자 이하로 입력해주세요.');
+      return;
+    }
+    if (!isNicknameChecked || isNicknameTaken) {
+      setNicknameError('닉네임 중복 확인을 완료해주세요.');
+      return;
+    }
     setIsSubmitting(true);
     
     const apiFormData = new FormData();

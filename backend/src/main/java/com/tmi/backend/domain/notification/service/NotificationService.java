@@ -101,9 +101,9 @@ public class NotificationService {
     if (notification == null) {
       return ServiceResult.fail(ErrorCode.NOTIFICATION_NOT_FOUND);
     }
-    if (!SecurityUtil.memberCheck(notification.getMember().getId())) {
-      return ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED);
-    }
+//    if (!SecurityUtil.memberCheck(notification.getMember().getId())) {
+//      return ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED);
+//    }
 
     if (!notification.getIsRead()) {
       notification.updateIsRead();

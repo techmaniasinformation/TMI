@@ -129,6 +129,17 @@ const PostEditPage: React.FC = () => {
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
+  const handleTagKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      // 엔터키 입력 방지
+      return;
+    } else if (e.key === 'Escape') {
+      setShowTagSuggestions(false);
+      clearSuggestions();
+    }
+  };
+
   const handleAddTag = (tagName?: string) => {
     const tagToAdd = (tagName || newTag).trim();
     if (tagToAdd) {
@@ -412,60 +423,83 @@ const PostEditPage: React.FC = () => {
             {urlError && <p className="text-sm text-red-500 mt-1">{urlError}</p>}
           </div>
 
-          {/* 이미지 업로드 */}
+          {/* Thumbnail Image */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              썸네일 이미지 (선택사항)
+              썸네일 이미지
             </label>
-            <div className="space-y-4">
+            
+            {/* Image Display Area */}
+            <div className="w-48 h-32 bg-gray-100 rounded-md border border-gray-300 mb-3 overflow-hidden">
+              {imagePreview ? (
+                <img
+                  src={imagePreview}
+                  alt="업로드된 이미지"
+                  className="w-full h-full object-cover"
+                  style={{ objectPosition: 'center' }}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-gray-200 rounded-full mx-auto mb-2"></div>
+                    <p className="text-sm text-gray-500">디폴트 이미지</p>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            {/* Image Upload */}
+            <div className="flex items-center gap-3">
               <input
-                id="image-upload"
                 type="file"
                 accept="image/*"
                 onChange={handleImageUpload}
                 className="hidden"
+                id="image-upload"
+                disabled={isImageProcessing}
               />
               <label
                 htmlFor="image-upload"
-                className="block w-full px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer hover:border-gray-400 transition-colors"
+                className={`px-4 py-2 text-white rounded-md cursor-pointer text-sm ${
+                  isImageProcessing 
+                    ? 'bg-gray-400 cursor-not-allowed' 
+                    : 'bg-blue-600 hover:bg-blue-700'
+                }`}
               >
                 {isImageProcessing ? (
-                  <div className="flex items-center justify-center">
-                    <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mr-2"></div>
-                    <span>이미지 처리 중...</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    처리 중...
                   </div>
                 ) : (
-                  <span>이미지를 선택하거나 드래그하여 업로드하세요</span>
+                  imagePreview ? '이미지 변경' : '이미지 업로드'
                 )}
               </label>
-              
-              {imagePreview && (
-                <div className="relative">
-                  <img
-                    src={imagePreview}
-                    alt="미리보기"
-                    className="w-full max-w-md h-auto rounded-lg"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleImageCancel}
-                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600"
-                  >
-                    ×
-                  </button>
-                  {originalFileSize > 0 && (
-                    <div className="mt-2 text-sm text-gray-600">
-                      원본 크기: {(originalFileSize / (1024 * 1024)).toFixed(2)}MB
-                    </div>
+              {imagePreview && !isImageProcessing && (
+                <button
+                  type="button"
+                  onClick={handleImageCancel}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 cursor-pointer text-sm"
+                >
+                  이미지 취소
+                </button>
+              )}
+              {selectedImage && (
+                <span className="text-sm text-gray-600">
+                  {selectedImage.name} ({(selectedImage.size / 1024 / 1024).toFixed(2)}MB)
+                  {originalFileSize > selectedImage.size && (
+                    <span className="text-gray-400 ml-1">
+                      (원본: {(originalFileSize / 1024 / 1024).toFixed(2)}MB)
+                    </span>
                   )}
-                </div>
+                </span>
               )}
             </div>
           </div>
 
           {/* 태그 */}
-          <div className="mt-8">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="mt-12">
+            <label className="block text-sm font-medium text-gray-700 mb-4">
               태그
             </label>
             {isAILoading ? (
@@ -483,6 +517,7 @@ const PostEditPage: React.FC = () => {
                     type="text"
                     value={newTag}
                     onChange={handleTagInputChange}
+                    onKeyPress={handleTagKeyPress}
                     onFocus={handleTagInputFocus}
                     onBlur={handleTagInputBlur}
                     placeholder="태그를 입력하세요 (DB에서 검색)"
@@ -521,7 +556,7 @@ const PostEditPage: React.FC = () => {
                 {tagError && <p className="text-sm text-red-500 mt-1">{tagError}</p>}
                 
                 {/* 태그 목록 */}
-                <div className="flex flex-wrap gap-2 mt-3">
+                <div className="flex flex-wrap gap-2 mt-4">
                   {tags.map((tag, index) => (
                     <span
                       key={index}

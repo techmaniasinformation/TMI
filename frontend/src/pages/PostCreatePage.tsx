@@ -330,7 +330,8 @@ const PostCreatePage: React.FC = () => {
   const handleTagKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      handleAddTag();
+      // 엔터키 입력 방지
+      return;
     } else if (e.key === 'Escape') {
       setShowTagSuggestions(false);
       clearSuggestions();
@@ -581,8 +582,8 @@ const PostCreatePage: React.FC = () => {
            </div>
 
           {/* Tags */}
-          <div className="mt-8">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="mt-12">
+            <label className="block text-sm font-medium text-gray-700 mb-4">
               태그
             </label>
             {isAILoading ? (
@@ -596,7 +597,7 @@ const PostCreatePage: React.FC = () => {
               <>
                 {/* 태그 입력 영역 */}
                 <div className="relative">
-                  <div className="mb-3">
+                  <div className="mb-4">
                     <div className="flex-1 relative">
                       <input
                         type="text"
@@ -648,7 +649,7 @@ const PostCreatePage: React.FC = () => {
                 </div>
                 
                 {/* 태그 목록 */}
-                <div className="flex flex-wrap gap-2 mb-3">
+                <div className="flex flex-wrap gap-2 mb-4">
                   {tags.map((tag, index) => (
                     <span
                       key={index}

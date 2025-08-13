@@ -140,38 +140,33 @@ export const usePostsList = () => {
       page: currentUrlPage,
       followMemberId: currentUrlFollowMemberId,
       tab: currentUrlTab,
-      currentState: { page: state.currentPage, tab: activeTab }
+      currentState: { page: state.currentPage, tab: activeTab },
+      isLoggedIn
     });
     
-    // URL과 상태가 다르면 동기화
-    if (currentUrlPage !== state.currentPage || currentUrlTab !== activeTab) {
+    // URL과 상태가 다르면 동기화 (단, 비로그인 사용자의 팔로우 탭은 제외)
+    if (currentUrlPage !== state.currentPage || 
+        (currentUrlTab !== activeTab && !(activeTab === 'following' && !isLoggedIn))) {
       console.log('🔍 상태 동기화 필요');
       setState(prev => ({ ...prev, currentPage: currentUrlPage }));
       setActiveTab(currentUrlTab);
     }
     
     // 팔로우 탭이고 로그인하지 않았으면 API 호출하지 않음
-    if (currentUrlTab === 'following' && !isLoggedIn) {
-      console.log('🔍 팔로우 탭이지만 로그인하지 않음');
+    if (activeTab === 'following' && !isLoggedIn) {
+      console.log('🔍 팔로우 탭이지만 로그인하지 않음 - API 호출 안함');
       setState(prev => ({ ...prev, posts: [], loading: false }));
       return;
     }
     
     // 데이터 로드 (초기 로드 또는 URL 변경 시)
-    console.log('🔍 API 호출 시작:', currentUrlPage, currentUrlTab);
-    fetchPosts(currentUrlPage, currentUrlTab);
+    console.log('🔍 API 호출 시작:', currentUrlPage, activeTab);
+    fetchPosts(currentUrlPage, activeTab);
   }, [searchParams, state.currentPage, activeTab, isLoggedIn, fetchPosts]);
 
   // 탭 변경 핸들러
   const handleTabChange = useCallback((newTab: 'latest' | 'following') => {
     console.log('🔍 탭 변경 시도:', newTab, '현재 탭:', activeTab);
-    
-    // 팔로우 탭으로 변경하려고 하는데 로그인하지 않은 경우
-    if (newTab === 'following' && !isLoggedIn) {
-      console.log('🔍 팔로우 탭 클릭했지만 로그인하지 않음 - 탭 변경만 허용');
-      setActiveTab('following');
-      return;
-    }
     
     // 같은 탭을 클릭한 경우에도 페이지를 1로 초기화
     if (newTab === activeTab) {
@@ -190,8 +185,15 @@ export const usePostsList = () => {
     // URL 업데이트 - API 형태로 변경
     const newSearchParams = new URLSearchParams(searchParams);
     if (newTab === 'following') {
-      console.log('🔍 팔로우 탭으로 변경, 사용자 ID:', user?.memberId);
-      newSearchParams.set('followMemberId', user?.memberId?.toString() || '');
+      if (isLoggedIn) {
+        console.log('🔍 팔로우 탭으로 변경 (로그인됨), 사용자 ID:', user?.memberId);
+        newSearchParams.set('followMemberId', user?.memberId?.toString() || '');
+      } else {
+        console.log('🔍 팔로우 탭으로 변경 (로그인 안됨) - 탭 상태만 변경');
+        // 비로그인 사용자의 경우 탭 상태만 변경하고 URL은 그대로 유지
+        setActiveTab('following');
+        return;
+      }
       newSearchParams.set('page', '1'); // 페이지를 1로 초기화
       newSearchParams.set('size', '10');
       newSearchParams.delete('tab'); // 기존 tab 파라미터 제거

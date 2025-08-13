@@ -52,28 +52,20 @@ const normalizeUrl = (raw: string) => {
   return `https://${v}`;
 };
 
-// 블로그 허용 도메인: 네이버( blog.naver.com ), 티스토리( *.tistory.com ), 벨로그( velog.io ), Medium( medium.com )
+// 블로그 허용 도메인: 네이버( blog.naver.com ), 티스토리( *.tistory.com ), 벨로그( velog.io )
 const isAllowedBlogHost = (hostname: string) => {
   const h = hostname.toLowerCase();
 
-  // 네이버 블로그는 blog.naver.com 만 허용
   if (h === 'blog.naver.com') return true;
-
-  // 티스토리는 루트/서브도메인 모두 허용
   if (h === 'tistory.com' || h.endsWith('.tistory.com')) return true;
-
-  // 벨로그
   if (h === 'velog.io') return true;
-
-  // Medium
-  if (h === 'medium.com') return true;
 
   return false;
 };
 
 const validateBlogUrl = (raw: string) => {
   const normalized = normalizeUrl(raw);
-  if (!normalized) return { ok: true, value: '' }; // 빈 값은 허용(선택 입력)
+  if (!normalized) return { ok: true, value: '' }; // 빈 값 허용
   try {
     const u = new URL(normalized);
     if (!/^https?:$/.test(u.protocol)) {
@@ -82,7 +74,7 @@ const validateBlogUrl = (raw: string) => {
     if (!isAllowedBlogHost(u.hostname)) {
       return {
         ok: false,
-        msg: '티스토리(tistory.com), 벨로그(velog.io), 네이버 블로그(blog.naver.com), Medium(medium.com) 링크만 허용됩니다.',
+        msg: '티스토리(tistory.com), 벨로그(velog.io), 네이버 블로그(blog.naver.com) 링크만 허용됩니다.',
       };
     }
     return { ok: true, value: u.toString() };
@@ -91,10 +83,10 @@ const validateBlogUrl = (raw: string) => {
   }
 };
 
-// GitHub만 허용 (github.com/프로필 또는 저장소, 혹은 *.github.io)
+// GitHub만 허용
 const validateGithubUrl = (raw: string) => {
   const normalized = normalizeUrl(raw);
-  if (!normalized) return { ok: true, value: '' }; // 선택 입력
+  if (!normalized) return { ok: true, value: '' };
   try {
     const u = new URL(normalized);
     const host = u.hostname.toLowerCase();
@@ -104,7 +96,6 @@ const validateGithubUrl = (raw: string) => {
     if (!isGithubCom && !isGithubIo) {
       return { ok: false, msg: 'GitHub 주소만 등록할 수 있어요 (github.com 또는 *.github.io).' };
     }
-    // github.com의 경우 최소한 path가 있어야 프로필/레포 형태
     if (isGithubCom && (!u.pathname || u.pathname === '/')) {
       return { ok: false, msg: 'github.com/사용자명 혹은 저장소 주소를 입력해주세요.' };
     }
@@ -125,7 +116,6 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   nicknameHelperText,
   onSave,
 }) => {
-  // ⬇️ 훅 사용
   const {
     selectedImage,
     imagePreview,
@@ -136,33 +126,33 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
     setExistingImageUrl,
   } = useImageCompression();
 
+  const defaultProfileUrl = getSafeProfileUrl(null);
+  const [forceDefaultImage, setForceDefaultImage] = useState(false);
+
   const [nickname, setNickname] = useState(initialNickname);
   const [nicknameError, setNicknameError] = useState<string | null>(null);
 
   const [blogUrl, setBlogUrl] = useState(initialBlogUrl);
-  const [blogError, setBlogError] = useState<string>('');          // ⬅️ 블로그 에러
+  const [blogError, setBlogError] = useState<string>('');
 
   const [githubUrl, setGithubUrl] = useState(initialGithubUrl || '');
-  const [githubError, setGithubError] = useState<string>('');      // ⬅️ 깃허브 에러
+  const [githubError, setGithubError] = useState<string>('');
 
-  // 🔽 이 두 줄은 블로그/GitHub 입력 중 실시간으로 유효성 확인
   const blogInvalid = blogUrl.trim() !== '' && !validateBlogUrl(blogUrl).ok;
   const githubInvalid = githubUrl.trim() !== '' && !validateGithubUrl(githubUrl).ok;
 
-  // 닉네임 중복 검사 상태
   const [isCheckingDup, setIsCheckingDup] = useState(false);
   const [isDuplicated, setIsDuplicated] = useState(false);
   const dupAbortRef = React.useRef<AbortController | null>(null);
   const dupTimerRef = React.useRef<number | null>(null);
 
-  // 모달 열릴 때 초기 이미지 URL을 훅에 주입
   useEffect(() => {
     if (isOpen) {
       setExistingImageUrl(initialProfileImageUrl || '');
+      setForceDefaultImage(false);
     }
   }, [isOpen, initialProfileImageUrl, setExistingImageUrl]);
 
-  // 모달 state 초기화
   useEffect(() => {
     setNickname(initialNickname);
     setNicknameError(null);
@@ -172,85 +162,9 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
     setGithubError('');
     setIsDuplicated(false);
     setIsCheckingDup(false);
+    setForceDefaultImage(false);
   }, [isOpen, initialNickname, initialBlogUrl, initialGithubUrl]);
 
-  // 닉네임 입력/검증
-  const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const next = e.target.value;
-    const currentAllowed = countAllowed(nickname);
-    const nextAllowed = countAllowed(next);
-    if (nextAllowed <= currentAllowed || nextAllowed <= 8) setNickname(next);
-
-    const allowedCount = countAllowed(next);
-    if (hasDisallowed(next)) {
-      setNicknameError('허용 외 문자가 포함되어 있어요 (자모·특수·공백 등).');
-    } else if (allowedCount < 2) {
-      setNicknameError('닉네임은 2~8자의 완성형 한글/영문/숫자만 가능합니다.');
-    } else {
-      setNicknameError(null);
-    }
-  };
-
-  // 닉네임 중복 검사 (디바운스 + abort)
-  useEffect(() => {
-    const value = (nickname ?? '').trim();
-
-    if (dupTimerRef.current) {
-      clearTimeout(dupTimerRef.current);
-      dupTimerRef.current = null;
-    }
-    dupAbortRef.current?.abort();
-
-    if (!nicknameDisabled && isValidNickname(value) && value !== (initialNickname ?? '')) {
-      setIsCheckingDup(true);
-      setIsDuplicated(false);
-
-      dupTimerRef.current = window.setTimeout(async () => {
-        const controller = new AbortController();
-        dupAbortRef.current = controller;
-        try {
-          const res = await fetch(DUP_API + encodeURIComponent(value), {
-            method: 'GET',
-            signal: controller.signal,
-          });
-          const json = await res.json().catch(() => null);
-          const duplicated = !!json?.data?.isDuplicated;
-          setIsDuplicated(duplicated);
-          setNicknameError((prev) => {
-            if (prev && prev !== '이미 사용 중인 닉네임입니다.') return prev;
-            return duplicated ? '이미 사용 중인 닉네임입니다.' : null;
-          });
-        } catch {
-          setNicknameError((prev) => prev ?? null);
-        } finally {
-          setIsCheckingDup(false);
-          dupAbortRef.current = null;
-        }
-      }, 400);
-    } else {
-      setIsCheckingDup(false);
-      setIsDuplicated(false);
-      setNicknameError((prev) => (prev === '이미 사용 중인 닉네임입니다.' ? null : prev));
-    }
-
-    return () => {
-      if (dupTimerRef.current) {
-        clearTimeout(dupTimerRef.current);
-        dupTimerRef.current = null;
-      }
-      dupAbortRef.current?.abort();
-    };
-  }, [nickname, initialNickname, nicknameDisabled]);
-
-  const handleNicknameBlur = () => {
-    const v = (nickname ?? '').trim();
-    setNickname(v);
-    if (!isValidNickname(v)) setNicknameError('닉네임은 2~8자의 완성형 한글/영문/숫자만 가능합니다.');
-    else if (isDuplicated) setNicknameError('이미 사용 중인 닉네임입니다.');
-    else setNicknameError(null);
-  };
-
-  // 블로그/깃허브 입력 시 에러 초기화 + 블러에서 검증/정규화
   const onBlogChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setBlogUrl(e.target.value);
     if (blogError) setBlogError('');
@@ -277,12 +191,10 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
     }
   };
 
-  // 저장
   const [saving, setSaving] = useState(false);
   const handleSubmit = async () => {
     if (saving) return;
 
-    // 닉네임 최종 검증
     const cleanNickname = (nickname ?? '').trim();
     if (!isValidNickname(cleanNickname)) {
       setNicknameError('닉네임은 2~8자의 완성형 한글/영문/숫자만 가능합니다.');
@@ -294,27 +206,32 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
       return;
     }
 
-    // 블로그/깃허브 최종 검증
     const blogCheck = validateBlogUrl(blogUrl);
     const githubCheck = validateGithubUrl(githubUrl);
-
     if (!blogCheck.ok) setBlogError(blogCheck.msg!);
     if (!githubCheck.ok) setGithubError(githubCheck.msg!);
     if (!blogCheck.ok || !githubCheck.ok) return;
 
+    let profileArg: string | null | undefined = undefined;
+    if (selectedImage) {
+      profileArg = undefined;
+    } else if (forceDefaultImage) {
+      profileArg = defaultProfileUrl; // 기본 이미지로 변경
+    } else if (!imagePreview && !existingImageUrl && !selectedImage) {
+      profileArg = null; // 완전 삭제
+    } else {
+      profileArg = undefined; // 유지
+    }
+
     setSaving(true);
     try {
-      // 삭제 의도: 미리보기/기존URL/선택파일 모두 없음 → null 전송
-      const isDelete = !imagePreview && !existingImageUrl && !selectedImage;
-
       await onSave(
         cleanNickname,
-        blogCheck.value || '',     // 정규화된 블로그 URL
-        githubCheck.value || '',   // 정규화된 깃허브 URL
-        isDelete ? null : undefined,       // 삭제면 null, 유지면 undefined
-        selectedImage ?? null              // 새 이미지가 있으면 파일 전달
+        blogCheck.value || '',
+        githubCheck.value || '',
+        profileArg,
+        selectedImage ?? null
       );
-
       onClose();
     } catch (e) {
       console.error(e);
@@ -355,11 +272,14 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
               <Camera className="w-6 h-6 text-white" />
             </label>
             <input
-              id="image-upload"                 // ⬅️ 훅이 참조하므로 id 유지
+              id="image-upload"
               type="file"
               accept="image/jpeg,image/png,image/gif"
               className="hidden"
-              onChange={handleImageUpload}      // ⬅️ 훅 연결
+              onChange={(e) => {
+                setForceDefaultImage(false);
+                handleImageUpload(e);
+              }}
               disabled={isImageProcessing}
             />
           </div>
@@ -368,13 +288,13 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
             이미지는 10MB 이하, 정해진 비율에 맞는 이미지만 업로드 가능해요.
           </p>
 
-          {(imagePreview || selectedImage) && (
+          {(imagePreview || selectedImage || existingImageUrl) && (
             <div className="mt-2 flex items-center gap-3">
               <button
                 type="button"
                 className="text-xs text-red-600 underline"
                 onClick={() => {
-                  // 완전 삭제: 미리보기/기존URL 비우기 → 저장 시 null 전달됨
+                  setForceDefaultImage(true);
                   setImagePreview('');
                   setExistingImageUrl('');
                   const input = document.getElementById('image-upload') as HTMLInputElement | null;
@@ -382,89 +302,30 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
                 }}
                 disabled={isImageProcessing}
               >
-                이미지 제거
+                이미지 제거 (기본 이미지 사용)
               </button>
             </div>
           )}
         </div>
 
-        {/* 입력 필드 */}
-        <div className="space-y-4 mt-2">
-          <div>
-            <label className="text-sm font-medium text-gray-700 flex items-center justify-between">
-              <span>닉네임</span>
-              <span className="text-xs text-gray-500 flex items-center gap-2">
-                {isCheckingDup ? (
-                  <span className="animate-pulse">중복 확인 중…</span>
-                ) : isValidNickname((nickname ?? '').trim()) &&
-                  (nickname ?? '').trim() !== (initialNickname ?? '') ? (
-                  isDuplicated ? (
-                    <span className="text-red-500">사용 불가</span>
-                  ) : (
-                    <span className="text-green-600">사용 가능</span>
-                  )
-                ) : null}
-                <span>{countAllowed(nickname)}/8</span>
-              </span>
-            </label>
-            <Input
-              value={nickname}
-              onChange={handleNicknameChange}
-              onBlur={handleNicknameBlur}
-              disabled={!!nicknameDisabled}
-              placeholder="완성형 한글/영문/숫자 (2~8자)"
-              aria-invalid={!!nicknameError}
-              aria-describedby={nicknameError ? 'nickname-error' : undefined}
-              inputMode="text"
-            />
-            {(nicknameHelperText || nicknameError) && (
-              <p
-                id="nickname-error"
-                className={`mt-1 text-xs ${nicknameError ? 'text-red-500' : 'text-gray-500'}`}
-              >
-                {nicknameError ?? nicknameHelperText}
-              </p>
-            )}
-          </div>
+        {/* 블로그 URL */}
+        <Input
+          value={blogUrl}
+          onChange={onBlogChange}
+          onBlur={onBlogBlur}
+          placeholder="네이버, 티스토리, 벨로그만 가능"
+        />
+        {blogError && <p className="text-xs text-red-500 mt-1">{blogError}</p>}
 
-          <div>
-            <label className="text-sm font-medium text-gray-700">블로그 URL</label>
-            <Input
-              value={blogUrl}
-              onChange={onBlogChange}
-              onBlur={onBlogBlur}
-              placeholder="blog.naver.com/..., *.tistory.com, velog.io/..."
-              aria-invalid={!!blogError}
-              aria-describedby={blogError ? 'blog-error' : undefined}
-              inputMode="url"
-            />
-            {blogError && (
-              <p id="blog-error" className="mt-1 text-xs text-red-500">
-                {blogError}
-              </p>
-            )}
-          </div>
+        {/* 깃허브 URL */}
+        <Input
+          value={githubUrl}
+          onChange={onGithubChange}
+          onBlur={onGithubBlur}
+          placeholder="https://github.com/username"
+        />
+        {githubError && <p className="text-xs text-red-500 mt-1">{githubError}</p>}
 
-          <div>
-            <label className="text-sm font-medium text-gray-700">GitHub URL</label>
-            <Input
-              value={githubUrl}
-              onChange={onGithubChange}
-              onBlur={onGithubBlur}
-              placeholder="github.com/사용자명 또는 사용자명.github.io"
-              aria-invalid={!!githubError}
-              aria-describedby={githubError ? 'github-error' : undefined}
-              inputMode="url"
-            />
-            {githubError && (
-              <p id="github-error" className="mt-1 text-xs text-red-500">
-                {githubError}
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* 버튼 */}
         <div className="pt-6">
           <Button
             variant="primary"
@@ -481,9 +342,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
               blogInvalid ||
               githubInvalid
             }
-            className={`w-full h-10 text-white font-semibold ${
-              saving ? 'opacity-60 cursor-not-allowed' : ''
-            }`}
+            className={`w-full h-10 text-white font-semibold ${saving ? 'opacity-60 cursor-not-allowed' : ''}`}
           >
             {saving ? '저장 중…' : '저장하기'}
           </Button>

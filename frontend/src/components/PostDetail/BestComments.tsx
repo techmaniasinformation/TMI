@@ -48,14 +48,6 @@ export const BestComments: React.FC<BestCommentsProps> = ({
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
             <span className="font-semibold text-sm">{bestComment.name}</span>
-            {bestComment.badgeUrl && (
-              <img
-                src={safeBestCommentBadgeUrl}
-                alt="뱃지"
-                className="w-4 h-4"
-                onError={handleBadgeImageError}
-              />
-            )}
             <span className="text-gray-500 text-xs">
               {formatDate(bestComment.createAt)}
             </span>

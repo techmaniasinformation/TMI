@@ -81,35 +81,45 @@ const Header: React.FC<HeaderProps> = ({ variant = 'light', size = 'default' }) 
   }, [isAuthenticated, user?.memberId]);
 
   const handleLogOut = useCallback(async () => {
+    const currentPathForRedirect = location.pathname + location.search;
+    localStorage.setItem('logoutRedirectPath', currentPathForRedirect); // Save current path to localStorage
+
     try {
-      setPrevPath(window.location.pathname + window.location.search);
       if (socialProvider === 'google') {
         await fetch(
           `https://i13a509.p.ssafy.io/api/v1/auth/logout/${user?.memberId}/${socialProvider}`,
           { method: 'GET', credentials: 'include' }
         );
+        clearUser();
+        setFollowUser([]);
+        setFollowCompany([]);
+        clearSocialLoginInfo();
+        setShowProfileMenu(false);
+        navigate(currentPathForRedirect); // Navigate to the saved path
+        alert('로그아웃 되었습니다.');
+        localStorage.removeItem('logoutRedirectPath'); // Clear localStorage after successful client-side navigation
       } else {
+        // For other social providers, perform client-side state clearing first
+        clearUser();
+        setFollowUser([]);
+        setFollowCompany([]);
+        clearSocialLoginInfo();
+        setShowProfileMenu(false);
+        alert('로그아웃 되었습니다.'); // Alert before redirect
         window.location.href = `https://i13a509.p.ssafy.io/api/v1/auth/logout/${user?.memberId}/${socialProvider}`;
+        // The page will reload, and App.tsx will handle the redirect using localStorage
       }
-
-      clearUser();
-      setFollowUser([]);
-      setFollowCompany([]);
-      clearSocialLoginInfo();
-      setShowProfileMenu(false);
-
-      navigate(prevPath);
-      alert('로그아웃 되었습니다.');
     } catch (error) {
       console.error('로그아웃 중 오류:', error);
-      setPrevPath(window.location.pathname + window.location.search);
+      // In case of error, still clear state and try to navigate
       clearUser();
       setFollowUser([]);
       setFollowCompany([]);
       clearSocialLoginInfo();
       setShowProfileMenu(false);
       alert('로그아웃 되었습니다.');
-      navigate(prevPath);
+      navigate(currentPathForRedirect); // Navigate to the saved path
+      localStorage.removeItem('logoutRedirectPath'); // Clear localStorage in case of error and client-side navigation
     }
   }, [
     user?.memberId,
@@ -118,9 +128,9 @@ const Header: React.FC<HeaderProps> = ({ variant = 'light', size = 'default' }) 
     setFollowCompany,
     clearSocialLoginInfo,
     navigate,
-    prevPath,
-    setPrevPath,
     socialProvider,
+    location.pathname,
+    location.search,
   ]);
 
   const addToRecentSearches = useCallback((term: string) => {

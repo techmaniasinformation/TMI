@@ -52,7 +52,7 @@ const normalizeUrl = (raw: string) => {
   return `https://${v}`;
 };
 
-// 블로그 허용 도메인: 네이버( blog.naver.com ), 티스토리( *.tistory.com ), 벨로그( velog.io )
+// 블로그 허용 도메인: 네이버( blog.naver.com ), 티스토리( *.tistory.com ), 벨로그( velog.io ), Medium( medium.com )
 const isAllowedBlogHost = (hostname: string) => {
   const h = hostname.toLowerCase();
 
@@ -64,6 +64,9 @@ const isAllowedBlogHost = (hostname: string) => {
 
   // 벨로그
   if (h === 'velog.io') return true;
+
+  // Medium
+  if (h === 'medium.com') return true;
 
   return false;
 };
@@ -79,7 +82,7 @@ const validateBlogUrl = (raw: string) => {
     if (!isAllowedBlogHost(u.hostname)) {
       return {
         ok: false,
-        msg: '티스토리(tistory.com), 벨로그(velog.io), 네이버 블로그(blog.naver.com) 링크만 허용됩니다.',
+        msg: '티스토리(tistory.com), 벨로그(velog.io), 네이버 블로그(blog.naver.com), Medium(medium.com) 링크만 허용됩니다.',
       };
     }
     return { ok: true, value: u.toString() };

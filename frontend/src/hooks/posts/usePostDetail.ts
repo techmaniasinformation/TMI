@@ -483,8 +483,8 @@ export const useComments = (postId: string) => {
           return;
         }
         const hostname = urlObj.hostname.toLowerCase();
-        if (!hostname.includes('tistory.com') && !hostname.includes('velog.io') && !hostname.includes('blog.naver.com')) {
-          alert('티스토리(tistory.com), 벨로그(velog.io), 네이버 블로그(blog.naver.com) 링크만 허용됩니다.');
+        if (!hostname.includes('tistory.com') && !hostname.includes('velog.io') && !hostname.includes('blog.naver.com') && !hostname.includes('medium.com')) {
+          alert('티스토리(tistory.com), 벨로그(velog.io), 네이버 블로그(blog.naver.com), Medium(medium.com) 링크만 허용됩니다.');
           return;
         }
       } catch (error) {

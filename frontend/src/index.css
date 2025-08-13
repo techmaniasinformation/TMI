@@ -4,6 +4,45 @@
 @tailwind components;
 @tailwind utilities;
 
+/* MDEditor 높이 조정 - Tailwind 스타일 적용 */
+.w-md-editor {
+  @apply h-full;
+}
+
+.w-md-editor .w-md-editor-text {
+  @apply h-full flex flex-col;
+}
+
+.w-md-editor .w-md-editor-text textarea {
+  @apply h-full min-h-full resize-none;
+}
+
+.w-md-editor .w-md-editor-text-pre,
+.w-md-editor .w-md-editor-text-input {
+  @apply h-full min-h-full;
+}
+
+.w-md-editor .w-md-editor-text > div {
+  @apply h-full flex-1;
+}
+
+/* 컨테이너 스타일 */
+.md-editor-container {
+  @apply relative;
+}
+
+.md-editor-container .w-md-editor {
+  @apply h-full min-h-full;
+}
+
+.md-editor-container .w-md-editor .w-md-editor-text {
+  @apply h-full min-h-full;
+}
+
+.md-editor-container .w-md-editor .w-md-editor-text textarea {
+  @apply h-full min-h-full max-h-none;
+}
+
 /* 페이드인 애니메이션 */
 @keyframes fadeIn {
   from {

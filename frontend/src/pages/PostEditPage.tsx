@@ -81,10 +81,10 @@ const PostEditPage: React.FC = () => {
     try {
       const urlObj = new URL(processedUrl);
       
-      // 티스토리와 벨로그만 허용
+      // 티스토리, 벨로그, 네이버 블로그, Medium 허용
       const hostname = urlObj.hostname.toLowerCase();
-      if (!hostname.includes('tistory.com') && !hostname.includes('velog.io') && !hostname.includes('blog.naver.com')) {
-        setUrlError('티스토리(tistory.com), 벨로그(velog.io), 네이버 블로그(blog.naver.com) 링크만 허용됩니다.');
+      if (!hostname.includes('tistory.com') && !hostname.includes('velog.io') && !hostname.includes('blog.naver.com') && !hostname.includes('medium.com')) {
+        setUrlError('티스토리(tistory.com), 벨로그(velog.io), 네이버 블로그(blog.naver.com), Medium(medium.com) 링크만 허용됩니다.');
         return null;
       }
       
@@ -216,6 +216,8 @@ const PostEditPage: React.FC = () => {
       console.error('AI 요약 실패:', error);
       if (error instanceof Error && error.message.includes('502')) {
         setAiError('AI 요약 서비스에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      } else if (error instanceof Error && error.message.includes('AI-')) {
+        setAiError('서비스 준비중입니다.');
       } else {
         setAiError('AI 요약에 실패했습니다: ' + (error instanceof Error ? error.message : '알 수 없는 오류'));
       }
@@ -582,11 +584,10 @@ const PostEditPage: React.FC = () => {
                 </div>
               </div>
             )}
-            <div className="border border-gray-300 rounded-md">
+            <div className="border border-gray-300 rounded-md md-editor-container h-[300px]">
               <MDEditor
                 value={content}
                 onChange={(val) => setContent(val || '')}
-                height={120}
                 preview="edit"
                 onClick={(e) => {
                   // MDEditor 내부의 textarea를 찾아서 커서를 맨 뒤로 이동

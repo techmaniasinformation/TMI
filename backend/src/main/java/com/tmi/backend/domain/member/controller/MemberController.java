@@ -105,9 +105,9 @@ public class MemberController implements BaseController {
   @PatchMapping("/{memberId}/delete")
   public ResponseEntity<ApiResponse<Map<String, Long>>> deleteMember(@PathVariable Long memberId,
       HttpServletResponse res) {
-    if (!SecurityUtil.memberCheck(memberId)) {
-      return handle(ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED));
-    }
+//    if (!SecurityUtil.memberCheck(memberId)) {
+//      return handle(ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED));
+//    }
     return handle(memberService.deleteMember(memberId, res));
   }
 }

@@ -1,5 +1,6 @@
 package com.tmi.backend.domain.memberBadge.service;
 
+import com.tmi.backend.domain.auth.util.SecurityUtil;
 import com.tmi.backend.domain.badge.entity.Badge;
 import com.tmi.backend.domain.badge.repository.BadgeRepository;
 import com.tmi.backend.domain.member.entity.Member;
@@ -47,6 +48,10 @@ public class MemberBadgeService {
     }
 
     Long memberId = memberBadgeRepository.findMemberIdById(memberBadgeId);
+    if (!SecurityUtil.memberCheck(memberId)) {
+      return ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED);
+    }
+    
     if (memberId == null) {
       return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
     }

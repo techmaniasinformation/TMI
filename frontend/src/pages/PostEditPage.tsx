@@ -324,7 +324,7 @@ const PostEditPage: React.FC = () => {
                 onChange={(e) => setLinkUrl(e.target.value)}
                 maxLength={255}
                 placeholder="https://example.com"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-white"
               />
               <span className="absolute right-3 top-2 text-sm text-gray-500 dark:text-gray-400">{linkUrl.length}/255</span>
             </div>
@@ -340,7 +340,7 @@ const PostEditPage: React.FC = () => {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 maxLength={20}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent break-words break-all"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent break-words break-all dark:bg-gray-800 dark:text-white"
               />
               <span className="absolute right-3 top-2 text-sm text-gray-500 dark:text-gray-400">{title.length}/20</span>
             </div>
@@ -465,7 +465,7 @@ const PostEditPage: React.FC = () => {
                         onBlur={handleTagInputBlur}
                         onFocus={() => newTag.trim() && setShowTagSuggestions(true)}
                         placeholder="태그를 입력하세요 (기존 태그 검색 가능)"
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent break-words break-all"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent break-words break-all dark:bg-gray-800 dark:text-white"
                       />
                       <span className="absolute right-3 top-2 text-sm text-gray-500 dark:text-gray-400">{newTag.length}/20</span>
                     </div>

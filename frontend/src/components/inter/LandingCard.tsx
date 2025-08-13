@@ -68,7 +68,7 @@ const LandingCard: React.FC<LandingCardProps> = ({
   const [thumbnailImageError, setThumbnailImageError] = useState(false);
 
   // 안전한 이미지 URL 사용
-  const safeProfileUrl = getSafeProfileUrl(memberProfile || companyProfileUrl);
+  const safeProfileUrl = (memberProfile || companyProfileUrl) === 'default.png' ? DEFAULT_IMAGES.PROFILE : getSafeProfileUrl(memberProfile || companyProfileUrl);
   const safeBadgeUrl = getSafeBadgeUrl(badgeUrl);
 
   return (

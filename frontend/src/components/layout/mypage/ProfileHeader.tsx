@@ -49,7 +49,6 @@ export default function ProfileHeader({
   const {
     user,
     clearUser,
-    setStarLst,
     setFollowUser,
     setFollowCompany,
     clearSocialLoginInfo,
@@ -138,7 +137,6 @@ export default function ProfileHeader({
       }
       try {
         clearUser();
-        setStarLst([]);
         setFollowUser([]);
         setFollowCompany([]);
         clearSocialLoginInfo();

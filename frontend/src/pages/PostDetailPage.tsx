@@ -226,8 +226,9 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
           isStar: isStarred,
           tags: postData.tags || []
         }}
-        onStarClick={toggleStar}
+        onStarClick={user?.memberId === postData.memberId ? undefined : toggleStar}
         isStarLoading={isStarLoading}
+        showStarButton={user?.memberId !== postData.memberId}
       />
 
       {/* 작성자 정보 */}
@@ -237,6 +238,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         onFollowClick={toggleFollow}
         onAuthorClick={handleAuthorClick}
         isFollowing={isFollowing}
+        showFollowButton={postData.memberId !== 1}
       />
 
       {/* 본문 콘텐츠 */}
@@ -246,9 +248,10 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
           content: renderMarkdown(postData.content),
           isStar: isStarred
         }}
-        onStarClick={toggleStar}
+        onStarClick={user?.memberId === postData.memberId ? undefined : toggleStar}
         onShareClick={handleShare}
         isStarLoading={isStarLoading}
+        showStarButton={user?.memberId !== postData.memberId}
       />
 
       {/* 베스트 댓글 */}

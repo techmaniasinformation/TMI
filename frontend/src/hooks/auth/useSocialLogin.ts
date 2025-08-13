@@ -2,7 +2,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useRef } from 'react';
 import { useUserStore } from '@/stores/userStore';
-import { fetchUserStarList } from '@/utils/starUtils';
+
 
 const useSocialLogin = () => {
   const navigate = useNavigate();
@@ -12,7 +12,6 @@ const useSocialLogin = () => {
   const {
     toggleIsLogin, //isLogin 정리되면 삭제 예정
     setUser, //  user 상태 저장을 위해 추가
-    setStarLst,
     setFollowUser,
     setFollowCompany,
     setSocialLoginInfo,
@@ -21,7 +20,6 @@ const useSocialLogin = () => {
     setSocialProvider,
     prevPath,
     user,
-    setStarIdMap,
   } = useUserStore();
   const isLogin = user !== null && user.memberId > 0;
 
@@ -119,27 +117,7 @@ const useSocialLogin = () => {
             clearUser();
           });
 
-        // ⭐️ 스타 게시글 리스트 저장
-        fetchUserStarList(numericMemberId)
-          .then((result) => {
-            if (result.success) {
-              setStarLst(result.postIds);
-              setStarIdMap(result.starIdMap);
-              console.log('⭐️ 로그인 시 스타 게시글 목록:', result.postIds);
-              console.log('⭐️ 로그인 시 스타 ID 매핑:', Array.from(result.starIdMap.entries()));
-            } else {
-              console.error('⭐️ 스타 목록 가져오기 실패:', result.error);
-              // 에러 발생 시 빈 상태로 초기화
-              setStarLst([]);
-              setStarIdMap(new Map());
-            }
-          })
-          .catch((error) => {
-            console.error('⭐️ 스타 목록 가져오기 실패:', error);
-            // 에러 발생 시 빈 상태로 초기화
-            setStarLst([]);
-            setStarIdMap(new Map());
-          });
+
 
         // 팔로우 (멤버 id) 리스트 저장
         fetch(`https://i13a509.p.ssafy.io/api/v1/memberFollow?followerId=${numericMemberId}&all=true`, {

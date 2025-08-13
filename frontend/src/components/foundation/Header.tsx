@@ -39,7 +39,6 @@ const Header: React.FC<HeaderProps> = ({
     socialProvider,
     setUser,
     clearUser,
-    setStarLst,
     setFollowUser,
     setFollowCompany,
     clearSocialLoginInfo,
@@ -99,7 +98,6 @@ const Header: React.FC<HeaderProps> = ({
       // 서버 응답과 관계없이 클라이언트 상태 정리
       // 모든 전역변수 초기화
       clearUser();
-      setStarLst([]);
       setFollowUser([]);
       setFollowCompany([]);
       clearSocialLoginInfo();
@@ -118,7 +116,6 @@ const Header: React.FC<HeaderProps> = ({
 
       // 서버 오류가 있어도 클라이언트 상태는 정리
       clearUser();
-      setStarLst([]);
       setFollowUser([]);
       setFollowCompany([]);
       clearSocialLoginInfo();
@@ -130,7 +127,7 @@ const Header: React.FC<HeaderProps> = ({
 
       navigate(prevPath);
     }
-  }, [user?.memberId, clearUser, setStarLst, setFollowUser, setFollowCompany, clearSocialLoginInfo, navigate, prevPath, setPrevPath]);
+  }, [user?.memberId, clearUser, setFollowUser, setFollowCompany, clearSocialLoginInfo, navigate, prevPath, setPrevPath]);
 
   // 최근 검색어 추가 함수를 useCallback으로 메모이제이션
   const addToRecentSearches = useCallback((term: string) => {

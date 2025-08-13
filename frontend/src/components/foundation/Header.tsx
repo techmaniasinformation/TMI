@@ -84,6 +84,8 @@ const Header: React.FC<HeaderProps> = ({
   // 로그아웃 함수를 useCallback으로 메모이제이션
   const handleLogOut = useCallback(async () => {
     try {
+      // 현재 페이지 저장 &&&
+    setPrevPath(window.location.pathname + window.location.search);
       if (socialProvider === 'google'){
       const response = await fetch(
         `https://i13a509.p.ssafy.io/api/v1/auth/logout/${user?.memberId}/${socialProvider}`,
@@ -104,7 +106,7 @@ const Header: React.FC<HeaderProps> = ({
 
       // 프로필 메뉴 닫기
       setShowProfileMenu(false);
-      setPrevPath(window.location.pathname + window.location.search);
+
       console.log(prevPath);
       navigate(prevPath);
 
@@ -113,6 +115,7 @@ const Header: React.FC<HeaderProps> = ({
 
     } catch (error) {
       console.error('로그아웃 중 오류:', error);
+      setPrevPath(window.location.pathname + window.location.search);
 
       // 서버 오류가 있어도 클라이언트 상태는 정리
       clearUser();
@@ -123,7 +126,6 @@ const Header: React.FC<HeaderProps> = ({
 
       alert('로그아웃 되었습니다.');
 
-      setPrevPath(window.location.pathname + window.location.search);
 
       navigate(prevPath);
     }

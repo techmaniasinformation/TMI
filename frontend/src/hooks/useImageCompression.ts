@@ -329,13 +329,8 @@ export const useImageCompression = (): UseImageCompressionReturn => {
   const handleImageCancel = () => {
     setSelectedImage(null);
     setOriginalFileSize(0);
-
-    // 기존 이미지가 있었으면 다시 표시, 없으면 미리보기 초기화
-    if (existingImageUrl) {
-      setImagePreview(existingImageUrl);
-    } else {
-      setImagePreview('');
-    }
+    setImagePreview('');
+    setExistingImageUrl(''); // 기존 이미지 URL도 함께 초기화
 
     // 파일 입력 필드 초기화
     const fileInput = document.getElementById('image-upload') as HTMLInputElement;

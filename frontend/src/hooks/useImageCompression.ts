@@ -89,20 +89,24 @@ export const useImageCompression = (): UseImageCompressionReturn => {
         // 이미지 압축 실행
         const compressedFile = await imageCompression(file, options);
         
-        // 압축된 파일을 상태에 저장 - File 객체만 허용
-        if (compressedFile && compressedFile instanceof File) {
-          setSelectedImage(compressedFile);
+        // 압축된 파일을 무조건 File 객체로 변환하여 저장
+        let finalFile: File;
+        
+        if (compressedFile && (compressedFile as any) instanceof File) {
+          finalFile = compressedFile as File;
         } else if (compressedFile && (compressedFile as any) instanceof Blob) {
           // Blob을 File로 변환
           const blob = compressedFile as Blob;
-          const fileFromBlob = new File([blob], 'compressed-image.jpg', { 
+          finalFile = new File([blob], 'compressed-image.jpg', { 
             type: blob.type || 'image/jpeg' 
           });
-          setSelectedImage(fileFromBlob);
         } else {
           console.error('압축된 파일이 유효하지 않음:', compressedFile);
           throw new Error('이미지 압축 결과가 유효하지 않습니다.');
         }
+        
+        // File 객체로 저장
+        setSelectedImage(finalFile);
         
         // 미리보기 생성
         const reader = new FileReader();

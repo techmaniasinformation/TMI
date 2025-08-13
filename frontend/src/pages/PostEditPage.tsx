@@ -298,7 +298,11 @@ const PostEditPage: React.FC = () => {
       setTitle(postData.title || '');
       setContent(postData.content || '');
       setTags(postData.tags || []);
-      setImagePreview(postData.thumbnailUrl || '');
+      // 기존 이미지가 있는 경우 미리보기 설정
+      if (postData.thumbnailUrl) {
+        setImagePreview(postData.thumbnailUrl);
+        // selectedImage는 null로 유지 (새로운 이미지를 업로드할 때만 설정됨)
+      }
     } else {
       console.log('게시글 데이터가 없습니다. 잘못된 접근입니다.');
       alert('잘못된 접근입니다.');

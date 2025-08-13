@@ -120,6 +120,12 @@ export const useImageCompression = (): UseImageCompressionReturn => {
     }
   };
 
+  /**
+   * 이미지 취소 및 초기화 함수
+   * 
+   * 선택된 이미지를 제거하고 모든 상태를 초기화합니다.
+   * 파일 입력 필드도 함께 초기화됩니다.
+   */
   const handleImageCancel = () => {
     setSelectedImage(null);
     setImagePreview('');

@@ -21,12 +21,18 @@ export const useSignup = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
 
-  const isFormValid = !!formData.nickname.trim();
-
   const [isNicknameChecked, setIsNicknameChecked] = useState(false);
   const [isNicknameTaken, setIsNicknameTaken] = useState(false);
   const [isCheckingNickname, setIsCheckingNickname] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+    //조건: 닉네임이 공백X, 1~8자, 중복 확인 완료, 중복 아님
+  const isFormValid = 
+    !!formData.nickname.trim() &&
+    formData.nickname.length > 0 &&
+    formData.nickname.length <= 8 &&
+    isNicknameChecked &&
+    !isNicknameTaken;
 
    // 닉네임 관련 에러 메시지 상태 추가
   const [nicknameError, setNicknameError] = useState('');
@@ -43,10 +49,10 @@ export const useSignup = () => {
   const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
 
-    // &&& 허용 문자만 필터링 (한글, 영어, 숫자)
+    // 허용 문자만 필터링 (한글, 영어, 숫자)
     value = value.replace(/[^가-힣a-zA-Z0-9]/g, '');
 
-    // &&& 8글자 초과 시 잘라내기
+    // 8글자 초과 시 잘라내기
     if (value.length > 8) {
       value = value.slice(0, 8);
     }
@@ -54,9 +60,11 @@ export const useSignup = () => {
     setFormData({ ...formData, nickname: value });
     setIsNicknameChecked(false);
 
-    // &&& 입력 시 에러 메시지 초기화
+    // 입력 시 에러 메시지 초기화
     if (value.length === 0) {
       setNicknameError('닉네임을 입력해주세요.');
+    } else if (value.length > 8) {
+      setNicknameError('닉네임은 8자 이하로 입력해주세요.');
     } else {
       setNicknameError('');
     }

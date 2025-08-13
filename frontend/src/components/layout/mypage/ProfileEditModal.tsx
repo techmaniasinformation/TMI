@@ -6,7 +6,7 @@ import {
   DialogTitle,
   DialogOverlay,
 } from '@/components/domain/Dialog';
-import { Input } from '@/components/domain/Input';
+  import { Input } from '@/components/domain/Input';
 import { Button } from '@/components/foundation/button';
 import { Camera } from 'lucide-react';
 
@@ -100,29 +100,58 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     setRemoved(false); // ✅ 파일 선택하면 제거 의도 해제
+
     if (file) {
-      const MAX = 10 * 1024 * 1024; // 20MB
+      const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+      const MAX_WIDTH = 1024;
+      const MAX_HEIGHT = 1024;
+
       const okType = /^image\//.test(file.type);
       if (!okType) {
         alert('이미지 파일만 업로드 가능합니다.');
         e.target.value = '';
         return;
       }
-      if (file.size > MAX) {
+      if (file.size > MAX_SIZE) {
         alert('이미지는 10MB 이하만 업로드 가능합니다.');
         e.target.value = '';
         return;
       }
+
+      // 📏 가로/세로 길이 제한 검사
+      const tempUrl = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        const w = img.width;
+        const h = img.height;
+        URL.revokeObjectURL(tempUrl); // 임시 URL 정리
+
+        if (w > MAX_WIDTH || h > MAX_HEIGHT) {
+          alert(`이미지 크기는 ${MAX_WIDTH}x${MAX_HEIGHT}px 이하만 가능합니다.\n(현재: ${w}x${h}px)`);
+          e.target.value = '';
+          return;
+        }
+
+        // ✅ 통과 시 미리보기/상태 반영
+        setSelectedFile(file);
+        fallbackAppliedRef.current = false;
+        setImgLoading(true);
+        setPreviewUrl(URL.createObjectURL(file));
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(tempUrl);
+        alert('이미지 로드에 실패했습니다. 다른 파일을 선택해 주세요.');
+        e.target.value = '';
+      };
+      img.src = tempUrl;
+      return;
     }
-    setSelectedFile(file);
+
+    // 파일 선택 취소
+    setSelectedFile(null);
     fallbackAppliedRef.current = false;
-    if (file) {
-      setImgLoading(true);
-      setPreviewUrl(URL.createObjectURL(file));
-    } else {
-      setImgLoading(!!initialProfileImageUrl);
-      setPreviewUrl(initialProfileImageUrl || null);
-    }
+    setImgLoading(!!initialProfileImageUrl);
+    setPreviewUrl(initialProfileImageUrl || null);
   };
 
   const openFilePicker = () => fileInputRef.current?.click();
@@ -215,7 +244,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
           </button>
 
           <p className="text-sm text-gray-500 mt-2">
-             이미지는 10MB 이하만 업로드할 수 있어요.
+             이미지는 10MB 이하, 최대 1024×1024px만 업로드할 수 있어요.
           </p>
           {(previewUrl || selectedFile) && (
             <button

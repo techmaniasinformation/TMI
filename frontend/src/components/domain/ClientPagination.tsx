@@ -90,11 +90,6 @@ function ClientPagination<T>({
             1
           </button>
         </div>
-
-        {/* 페이지 정보 표시 */}
-        <div className="text-center text-sm text-gray-500 mt-4">
-          총 {totalCount}개 중 1 - {Math.min(pageSize, totalCount)}개 표시
-        </div>
       </div>
     );
   }

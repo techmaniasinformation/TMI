@@ -51,7 +51,7 @@ export const AuthorInfo: React.FC<AuthorInfoProps> = ({ post, formatDate, onFoll
         </UserInfoBox>
         {showFollowButton && (
           <Button 
-            variant={isFollowing ? "light" : "dark"}
+            variant={isFollowing ? "light" : "primary"}
             size="sm"
             onClick={onFollowClick}
           >

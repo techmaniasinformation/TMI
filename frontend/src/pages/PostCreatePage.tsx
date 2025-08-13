@@ -91,7 +91,7 @@ const PostCreatePage: React.FC = () => {
 
          setIsAILoading(true);
      try {
-       const apiUrl = `https://i13a509.p.ssafy.io/api/v1/summary?url=${encodeURIComponent(processedUrl)}`;
+       const apiUrl = `https://i13a509.p.ssafy.io/api/v1/summary?url=${processedUrl}`;
        console.log('AI 요약 API 요청:', apiUrl);
       
       // API 요청 - 백엔드 서버 URL 사용

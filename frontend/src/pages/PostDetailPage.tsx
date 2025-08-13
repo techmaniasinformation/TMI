@@ -39,8 +39,10 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
     commentLoading,
     userRecommendations,
     recommendLoading,
+    deleteLoading,
     addComment,
-    toggleCommentRecommend
+    toggleCommentRecommend,
+    deleteComment
   } = usePostDetail(id || '');
 
   // 공유 핸들러
@@ -238,7 +240,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         onFollowClick={toggleFollow}
         onAuthorClick={handleAuthorClick}
         isFollowing={isFollowing}
-        showFollowButton={postData.memberId !== 1}
+        showFollowButton={postData.memberId !== 1 || (postData.memberId === 1 && postData.companyId !== null)}
       />
 
       {/* 본문 콘텐츠 */}
@@ -280,6 +282,9 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         onCommentRecommend={toggleCommentRecommend}
         userRecommendations={userRecommendations}
         recommendLoading={recommendLoading}
+        deleteLoading={deleteLoading}
+        onCommentDelete={deleteComment}
+        currentUserId={user?.memberId}
       />
     </div>
   );

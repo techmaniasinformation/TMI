@@ -160,7 +160,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
                           {comment.link}
                         </a>
                       )}
-                      <div className="flex items-center justify-between mt-2">
+                      <div className="flex items-center gap-4 mt-2">
                         <button
                           onClick={() => onCommentRecommend(comment.commentId)}
                           className={`flex items-center gap-1 text-sm ${

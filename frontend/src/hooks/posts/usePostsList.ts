@@ -136,39 +136,56 @@ export const usePostsList = () => {
     const currentUrlFollowMemberId = searchParams.get('followMemberId');
     const currentUrlTab = currentUrlFollowMemberId ? 'following' : 'latest';
     
+    console.log('🔍 useEffect - URL 파라미터 감지:', {
+      page: currentUrlPage,
+      followMemberId: currentUrlFollowMemberId,
+      tab: currentUrlTab,
+      currentState: { page: state.currentPage, tab: activeTab }
+    });
+    
     // URL과 상태가 다르면 동기화
     if (currentUrlPage !== state.currentPage || currentUrlTab !== activeTab) {
+      console.log('🔍 상태 동기화 필요');
       setState(prev => ({ ...prev, currentPage: currentUrlPage }));
       setActiveTab(currentUrlTab);
     }
     
     // 팔로우 탭이고 로그인하지 않았으면 API 호출하지 않음
     if (currentUrlTab === 'following' && !isLoggedIn) {
+      console.log('🔍 팔로우 탭이지만 로그인하지 않음');
       setState(prev => ({ ...prev, posts: [], loading: false }));
       return;
     }
     
     // 데이터 로드 (초기 로드 또는 URL 변경 시)
+    console.log('🔍 API 호출 시작:', currentUrlPage, currentUrlTab);
     fetchPosts(currentUrlPage, currentUrlTab);
   }, [searchParams, state.currentPage, activeTab, isLoggedIn, fetchPosts]);
 
   // 탭 변경 핸들러
   const handleTabChange = useCallback((newTab: 'latest' | 'following') => {
-    if (newTab === activeTab) return;
+    console.log('🔍 탭 변경 시도:', newTab, '현재 탭:', activeTab);
+    if (newTab === activeTab) {
+      console.log('🔍 같은 탭이므로 변경하지 않음');
+      return;
+    }
     
     // URL 업데이트 - API 형태로 변경
     const newSearchParams = new URLSearchParams(searchParams);
     if (newTab === 'following') {
+      console.log('🔍 팔로우 탭으로 변경, 사용자 ID:', user?.memberId);
       newSearchParams.set('followMemberId', user?.memberId?.toString() || '');
       newSearchParams.set('page', '1');
       newSearchParams.set('size', '10');
       newSearchParams.delete('tab'); // 기존 tab 파라미터 제거
     } else {
+      console.log('🔍 최신 탭으로 변경');
       newSearchParams.set('page', '1');
       newSearchParams.set('size', '10');
       newSearchParams.delete('followMemberId'); // 팔로우 파라미터 제거
       newSearchParams.delete('tab'); // 기존 tab 파라미터 제거
     }
+    console.log('🔍 새로운 URL 파라미터:', newSearchParams.toString());
     setSearchParams(newSearchParams);
   }, [activeTab, searchParams, setSearchParams, user?.memberId]);
 
@@ -200,7 +217,7 @@ export const usePostsList = () => {
   return {
     ...state,
     activeTab,
-    setActiveTab: handleTabChange,
+    setActiveTab: (tabId: string) => handleTabChange(tabId as 'latest' | 'following'),
     setCurrentPage,
     formatDate,
     formatNumber,

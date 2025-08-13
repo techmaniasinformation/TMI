@@ -2,7 +2,9 @@ package com.tmi.backend.domain.notification.dto.response;
 
 import com.tmi.backend.domain.notification.entity.Notification;
 import com.tmi.backend.domain.notification.entity.NotificationType;
+import com.tmi.backend.domain.post.entity.Post;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import lombok.Builder;
 
 @Builder
@@ -28,8 +30,13 @@ public record SimpleNotificationResponse(
         ? notification.getBadge().getBadgeUrl()
         : null;
 
-    String memberProfileUrl = null;
-    String companyProfileUrl = null;
+    Post post = notification.getPost();
+
+    String profile = Objects.isNull(post) ? "" : (
+        (post.getMember().getId() == 1 && !Objects.isNull(post.getCompany())) ?
+            post.getCompany().getCompanyProfileUrl() : post.getMember().getMemberProfileUrl()
+    );
+    profile = Objects.isNull(profile) ? "" : profile;
 
     return SimpleNotificationResponse.builder()
         .notificationId(notification.getId())
@@ -37,8 +44,8 @@ public record SimpleNotificationResponse(
         .content(notification.getContent())
         .postId(postId)
         .badgeUrl(badgeUrl)
-        .memberProfileUrl(memberProfileUrl)
-        .companyProfileUrl(companyProfileUrl)
+        .memberProfileUrl(profile)
+        .companyProfileUrl(profile)
         .isRead(notification.getIsRead())
         .createdAt(notification.getCreatedAt())
         .build();

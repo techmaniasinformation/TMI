@@ -65,8 +65,8 @@ export const followUser = async (followData: FollowData): Promise<{ success: boo
 export const unfollowUser = async (followId: number, targetType: 'company' | 'member', followerId?: number, followeeId?: number, companyId?: number) => {
   try {
     const endpoint = targetType === 'company' 
-      ? `https://i13a509.p.ssafy.io/api/v1/companyFollow/followerId=${followerId}&companyId=${companyId}`
-      : `https://i13a509.p.ssafy.io/api/v1/memberFollow/followerId=${followerId}&followeeId=${followeeId}`;
+        ? `https://i13a509.p.ssafy.io/api/v1/companyFollow?followerId=${followerId}&companyId=${companyId}`
+  : `https://i13a509.p.ssafy.io/api/v1/memberFollow?followerId=${followerId}&followeeId=${followeeId}`;
 
     const response = await fetch(endpoint, {
       method: 'DELETE',

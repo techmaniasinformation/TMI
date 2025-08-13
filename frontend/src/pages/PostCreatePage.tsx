@@ -548,7 +548,6 @@ const PostCreatePage: React.FC = () => {
                   }}
                   preview={isPreviewMode ? "preview" : "edit"}
                   hideToolbar={isPreviewMode}
-                  data-color-mode="light"
                   onClick={(e) => {
                     // MDEditor 내부의 textarea를 찾아서 커서를 맨 뒤로 이동
                     const editor = e.currentTarget;

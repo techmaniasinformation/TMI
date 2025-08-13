@@ -29,6 +29,9 @@ public record DetailPostResponse(
 
   public static DetailPostResponse of(Post post, int commentCount) {
     String memberName = (post.getMember().getId() == 1 && !Objects.isNull(post.getCompany())) ? post.getCompany().getName() :post.getMember().getNickname();
+    String profile = (post.getMember().getId() == 1 && !Objects.isNull(post.getCompany())) ? post.getCompany().getCompanyProfileUrl() : post.getMember().getMemberProfileUrl();
+    profile = Objects.isNull(profile) ? "" : profile;
+
 
     return DetailPostResponse.builder()
         .postId(post.getId())
@@ -38,10 +41,8 @@ public record DetailPostResponse(
         .tags(post.getPostTags().stream()
             .map(pt -> pt.getTag().getName())
             .toList())
-        .memberProfileUrl(post.getMember().getMemberProfileUrl())
-        .companyProfileUrl(post.getCompany() != null
-            ? post.getCompany().getCompanyProfileUrl()
-            : null)
+        .memberProfileUrl(profile)
+        .companyProfileUrl(profile)
         .name(memberName)
         // .badgeUrl(post.getMember().getBadgeUrl())
         .badgeUrl(null)                               // 예시: 아직 미구현

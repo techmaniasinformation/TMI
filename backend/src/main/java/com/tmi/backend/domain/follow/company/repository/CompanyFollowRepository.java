@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface CompanyFollowRepository extends JpaRepository<CompanyFollow, Long> {
@@ -25,4 +26,9 @@ public interface CompanyFollowRepository extends JpaRepository<CompanyFollow, Lo
   int removeById(Long companyFollowId);
 
   List<CompanyFollow> findByCompanyId(Long companyId);
+
+  @Modifying
+  @Query("DELETE FROM CompanyFollow cf WHERE cf.follower.id = :followerId AND cf.company.id = :companyId")
+  void deleteByFollowerIdAndCompanyId(@Param("followerId") Long followerId,
+      @Param("companyId") Long companyId);
 }

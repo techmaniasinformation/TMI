@@ -51,6 +51,7 @@ public class MemberBadgeService {
     if (!SecurityUtil.memberCheck(memberId)) {
       return ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED);
     }
+
     if (memberId == null) {
       return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
     }

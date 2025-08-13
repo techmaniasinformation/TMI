@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/companyFollow")
+@RequestMapping("${api.prefix}/companyFollow")
 @RequiredArgsConstructor
 public class CompanyFollowController implements BaseController {
 
@@ -38,7 +38,7 @@ public class CompanyFollowController implements BaseController {
       @RequestParam(defaultValue = "10") int size,
       @RequestParam(defaultValue = "false") boolean all
   ) {
-  
+
     return handle(companyFollowService.getCompanyFollows(followerId, page, size, all));
   }
 
@@ -63,5 +63,12 @@ public class CompanyFollowController implements BaseController {
       @PathVariable Long companyFollowId
   ) {
     return handle(companyFollowService.deleteFollow(companyFollowId));
+  }
+
+  @DeleteMapping
+  public ResponseEntity<ApiResponse<Map<String, Boolean>>> deleteCompanyFollow(
+      @RequestParam Long followerId, @RequestParam Long companyId
+  ) {
+    return handle(companyFollowService.deleteCompanyFollow(followerId, companyId));
   }
 }

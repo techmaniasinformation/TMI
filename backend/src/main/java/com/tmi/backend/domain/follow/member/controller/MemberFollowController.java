@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/memberFollow")
+@RequestMapping("${api.prefix}/memberFollow")
 @RequiredArgsConstructor
 public class MemberFollowController implements BaseController {
 
@@ -63,4 +63,14 @@ public class MemberFollowController implements BaseController {
   ) {
     return handle(memberFollowService.deleteFollow(memberFollowId));
   }
+
+  @DeleteMapping
+  public ResponseEntity<ApiResponse<Map<String, Boolean>>> deleteMemberFollows(
+      @RequestParam Long followerId,
+      @RequestParam Long followeeId
+  ) {
+    return handle(memberFollowService.deleteMemberFollow(followerId, followeeId));
+  }
+
+
 }

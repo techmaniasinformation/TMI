@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/image")
+@RequestMapping("${api.prefix}/image")
 @RequiredArgsConstructor
 public class ImageController {
 

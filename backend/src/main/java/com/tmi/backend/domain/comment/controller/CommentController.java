@@ -22,14 +22,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/comment")
+@RequestMapping("${api.prefix}/comment")
 @RequiredArgsConstructor
 public class CommentController implements BaseController {
 
   private final CommentService commentService;
 
   @PostMapping
-  public ResponseEntity<ApiResponse<Map<String, Long>>> registerComment(@Valid @RequestBody CommentRequest commentRequest) {
+  public ResponseEntity<ApiResponse<Map<String, Long>>> registerComment(
+      @Valid @RequestBody CommentRequest commentRequest) {
 
     return handle(commentService.register(commentRequest));
   }

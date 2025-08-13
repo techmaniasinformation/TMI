@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Button } from '@/components/foundation/button';
 import { getSafeProfileUrl, getSafeBadgeUrl } from '@/utils/defaultImages';
+import { useUserStore } from '@/stores/userStore';
 
 interface CommentSectionProps {
   comments: any[];
@@ -21,7 +22,6 @@ interface CommentSectionProps {
   recommendLoading: Map<number, boolean>;
   deleteLoading: Map<number, boolean>;
   onCommentDelete: (commentId: number) => void;
-  currentUserId?: number;
 }
 
 export const CommentSection: React.FC<CommentSectionProps> = ({
@@ -43,8 +43,11 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
   recommendLoading,
   deleteLoading,
   onCommentDelete,
-  currentUserId,
 }) => {
+  // 전역 사용자 정보 가져오기
+  const { user } = useUserStore();
+  const currentUserMemberId = user?.memberId;
+  
   // 안전한 프로필 이미지 URL을 메모이제이션
   const safeMemberProfileUrl = useMemo(() => {
     return getSafeProfileUrl(memberProfileUrl);
@@ -68,7 +71,13 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
               placeholder="댓글을 입력하세요..."
               className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
               rows={3}
+              maxLength={200}
             />
+            <div className="flex justify-between items-center mt-1">
+              <span className="text-xs text-gray-500">
+                {commentText.length}/200
+              </span>
+            </div>
             {showLinkInput && (
               <div className="relative mt-2">
                 <input
@@ -166,7 +175,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
                         </button>
                         
                         {/* 댓글 작성자와 현재 사용자가 같을 때만 삭제 버튼 표시 */}
-                        {currentUserId && comment.memberId && currentUserId === comment.memberId && (
+                        {currentUserMemberId && comment.memberId && currentUserMemberId === comment.memberId && (
                           <button
                             onClick={() => {
                               if (window.confirm('정말로 이 댓글을 삭제하시겠습니까?')) {

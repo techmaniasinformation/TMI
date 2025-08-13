@@ -284,7 +284,6 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         recommendLoading={recommendLoading}
         deleteLoading={deleteLoading}
         onCommentDelete={deleteComment}
-        currentUserId={user?.memberId}
       />
     </div>
   );

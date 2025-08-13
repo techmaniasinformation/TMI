@@ -5,7 +5,6 @@ import com.tmi.backend.domain.auth.oauth.handler.OAuth2FailureHandler;
 import com.tmi.backend.domain.auth.oauth.handler.OAuth2SuccessHandler;
 import com.tmi.backend.domain.auth.oauth.service.CustomOAuth2UserService;
 import com.tmi.backend.domain.auth.oauth.service.CustomOidcUserService;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -28,7 +27,6 @@ public class SecurityConfig {
   private final OAuth2FailureHandler oAuth2FailureHandler;
   private final CustomOAuth2UserService customOAuth2UserService;
   private final CustomOidcUserService customOidcUserService;
-
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -61,6 +59,7 @@ public class SecurityConfig {
         .oauth2Login(oauth2 -> oauth2
             .authorizationEndpoint(endpoint -> endpoint
                 .baseUri("/api/v1/oauth2/authorization")
+
             )
             .redirectionEndpoint(endpoint -> endpoint
                 .baseUri("/login/oauth2/code/*")
@@ -82,11 +81,6 @@ public class SecurityConfig {
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
-  }
-
-  @PostConstruct
-  public void checkHandler() {
-    log.info("✅ OAuth2SuccessHandler = {}", oAuth2SuccessHandler.getClass());
   }
 
 }

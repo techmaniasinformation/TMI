@@ -2,8 +2,10 @@ package com.tmi.backend.domain.auth.oauth.handler;
 
 import com.tmi.backend.domain.auth.jwt.service.TokenService;
 import com.tmi.backend.domain.auth.oauth.util.CustomOauthUser;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +31,19 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
       HttpServletResponse response,
       Authentication authentication) throws IOException {
     CustomOauthUser customUser = (CustomOauthUser) authentication.getPrincipal();
+
+    HttpSession session = request.getSession(false);
+    if (session != null) {
+      session.invalidate();
+    }
+
+    // JSESSIONID 쿠키 완전 삭제
+    Cookie jsessionCookie = new Cookie("JSESSIONID", null);
+    jsessionCookie.setMaxAge(0);
+    jsessionCookie.setPath("/");
+    jsessionCookie.setHttpOnly(true);
+    response.addCookie(jsessionCookie);
+
     // 신규 및 재가입 회원
     if (customUser.isNewUser()) {
       targetUrl = UriComponentsBuilder.fromHttpUrl(REDIRECT_URI)

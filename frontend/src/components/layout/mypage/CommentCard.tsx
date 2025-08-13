@@ -35,7 +35,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
       onClick={onClick}
     >
       <h3 className="font-medium text-gray-900 mb-2">{postTitle}</h3>
-      <p className="text-gray-600 text-sm">{comment}</p>
+      <p className="text-gray-600 text-sm break-all break-words">{comment}</p>
       <div className="mt-2 text-xs text-gray-400">{formatDate(date)}</div>
     </div>
   );

@@ -28,19 +28,28 @@ interface Notification {
   isRead: boolean;
   userId?: string;
   userName?: string;
-  userAvatar?: string;
+  userAvatar?: string; // ← 카드 썸네일로 사용 (배지/프로필)
   postId?: string;
   badgeType?: string;
 }
 
 // ---- 추가 유틸: 이미지 경로 처리/폴백 ----
+const BASE_URL = 'https://i13a509.p.ssafy.io/api/v1';
+
+// 배지 파일명이 오면 여기에 붙여 절대경로로 변환
+// .env에 VITE_BADGE_CDN을 지정하면 그 값을 우선 사용
 const BADGE_CDN_BASE =
-  (import.meta as any).env?.VITE_BADGE_CDN ?? '/badges'; // 배지 파일명 접두 경로
+  (import.meta as any).env?.VITE_BADGE_CDN ?? `${BASE_URL}/image/badge`;
+
 const DEFAULT_AVATAR = '/default-avatar.png';
 
 const cleanUrl = (u?: string | null) => (u && u.trim() ? u : undefined);
-const resolveBadgeSrc = (file?: string | null) =>
-  file && file.trim() ? `${BADGE_CDN_BASE}/${file}` : undefined;
+const resolveBadgeSrc = (file?: string | null) => {
+  const f = (file ?? '').trim();
+  if (!f) return undefined;
+  if (/^https?:\/\//i.test(f)) return f;            // 이미 절대경로면 그대로
+  return `${BADGE_CDN_BASE}/${f}`;                   // 파일명이면 베이스 붙이기
+};
 
 const NotificationsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -76,15 +85,17 @@ const NotificationsPage: React.FC = () => {
     // 썸네일 결정
     let avatar: string | undefined;
     if (mappedType === 'badge') {
-      avatar = resolveBadgeSrc(srv.badgeUrl); // 배지 파일명 → CDN 경로
+      // ✅ 배지는 파일명만 오므로 절대경로로 변환
+      avatar = resolveBadgeSrc(srv.badgeUrl);
     } else if (mappedType === 'comment') {
-      avatar = cleanUrl(myProfileUrl) ?? DEFAULT_AVATAR; // 댓글이면 내 프로필
+      // ✅ 댓글이면 내 프로필 이미지 고정
+      avatar = cleanUrl(myProfileUrl) ?? DEFAULT_AVATAR;
     } else {
-      // post (팔로우 새 글 포함): 서버가 준 프로필
+      // ✅ 팔로우 새 글: 서버가 준 프로필 URL(빈 문자열 제외)
       avatar =
         cleanUrl(srv.memberProfileUrl) ??
         cleanUrl(srv.companyProfileUrl) ??
-        undefined; // 최종 폴백은 아래 load()에서
+        undefined; // 최종 폴백은 load()에서
     }
 
     return {

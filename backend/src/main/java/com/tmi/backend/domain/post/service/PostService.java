@@ -138,6 +138,8 @@ public class PostService {
     else {
       String urlFromRequest = postUpdateRequest.thumbnailUrl();
       // 요청 URL이 비어있고(null 또는 ""), 기존 URL은 존재할 때 -> 이미지 삭제로 간주
+      log.info("urlFromRequest = {}", urlFromRequest);
+      log.info("newThumbnailUrl = {}", newThumbnailUrl);
       if ((urlFromRequest == null || urlFromRequest.isEmpty()) && (newThumbnailUrl != null
           && !newThumbnailUrl.isEmpty())) {
         try {

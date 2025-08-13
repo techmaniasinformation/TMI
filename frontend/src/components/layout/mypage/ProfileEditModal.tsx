@@ -28,8 +28,8 @@ interface ProfileEditModalProps {
   ) => Promise<void>;
 }
 
-// ✅ 2~8자 제한으로 변경
-const NICKNAME_RE = /^[ㄱ-ㅎ가-힣a-zA-Z0-9]{2,8}$/;
+// ✅ 자모 금지(완성형만 허용), 2~8자
+const NICKNAME_RE = /^[가-힣a-zA-Z0-9]{2,8}$/;
 const isValidNickname = (v: string) => NICKNAME_RE.test(v);
 
 const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
@@ -104,18 +104,16 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
     fallbackAppliedRef.current = false;
   };
 
-  // ✅ 닉네임: 한글/영문/숫자만 허용 + 2~8자
+  // ✅ 닉네임: 완성형 한글/영문/숫자만 허용 + 2~8자, 자모/특수/공백 제거
   const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    // 허용 문자 외 제거 (공백, 특수문자, 이모지 등) + 8자 제한
-    const filtered = value.replace(/[^ㄱ-ㅎ가-힣a-zA-Z0-9]/g, '').slice(0, 8);
+    const filtered = value.replace(/[^가-힣a-zA-Z0-9]/g, '').slice(0, 8); // ← 자모/특수 제외 + 8자 컷
     setNickname(filtered);
 
-    // 실시간 길이/형식 체크
     if (filtered.length === 0) {
       setNicknameError('닉네임을 입력해 주세요.');
     } else if (!isValidNickname(filtered)) {
-      setNicknameError('닉네임은 2~8자의 한글/영문/숫자만 가능합니다.');
+      setNicknameError('닉네임은 2~8자의 완성형 한글/영문/숫자만 가능합니다.');
     } else {
       setNicknameError(null);
     }
@@ -126,7 +124,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
     const v = (nickname ?? '').trim();
     setNickname(v);
     if (!isValidNickname(v)) {
-      setNicknameError('닉네임은 2~8자의 한글/영문/숫자만 가능합니다.');
+      setNicknameError('닉네임은 2~8자의 완성형 한글/영문/숫자만 가능합니다.');
     } else {
       setNicknameError(null);
     }
@@ -198,7 +196,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
     const cleanNickname = (nickname ?? '').trim();
     // 저장 직전 최종 검증(서버 호출 차단)
     if (!isValidNickname(cleanNickname)) {
-      setNicknameError('닉네임은 2~8자의 한글/영문/숫자만 가능합니다.');
+      setNicknameError('닉네임은 2~8자의 완성형 한글/영문/숫자만 가능합니다.');
       return;
     }
 
@@ -317,15 +315,21 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
         {/* 입력 필드 */}
         <div className="space-y-4 mt-2">
           <div>
-            <label className="text-sm font-medium text-gray-700">닉네임</label>
+            {/* ✅ 글자수 카운트 추가 */}
+            <label className="text-sm font-medium text-gray-700 flex items-center justify-between">
+              <span>닉네임</span>
+              <span className="text-xs text-gray-500">{(nickname ?? '').length}/8</span>
+            </label>
             <Input
               value={nickname}
               onChange={handleNicknameChange}
               onBlur={handleNicknameBlur}
               disabled={!!nicknameDisabled}
-              placeholder="한글/영문/숫자만 입력 (2~8자)"
+              placeholder="완성형 한글/영문/숫자 (2~8자)"
               aria-invalid={!!nicknameError}
               aria-describedby={nicknameError ? 'nickname-error' : undefined}
+              maxLength={8}           // ✅ 브라우저 레벨 8자 제한
+              inputMode="text"
             />
             {(nicknameHelperText || nicknameError) && (
               <p

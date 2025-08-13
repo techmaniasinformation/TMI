@@ -140,7 +140,7 @@ export default function HomePostList() {
       <HomeTabBar 
         tabs={HOME_TABS}
         activeTab={activeTab}
-        onTabChange={(tabId) => setActiveTab(tabId as 'latest' | 'following')}
+        onTabChange={setActiveTab}
       />
 
       {/* 숨겨진 이미지 프리로딩 - 초기 로드 완료 후에만 실행 */}

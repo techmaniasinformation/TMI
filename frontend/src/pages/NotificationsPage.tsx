@@ -1,4 +1,4 @@
-// NotificationsPage.tsx
+// src/components/layout/notifications/NotificationsPage.tsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/router/routes';
@@ -19,6 +19,56 @@ import {
 } from '@/api/notification';
 import type { NotificationStatus } from '@/types/notification/notifications';
 
+// ===== 배지 이미지 import & 매핑 (BadgeModal 과 동일) =====
+import ai_1 from '@/assets/images/ai_1.png';
+import amumu from '@/assets/images/amumu.png';
+import aws_1 from '@/assets/images/aws_1.png';
+import db_1 from '@/assets/images/db_1.png';
+import fctmi_1 from '@/assets/images/fctmi_1.png';
+import first_article from '@/assets/images/first_article.png';
+import first_comment from '@/assets/images/first_comment.png';
+import followmany from '@/assets/images/followmany.png';
+import helloworld from '@/assets/images/helloworld.png';
+import like10 from '@/assets/images/like10.png';
+import like100 from '@/assets/images/like100.png';
+import like1000 from '@/assets/images/like1000.png';
+import paris from '@/assets/images/paris.png';
+import react from '@/assets/images/react.png';
+import spring from '@/assets/images/spring.png';
+import star_5 from '@/assets/images/star_5.png';
+import star_13 from '@/assets/images/star_13.png';
+import star_42 from '@/assets/images/star_42.png';
+import view1 from '@/assets/images/view1.png';
+import view2 from '@/assets/images/view2.png';
+import view3 from '@/assets/images/view3.png';
+import locked from '@/assets/images/locked.png';
+
+const badgeImages: Record<string, string> = {
+  'ai_1.png': ai_1,
+  'amumu.png': amumu,
+  'aws_1.png': aws_1,
+  'db_1.png': db_1,
+  'fctmi_1.png': fctmi_1,
+  'first_article.png': first_article,
+  'first_comment.png': first_comment,
+  'followmany.png': followmany,
+  'helloworld.png': helloworld,
+  'like10.png': like10,
+  'like100.png': like100,
+  'like1000.png': like1000,
+  'paris.png': paris,
+  'react.png': react,
+  'spring.png': spring,
+  'star_5.png': star_5,
+  'star_13.png': star_13,
+  'star_42.png': star_42,
+  'view_50.png': view1,
+  'view_100.png': view2,
+  'view_1000.png': view3,
+  'locked.png': locked,
+};
+// ========================================================
+
 // 화면에서 사용하던 인터페이스(유지)
 interface Notification {
   id: string;
@@ -28,18 +78,15 @@ interface Notification {
   isRead: boolean;
   userId?: string;
   userName?: string;
-  userAvatar?: string; // ← 카드 썸네일로 사용 (배지/프로필)
+  userAvatar?: string; // 썸네일(배지/프로필)
   postId?: string;
   badgeType?: string;
 }
 
-// ---- 추가 유틸: 이미지 경로 처리/폴백 ----
+// ---- 유틸: 경로 처리/폴백 ----
 const BASE_URL = 'https://i13a509.p.ssafy.io/api/v1';
-
-// 배지 파일명이 오면 여기에 붙여 절대경로로 변환
-// .env에 VITE_BADGE_CDN을 지정하면 그 값을 우선 사용
 const BADGE_CDN_BASE =
-  (import.meta as any).env?.VITE_BADGE_CDN ?? `${BASE_URL}/image/badge`;
+  (import.meta as any).env?.VITE_BADGE_CDN ?? `${BASE_URL}/badge/images`;
 
 const DEFAULT_AVATAR = '/default-avatar.png';
 
@@ -47,8 +94,8 @@ const cleanUrl = (u?: string | null) => (u && u.trim() ? u : undefined);
 const resolveBadgeSrc = (file?: string | null) => {
   const f = (file ?? '').trim();
   if (!f) return undefined;
-  if (/^https?:\/\//i.test(f)) return f;            // 이미 절대경로면 그대로
-  return `${BADGE_CDN_BASE}/${f}`;                   // 파일명이면 베이스 붙이기
+  if (/^https?:\/\//i.test(f)) return f;   // 이미 절대경로면 그대로
+  return `${BADGE_CDN_BASE}/${f}`;         // 파일명이면 베이스 붙이기
 };
 
 const NotificationsPage: React.FC = () => {
@@ -75,27 +122,23 @@ const NotificationsPage: React.FC = () => {
       case 'NEW_COMMENT':
         mappedType = 'comment';
         break;
-      case 'MEMBER_NEW_POST': // 팔로우한 사람이 새 글
-        mappedType = 'post';
-        break;
+      case 'MEMBER_NEW_POST':
       default:
         mappedType = 'post';
     }
 
-    // 썸네일 결정
+    // 썸네일 결정: 배지는 로컬 매핑 우선 → 서버 URL 폴백
     let avatar: string | undefined;
     if (mappedType === 'badge') {
-      // ✅ 배지는 파일명만 오므로 절대경로로 변환
-      avatar = resolveBadgeSrc(srv.badgeUrl);
+      const local = badgeImages[srv.badgeUrl as string];       // 로컬 import 매핑
+      avatar = local ?? resolveBadgeSrc(srv.badgeUrl);         // 폴백: 서버 절대경로
     } else if (mappedType === 'comment') {
-      // ✅ 댓글이면 내 프로필 이미지 고정
-      avatar = cleanUrl(myProfileUrl) ?? DEFAULT_AVATAR;
+      avatar = cleanUrl(myProfileUrl) ?? DEFAULT_AVATAR;       // 댓글: 내 프로필
     } else {
-      // ✅ 팔로우 새 글: 서버가 준 프로필 URL(빈 문자열 제외)
       avatar =
         cleanUrl(srv.memberProfileUrl) ??
         cleanUrl(srv.companyProfileUrl) ??
-        undefined; // 최종 폴백은 load()에서
+        undefined;                                             // 최종 폴백은 아래 load()에서
     }
 
     return {
@@ -105,7 +148,10 @@ const NotificationsPage: React.FC = () => {
       timestamp: srv.createdAt ?? '',
       isRead: !!srv.isRead,
       postId: srv.postId != null ? String(srv.postId) : undefined,
-      badgeType: srv.badgeUrl ?? undefined,
+      // 백업용으로 badgeType에도 동일 값 주입(어느 필드를 쓰더라도 보이게)
+      badgeType: mappedType === 'badge'
+        ? (badgeImages[srv.badgeUrl as string] ?? resolveBadgeSrc(srv.badgeUrl))
+        : undefined,
       userAvatar: avatar,
       userId: srv.memberId != null ? String(srv.memberId) : undefined,
       userName: srv.nickname ?? srv.companyName ?? undefined,
@@ -148,18 +194,15 @@ const NotificationsPage: React.FC = () => {
     load();
   }, [load]);
 
-  // ✅ 클릭 시 읽음 처리(서버 연동 + 낙관적) 후, 타입별 이동
+  // 클릭 시 읽음 처리 + 이동
   const handleNotificationClick = async (notification: Notification) => {
-    // 1) 낙관적 업데이트
     setNotifications(prev =>
       prev.map(n => (n.id === notification.id ? { ...n, isRead: true } : n))
     );
 
-    // 2) 서버 읽음 처리
     try {
       await apiMarkNotificationRead(Number(notification.id));
     } catch (e) {
-      // 실패 시 롤백
       setNotifications(prev =>
         prev.map(n => (n.id === notification.id ? { ...n, isRead: false } : n))
       );
@@ -168,41 +211,37 @@ const NotificationsPage: React.FC = () => {
       return;
     }
 
-    // 3) 타입별 이동
     if ((notification.type === 'comment' || notification.type === 'post') && notification.postId) {
       navigate(`/post/${notification.postId}`);
       return;
     }
 
-    if (notification.type === 'badge') {
-      // 배지 → 마이페이지
-      if (memberId) {
-        const path = ROUTES?.MY_PAGE
-          ? ROUTES.MY_PAGE.replace(':id', String(memberId))
-          : `/mypage/${memberId}`;
-        navigate(path);
-      }
+    if (notification.type === 'badge' && memberId) {
+      const path = ROUTES?.MY_PAGE
+        ? ROUTES.MY_PAGE.replace(':id', String(memberId))
+        : `/mypage/${memberId}`;
+      navigate(path);
       return;
     }
   };
 
-  // 개별 삭제(서버 연동 + 낙관적 업데이트)
+  // 개별 삭제
   const handleDeleteNotification = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (!memberId) return;
 
     const prev = notifications;
-    setNotifications(prev.filter(n => n.id !== id)); // 낙관적 제거
+    setNotifications(prev.filter(n => n.id !== id));
     try {
       await apiDeleteNotification(Number(id), memberId);
     } catch (err) {
-      setNotifications(prev); // 롤백
+      setNotifications(prev);
       console.error(err);
       alert('알림 삭제에 실패했습니다.');
     }
   };
 
-  // 전체 읽음(서버 연동 + 낙관적 업데이트)
+  // 전체 읽음
   const handleMarkAllAsRead = async () => {
     if (!memberId) return;
     const prev = notifications;
@@ -210,21 +249,21 @@ const NotificationsPage: React.FC = () => {
     try {
       await apiMarkAllNotificationsRead(memberId);
     } catch (err) {
-      setNotifications(prev); // 롤백
+      setNotifications(prev);
       console.error(err);
       alert('전체 읽음 처리에 실패했습니다.');
     }
   };
 
-  // 전체 삭제(서버 연동 + 낙관적 업데이트)
+  // 전체 삭제
   const handleDeleteAll = async () => {
     if (!memberId) return;
     const prev = notifications;
-    setNotifications([]); // 낙관적
+    setNotifications([]);
     try {
       await apiDeleteAllNotifications(memberId);
     } catch (err) {
-      setNotifications(prev); // 롤백
+      setNotifications(prev);
       console.error(err);
       alert('전체 삭제에 실패했습니다.');
     }

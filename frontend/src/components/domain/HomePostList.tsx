@@ -126,7 +126,7 @@ export default function HomePostList() {
             <div className="space-y-3">
               <Button 
                 onClick={() => navigate('/login')}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg border-none"
               >
                 <i className="fas fa-sign-in-alt mr-2"></i>
                 로그인
@@ -224,8 +224,8 @@ export default function HomePostList() {
         />
       )}
 
-      {/* 페이지네이션 - 최신순 탭이거나 팔로우 탭일 때만 */}
-      {totalPages > 1 && (currentTab === 'latest' || currentTab === 'following') && (
+      {/* 페이지네이션 - 최신순 탭이거나 팔로우 탭일 때만 (비로그인 사용자 팔로우 탭 제외) */}
+      {totalPages > 1 && (currentTab === 'latest' || (currentTab === 'following' && isLoggedIn && followMemberId !== 'guest')) && (
         <ServerPagination
           currentPage={currentPage}
           totalCount={totalElements}

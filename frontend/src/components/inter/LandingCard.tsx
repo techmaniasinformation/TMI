@@ -74,12 +74,8 @@ const LandingCard: React.FC<LandingCardProps> = ({
   return (
     <div
       key={postId}
-      //className={`bg-gray-800/70 backdrop-blur-sm hover:bg-gray-800/90
-      //   transition-all duration-300 cursor-pointer rounded-lg border
-      //   border-gray-700/50 ${hoverBorder} hover:shadow-lg ${hoverShadow} ${roleColor}`} // roleColor도 여기서 사용 가능 ********
       className={cn(
         cardVariants({ variant }), // ***** 다크/라이트에 따라 클래스 적용
-        // roleColor,
         hoverBorder,
         hoverShadow
       )}
@@ -105,11 +101,11 @@ const LandingCard: React.FC<LandingCardProps> = ({
                   onError={() => setProfileImageError(true)}
                 />
               ) : (
-                <div className='w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center'>
-                  <span className='text-xs font-semibold'>
-                    {name.charAt(0)}
-                  </span>
-                </div>
+                <img
+                  src={DEFAULT_IMAGES.PROFILE}
+                  alt="Default Profile"
+                  className='w-8 h-8 rounded-full object-cover'
+                />
               )}
 
               <div className='flex items-center gap-2'>

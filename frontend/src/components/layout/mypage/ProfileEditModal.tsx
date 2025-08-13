@@ -6,7 +6,7 @@ import {
   DialogTitle,
   DialogOverlay,
 } from '@/components/domain/Dialog';
-import { Input } from '@/components/domain/Input';
+  import { Input } from '@/components/domain/Input';
 import { Button } from '@/components/foundation/button';
 import { Camera } from 'lucide-react';
 
@@ -31,6 +31,12 @@ interface ProfileEditModalProps {
 // ✅ 자모 금지(완성형만 허용), 2~8자
 const NICKNAME_RE = /^[가-힣a-zA-Z0-9]{2,8}$/;
 const isValidNickname = (v: string) => NICKNAME_RE.test(v);
+
+// ✅ 유효 글자(완성형 한글/영문/숫자) 카운트 & 금지문자 체크 헬퍼
+const ALLOWED_CHAR_RE = /[가-힣a-zA-Z0-9]/;           // 단일 문자 테스트용
+const hasDisallowed = (s: string) => /[^가-힣a-zA-Z0-9]/.test(s);
+const countAllowed = (s: string) =>
+  Array.from(s).reduce((n, ch) => n + (ALLOWED_CHAR_RE.test(ch) ? 1 : 0), 0);
 
 const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   isOpen,
@@ -104,22 +110,37 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
     fallbackAppliedRef.current = false;
   };
 
-  // ✅ 닉네임: 완성형 한글/영문/숫자만 허용 + 2~8자, 자모/특수/공백 제거
+  // ✅ 닉네임 입력: 화면엔 그대로 보이되, "유효 글자"만 8자까지 허용
   const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    const filtered = value.replace(/[^가-힣a-zA-Z0-9]/g, '').slice(0, 8); // ← 자모/특수 제외 + 8자 컷
-    setNickname(filtered);
+    const next = e.target.value;
 
-    if (filtered.length === 0) {
-      setNicknameError('닉네임을 입력해 주세요.');
-    } else if (!isValidNickname(filtered)) {
+    const currentAllowed = countAllowed(nickname);
+    const nextAllowed = countAllowed(next);
+
+    // (1) 유효 글자 수가 줄거나 같아지는 경우(삭제/교체 등): 그대로 허용
+    if (nextAllowed <= currentAllowed) {
+      setNickname(next);
+    } else {
+      // (2) 유효 글자가 증가하려는 입력인 경우: 8자 이내만 허용
+      if (nextAllowed <= 8) {
+        setNickname(next);
+      }
+      // nextAllowed > 8 이면 무시 → 더 이상 유효 글자 추가 불가
+    }
+
+    // 에러 갱신 (입력값은 그대로 보이게 유지)
+    const effective = next; // 화면 표시값 그대로
+    const allowedCount = countAllowed(effective);
+    if (hasDisallowed(effective)) {
+      setNicknameError('허용 외 문자가 포함되어 있어요 (자모·특수·공백 등).');
+    } else if (allowedCount < 2) {
       setNicknameError('닉네임은 2~8자의 완성형 한글/영문/숫자만 가능합니다.');
     } else {
       setNicknameError(null);
     }
   };
 
-  // 포커스 아웃 시 안전망
+  // 포커스 아웃 시 최종 검증 (정규식 기준)
   const handleNicknameBlur = () => {
     const v = (nickname ?? '').trim();
     setNickname(v);
@@ -279,7 +300,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
           <button
             type="button"
             onClick={openFilePicker}
-            className="mt-4 flex items-center justify-center w-10 h-10 rounded-full bg-[#7C3AED] hover:bg-[#6D28D9] transition"
+            className="mt-4 flex itemscenter justify-center w-10 h-10 rounded-full bg-[#7C3AED] hover:bg-[#6D28D9] transition"
             aria-label="Change profile image"
             title="Change profile image"
           >
@@ -315,10 +336,10 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
         {/* 입력 필드 */}
         <div className="space-y-4 mt-2">
           <div>
-            {/* ✅ 글자수 카운트 추가 */}
+            {/* ✅ 글자수 카운트: 유효 글자 기준 */}
             <label className="text-sm font-medium text-gray-700 flex items-center justify-between">
               <span>닉네임</span>
-              <span className="text-xs text-gray-500">{(nickname ?? '').length}/8</span>
+              <span className="text-xs text-gray-500">{countAllowed(nickname)}/8</span>
             </label>
             <Input
               value={nickname}
@@ -328,7 +349,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
               placeholder="완성형 한글/영문/숫자 (2~8자)"
               aria-invalid={!!nicknameError}
               aria-describedby={nicknameError ? 'nickname-error' : undefined}
-              maxLength={8}           // ✅ 브라우저 레벨 8자 제한
+              // maxLength 제거: 자모 표시를 위해 브라우저 레벨 컷 사용 안 함
               inputMode="text"
             />
             {(nicknameHelperText || nicknameError) && (
@@ -355,7 +376,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
           <Button
             variant="primary"
             onClick={handleSubmit}
-            disabled={saving || !!nicknameError || (nickname ?? '').length < 2}
+            disabled={saving || !!nicknameError || !isValidNickname((nickname ?? '').trim())}
             className={`w-full h-10 text-white font-semibold ${saving ? 'opacity-60 cursor-not-allowed' : ''}`}
           >
             {saving ? '저장 중…' : '저장하기'}

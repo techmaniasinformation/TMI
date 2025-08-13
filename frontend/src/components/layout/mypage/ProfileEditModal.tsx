@@ -79,7 +79,7 @@ const validateBlogUrl = (raw: string) => {
     if (!isAllowedBlogHost(u.hostname)) {
       return {
         ok: false,
-        msg: '네이버블로그 / 티스토리 / 벨로그 주소만 등록할 수 있어요.',
+        msg: '티스토리(tistory.com), 벨로그(velog.io), 네이버 블로그(blog.naver.com) 링크만 허용됩니다.',
       };
     }
     return { ok: true, value: u.toString() };

@@ -79,9 +79,18 @@ const PostEditPage: React.FC = () => {
     
     // URL 유효성 검사
     try {
-      new URL(processedUrl);
+      const urlObj = new URL(processedUrl);
+      
+      // 티스토리와 벨로그만 허용
+      const hostname = urlObj.hostname.toLowerCase();
+      if (!hostname.includes('tistory.com') && !hostname.includes('velog.io') && !hostname.includes('blog.naver.com')) {
+        setUrlError('티스토리(tistory.com), 벨로그(velog.io), 네이버 블로그(blog.naver.com) 링크만 허용됩니다.');
+        return null;
+      }
+      
       return processedUrl;
     } catch {
+      setUrlError('올바른 URL 형식을 입력해주세요.');
       return null;
     }
   };
@@ -580,19 +589,12 @@ const PostEditPage: React.FC = () => {
                 height={120}
                 preview="edit"
                 onClick={(e) => {
-                  // 빈 공간 클릭 시 마지막에 커서 이동
-                  const target = e.target as HTMLElement;
-                  // MDEditor의 빈 공간을 클릭했을 때만 처리
-                  if (target.classList.contains('w-md-editor') || 
-                      target.classList.contains('w-md-editor-content') ||
-                      target.classList.contains('w-md-editor-text-input')) {
-                    const textArea = target.querySelector('textarea') || 
-                                   target.closest('.w-md-editor')?.querySelector('textarea');
-                    if (textArea) {
-                      textArea.focus();
-                      const length = textArea.value.length;
-                      textArea.setSelectionRange(length, length);
-                    }
+                  // MDEditor 내부의 textarea를 찾아서 커서를 맨 뒤로 이동
+                  const editor = e.currentTarget;
+                  const textarea = editor.querySelector('textarea');
+                  if (textarea) {
+                    textarea.focus();
+                    textarea.setSelectionRange(textarea.value.length, textarea.value.length);
                   }
                 }}
               />

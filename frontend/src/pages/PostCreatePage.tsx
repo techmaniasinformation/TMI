@@ -73,6 +73,13 @@ const PostCreatePage: React.FC = () => {
         return null;
       }
       
+      // 티스토리와 벨로그만 허용
+      const hostname = urlObj.hostname.toLowerCase();
+      if (!hostname.includes('tistory.com') && !hostname.includes('velog.io') && !hostname.includes('blog.naver.com')) {
+        setUrlError('티스토리(tistory.com), 벨로그(velog.io), 네이버 블로그(blog.naver.com) 링크만 허용됩니다.');
+        return null;
+      }
+      
       return processedUrl;
     } catch (error) {
       setUrlError('올바른 URL 형식을 입력해주세요.');
@@ -370,29 +377,13 @@ const PostCreatePage: React.FC = () => {
                 {linkUrl.length}/255
               </span>
             </div>
-            {/* URL 관련 경고 메시지 - 우선순위: urlError > !linkUrl */}
-            {urlError ? (
-              <div className="relative mt-2">
-                <div className="text-red-600 text-sm bg-red-50 border-l-4 border-red-400 rounded-r-md px-4 py-3 z-20 relative shadow-sm">
-                  <div className="flex items-start gap-3">
-                    <span className="text-red-500 text-lg flex-shrink-0">⚠️</span>
-                    <div className="flex-1">
-                      <p className="font-medium text-red-800 mb-1">URL 필터링 알림</p>
-                      <p className="text-red-700">{urlError}</p>
-                      <p className="text-red-600 text-xs mt-2 opacity-90">
-                        💡 모든 웹사이트 URL을 지원합니다
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ) : !linkUrl ? (
-              <div className="relative mt-2">
-                <p className="text-red-500 text-sm bg-red-50 border border-red-200 rounded-md px-3 py-2 z-10 relative">
-                  ⚠️ 링크 URL을 입력해주세요
-                </p>
-              </div>
-            ) : null}
+            {/* URL 관련 경고 메시지 */}
+            {urlError && (
+              <p className="text-sm text-red-500 mt-1">{urlError}</p>
+            )}
+            {!linkUrl && (
+              <p className="text-sm text-red-500 mt-1">⚠️ 링크 URL을 입력해주세요</p>
+            )}
           </div>
 
           {/* Title */}
@@ -554,7 +545,15 @@ const PostCreatePage: React.FC = () => {
                   hideToolbar={isPreviewMode}
                   height={300}
                   data-color-mode="light"
-                  
+                  onClick={(e) => {
+                    // MDEditor 내부의 textarea를 찾아서 커서를 맨 뒤로 이동
+                    const editor = e.currentTarget;
+                    const textarea = editor.querySelector('textarea');
+                    if (textarea) {
+                      textarea.focus();
+                      textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+                    }
+                  }}
                 />
                 <div className="flex justify-between items-center mt-2">
                   <div className="text-sm text-gray-500">

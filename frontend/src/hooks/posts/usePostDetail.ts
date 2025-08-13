@@ -470,6 +470,29 @@ export const useComments = (postId: string) => {
       return;
     }
 
+    // URL 검증
+    if (linkUrl.trim()) {
+      let processedUrl = linkUrl;
+      if (!linkUrl.startsWith('http://') && !linkUrl.startsWith('https://')) {
+        processedUrl = `https://${linkUrl}`;
+      }
+      try {
+        const urlObj = new URL(processedUrl);
+        if (!urlObj.protocol || (!urlObj.protocol.startsWith('http'))) {
+          alert('http 또는 https URL을 입력해주세요.');
+          return;
+        }
+        const hostname = urlObj.hostname.toLowerCase();
+        if (!hostname.includes('tistory.com') && !hostname.includes('velog.io') && !hostname.includes('blog.naver.com')) {
+          alert('티스토리(tistory.com), 벨로그(velog.io), 네이버 블로그(blog.naver.com) 링크만 허용됩니다.');
+          return;
+        }
+      } catch (error) {
+        alert('올바른 URL 형식을 입력해주세요.');
+        return;
+      }
+    }
+
     setCommentLoading(true);
     try {
       const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/comment`, {

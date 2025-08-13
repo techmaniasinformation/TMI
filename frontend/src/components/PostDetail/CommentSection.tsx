@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Button } from '@/components/foundation/button';
 import { getSafeProfileUrl, getSafeBadgeUrl, handleProfileImageError, handleBadgeImageError } from '@/utils/defaultImages';
 import { useUserStore } from '@/stores/userStore';
@@ -47,6 +47,44 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
   // 전역 사용자 정보 가져오기 (닉네임 비교용)
   const { user } = useUserStore();
   
+  // URL 검증을 위한 상태 추가
+  const [urlError, setUrlError] = useState<string>('');
+
+  // URL 검증 함수
+  const processAndValidateUrl = (url: string) => {
+    setUrlError('');
+    let processedUrl = url;
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      processedUrl = `https://${url}`;
+    }
+    try {
+      const urlObj = new URL(processedUrl);
+      if (!urlObj.protocol || (!urlObj.protocol.startsWith('http'))) {
+        setUrlError('http 또는 https URL을 입력해주세요.');
+        return null;
+      }
+      const hostname = urlObj.hostname.toLowerCase();
+      if (!hostname.includes('tistory.com') && !hostname.includes('velog.io') && !hostname.includes('blog.naver.com')) {
+        setUrlError('티스토리(tistory.com), 벨로그(velog.io), 네이버 블로그(blog.naver.com) 링크만 허용됩니다.');
+        return null;
+      }
+      return processedUrl;
+    } catch (error) {
+      setUrlError('올바른 URL 형식을 입력해주세요.');
+      return null;
+    }
+  };
+
+  // 링크 변경 핸들러
+  const handleLinkChange = (url: string) => {
+    onLinkChange(url);
+    if (url.trim()) {
+      processAndValidateUrl(url);
+    } else {
+      setUrlError('');
+    }
+  };
+
   // 안전한 프로필 이미지 URL을 메모이제이션
   const safeMemberProfileUrl = useMemo(() => {
     return getSafeProfileUrl(memberProfileUrl);
@@ -83,11 +121,14 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
                 <input
                   type="url"
                   value={linkUrl}
-                  onChange={(e) => onLinkChange(e.target.value)}
+                  onChange={(e) => handleLinkChange(e.target.value)}
                   maxLength={255}
                   placeholder="링크 URL을 입력하세요 (선택사항)"
                   className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
+                {urlError && (
+                  <p className="text-red-500 text-xs mt-1">{urlError}</p>
+                )}
                 <span className="absolute right-2 top-2 text-xs text-gray-500">
                   {linkUrl.length}/255
                 </span>

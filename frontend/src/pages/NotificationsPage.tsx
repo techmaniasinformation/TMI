@@ -33,10 +33,20 @@ interface Notification {
   badgeType?: string;
 }
 
+// ---- 추가 유틸: 이미지 경로 처리/폴백 ----
+const BADGE_CDN_BASE =
+  (import.meta as any).env?.VITE_BADGE_CDN ?? '/badges'; // 배지 파일명 접두 경로
+const DEFAULT_AVATAR = '/default-avatar.png';
+
+const cleanUrl = (u?: string | null) => (u && u.trim() ? u : undefined);
+const resolveBadgeSrc = (file?: string | null) =>
+  file && file.trim() ? `${BADGE_CDN_BASE}/${file}` : undefined;
+
 const NotificationsPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useUserStore();
   const memberId = user?.memberId;
+  const myProfileUrl = user?.memberProfileUrl ?? undefined;
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -56,8 +66,25 @@ const NotificationsPage: React.FC = () => {
       case 'NEW_COMMENT':
         mappedType = 'comment';
         break;
+      case 'MEMBER_NEW_POST': // 팔로우한 사람이 새 글
+        mappedType = 'post';
+        break;
       default:
         mappedType = 'post';
+    }
+
+    // 썸네일 결정
+    let avatar: string | undefined;
+    if (mappedType === 'badge') {
+      avatar = resolveBadgeSrc(srv.badgeUrl); // 배지 파일명 → CDN 경로
+    } else if (mappedType === 'comment') {
+      avatar = cleanUrl(myProfileUrl) ?? DEFAULT_AVATAR; // 댓글이면 내 프로필
+    } else {
+      // post (팔로우 새 글 포함): 서버가 준 프로필
+      avatar =
+        cleanUrl(srv.memberProfileUrl) ??
+        cleanUrl(srv.companyProfileUrl) ??
+        undefined; // 최종 폴백은 아래 load()에서
     }
 
     return {
@@ -68,9 +95,11 @@ const NotificationsPage: React.FC = () => {
       isRead: !!srv.isRead,
       postId: srv.postId != null ? String(srv.postId) : undefined,
       badgeType: srv.badgeUrl ?? undefined,
-      userAvatar: srv.memberProfileUrl ?? srv.companyProfileUrl ?? undefined,
+      userAvatar: avatar,
+      userId: srv.memberId != null ? String(srv.memberId) : undefined,
+      userName: srv.nickname ?? srv.companyName ?? undefined,
     };
-  }, []);
+  }, [myProfileUrl]);
 
   // 목록 로드
   const load = useCallback(async () => {
@@ -84,12 +113,15 @@ const NotificationsPage: React.FC = () => {
     try {
       const status: NotificationStatus = showUnreadOnly ? 'unread' : 'all';
       const list = await fetchNotifications(memberId, status);
-      const adapted = list.map(adapt);
+      let adapted = list.map(adapt);
 
       // 최신순
       adapted.sort(
         (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
       );
+
+      // 최종 폴백: 썸네일 비어 있으면 기본 아바타
+      adapted = adapted.map(n => ({ ...n, userAvatar: n.userAvatar ?? DEFAULT_AVATAR }));
 
       setNotifications(adapted);
       setCurrentPage(1); // 필터 바뀌면 1페이지로
@@ -105,7 +137,7 @@ const NotificationsPage: React.FC = () => {
     load();
   }, [load]);
 
-  // ✅ 클릭 시 읽음 처리(서버 연동 + 낙관적) 후, 댓글/게시글이면 해당 게시글로 이동
+  // ✅ 클릭 시 읽음 처리(서버 연동 + 낙관적) 후, 타입별 이동
   const handleNotificationClick = async (notification: Notification) => {
     // 1) 낙관적 업데이트
     setNotifications(prev =>
@@ -125,13 +157,21 @@ const NotificationsPage: React.FC = () => {
       return;
     }
 
-    // 3) 댓글/게시글 알림이면 해당 게시글로 이동
-    const isPostType =
-      (notification.type === 'comment' || notification.type === 'post') &&
-      notification.postId;
-
-    if (isPostType) {
+    // 3) 타입별 이동
+    if ((notification.type === 'comment' || notification.type === 'post') && notification.postId) {
       navigate(`/post/${notification.postId}`);
+      return;
+    }
+
+    if (notification.type === 'badge') {
+      // 배지 → 마이페이지
+      if (memberId) {
+        const path = ROUTES?.MY_PAGE
+          ? ROUTES.MY_PAGE.replace(':id', String(memberId))
+          : `/mypage/${memberId}`;
+        navigate(path);
+      }
+      return;
     }
   };
 

@@ -1,5 +1,7 @@
 import React from 'react';
 import { Post } from '@/types';
+import StarIcon from '@/assets/icons/star.svg';
+import ViewIcon from '@/assets/icons/view.svg';
 
 interface PopularPostItemProps {
   post: Post;
@@ -41,9 +43,15 @@ export const PopularPostItem: React.FC<PopularPostItemProps> = ({
           <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
             <span>{post.name}</span>
             <span>•</span>
-            <span>⭐ {formatNumber(post.starCount)}</span>
+            <span className="inline-flex items-center">
+              <img src={StarIcon} alt="star" className="w-3 h-3 mr-1" />
+              {formatNumber(post.starCount)}
+            </span>
             <span>•</span>
-            <span>👁️ {formatNumber(post.viewCount)}</span>
+            <span className="inline-flex items-center">
+              <img src={ViewIcon} alt="view" className="w-3 h-3 mr-1" />
+              {formatNumber(post.viewCount)}
+            </span>
           </div>
         </div>
       </div>

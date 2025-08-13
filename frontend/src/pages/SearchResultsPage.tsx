@@ -28,7 +28,7 @@ const SearchResultsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-light-bg dark:bg-dark-bg">
       <div className="container mx-auto px-4 py-8">
         <SearchPostListContainer
           posts={posts}

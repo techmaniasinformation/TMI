@@ -144,7 +144,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'light', size = 'default' }) 
   }, []);
 
   const handleLoginClick = useCallback(() => {
-    if (location.pathname !== '/login') {
+    if (location.pathname !== '/login' && location.pathname !== '/signup') {
       setPrevPath(location.pathname + location.search);
     }
   }, [location.pathname, location.search, setPrevPath]);

@@ -129,9 +129,11 @@ const LandingCard: React.FC<LandingCardProps> = ({
                     onError={() => setThumbnailImageError(true)}
                   />
                 ) : (
-                  <div className='w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg flex items-center justify-center'>
-                    <i className='ri-image-line text-gray-400 text-xl'></i>
-                  </div>
+                  <img
+                    src={DEFAULT_IMAGES.THUMBNAIL}
+                    alt="Default Thumbnail"
+                    className='w-full h-full object-contain rounded-lg object-top'
+                  />
                 )}
               </div>
             </div>

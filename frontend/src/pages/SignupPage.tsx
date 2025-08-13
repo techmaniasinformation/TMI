@@ -99,12 +99,6 @@ const SignupPage: React.FC<SignupPageProps> = () => {
                 이미 사용 중인 닉네임입니다.
               </div>
             )}
-            {isNicknameChecked && !isNicknameTaken && (
-              <div className='flex items-center text-green-600 text-xs'>
-                <i className='fas fa-check-circle mr-1'></i>
-                사용 가능한 닉네임입니다.
-              </div>
-            )}
           </div>
         </div>
 

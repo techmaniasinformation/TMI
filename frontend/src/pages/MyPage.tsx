@@ -296,6 +296,7 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
           const res = await createCompanyFollow(currentUserId, targetCompanyId);
           setCompanyFollowId(res.data.companyFollowId!);
         }
+        setRefreshKey((k) => k + 1); // ✅ 헤더 재조회 트리거
       } else {
         // 언팔
         setIsFollowing(false); // 낙관적
@@ -310,6 +311,7 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
           }
           setCompanyFollowId(null);
         }
+        setRefreshKey((k) => k + 1); // ✅ 헤더 재조회 트리거
       }
     } catch (e: any) {
       console.error('팔로우/언팔 실패:', e);

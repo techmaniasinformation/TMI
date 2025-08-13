@@ -118,9 +118,11 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   const canOpenBadgeModal = isMyPage && isPersonal;
 
   const { id } = useParams();
-  const routeId = id ? Number(id) : 1;
+  // [FIX] 안전한 파싱 (기본값 0으로 가드)
+  const routeId = id ? Number(id) : 0;
 
-  const memberId = isPersonal ? routeId : 1;
+  // [FIX] 유효하지 않은 id일 때 0으로 두어 API 호출 가드
+  const memberId = isPersonal ? routeId : 0;
   const companyId = isCompany ? routeId : null;
 
   const HIDDEN_BADGE_IDS = new Set<number>([22]);
@@ -166,7 +168,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
 
   // 초기 로드
   useEffect(() => {
-    if ((isMyPage || isOtherUser) && isPersonal && memberId) {
+    if ((isMyPage || isOtherUser) && isPersonal && memberId > 0) {
       fetchAllBadges().then(setAllBadges).catch(console.error);
       fetchMemberBadges(memberId).then(setMemberBadges).catch(console.error);
     }
@@ -199,7 +201,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   const [currentCommentPage, setCurrentCommentPage] = useState(1);
 
   useEffect(() => {
-    if (isMyPage && isPersonal) {
+    if (isMyPage && isPersonal && memberId > 0) {
       setCommentLoading(true);
       fetchMemberComments(memberId, currentCommentPage, 5)
         .then(({ comments, pageInfo }) => {
@@ -221,7 +223,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   const [currentPostPage, setCurrentPostPage] = useState(1);
 
   useEffect(() => {
-    if (isPersonal && memberId) {
+    if (isPersonal && memberId > 0) {
       setPostLoading(true);
       fetchMemberPosts(memberId, currentPostPage, 5)
         .then((res) => {
@@ -240,7 +242,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   const [companyPostLoading, setCompanyPostLoading] = useState(true);
 
   useEffect(() => {
-    if (isCompany && companyId != null) {
+    if (isCompany && companyId != null && companyId > 0) {
       setCompanyPostLoading(true);
       getCompanyPosts(companyId, currentPostPage, 5)
         .then((res) => {
@@ -266,7 +268,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   const [userTotalElements, setUserTotalElements] = useState(0);
 
   useEffect(() => {
-    if (isMyPage && isPersonal) {
+    if (isMyPage && isPersonal && memberId > 0) {
       getCompanyFollows(memberId, currentCompanyPage - 1, 9)
         .then((res) => {
           setFollowedCompanies(res.data.companyFollows);
@@ -278,7 +280,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   }, [isMyPage, isPersonal, memberId, currentCompanyPage]);
 
   useEffect(() => {
-    if (isMyPage && isPersonal) {
+    if (isMyPage && isPersonal && memberId > 0) {
       getMemberFollows(memberId, currentUserPage - 1, 9)
         .then((res) => {
           setFollowedUsers(res.data.memberFollows);
@@ -298,7 +300,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   const [currentStarPage, setCurrentStarPage] = useState(1);
 
   useEffect(() => {
-    if (isMyPage && isPersonal) {
+    if (isMyPage && isPersonal && memberId > 0) {
       setStarLoading(true);
       fetchStarredPosts(memberId, currentStarPage, 5)
         .then((res) => {
@@ -355,7 +357,8 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
               }}
             >
               <IconTab4 className="w-4 h-4 mr-2 text-inherit" />
-              <span className="text-sm">팔로우</span>
+              {/* [FIX] 전체 개수로 표시 */}
+              <span className="text-sm">팔로우 ({companyTotalElements + userTotalElements})</span>
             </TabsTrigger>
             <TabsTrigger
               value="starred"
@@ -363,7 +366,8 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
               onClick={() => setCurrentStarPage(1)}
             >
               <IconTab5 className="w-4 h-4 mr-2 text-inherit" />
-              <span className="text-sm">스타 게시글 ({starredPosts.length})</span>
+              {/* [FIX] 페이지 전체 개수로 표시 */}
+              <span className="text-sm">스타 게시글 ({starTotalElements})</span>
             </TabsTrigger>
           </>
         )}
@@ -551,7 +555,8 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
                 followSubTab === 'company' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-500'
               }`}
             >
-              기업 ({followedCompanies.length})
+              {/* [FIX] 전체 개수로 표시 */}
+              기업 ({companyTotalElements})
             </button>
             <button
               onClick={() => {
@@ -562,7 +567,8 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
                 followSubTab === 'user' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-500'
               }`}
             >
-              개인 ({followedUsers.length})
+              {/* [FIX] 전체 개수로 표시 */}
+              개인 ({userTotalElements})
             </button>
           </div>
 

@@ -28,8 +28,8 @@ interface ProfileHeaderProps {
   lastUpdate: string;
   onFollowToggle: () => void;
   onEditClick: () => void;
-  repBadgeUrl?: string | null;          // ✅ 상단 대표 배지 이미지 URL(부모에서 전달)
-  refreshKey?: number;                  // ✅ 저장 후 재조회 트리거 키
+  repBadgeUrl?: string | null;
+  refreshKey?: number;
 }
 
 export default function ProfileHeader({
@@ -54,9 +54,9 @@ export default function ProfileHeader({
     clearSocialLoginInfo,
   } = useUserStore();
 
-  const myId = user?.memberId;
+  const myId = user?.memberId ?? null;
 
-  // ✅ 최종 조회 대상: 내 페이지면 내 id, 아니면 URL id
+  // 내 페이지면 내 id, 아니면 URL id
   const targetId = isMyPage && myId && myId > 0 ? myId : routeId;
 
   const [showWithdrawalConfirm, setShowWithdrawalConfirm] = useState(false);
@@ -69,12 +69,12 @@ export default function ProfileHeader({
   const [withdrawing, setWithdrawing] = useState(false);
   const [withdrawError, setWithdrawError] = useState<string | null>(null);
 
-  // ✅ targetId / refreshKey 변경될 때마다 재요청
+  // 프로필 데이터 불러오기
   useEffect(() => {
     if (!targetId || Number.isNaN(targetId) || targetId <= 0) return;
 
     let ignore = false;
-    async function load() {
+    async function loadProfile() {
       setLoading(true);
       try {
         if (isCompany) {
@@ -94,18 +94,21 @@ export default function ProfileHeader({
         if (!ignore) setLoading(false);
       }
     }
-    load();
-    return () => { ignore = true; };
-  }, [isCompany, targetId, refreshKey]); // ✅ refreshKey 의존성 포함
+    loadProfile();
+    return () => {
+      ignore = true;
+    };
+  }, [isCompany, targetId, refreshKey]);
 
   const getProfileImage = (url: string | null | undefined) => getSafeProfileUrl(url);
 
-  // --- 탈퇴 흐름 ---
+  // 회원 탈퇴 클릭
   const handleWithdrawalClick = () => {
     setWithdrawError(null);
     setShowWithdrawalConfirm(true);
   };
 
+  // 회원 탈퇴 확정
   const handleWithdrawalConfirm = async () => {
     if (!targetId || Number.isNaN(targetId) || targetId <= 0) return;
     setWithdrawing(true);
@@ -116,12 +119,12 @@ export default function ProfileHeader({
       setShowWithdrawalComplete(true);
     } catch (e) {
       setWithdrawError((e as Error)?.message || '회원 탈퇴 중 오류가 발생했습니다.');
-      throw e;
     } finally {
       setWithdrawing(false);
     }
   };
 
+  // 회원 탈퇴 완료 후 로그아웃 처리
   const handleWithdrawalComplete = async () => {
     try {
       const idForLogout = myId || targetId;
@@ -135,19 +138,18 @@ export default function ProfileHeader({
         }).catch(() => null);
         clearTimeout(t);
       }
-      try {
-        clearUser();
-        setFollowUser([]);
-        setFollowCompany([]);
-        clearSocialLoginInfo();
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-      } catch {}
+      clearUser();
+      setFollowUser([]);
+      setFollowCompany([]);
+      clearSocialLoginInfo();
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
     } finally {
       navigate('/', { replace: true });
     }
   };
 
+  // 로딩 중
   if (loading) {
     return (
       <div className="w-[1232px] h-[150px] bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6 flex items-center justify-center">
@@ -156,6 +158,7 @@ export default function ProfileHeader({
     );
   }
 
+  // 데이터 없을 때
   if ((isCompany && !companyData) || (!isCompany && !memberData)) {
     return (
       <div className="w-[1232px] h-[150px] bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6 flex items-center justify-center">
@@ -174,8 +177,7 @@ export default function ProfileHeader({
             alt="profile"
             className="w-20 h-20 ms-4 rounded-full object-cover"
             onError={(e) => {
-              const img = (e.target as HTMLImageElement);
-              img.src = getSafeProfileUrl(null);
+              (e.target as HTMLImageElement).src = getSafeProfileUrl(null);
             }}
           />
           <div className="flex-1">
@@ -184,15 +186,14 @@ export default function ProfileHeader({
                 {isCompany ? companyData?.name : memberData?.nickname}
               </h1>
 
-              {/* ✅ 대표 배지: URL 변경 시 강제 리프레시를 위해 key 사용 + 에러시 숨김 */}
-              {!isCompany && !!repBadgeUrl && (
+              {/* 대표 배지 */}
+              {!isCompany && repBadgeUrl && (
                 <img
-                  key={repBadgeUrl || 'empty'}            // 🔸 URL 변경 즉시 이미지 리로드
+                  key={repBadgeUrl}
                   src={repBadgeUrl}
                   alt="대표 배지"
                   className="w-8 h-8 rounded-md ml-1"
                   onError={(e) => {
-                    // URL이 잘못돼도 레이아웃 깨지지 않게 숨김
                     (e.currentTarget as HTMLImageElement).style.display = 'none';
                   }}
                   title="대표 배지"
@@ -206,7 +207,7 @@ export default function ProfileHeader({
               )}
             </div>
 
-            {/* 개인 링크 */}
+            {/* 개인 블로그 / 깃허브 */}
             {!isCompany && (
               <div className="flex space-x-6 mt-6">
                 {memberData?.blogUrl && (
@@ -215,7 +216,6 @@ export default function ProfileHeader({
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center text-sm text-gray-600 hover:text-gray-900"
-                    title="블로그로 이동 (새 탭)"
                   >
                     <img src={Blog} alt="blog" className="w-4 h-4 mr-2" />
                     블로그
@@ -227,7 +227,6 @@ export default function ProfileHeader({
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center text-sm text-gray-600 hover:text-gray-900"
-                    title="GitHub로 이동 (새 탭)"
                   >
                     <img src={GitHub} alt="github" className="w-4 h-4 mr-2" />
                     깃허브
@@ -236,11 +235,11 @@ export default function ProfileHeader({
               </div>
             )}
 
-            {/* 기업 링크 */}
+            {/* 기업 정보 */}
             {isCompany && (
               <>
                 <div className="flex items-center text-sm text-gray-500 mt-1">
-                  <img src={Update} alt="update icon" className="w-4 h-4 mr-2" />
+                  <img src={Update} alt="update" className="w-4 h-4 mr-2" />
                   최근 업데이트: {lastUpdate}
                 </div>
                 {companyData?.techBlogUrl && (
@@ -250,7 +249,6 @@ export default function ProfileHeader({
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center text-sm text-gray-600 hover:text-gray-900"
-                      title="기업 블로그로 이동 (새 탭)"
                     >
                       <img src={Blog} alt="blog" className="w-4 h-4 mr-2" />
                       블로그
@@ -294,7 +292,7 @@ export default function ProfileHeader({
           ) : (
             <button
               onClick={onFollowToggle}
-              className={`w-[120px] text-white text-sm rounded-md py-2 px-3 transition-colors flex items-center justify-center
+              className={`w-[120px] text-white text-sm rounded-md py-2 px-3 flex items-center justify-center
                 ${isFollowing ? 'bg-red-500 hover:bg-red-600' : 'bg-prime-btn hover:bg-prime-btn-hover'}`}
             >
               <img src={Follow} alt="follow icon" className="w-4 h-4 mr-2" />
@@ -304,7 +302,7 @@ export default function ProfileHeader({
         </div>
       </div>
 
-      {/* 탈퇴 모달 */}
+      {/* 모달 */}
       <WithdrawalConfirmModal
         isOpen={showWithdrawalConfirm}
         onCancel={() => setShowWithdrawalConfirm(false)}

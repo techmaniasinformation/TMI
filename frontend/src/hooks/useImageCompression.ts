@@ -92,13 +92,17 @@ export const useImageCompression = (): UseImageCompressionReturn => {
         // 압축된 파일을 무조건 File 객체로 변환하여 저장
         let finalFile: File;
         
-        if (compressedFile && (compressedFile as any) instanceof File) {
-          finalFile = compressedFile as File;
-        } else if (compressedFile && (compressedFile as any) instanceof Blob) {
-          // Blob을 File로 변환
-          const blob = compressedFile as Blob;
-          finalFile = new File([blob], 'compressed-image.jpg', { 
-            type: blob.type || 'image/jpeg' 
+        // browser-image-compression이 반환하는 객체는 Blob이지만 name 속성을 가질 수 있음
+        // 따라서 instanceof File 체크보다는 실제 File 생성자를 사용하여 변환
+        if (compressedFile) {
+          // 원본 파일명 유지 (가능한 경우)
+          const fileName = (compressedFile as any).name || 'compressed-image.jpg';
+          const fileType = compressedFile.type || 'image/jpeg';
+          
+          // 무조건 File 객체로 생성
+          finalFile = new File([compressedFile], fileName, { 
+            type: fileType,
+            lastModified: Date.now()
           });
         } else {
           console.error('압축된 파일이 유효하지 않음:', compressedFile);
@@ -107,6 +111,16 @@ export const useImageCompression = (): UseImageCompressionReturn => {
         
         // File 객체로 저장
         setSelectedImage(finalFile);
+        
+        // 디버깅 로그
+        console.log('최종 File 객체:', {
+          finalFile,
+          isFile: finalFile instanceof File,
+          isBlob: finalFile instanceof Blob,
+          name: finalFile.name,
+          size: finalFile.size,
+          type: finalFile.type
+        });
         
         // 미리보기 생성
         const reader = new FileReader();

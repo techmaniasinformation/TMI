@@ -90,25 +90,41 @@ export const useSignup = () => {
     if (!isFormValid || !isNicknameChecked || isNicknameTaken) return;
 
     setIsSubmitting(true);
-    
-    const apiFormData = new FormData();
-    
-    const signupRequest = {
-      provider: formData.provider,
-      providerMemberId: formData.providerMemberId,
-      nickname: formData.nickname,
-    };
-    apiFormData.append('req', new Blob([JSON.stringify(signupRequest)], { type: 'application/json' }));
 
-    if (imageFile) {
-      apiFormData.append('profileImage', imageFile);
-    }
+    let profileImageUrl = '';
 
     try {
+      if (imageFile) {
+        const imageFormData = new FormData();
+        imageFormData.append('image', imageFile);
+
+        const imageRes = await fetch('https://i13a509.p.ssafy.io/api/v1/images', {
+          method: 'POST',
+          body: imageFormData,
+        });
+
+        if (!imageRes.ok) {
+          throw new Error('이미지 업로드 실패');
+        }
+
+        const imageData = await imageRes.json();
+        profileImageUrl = imageData.data.imageUrl;
+      }
+
+      const signupRequest = {
+        provider: formData.provider,
+        providerMemberId: formData.providerMemberId,
+        nickname: formData.nickname,
+        memberProfileUrl: profileImageUrl,
+      };
+
       const res = await fetch('https://i13a509.p.ssafy.io/api/v1/member/signup', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         credentials: 'include',
-        body: apiFormData,
+        body: JSON.stringify(signupRequest),
       });
 
       if (!res.ok) {

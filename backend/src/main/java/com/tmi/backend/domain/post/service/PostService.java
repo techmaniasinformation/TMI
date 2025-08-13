@@ -104,6 +104,7 @@ public class PostService {
       // 기존 썸네일이 있었다면 EC2에서 먼저 삭제
       if (newThumbnailUrl != null && !newThumbnailUrl.isEmpty()) {
         try {
+          log.info("이미지 삭제 : {}", newThumbnailUrl);
           fileUtil.deleteFile(newThumbnailUrl, "post");
         } catch (IOException e) {
           log.error("기존 게시글 썸네일 삭제 실패: {}", newThumbnailUrl, e);

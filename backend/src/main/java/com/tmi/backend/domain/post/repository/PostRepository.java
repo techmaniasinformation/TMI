@@ -51,20 +51,23 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
   @EntityGraph(attributePaths = {"member", "company"})
   @Query("""
-  select distinct p
-    from Post p
-    left join p.postTags pt
-    left join pt.tag t
-  where lower(p.title) like lower(concat('%', :q, '%'))
-    and ( :#{#techTagIds == null || #techTagIds.isEmpty()} = true
-         or t.id in :techTagIds )
-    and ( :#{#companyTagIds == null || #companyTagIds.isEmpty()} = true
-         or p.company.id in :companyTagIds )
-  """)
-  Page<Post> search(@Param("q")             String q,
-      @Param("techTagIds")    List<Integer> techTagIds,
+    select distinct p
+      from Post p
+      left join p.postTags pt
+      left join pt.tag t
+      left join p.company c
+     where ( lower(p.title) like lower(concat('%', :q, '%'))
+          or lower(coalesce(c.name, '')) like lower(concat('%', :q, '%')) )
+       and ( :#{#techTagIds == null || #techTagIds.isEmpty()} = true
+             or t.id in :techTagIds )
+       and ( :#{#companyTagIds == null || #companyTagIds.isEmpty()} = true
+             or p.company.id in :companyTagIds )
+             """)
+  Page<Post> search(@Param("q") String q,
+      @Param("techTagIds") List<Integer> techTagIds,
       @Param("companyTagIds") List<Integer> companyTagIds,
       Pageable pageable);
+
 
   Page<Post> findByMember_IdInOrCompany_IdIn(
       List<Long> memberIds,

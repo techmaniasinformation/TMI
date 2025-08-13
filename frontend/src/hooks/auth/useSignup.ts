@@ -25,17 +25,19 @@ export const useSignup = () => {
   const [isNicknameTaken, setIsNicknameTaken] = useState(false);
   const [isCheckingNickname, setIsCheckingNickname] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // 닉네임 글자수 체크: 한글도 1글자씩 정확히 체크하기 위해 Array.from 사용
+  const nicknameLength = Array.from(formData.nickname).length;
+  
+  // 닉네임 관련 에러 메시지
+  const [nicknameError, setNicknameError] = useState('');
 
     //조건: 닉네임이 공백X, 1~8자, 중복 확인 완료, 중복 아님
-  const isFormValid = 
+  const isFormValid =
     !!formData.nickname.trim() &&
     formData.nickname.length > 0 &&
     formData.nickname.length <= 8 &&
     isNicknameChecked &&
     !isNicknameTaken;
-
-   // 닉네임 관련 에러 메시지 상태 추가
-  const [nicknameError, setNicknameError] = useState('');
 
   useEffect(() => {
     // 컴포넌트 언마운트 시 생성된 Object URL 해제
@@ -46,34 +48,36 @@ export const useSignup = () => {
     };
   }, [imagePreview]);
 
+
   const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
 
-    // 허용 문자만 필터링 (한글, 영어, 숫자)
+    // 한글, 영어, 숫자만 허용
     value = value.replace(/[^가-힣a-zA-Z0-9]/g, '');
 
-    // 8글자 초과 시 잘라내기
-    if (value.length > 8) {
-      value = value.slice(0, 8);
+    // 8글자 제한 (한글 고려)
+    const arr = Array.from(value);
+    if (arr.length > 8) {
+      value = arr.slice(0, 8).join('');
     }
 
     setFormData({ ...formData, nickname: value });
     setIsNicknameChecked(false);
 
-    // 입력 시 에러 메시지 초기화
+    // 에러 메시지 설정
     if (value.length === 0) {
       setNicknameError('닉네임을 입력해주세요.');
-    } else if (value.length > 8) {
+    } else if (arr.length > 8) {
       setNicknameError('닉네임은 8자 이하로 입력해주세요.');
     } else {
       setNicknameError('');
     }
   };
+;
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Revoke previous object URL if it exists
       if (imagePreview) {
         URL.revokeObjectURL(imagePreview);
       }
@@ -86,7 +90,7 @@ export const useSignup = () => {
  const handleNicknameCheck = async () => {
     const nickname = formData.nickname.trim();
 
-    // &&& alert → 상태 기반 에러 메시지로 변경
+    //alert → 상태 기반 에러 메시지로 변경
     if (!nickname) {
       setNicknameError('닉네임을 입력해주세요.');
       return;
@@ -151,7 +155,8 @@ export const useSignup = () => {
       providerMemberId: formData.providerMemberId,
       nickname: formData.nickname,
     };
-    apiFormData.append('req', 
+    apiFormData.append(
+      'req', 
       new Blob([JSON.stringify(signupRequest)], 
       { type: 'application/json' }));
 
@@ -198,6 +203,7 @@ export const useSignup = () => {
     isNicknameTaken,
     isCheckingNickname,
     isSubmitting,
+    nicknameError,
     handleNicknameChange,
     handleImageUpload,
     handleNicknameCheck,

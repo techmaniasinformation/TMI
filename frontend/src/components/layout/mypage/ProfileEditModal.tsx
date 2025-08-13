@@ -277,7 +277,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
         cleanNickname,
         blogCheck.value || '',
         githubCheck.value || '',
-        isDefaultImage ? defaultUrl : undefined,
+        isDefaultImage ? null : undefined,
         selectedImage ?? null
       );
       onClose();

@@ -6,7 +6,7 @@ import PostList from './article/PostList';
 import ServerPagination from './ServerPagination';
 import { Card, CardContent } from '@/components/domain/Card';
 import { Button } from '@/components/foundation/button';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getSafeThumbnailUrl } from '@/utils/defaultImages';
 import { PostCardSkeleton } from '@/components/foundation/Skeleton';
 import { FollowSection } from './FollowSection';
@@ -28,13 +28,17 @@ export default function HomePostList() {
     totalPages,
     totalElements,
     isLast,
-    activeTab,
+    currentTab,
     setActiveTab,
     setCurrentPage,
     formatDate,
     formatNumber,
     isLoggedIn
   } = usePostsList();
+
+  // URL에서 followMemberId 확인
+  const [searchParams] = useSearchParams();
+  const followMemberId = searchParams.get('followMemberId');
 
   // 게시글 클릭 핸들러를 useCallback으로 메모이제이션
   const handlePostClick = useCallback((postId: number) => {
@@ -64,7 +68,7 @@ export default function HomePostList() {
   }, [loading, posts, isInitialLoad]);
 
   // 로딩 중일 때 스켈레톤 표시 (팔로우 탭에서 로그인하지 않았을 때는 제외)
-  if (loading && !(activeTab === 'following' && !isLoggedIn)) {
+  if (loading && !(currentTab === 'following' && (!isLoggedIn || followMemberId === 'guest'))) {
     return (
       <div className="space-y-4">
         {[1, 2, 3, 4, 5].map((index) => (
@@ -122,7 +126,7 @@ export default function HomePostList() {
             <div className="space-y-3">
               <Button 
                 onClick={() => navigate('/login')}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg border-none"
               >
                 <i className="fas fa-sign-in-alt mr-2"></i>
                 로그인
@@ -139,20 +143,20 @@ export default function HomePostList() {
       {/* 탭 바 */}
       <HomeTabBar 
         tabs={HOME_TABS}
-        activeTab={activeTab}
+        activeTab={currentTab}
         onTabChange={(tabId) => {
           console.log('🔍 HomeTabBar에서 탭 클릭:', tabId);
           
           // 팔로우 탭으로 변경하려고 하는데 로그인하지 않은 경우
           if (tabId === 'following' && !isLoggedIn) {
             console.log('🔍 팔로우 탭 클릭했지만 로그인하지 않음');
-            setActiveTab(tabId);
+            setActiveTab(tabId as 'latest' | 'following');
             return;
           }
           
           // 탭 변경 시 페이지를 1로 초기화
           setCurrentPage(1);
-          setActiveTab(tabId);
+          setActiveTab(tabId as 'latest' | 'following');
         }}
       />
 
@@ -172,9 +176,9 @@ export default function HomePostList() {
       )}
 
       {/* 팔로우 탭 UI */}
-      {activeTab === 'following' && (
+      {currentTab === 'following' && (
         <div>
-          {!isLoggedIn ? (
+          {(!isLoggedIn || followMemberId === 'guest') ? (
             // 로그인하지 않은 경우 로그인 안내
             renderLoginRequiredCard()
           ) : (
@@ -208,7 +212,7 @@ export default function HomePostList() {
       )}
 
       {/* 최신순 탭 게시글 목록 */}
-      {activeTab === 'latest' && posts.length > 0 && (
+      {currentTab === 'latest' && posts.length > 0 && (
         <PostList
           posts={posts}
           formatDate={formatDate}
@@ -220,8 +224,8 @@ export default function HomePostList() {
         />
       )}
 
-      {/* 페이지네이션 - 최신순 탭이거나 팔로우 탭일 때만 */}
-      {totalPages > 1 && (activeTab === 'latest' || activeTab === 'following') && (
+      {/* 페이지네이션 - 최신순 탭이거나 팔로우 탭일 때만 (비로그인 사용자 팔로우 탭 제외) */}
+      {totalPages > 1 && (currentTab === 'latest' || (currentTab === 'following' && isLoggedIn && followMemberId !== 'guest')) && (
         <ServerPagination
           currentPage={currentPage}
           totalCount={totalElements}

@@ -47,7 +47,7 @@ export default function PopularPosts() {
 
   return (
     <div className="bg-white rounded-lg shadow p-6">
-      <h3 className="text-lg font-semibold mb-4">🔥 인기 게시글</h3>
+      <h3 className="text-lg font-semibold mb-4">📊 인기 게시글</h3>
 
       {/* 숨겨진 이미지 프리로딩 - 초기 로드 완료 후에만 실행 */}
       {!isInitialLoad && (

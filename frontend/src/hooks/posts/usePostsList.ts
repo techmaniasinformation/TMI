@@ -56,37 +56,41 @@ const fetchPostsFromAPI = async (params: { page: number; size: number; followMem
 export const usePostsList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   
-  // URL에서 페이지와 탭 상태 읽기 - API 형태로 변경
-  const urlPage = parseInt(searchParams.get('page') || '1');
-  const urlFollowMemberId = searchParams.get('followMemberId');
-  const urlTab = urlFollowMemberId ? 'following' : 'latest';
+  // URL에서 직접 상태 계산 (단일 소스의 진실)
+  const currentPage = parseInt(searchParams.get('page') || '1');
+  const followMemberId = searchParams.get('followMemberId');
+  const currentTab = followMemberId ? 'following' : 'latest';
   
   const [state, setState] = useState<PostsListState>({
     posts: [],
     loading: false,
     error: null,
-    currentPage: urlPage,
+    currentPage,
     totalPages: 0,
     totalElements: 0,
     isLast: false
   });
 
-  const [activeTab, setActiveTab] = useState<'latest' | 'following'>(urlTab);
-  
-  // 로그인 상태 확인
   const { user } = useUserStore();
   const isLoggedIn = user !== null && user.memberId > 0;
 
-  // 게시글 목록 가져오기 함수를 useCallback으로 메모이제이션
-  const fetchPosts = useCallback(async (page: number = 1, sort: 'latest' | 'following' = 'latest') => {
+  // 단순화된 API 호출 함수
+  const fetchPosts = useCallback(async () => {
+    // 팔로우 탭이고 로그인하지 않았으면 API 호출하지 않음
+    if (currentTab === 'following' && (!isLoggedIn || followMemberId === 'guest')) {
+      console.log('🔍 팔로우 탭이지만 로그인하지 않음 - API 호출 안함');
+      setState(prev => ({ ...prev, posts: [], loading: false, error: null }));
+      return;
+    }
+
     setState(prev => ({ ...prev, loading: true, error: null }));
 
     try {
       // 실제 API에서 데이터 가져오기
       const response: SearchApiResponse = await fetchPostsFromAPI({ 
-        page, 
+        page: currentPage, 
         size: 10, 
-        followMemberId: sort === 'following' ? user?.memberId : undefined
+        followMemberId: currentTab === 'following' ? user?.memberId : undefined
       });
       
       const { posts: apiPosts, pageInfo } = response.data;
@@ -128,105 +132,65 @@ export const usePostsList = () => {
         error: '게시글을 불러오는 중 오류가 발생했습니다.'
       }));
     }
-  }, [user?.memberId]);
+  }, [currentPage, currentTab, user?.memberId, isLoggedIn, followMemberId]);
 
-  // 초기 데이터 로드 및 URL 변경 감지
+  // 단순화된 useEffect - URL 변경 시에만 API 호출
   useEffect(() => {
-    const currentUrlPage = parseInt(searchParams.get('page') || '1');
-    const currentUrlFollowMemberId = searchParams.get('followMemberId');
-    const currentUrlTab = currentUrlFollowMemberId ? 'following' : 'latest';
-    
-    console.log('🔍 useEffect - URL 파라미터 감지:', {
-      page: currentUrlPage,
-      followMemberId: currentUrlFollowMemberId,
-      tab: currentUrlTab,
-      currentState: { page: state.currentPage, tab: activeTab },
-      isLoggedIn
-    });
-    
-    // URL과 상태가 다르면 동기화 (단, 비로그인 사용자의 팔로우 탭은 제외)
-    if (currentUrlPage !== state.currentPage || 
-        (currentUrlTab !== activeTab && !(activeTab === 'following' && !isLoggedIn))) {
-      console.log('🔍 상태 동기화 필요');
-      setState(prev => ({ ...prev, currentPage: currentUrlPage }));
-      setActiveTab(currentUrlTab);
-    }
-    
-    // 팔로우 탭이고 로그인하지 않았으면 API 호출하지 않음
-    if (activeTab === 'following' && !isLoggedIn) {
-      console.log('🔍 팔로우 탭이지만 로그인하지 않음 - API 호출 안함');
-      setState(prev => ({ ...prev, posts: [], loading: false }));
-      return;
-    }
-    
-    // 데이터 로드 (초기 로드 또는 URL 변경 시)
-    console.log('🔍 API 호출 시작:', currentUrlPage, activeTab);
-    fetchPosts(currentUrlPage, activeTab);
-  }, [searchParams, state.currentPage, activeTab, isLoggedIn, fetchPosts]);
+    console.log('🔍 URL 변경 감지 - API 호출:', { currentPage, currentTab, isLoggedIn });
+    fetchPosts();
+  }, [fetchPosts]);
 
-  // 탭 변경 핸들러
-  const handleTabChange = useCallback((newTab: 'latest' | 'following') => {
-    console.log('🔍 탭 변경 시도:', newTab, '현재 탭:', activeTab);
+  // 단순화된 탭 변경 함수
+  const setActiveTab = useCallback((tabId: 'latest' | 'following') => {
+    console.log('🔍 탭 변경 시도:', tabId, '현재 탭:', currentTab);
     
-    // 같은 탭을 클릭한 경우에도 페이지를 1로 초기화
-    if (newTab === activeTab) {
+    // 같은 탭을 클릭한 경우 페이지만 1로 초기화
+    if (tabId === currentTab) {
       console.log('🔍 같은 탭 클릭 - 페이지를 1로 초기화');
       const newSearchParams = new URLSearchParams(searchParams);
-      newSearchParams.set('page', '1'); // 페이지를 1로 초기화
-      newSearchParams.set('size', '10');
-      console.log('🔍 같은 탭 클릭으로 인한 페이지 초기화:', newSearchParams.toString());
+      newSearchParams.set('page', '1');
       setSearchParams(newSearchParams);
       return;
     }
     
-    // 탭 변경 시 페이지를 1로 초기화
-    console.log('🔍 탭 변경으로 인한 페이지 초기화: 1');
-    
-    // URL 업데이트 - API 형태로 변경
+    // 탭 변경 시 URL 업데이트
     const newSearchParams = new URLSearchParams(searchParams);
-    if (newTab === 'following') {
+    
+    if (tabId === 'following') {
       if (isLoggedIn) {
-        console.log('🔍 팔로우 탭으로 변경 (로그인됨), 사용자 ID:', user?.memberId);
+        console.log('🔍 팔로우 탭으로 변경 (로그인됨)');
         newSearchParams.set('followMemberId', user?.memberId?.toString() || '');
       } else {
-        console.log('🔍 팔로우 탭으로 변경 (로그인 안됨) - 탭 상태만 변경');
-        // 비로그인 사용자의 경우 탭 상태만 변경하고 URL은 그대로 유지
-        setActiveTab('following');
-        return;
+        console.log('🔍 팔로우 탭으로 변경 (로그인 안됨) - UI에서 처리');
+        // 비로그인 사용자도 URL을 변경하여 탭 상태를 업데이트
+        newSearchParams.set('followMemberId', 'guest');
       }
-      newSearchParams.set('page', '1'); // 페이지를 1로 초기화
-      newSearchParams.set('size', '10');
-      newSearchParams.delete('tab'); // 기존 tab 파라미터 제거
     } else {
       console.log('🔍 최신 탭으로 변경');
-      newSearchParams.set('page', '1'); // 페이지를 1로 초기화
-      newSearchParams.set('size', '10');
-      newSearchParams.delete('followMemberId'); // 팔로우 파라미터 제거
-      newSearchParams.delete('tab'); // 기존 tab 파라미터 제거
+      newSearchParams.delete('followMemberId');
     }
-    console.log('🔍 새로운 URL 파라미터:', newSearchParams.toString());
-    setSearchParams(newSearchParams);
-  }, [activeTab, searchParams, setSearchParams, user?.memberId, isLoggedIn]);
-
-  // 페이지 변경 핸들러를 useCallback으로 메모이제이션
-  const setCurrentPage = useCallback((page: number) => {
-    if (page === state.currentPage) return;
     
-    // URL 업데이트 - API 형태로 변경
+    newSearchParams.set('page', '1');
+    setSearchParams(newSearchParams);
+  }, [currentTab, searchParams, setSearchParams, user?.memberId, isLoggedIn]);
+
+  // 페이지 변경 함수
+  const setCurrentPage = useCallback((page: number) => {
+    if (page === currentPage) return;
+    
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set('page', page.toString());
-    newSearchParams.set('size', '10');
     setSearchParams(newSearchParams);
-  }, [state.currentPage, searchParams, setSearchParams]);
+  }, [currentPage, searchParams, setSearchParams]);
 
-  // 날짜 포맷팅 함수를 useMemo로 메모이제이션 (UTC -> KST 변환)
+  // 날짜 포맷팅 함수
   const formatDate = useMemo(() => {
     return (date: string) => {
       return formatUTCToKSTDate(date);
     };
   }, []);
 
-  // 숫자 포맷팅 함수를 useMemo로 메모이제이션
+  // 숫자 포맷팅 함수
   const formatNumber = useMemo(() => {
     return (num: number) => {
       return num.toLocaleString('ko-KR');
@@ -235,11 +199,9 @@ export const usePostsList = () => {
 
   return {
     ...state,
-    activeTab,
-    setActiveTab: (tabId: string) => {
-      console.log('🔍 setActiveTab 호출됨:', tabId);
-      handleTabChange(tabId as 'latest' | 'following');
-    },
+    currentPage,
+    currentTab,
+    setActiveTab,
     setCurrentPage,
     formatDate,
     formatNumber,

@@ -91,17 +91,17 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
 
   // [ADD] 내 페이지면 현재 프로필 불러와서 모달 기본값으로 세팅
   useEffect(() => {
-    let ignore = false;
+    let ignore = false; 
     async function loadMine() {
       if (!isMyPage || !myId || myId <= 0 || isCompany) return;
       try {
         const me = await fetchMemberProfile(myId);
         if (!ignore) {
           setModalInit({
-            nickname: me.nickname ?? '',
-            blogUrl: me.blogUrl ?? '',
-            githubUrl: me.githubUrl ?? '',
-            profileUrl: me.memberProfileUrl ?? '',
+            nickname: me?.nickname ?? '',
+            blogUrl: me?.blogUrl ?? '',
+            githubUrl: me?.githubUrl ?? '',
+            profileUrl: me?.memberProfileUrl ?? '',
           });
 
           // [ADD] localStorage에서 최근 닉네임 변경 시각 읽어서 남은 일수 계산
@@ -110,10 +110,10 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
             if (raw) {
               const saved = JSON.parse(raw) as { lastChangedAt: number; nickname: string };
               // 서버 닉네임과 저장된 닉네임이 다르면(다른 브라우저/기기에서 변경됨) 지금부터 7일로 리셋
-              if ((saved.nickname ?? '') !== (me.nickname ?? '')) {
+              if ((saved.nickname ?? '') !== (me?.nickname ?? '')) {
                 localStorage.setItem(
                   NICK_COOLDOWN_KEY(myId),
-                  JSON.stringify({ lastChangedAt: Date.now(), nickname: me.nickname ?? '' })
+                  JSON.stringify({ lastChangedAt: Date.now(), nickname: me?.nickname ?? '' })
                 );
                 setNicknameDaysLeft(7);
               } else {
@@ -210,16 +210,16 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
       // ✅ 최신 데이터 재조회 → 전역 헤더 즉시 반영
       const updated = await fetchMemberProfile(myId);
       updateUserProfile({
-        nickname: updated.nickname,
-        memberProfileUrl: updated.memberProfileUrl,
+        nickname: updated?.nickname,
+        memberProfileUrl: updated?.memberProfileUrl,
       });
 
       // 모달 초기값도 동기화 (페이지 내 표시 일관성)
       setModalInit({
-        nickname: updated.nickname ?? '',
-        blogUrl: updated.blogUrl ?? '',
-        githubUrl: updated.githubUrl ?? '',
-        profileUrl: updated.memberProfileUrl ?? '',
+        nickname: updated?.nickname ?? '',
+        blogUrl: updated?.blogUrl ?? '',
+        githubUrl: updated?.githubUrl ?? '',
+        profileUrl: updated?.memberProfileUrl ?? '',
       });
 
       // [ADD] 헤더 즉시 리프레시 (ProfileHeader useEffect가 refreshKey를 의존성으로 가지는 전제)

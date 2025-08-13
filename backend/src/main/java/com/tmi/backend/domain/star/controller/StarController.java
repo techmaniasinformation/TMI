@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/star")
+@RequestMapping("${api.prefix}/star")
 @RequiredArgsConstructor
 public class StarController implements BaseController {
 
@@ -30,6 +30,7 @@ public class StarController implements BaseController {
 
   /**
    * 스타 등록 API
+   *
    * @param request 멤버 id 와 게시글 id 를 받습니다.
    */
   @PostMapping
@@ -42,17 +43,20 @@ public class StarController implements BaseController {
 
   /**
    * 멤버 스타 등록 조회 API
+   *
    * @param memberId 원하는 사용자의 id
    * @return 스타 id 와 게시글 id 를 목록으로 반환합니다.
    */
   @GetMapping
-  public ResponseEntity<ApiResponse<StarListResponse>> getStarList(@Positive @RequestParam Long memberId) {
+  public ResponseEntity<ApiResponse<StarListResponse>> getStarList(
+      @Positive @RequestParam Long memberId) {
 
     return handle(starService.readStars(memberId));
   }
 
   /**
    * 스타 취소 API
+   *
    * @param starId 취소하려는 스타 id
    */
   @DeleteMapping("/{starId}")

@@ -63,6 +63,7 @@ jwt:
 
 api:
   gms-key: ${GMS_KEY}
+  prefix: /api/v2
 
 frontend:
   redirect-uri: "https://i13a509.p.ssafy.io/login"

@@ -28,10 +28,12 @@ public class SecurityConfig {
   private final OAuth2FailureHandler oAuth2FailureHandler;
   private final CustomOAuth2UserService customOAuth2UserService;
   private final CustomOidcUserService customOidcUserService;
-
+  private final ApiProperties apiProperties;
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    String prefix = apiProperties.getPrefix();
+
     http
         .csrf(csrf -> csrf.disable())
         .formLogin(form -> form.disable())
@@ -42,17 +44,19 @@ public class SecurityConfig {
                 "/", "/favicon.ico", "/error",
                 "/css/**", "/js/**", "/images/**", "/assets/**", "/webjars/**", "/.well-known/**"
             ).permitAll()
-            .requestMatchers(HttpMethod.GET, "/api/v1/**")
+            .requestMatchers(HttpMethod.GET, prefix + "/**")
             .permitAll()
-            .requestMatchers(HttpMethod.POST, "/api/v1/auth/refresh", "/api/v1/member/signup",
-                "/api/v1/auth/logout/**")
+            .requestMatchers(HttpMethod.POST,
+                prefix + "/auth/refresh",
+                prefix + "/member/signup",
+                prefix + "/auth/logout/**")
             .permitAll()
             .requestMatchers(
                 "/api/**",
                 "/oauth2/**",         // 소셜 로그인 진입 및 콜백
-                "/api/v1/auth/refresh",
-                "/api/v1/oauth2/authorization/**",
-                "/api/v1/oauth2/code/**",
+                prefix + "/auth/refresh",
+                prefix + "/oauth2/authorization/**",
+                prefix + "/oauth2/code/**",
                 "/login/oauth2/code/**",
                 "/login"
             ).permitAll()
@@ -60,7 +64,7 @@ public class SecurityConfig {
         )
         .oauth2Login(oauth2 -> oauth2
             .authorizationEndpoint(endpoint -> endpoint
-                .baseUri("/api/v1/oauth2/authorization")
+                .baseUri(prefix + "/oauth2/authorization")
             )
             .redirectionEndpoint(endpoint -> endpoint
                 .baseUri("/login/oauth2/code/*")

@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tmi.backend.domain.auth.jwt.provider.JwtTokenProvider;
 import com.tmi.backend.global.common.response.ApiResponse;
 import com.tmi.backend.global.common.response.impl.ApiErrorResponse;
+import com.tmi.backend.global.config.ApiProperties;
 import com.tmi.backend.global.error.ErrorCode;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -31,37 +33,42 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private final JwtTokenProvider jwtTokenProvider;
   private final ObjectMapper objectMapper;
+  private final ApiProperties apiProperties;
+  private RequestMatcher publicEndpoints;
+
+  @PostConstruct
+  public void init() {
+    String prefix = apiProperties.getPrefix();
+
+    publicEndpoints = new OrRequestMatcher(
+        PP.matcher(HttpMethod.GET, prefix + "/**"),
+
+        PP.matcher(HttpMethod.POST, prefix + "/member/signup"),
+        PP.matcher(HttpMethod.POST, prefix + "/auth/refresh"),
+//      PP.matcher(HttpMethod.POST, prefix + "/auth/logout/**"),
+
+        PP.matcher(prefix + "/oauth2/**"),
+        PP.matcher("/oauth2/**"),
+        PP.matcher(prefix + "/oauth2/authorization/**"),
+        PP.matcher(prefix + "/oauth2/code/**"),
+        PP.matcher("/login/oauth2/code/**"),
+        PP.matcher("/login"),
+
+        PP.matcher("/"),
+        PP.matcher("/favicon.ico"),
+        PP.matcher("/error"),
+        PP.matcher("/css/**"),
+        PP.matcher("/js/**"),
+        PP.matcher("/images/**"),
+        PP.matcher("/assets/**"),
+        PP.matcher("/webjars/**"),
+        PP.matcher("/.well-known/**")
+    );
+  }
+
   private static final PathPatternRequestMatcher.Builder PP =
       PathPatternRequestMatcher.withDefaults();
 
-  private final RequestMatcher publicEndpoints = new OrRequestMatcher(
-      PP.matcher(HttpMethod.GET, "/api/v1/**"),
-
-      // 공개 POST (회원가입/재발급/로그아웃)
-      PP.matcher(HttpMethod.POST, "/api/v1/member/signup"),
-      PP.matcher(HttpMethod.POST, "/api/v1/auth/refresh"),
-//      PP.matcher(HttpMethod.POST, "/api/v1/auth/logout/**"),
-
-      // OAuth2 엔드포인트 (메서드 구분 불필요하면 오버로드로 method 생략 가능)
-      PP.matcher("/api/v1/oauth2/**"),
-      PP.matcher("/oauth2/**"),
-      PP.matcher("/api/v1/oauth2/authorization/**"),
-      PP.matcher("/api/v1/oauth2/code/**"),
-      PP.matcher("/login/oauth2/code/**"),
-      PP.matcher("/login"),
-
-      //
-      PP.matcher("/"),
-      PP.matcher("/favicon.ico"),
-      PP.matcher("/error"),
-      PP.matcher("/css/**"),
-      PP.matcher("/js/**"),
-      PP.matcher("/images/**"),
-      PP.matcher("/assets/**"),
-      PP.matcher("/webjars/**"),
-      PP.matcher("/.well-known/**")
-
-  );
 
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) {

@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/api/v1/company")
+@RequestMapping("${api.prefix}/company")
 @RequiredArgsConstructor
 public class CompanyController implements BaseController {
 

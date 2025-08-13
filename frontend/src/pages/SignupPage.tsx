@@ -42,8 +42,7 @@ const SignupPage: React.FC<SignupPageProps> = () => {
 
   useEffect(() => {
     if (!socialProvider || !socialProviderId) {
-      alert('잘못된 접근입니다.');
-      navigate('/login');
+      navigate('/prevPath');
     }
   }, [socialProvider, socialProviderId, navigate]);
 

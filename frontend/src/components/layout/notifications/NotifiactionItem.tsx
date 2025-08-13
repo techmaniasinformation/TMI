@@ -80,7 +80,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
             <img
               src={initialSrc}
               alt={altText}
-              className="w-full h-full object-contain"
+              className="w-full h-full object-cover"
               loading="lazy"
               decoding="async"
               referrerPolicy="no-referrer"

@@ -45,6 +45,8 @@ const PostEditPage: React.FC = () => {
   // 에러 상태
   const [urlError, setUrlError] = useState<string>('');
   const [aiError, setAiError] = useState<string>('');
+  const [titleError, setTitleError] = useState<string>('');
+  const [contentError, setContentError] = useState<string>('');
   
   // 태그 관련 상태
   const [newTag, setNewTag] = useState('');
@@ -270,24 +272,35 @@ const PostEditPage: React.FC = () => {
 
   // 게시글 수정 함수
   const handleSave = async () => {
+    // 에러 상태 초기화
+    setTitleError('');
+    setContentError('');
+    setUrlError('');
+    
+    let hasError = false;
+    
     if (!title.trim()) {
-      alert('제목을 입력해주세요.');
-      return;
+      setTitleError('제목을 입력해주세요.');
+      hasError = true;
     }
     if (!content.trim()) {
-      alert('내용을 입력해주세요.');
-      return;
+      setContentError('내용을 입력해주세요.');
+      hasError = true;
     }
     if (content.length < 50) {
-      alert('게시글 내용은 50자 이상 입력해주세요.');
-      return;
+      setContentError('게시글 내용은 50자 이상 입력해주세요.');
+      hasError = true;
     }
     if (title.length > 100) {
-      alert('제목은 100자를 초과할 수 없습니다.');
-      return;
+      setTitleError('제목은 100자를 초과할 수 없습니다.');
+      hasError = true;
     }
     if (content.length > 6000) {
-      alert('내용은 6000자를 초과할 수 없습니다.');
+      setContentError('내용은 6000자를 초과할 수 없습니다.');
+      hasError = true;
+    }
+    
+    if (hasError) {
       return;
     }
 
@@ -302,7 +315,7 @@ const PostEditPage: React.FC = () => {
       if (linkUrl.trim()) {
         const processedUrl = processAndValidateUrl(linkUrl);
         if (!processedUrl) {
-          alert('올바른 URL을 입력해주세요.');
+          setUrlError('올바른 URL을 입력해주세요.');
           setIsLoading(false);
           return;
         }
@@ -365,6 +378,9 @@ const PostEditPage: React.FC = () => {
                 {title.length}/100
               </span>
             </div>
+            {titleError && (
+              <p className="text-sm text-red-500 mt-1">{titleError}</p>
+            )}
           </div>
 
           {/* 링크 URL */}
@@ -581,6 +597,9 @@ const PostEditPage: React.FC = () => {
                 {content.length}/6000
               </span>
             </div>
+            {contentError && (
+              <p className="text-sm text-red-500 mt-1">{contentError}</p>
+            )}
           </div>
         </div>
 

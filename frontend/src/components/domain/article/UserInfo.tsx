@@ -65,7 +65,7 @@ export default function UserInfoBox({
           width: imageSize,
           height: imageSize,
         }}
-        className="rounded-full object-contain"
+        className="rounded-full object-cover"
         onError={handleImageError}
       />
 

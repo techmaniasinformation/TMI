@@ -267,6 +267,9 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         bestCommentId={bestCommentId}
         formatDate={formatDate}
         formatNumber={formatNumber}
+        onCommentRecommend={toggleCommentRecommend}
+        userRecommendations={userRecommendations}
+        recommendLoading={recommendLoading}
       />
 
       {/* 댓글 섹션 */}

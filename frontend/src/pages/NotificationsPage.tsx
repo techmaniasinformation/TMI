@@ -1,4 +1,3 @@
-// src/components/layout/notifications/NotificationsPage.tsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/router/routes';
@@ -18,9 +17,9 @@ import {
   markAllNotificationsRead as apiMarkAllNotificationsRead,
 } from '@/api/notification';
 import type { NotificationStatus } from '@/types/notification/notifications';
-import { getSafeProfileUrl, DEFAULT_IMAGES } from "@/utils/defaultImages";
+import { getSafeProfileUrl, DEFAULT_IMAGES } from '@/utils/defaultImages';
 
-// ===== 배지 이미지 import & 매핑 (BadgeModal 과 동일) =====
+// ===== 배지 이미지 import & 매핑 =====
 import ai_1 from '@/assets/images/ai_1.png';
 import amumu from '@/assets/images/amumu.png';
 import aws_1 from '@/assets/images/aws_1.png';
@@ -68,9 +67,8 @@ const badgeImages: Record<string, string> = {
   'view_1000.png': view3,
   'locked.png': locked,
 };
-// ========================================================
 
-// 화면에서 사용하던 인터페이스(유지)
+// ================= 인터페이스 =================
 interface Notification {
   id: string;
   type: 'badge' | 'comment' | 'post';
@@ -79,9 +77,11 @@ interface Notification {
   isRead: boolean;
   userId?: string;
   userName?: string;
-  userAvatar?: string; // 썸네일(배지/프로필)
+  userAvatar?: string;     // 실제 썸네일 URL
   postId?: string;
   badgeType?: string;
+  // ✅ 폴백 판단용(사람/회사/뱃지)
+  avatarKind?: 'PROFILE' | 'COMPANY' | 'BADGE';
 }
 
 // ---- 유틸: 경로 처리/폴백 ----
@@ -89,14 +89,12 @@ const BASE_URL = 'https://i13a509.p.ssafy.io/api/v1';
 const BADGE_CDN_BASE =
   (import.meta as any).env?.VITE_BADGE_CDN ?? `${BASE_URL}/badge/images`;
 
-const DEFAULT_AVATAR = '/default-avatar.png';
-
 const cleanUrl = (u?: string | null) => (u && u.trim() ? u : undefined);
 const resolveBadgeSrc = (file?: string | null) => {
   const f = (file ?? '').trim();
   if (!f) return undefined;
-  if (/^https?:\/\//i.test(f)) return f;   // 이미 절대경로면 그대로
-  return `${BADGE_CDN_BASE}/${f}`;         // 파일명이면 베이스 붙이기
+  if (/^https?:\/\//i.test(f)) return f;
+  return `${BADGE_CDN_BASE}/${f}`;
 };
 
 const NotificationsPage: React.FC = () => {
@@ -113,51 +111,68 @@ const NotificationsPage: React.FC = () => {
 
   const itemsPerPage = 5;
 
-  // 서버 응답 → 화면 모델 매핑
-  const adapt = useCallback((srv: any): Notification => {
-    let mappedType: Notification['type'] = 'post';
-    switch (srv.notificationType) {
-      case 'BADGE_ACQUIRED':
-        mappedType = 'badge';
-        break;
-      case 'NEW_COMMENT':
-        mappedType = 'comment';
-        break;
-      case 'MEMBER_NEW_POST':
-      default:
-        mappedType = 'post';
-    }
+  // 서버 응답 → 화면 모델 매핑 (+ avatarKind 설정)
+  const adapt = useCallback(
+    (srv: any): Notification => {
+      let mappedType: Notification['type'] = 'post';
+      switch (srv.notificationType) {
+        case 'BADGE_ACQUIRED':
+          mappedType = 'badge';
+          break;
+        case 'NEW_COMMENT':
+          mappedType = 'comment';
+          break;
+        case 'MEMBER_NEW_POST':
+        default:
+          mappedType = 'post';
+      }
 
-    // 썸네일 결정: 배지는 로컬 매핑 우선 → 서버 URL 폴백
-    let avatar: string | undefined;
-    if (mappedType === 'badge') {
-      const local = badgeImages[srv.badgeUrl as string];       // 로컬 import 매핑
-      avatar = local ?? resolveBadgeSrc(srv.badgeUrl);         // 폴백: 서버 절대경로
-    } else if (mappedType === 'comment') {
-      avatar = cleanUrl(myProfileUrl) ?? DEFAULT_AVATAR;       // 댓글: 내 프로필
-    } else {
-      avatar =
-        cleanUrl(srv.memberProfileUrl) ??
-        cleanUrl(srv.companyProfileUrl) ??
-        undefined;                                             // 최종 폴백은 아래 load()에서
-    }
+      let avatar: string | undefined;
+      let avatarKind: Notification['avatarKind'] = 'PROFILE';
 
-    return {
-      id: String(srv.notificationId),
-      type: mappedType,
-      message: srv.content ?? '',
-      timestamp: srv.createdAt ?? '',
-      isRead: !!srv.isRead,
-      postId: srv.postId != null ? String(srv.postId) : undefined,
-      // 백업용으로 badgeType에도 동일 값 주입(어느 필드를 쓰더라도 보이게)
-      badgeType: mappedType === 'badge'
-        ? (badgeImages[srv.badgeUrl as string] ?? resolveBadgeSrc(srv.badgeUrl))
-        : undefined,
-      userAvatar: avatar,
-      userId: srv.memberId != null ? String(srv.memberId) : undefined,
-      userName: srv.nickname ?? srv.companyName ?? undefined,
-    };
-  }, [myProfileUrl]);
+      if (mappedType === 'badge') {
+        const local = badgeImages[srv.badgeUrl as string];
+        avatar = local ?? resolveBadgeSrc(srv.badgeUrl);
+        avatarKind = 'BADGE';
+      } else if (mappedType === 'comment') {
+        // 댓글 알림: 사람으로 취급
+        avatar = cleanUrl(myProfileUrl);
+        avatarKind = 'PROFILE';
+      } else {
+        // 게시글 알림: 사람/회사 중 무엇이 있는지로 구분
+        const memberUrl = cleanUrl(srv.memberProfileUrl);
+        const companyUrl = cleanUrl(srv.companyProfileUrl);
+        if (memberUrl) {
+          avatar = memberUrl;
+          avatarKind = 'PROFILE';
+        } else if (companyUrl) {
+          avatar = companyUrl;
+          avatarKind = 'COMPANY';
+        } else {
+          avatar = undefined;
+          avatarKind = 'PROFILE';
+        }
+      }
+
+      return {
+        id: String(srv.notificationId),
+        type: mappedType,
+        message: srv.content ?? '',
+        timestamp: srv.createdAt ?? '',
+        isRead: !!srv.isRead,
+        postId: srv.postId != null ? String(srv.postId) : undefined,
+        badgeType:
+          mappedType === 'badge'
+            ? badgeImages[srv.badgeUrl as string] ?? resolveBadgeSrc(srv.badgeUrl)
+            : undefined,
+        userAvatar: avatar,
+        userId: srv.memberId != null ? String(srv.memberId) : undefined,
+        userName: srv.nickname ?? srv.companyName ?? undefined,
+        avatarKind, // ✅ 추가
+      };
+    },
+    [myProfileUrl]
+  );
 
   // 목록 로드
   const load = useCallback(async () => {
@@ -173,16 +188,18 @@ const NotificationsPage: React.FC = () => {
       const list = await fetchNotifications(memberId, status);
       let adapted = list.map(adapt);
 
-      // 최신순
       adapted.sort(
         (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
       );
 
-      // 최종 폴백: 썸네일 비어 있으면 기본 아바타
-      adapted = adapted.map(n => ({ ...n, userAvatar: n.userAvatar ?? DEFAULT_AVATAR }));
+      // 최종 폴백: 비어있으면 기본 이미지(사람)로
+      adapted = adapted.map((n) => ({
+        ...n,
+        userAvatar: n.userAvatar ?? DEFAULT_IMAGES.PROFILE,
+      }));
 
       setNotifications(adapted);
-      setCurrentPage(1); // 필터 바뀌면 1페이지로
+      setCurrentPage(1);
     } catch (e: any) {
       console.error(e);
       setLoadError(e?.message || '알림을 불러오지 못했습니다.');
@@ -197,22 +214,25 @@ const NotificationsPage: React.FC = () => {
 
   // 클릭 시 읽음 처리 + 이동
   const handleNotificationClick = async (notification: Notification) => {
-    setNotifications(prev =>
-      prev.map(n => (n.id === notification.id ? { ...n, isRead: true } : n))
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === notification.id ? { ...n, isRead: true } : n))
     );
 
     try {
       await apiMarkNotificationRead(Number(notification.id));
     } catch (e) {
-      setNotifications(prev =>
-        prev.map(n => (n.id === notification.id ? { ...n, isRead: false } : n))
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === notification.id ? { ...n, isRead: false } : n))
       );
       console.error(e);
       alert('읽음 처리에 실패했습니다.');
       return;
     }
 
-    if ((notification.type === 'comment' || notification.type === 'post') && notification.postId) {
+    if (
+      (notification.type === 'comment' || notification.type === 'post') &&
+      notification.postId
+    ) {
       navigate(`/post/${notification.postId}`);
       return;
     }
@@ -222,7 +242,6 @@ const NotificationsPage: React.FC = () => {
         ? ROUTES.MY_PAGE.replace(':id', String(memberId))
         : `/mypage/${memberId}`;
       navigate(path);
-      return;
     }
   };
 
@@ -232,7 +251,7 @@ const NotificationsPage: React.FC = () => {
     if (!memberId) return;
 
     const prev = notifications;
-    setNotifications(prev.filter(n => n.id !== id));
+    setNotifications(prev.filter((n) => n.id !== id));
     try {
       await apiDeleteNotification(Number(id), memberId);
     } catch (err) {
@@ -246,7 +265,7 @@ const NotificationsPage: React.FC = () => {
   const handleMarkAllAsRead = async () => {
     if (!memberId) return;
     const prev = notifications;
-    setNotifications(prev.map(n => ({ ...n, isRead: true })));
+    setNotifications(prev.map((n) => ({ ...n, isRead: true })));
     try {
       await apiMarkAllNotificationsRead(memberId);
     } catch (err) {
@@ -272,7 +291,7 @@ const NotificationsPage: React.FC = () => {
 
   if (loading) return <NotificationLoader />;
 
-  const filteredNotifications = notifications; // 서버에서 status로 필터링됨
+  const filteredNotifications = notifications;
 
   return (
     <div className="max-w-[848px] mx-auto">
@@ -284,9 +303,7 @@ const NotificationsPage: React.FC = () => {
       />
 
       {loadError && (
-        <div className="mb-4 p-3 rounded bg-red-50 text-red-600 text-sm">
-          {loadError}
-        </div>
+        <div className="mb-4 p-3 rounded bg-red-50 text-red-600 text-sm">{loadError}</div>
       )}
 
       {filteredNotifications.length === 0 ? (
@@ -300,10 +317,11 @@ const NotificationsPage: React.FC = () => {
           renderItem={(notification) => (
             <NotificationItem
               key={notification.id}
-              // ⚠️ 비어있거나 'null' 같은 값이면 기본 프로필로 치환
+              // 안전 URL로 치환 + avatarKind 전달
               notification={{
                 ...notification,
-                userAvatar: getSafeProfileUrl(notification.userAvatar) || DEFAULT_IMAGES.PROFILE,
+                userAvatar:
+                  getSafeProfileUrl(notification.userAvatar) || DEFAULT_IMAGES.PROFILE,
               }}
               onClick={handleNotificationClick}
               onDelete={handleDeleteNotification}

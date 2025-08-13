@@ -1,5 +1,6 @@
 package com.tmi.backend.domain.post.entity;
 
+import com.tmi.backend.domain.comment.entity.Comment;
 import com.tmi.backend.domain.company.entity.Company;
 import com.tmi.backend.domain.member.entity.Member;
 import com.tmi.backend.domain.postTag.entity.PostTag;
@@ -63,6 +64,10 @@ public class Post {
   @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, orphanRemoval = true)
   @Builder.Default
   private List<PostTag> postTags = new ArrayList<>();
+
+  @Builder.Default
+  @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, orphanRemoval = true)
+  private List<Comment> comments = new ArrayList<>();
 
   private LocalDateTime createdAt;
 

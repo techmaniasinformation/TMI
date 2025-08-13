@@ -66,7 +66,15 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
   const routeId = Number(id) || 0; // ✅ 숫자 가드
 
   // store에서 내 id/업데이트 액션 읽기
-  const { user, updateUserProfile } = useUserStore();
+  const {
+    user,
+    updateUserProfile,
+    followUser,         // ✅ 추가
+    followCompany,      // ✅ 추가
+    setFollowUser,      // ✅ 추가
+    setFollowCompany,   // ✅ 추가
+  } = useUserStore();
+
   const myId = user?.memberId;
 
   // 내 페이지 여부 계산
@@ -287,46 +295,84 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
 
     try {
       if (!isFollowing) {
-        // 팔로우
-        setIsFollowing(true); // 낙관적
+        // ✅ 팔로우 (낙관적)
+        setIsFollowing(true);
+
         if (!isCompany && targetMemberId) {
+          // 전역 상태 즉시 반영
+          if (!followUser.includes(targetMemberId)) {
+            setFollowUser([...followUser, targetMemberId]);
+          }
+          // 서버
           const res = await createMemberFollow(currentUserId, targetMemberId);
           setMemberFollowId(res.data.memberFollowId!);
         } else if (isCompany && targetCompanyId) {
+          if (!followCompany.includes(targetCompanyId)) {
+            setFollowCompany([...followCompany, targetCompanyId]);
+          }
           const res = await createCompanyFollow(currentUserId, targetCompanyId);
           setCompanyFollowId(res.data.companyFollowId!);
         }
-        setRefreshKey((k) => k + 1); // ✅ 헤더 재조회 트리거
+
+        setRefreshKey((k) => k + 1); // 헤더 재조회
       } else {
-        // 언팔
-        setIsFollowing(false); // 낙관적
+        // ✅ 언팔 (낙관적)
+        setIsFollowing(false);
+
         if (!isCompany) {
           if (targetMemberId) {
-            await deleteMemberFollow(currentUserId, targetMemberId);
+            setFollowUser(followUser.filter(id => id !== targetMemberId)); // 전역 상태 제거
+            await deleteMemberFollow(currentUserId, targetMemberId);        // 서버
           }
           setMemberFollowId(null);
         } else {
           if (targetCompanyId) {
-            await deleteCompanyFollow(currentUserId, targetCompanyId);
+            setFollowCompany(followCompany.filter(id => id !== targetCompanyId)); // 전역 상태 제거
+            await deleteCompanyFollow(currentUserId, targetCompanyId);            // 서버
           }
           setCompanyFollowId(null);
         }
-        setRefreshKey((k) => k + 1); // ✅ 헤더 재조회 트리거
+
+        setRefreshKey((k) => k + 1); // 헤더 재조회
       }
     } catch (e: any) {
+      // 실패 시 전역/로컬 롤백
       console.error('팔로우/언팔 실패:', e);
-      setIsFollowing((prev) => !prev); // 롤백
+      setIsFollowing(prev => !prev);
+
+      if (!isCompany && targetMemberId) {
+        if (!isFollowing) {
+          // 방금 추가했던 걸 되돌리기
+          setFollowUser(followUser.filter(id => id !== targetMemberId));
+        } else {
+          // 방금 제거했던 걸 되돌리기
+          if (!followUser.includes(targetMemberId)) {
+            setFollowUser([...followUser, targetMemberId]);
+          }
+        }
+      } else if (isCompany && targetCompanyId) {
+        if (!isFollowing) {
+          setFollowCompany(followCompany.filter(id => id !== targetCompanyId));
+        } else {
+          if (!followCompany.includes(targetCompanyId)) {
+            setFollowCompany([...followCompany, targetCompanyId]);
+          }
+        }
+      }
+
       alert(e?.message || '팔로우 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
     }
   }, [
     isCompany,
     isMyPage,
     isFollowing,
-    memberFollowId,
-    companyFollowId,
     targetMemberId,
     targetCompanyId,
     currentUserId,
+    followUser,         // ✅ 의존성 추가
+    followCompany,      // ✅ 의존성 추가
+    setFollowUser,      // ✅ 의존성 추가
+    setFollowCompany,   // ✅ 의존성 추가
   ]);
 
   /** ========== 기업 데이터 (기업 상단 카드) ========== **/

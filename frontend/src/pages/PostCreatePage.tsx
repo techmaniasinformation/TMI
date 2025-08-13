@@ -156,6 +156,11 @@ const PostCreatePage: React.FC = () => {
       return;
     }
 
+    if (content.length < 50) {
+      alert('게시글 내용은 50자 이상 입력해주세요.');
+      return;
+    }
+
     if (content.length > 6000) {
       alert('게시글 내용은 6000자 이하여야 합니다.');
       return;

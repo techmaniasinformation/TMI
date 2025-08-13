@@ -37,12 +37,19 @@ export const useSignup = () => {
     };
   }, [imagePreview]);
 
-  const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    if (value.length > 8) return;
-    setFormData({ ...formData, nickname: value });
-    setIsNicknameChecked(false);
-  };
+const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  let value = e.target.value;
+
+  // 1) 길이 제한
+  if (value.length > 8) return;
+
+  // 2) 허용 문자만 필터링 (한글, 영어, 숫자)
+  // 정규식에 맞는 문자만 남기기
+  value = value.replace(/[^가-힣a-zA-Z0-9]/g, '');
+
+  setFormData({ ...formData, nickname: value });
+  setIsNicknameChecked(false);
+};
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

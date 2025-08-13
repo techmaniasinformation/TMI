@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -49,11 +50,11 @@ public class PostController implements BaseController {
    * @param postId            수정할 게시글 id
    * @param postUpdateRequest 게시글 수정 정보
    */
-  @PatchMapping("/{postId}")
+  @PutMapping("/{postId}")
   public ResponseEntity<ApiResponse<Map<String, Long>>> updatePost(
       @PathVariable Long postId,
       @Valid @RequestPart("req") PostUpdateRequest postUpdateRequest,
-      @RequestPart(value = "thumbnailImage", required = false) MultipartFile thumbnailImage
+        @RequestPart(value = "thumbnailImage", required = false) MultipartFile thumbnailImage
   ) {
 
     return handle(postService.updatePost(postId, postUpdateRequest, thumbnailImage));

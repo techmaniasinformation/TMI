@@ -25,8 +25,12 @@ export const useSignup = () => {
   const [isNicknameTaken, setIsNicknameTaken] = useState(false);
   const [isCheckingNickname, setIsCheckingNickname] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+  const MAX_WIDTH = 1024;
+  const MAX_HEIGHT = 1024;
   // 닉네임 글자수 체크: 한글도 1글자씩 정확히 체크하기 위해 Array.from 사용
-  const nicknameLength = Array.from(formData.nickname).length;
+  
   
   // 닉네임 관련 에러 메시지
   // ✅ 자모 금지(완성형만 허용), 2~8자
@@ -89,14 +93,48 @@ const countAllowed = (s: string) =>
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
+    if (!file) return;
+
+    const okType = /^image\/.*/.test(file.type);
+    if (!okType) {
+      alert('이미지 파일만 업로드 가능합니다.');
+      e.target.value = '';
+      return;
+    }
+    if (file.size > 10485760) {
+      alert('이미지는 10MB 이하만 업로드 가능합니다.');
+      e.target.value = '';
+      return;
+    }
+
+    // 📏 가로/세로 길이 제한 검사
+    const tempUrl = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const w = img.width;
+      const h = img.height;
+      URL.revokeObjectURL(tempUrl); // 임시 URL 정리
+
+      if (w > 1920 || h > 1080) {
+        alert(`이미지 크기는 1920x1080px 이하만 가능합니다.
+(현재: ${w}x${h}px)`);
+        e.target.value = '';
+        return;
+      }
+
+      // ✅ 통과 시 미리보기/상태 반영
       if (imagePreview) {
         URL.revokeObjectURL(imagePreview);
       }
       setImageFile(file);
-      const previewUrl = URL.createObjectURL(file);
-      setImagePreview(previewUrl);
-    }
+      setImagePreview(URL.createObjectURL(file));
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(tempUrl);
+      alert('이미지 로드에 실패했습니다. 다른 파일을 선택해 주세요.');
+      e.target.value = '';
+    };
+    img.src = tempUrl;
   };
 
  const handleNicknameCheck = async () => {

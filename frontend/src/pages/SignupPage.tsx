@@ -38,11 +38,11 @@ const SignupPage: React.FC<SignupPageProps> = () => {
   } = useSignup();
 
   const navigate = useNavigate();
-  const { socialProvider, socialProviderId } = useUserStore();
+  const { socialProvider, socialProviderId, prevPath } = useUserStore();
 
   useEffect(() => {
     if (!socialProvider || !socialProviderId) {
-      navigate('/prevPath');
+      navigate(prevPath);
     }
   }, [socialProvider, socialProviderId, navigate]);
 

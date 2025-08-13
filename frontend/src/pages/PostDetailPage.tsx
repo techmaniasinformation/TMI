@@ -14,7 +14,7 @@ import { usePostDetail } from "@/hooks/posts/usePostDetail";
 interface PostDetailPageProps {}
 
 const PostDetailPage: React.FC<PostDetailPageProps> = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id, companyId } = useParams<{ id: string; companyId?: string }>();
   const navigate = useNavigate();
   const { user } = useUserStore();
 
@@ -43,7 +43,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
     addComment,
     toggleCommentRecommend,
     deleteComment
-  } = usePostDetail(id || '');
+  } = usePostDetail(id || '', companyId);
 
   // 공유 핸들러
   const handleShare = useCallback(async () => {
@@ -269,7 +269,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         comments={comments}
         commentCount={postData.commentCount}
         postId={postData.postId}
-        memberProfileUrl={user?.memberProfileUrl || postData.memberProfileUrl}
+        memberProfileUrl={user?.memberProfileUrl || ''}
         commentText={commentText}
         showLinkInput={showLinkInput}
         linkUrl={linkUrl}

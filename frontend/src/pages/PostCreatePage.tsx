@@ -5,7 +5,7 @@ import { useTagAutocomplete } from '@/hooks/tags/useTagAutocomplete';
 import MDEditor from '@uiw/react-md-editor';
 import '@uiw/react-md-editor/markdown-editor.css';
 import '@uiw/react-markdown-preview/markdown.css';
-// import imageCompression from 'browser-image-compression';
+import imageCompression from 'browser-image-compression';
 
 const PostCreatePage: React.FC = () => {
   const navigate = useNavigate();
@@ -146,6 +146,11 @@ const PostCreatePage: React.FC = () => {
       return;
     }
 
+    if (content.length > 3000) {
+      alert('게시글 내용은 3000자 이하여야 합니다.');
+      return;
+    }
+
     // 사용자 정보 확인
     if (!user?.memberId) {
       alert('로그인이 필요합니다.');
@@ -265,16 +270,32 @@ const PostCreatePage: React.FC = () => {
 
       setIsImageProcessing(true);
       try {
+        // 이미지 압축 옵션 설정
+        const options = {
+          maxSizeMB: 1, // 최대 1MB
+          maxWidthOrHeight: 1920, // 최대 너비/높이
+          useWebWorker: true,
+          fileType: file.type
+        };
 
-        // 파일을 상태에 저장
-        setSelectedImage(file);
+        // 이미지 압축 실행
+        const compressedFile = await imageCompression(file, options);
+        
+        console.log('이미지 압축 결과:', {
+          원본크기: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
+          압축크기: `${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`,
+          압축률: `${((1 - compressedFile.size / file.size) * 100).toFixed(1)}%`
+        });
+
+        // 압축된 파일을 상태에 저장
+        setSelectedImage(compressedFile);
         
         // 미리보기 생성
         const reader = new FileReader();
         reader.onload = (e) => {
           setImagePreview(e.target?.result as string);
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(compressedFile);
         
       } catch (error) {
         console.error('이미지 압축 실패:', error);
@@ -306,6 +327,10 @@ const PostCreatePage: React.FC = () => {
         setTagError('태그는 최대 5개까지 추가할 수 있습니다.');
         return;
       }
+      if (tagToAdd.length > 20) {
+        setTagError('태그는 20자 이하여야 합니다.');
+        return;
+      }
       
       setTagError(''); // 에러 초기화
       setTags([...tags, tagToAdd]);
@@ -317,15 +342,17 @@ const PostCreatePage: React.FC = () => {
   
   const handleTagInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setNewTag(value);
-    setTagError(''); // 사용자가 입력 시작 시 에러 메시지 초기화
+    if (value.length <= 20) {
+      setNewTag(value);
+      setTagError(''); // 사용자가 입력 시작 시 에러 메시지 초기화
 
-    if (value.trim()) {
-      searchTags(value.trim());
-      setShowTagSuggestions(true);
-    } else {
-      setShowTagSuggestions(false);
-      clearSuggestions();
+      if (value.trim()) {
+        searchTags(value.trim());
+        setShowTagSuggestions(true);
+      } else {
+        setShowTagSuggestions(false);
+        clearSuggestions();
+      }
     }
   };
   
@@ -558,23 +585,36 @@ const PostCreatePage: React.FC = () => {
               <div data-color-mode="light">
                 <MDEditor
                   value={content}
-                  onChange={(val) => setContent(val || '')}
+                  onChange={(val) => {
+                    const newContent = val || '';
+                    if (newContent.length <= 3000) {
+                      setContent(newContent);
+                    }
+                  }}
                   preview={isPreviewMode ? "preview" : "edit"}
                   hideToolbar={isPreviewMode}
                   height={300}
                   data-color-mode="light"
                 />
+                <div className="flex justify-between items-center mt-2">
+                  <div className="text-sm text-gray-500">
+                    {content.length > 3000 ? (
+                      <span className="text-red-500">글자 수 제한을 초과했습니다 ({content.length}/3000)</span>
+                    ) : (
+                      <span>{content.length}/3000</span>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleTogglePreview}
+                    className="px-3 py-1 text-sm bg-gray-600 text-white rounded-md hover:bg-gray-700"
+                  >
+                    {isPreviewMode ? '편집 모드' : '미리보기'}
+                  </button>
+                </div>
               </div>
             )}
-             <div className="flex justify-end mt-2">
-               <button
-                 type="button"
-                 onClick={handleTogglePreview}
-                 className="px-3 py-1 text-sm bg-gray-600 text-white rounded-md hover:bg-gray-700"
-               >
-                 {isPreviewMode ? '편집 모드' : '미리보기'}
-               </button>
-             </div>
+
            </div>
 
           {/* Tags */}
@@ -594,16 +634,22 @@ const PostCreatePage: React.FC = () => {
                 {/* 태그 입력 영역 */}
                 <div className="relative">
                   <div className="flex items-center gap-2 mb-3">
-                    <input
-                      type="text"
-                      value={newTag}
-                      onChange={handleTagInputChange}
-                      onKeyPress={handleTagKeyPress}
-                      onBlur={handleTagInputBlur}
-                      onFocus={() => newTag.trim() && setShowTagSuggestions(true)}
-                      placeholder="태그를 입력하세요 (기존 태그 검색 가능)"
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
+                    <div className="flex-1 relative">
+                      <input
+                        type="text"
+                        value={newTag}
+                        onChange={handleTagInputChange}
+                        onKeyPress={handleTagKeyPress}
+                        onBlur={handleTagInputBlur}
+                        onFocus={() => newTag.trim() && setShowTagSuggestions(true)}
+                        maxLength={20}
+                        placeholder="태그를 입력하세요 (기존 태그 검색 가능)"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                      <span className="absolute right-3 top-2 text-sm text-gray-500">
+                        {newTag.length}/20
+                      </span>
+                    </div>
                                          <button
                        type="button"
                        onClick={() => handleAddTag()}

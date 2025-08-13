@@ -218,7 +218,7 @@ export const usePostData = (postId: string) => {
 };
 
 // 팔로우 상태 관리 훅
-export const useFollow = (postData: PostDetail | null) => {
+export const useFollow = (postData: PostDetail | null, companyId?: string) => {
   const { user, followUser, followCompany, setFollowUser, setFollowCompany } = useUserStore();
   const [isFollowing, setIsFollowing] = useState(false);
   const [memberFollowId, setMemberFollowId] = useState<number | null>(null);
@@ -228,14 +228,15 @@ export const useFollow = (postData: PostDetail | null) => {
   const checkFollowStatus = useCallback(() => {
     if (!postData) return;
 
-    if (postData.companyId) {
-      const isFollowingCompany = followCompany.includes(postData.companyId);
+    const targetCompanyId = companyId || postData.companyId;
+    if (targetCompanyId) {
+      const isFollowingCompany = followCompany.includes(Number(targetCompanyId));
       setIsFollowing(isFollowingCompany);
     } else if (postData.memberId) {
       const isFollowingUser = followUser.includes(postData.memberId);
       setIsFollowing(isFollowingUser);
     }
-  }, [postData, followUser, followCompany]);
+  }, [postData, followUser, followCompany, companyId]);
 
   // user 상태가 로드된 후에 팔로우 상태 확인
   useEffect(() => {
@@ -267,8 +268,9 @@ export const useFollow = (postData: PostDetail | null) => {
           return;
         }
         
-        if (postData.companyId) {
+        if (companyId || postData.companyId) {
           // 회사 팔로우 취소
+          const targetCompanyId = companyId || postData.companyId;
           if (!companyFollowId) {
             alert('팔로우 정보를 찾을 수 없습니다.');
             return;
@@ -282,7 +284,7 @@ export const useFollow = (postData: PostDetail | null) => {
           });
 
           if (response.ok) {
-            setFollowCompany(followCompany.filter(id => id !== postData.companyId));
+            setFollowCompany(followCompany.filter(id => id !== Number(targetCompanyId)));
             setIsFollowing(false);
             setCompanyFollowId(null);
             alert('회사 팔로우를 취소했습니다.');
@@ -319,17 +321,19 @@ export const useFollow = (postData: PostDetail | null) => {
           return;
         }
         
-        if (postData.companyId) {
+        if (companyId || postData.companyId) {
           // 회사 팔로우 추가
-                     const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/companies/${postData.companyId}/follow`, {
-             method: 'POST',
-             headers: {
-               'Content-Type': 'application/json',
-             },
-             body: JSON.stringify({
-               followerId: user.memberId
-             })
-           });
+          const targetCompanyId = companyId || postData.companyId;
+          const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/companies/${targetCompanyId}/follow`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              followerId: user.memberId,
+              companyId: targetCompanyId
+            })
+          });
 
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -341,7 +345,7 @@ export const useFollow = (postData: PostDetail | null) => {
             setCompanyFollowId(result.data.companyFollowId);
           }
 
-          setFollowCompany([...followCompany, postData.companyId]);
+          setFollowCompany([...followCompany, Number(targetCompanyId)]);
           setIsFollowing(true);
           alert('회사를 팔로우했습니다.');
         } else if (postData.memberId) {
@@ -665,10 +669,10 @@ export const useComments = (postId: string) => {
 };
 
 // 통합 훅
-export const usePostDetail = (postId: string) => {
+export const usePostDetail = (postId: string, companyId?: string) => {
   const { postData, loading, error, refetch } = usePostData(postId);
   const { isStarred, isStarLoading, toggleStar } = useStar(postId);
-  const { isFollowing, toggleFollow } = useFollow(postData);
+  const { isFollowing, toggleFollow } = useFollow(postData, companyId);
   const {
     comments,
     bestCommentId,

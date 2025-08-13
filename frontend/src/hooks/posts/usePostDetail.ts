@@ -45,6 +45,7 @@ interface Comment {
   isRecommend: boolean;
   recommendCount: number;
   link?: string;
+  memberId?: number;
 }
 
 interface CommentResponse {
@@ -261,7 +262,7 @@ export const useFollow = (postData: PostDetail | null) => {
     try {
       if (isFollowing) {
         // 팔로우 취소
-        if (postData.memberId === 1) {
+        if (postData.memberId === 1 && !postData.companyId) {
           alert('해당 사용자는 팔로우할 수 없습니다.');
           return;
         }
@@ -313,23 +314,22 @@ export const useFollow = (postData: PostDetail | null) => {
         }
       } else {
         // 팔로우 추가
-        if (postData.memberId === 1) {
+        if (postData.memberId === 1 && !postData.companyId) {
           alert('해당 사용자는 팔로우할 수 없습니다.');
           return;
         }
         
         if (postData.companyId) {
           // 회사 팔로우 추가
-          const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/companies/${postData.companyId}/follow`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              followerId: user.memberId,
-              companyId: postData.companyId
-            })
-          });
+                     const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/companies/${postData.companyId}/follow`, {
+             method: 'POST',
+             headers: {
+               'Content-Type': 'application/json',
+             },
+             body: JSON.stringify({
+               followerId: user.memberId
+             })
+           });
 
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -394,6 +394,7 @@ export const useComments = (postId: string) => {
   const [commentLoading, setCommentLoading] = useState(false);
   const [userRecommendations, setUserRecommendations] = useState<Map<number, number>>(new Map());
   const [recommendLoading, setRecommendLoading] = useState<Map<number, boolean>>(new Map());
+  const [deleteLoading, setDeleteLoading] = useState<Map<number, boolean>>(new Map());
   const { user } = useUserStore();
 
   // 댓글 목록 가져오기
@@ -604,6 +605,46 @@ export const useComments = (postId: string) => {
     }
   }, [user, userRecommendations, recommendLoading]);
 
+  // 댓글 삭제
+  const deleteComment = useCallback(async (commentId: number) => {
+    // 로그인 상태 확인
+    if (!user?.memberId) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
+
+    if (deleteLoading.get(commentId)) return;
+
+    setDeleteLoading(prev => new Map(prev).set(commentId, true));
+
+    try {
+      const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/comment/${commentId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      // 댓글 목록에서 삭제된 댓글 제거
+      setComments(prev => prev.filter(comment => comment.commentId !== commentId));
+      
+      alert('댓글이 삭제되었습니다.');
+    } catch (err) {
+      console.error('❌ [useComments] 댓글 삭제 요청 실패:', err);
+      alert('댓글 삭제에 실패했습니다.');
+    } finally {
+      setDeleteLoading(prev => {
+        const newMap = new Map(prev);
+        newMap.delete(commentId);
+        return newMap;
+      });
+    }
+  }, [user, deleteLoading]);
+
   return {
     comments,
     bestCommentId,
@@ -616,8 +657,10 @@ export const useComments = (postId: string) => {
     commentLoading,
     userRecommendations,
     recommendLoading,
+    deleteLoading,
     addComment,
-    toggleCommentRecommend
+    toggleCommentRecommend,
+    deleteComment
   };
 };
 
@@ -638,8 +681,10 @@ export const usePostDetail = (postId: string) => {
     commentLoading,
     userRecommendations,
     recommendLoading,
+    deleteLoading,
     addComment,
-    toggleCommentRecommend
+    toggleCommentRecommend,
+    deleteComment
   } = useComments(postId);
 
   return {
@@ -670,7 +715,9 @@ export const usePostDetail = (postId: string) => {
     commentLoading,
     userRecommendations,
     recommendLoading,
+    deleteLoading,
     addComment,
-    toggleCommentRecommend
+    toggleCommentRecommend,
+    deleteComment
   };
 }; 

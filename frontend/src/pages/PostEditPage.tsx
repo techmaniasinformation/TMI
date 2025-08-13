@@ -351,13 +351,19 @@ const PostEditPage: React.FC = () => {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               링크 URL *
             </label>
-            <input
-              type="url"
-              value={linkUrl}
-              onChange={(e) => setLinkUrl(e.target.value)}
-              placeholder="https://example.com"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+            <div className="relative">
+              <input
+                type="url"
+                value={linkUrl}
+                onChange={(e) => setLinkUrl(e.target.value)}
+                maxLength={255}
+                placeholder="https://example.com"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <span className="absolute right-3 top-2 text-sm text-gray-500">
+                {linkUrl.length}/255
+              </span>
+            </div>
             {/* URL 관련 경고 메시지 - 우선순위: urlError > !linkUrl */}
             {urlError ? (
               <div className="relative mt-2">

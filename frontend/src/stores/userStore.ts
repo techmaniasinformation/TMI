@@ -18,8 +18,6 @@ interface UserState {
   isLogin: boolean; // 페이지 구현되면 삭제 예정
   user: User | null;
   newUser: NewUser | null;
-  starLst: string[];
-  starIdMap: Map<string, string>; // postId -> starId 매핑
   followUser: number[];
   followCompany: number[];
 
@@ -34,10 +32,6 @@ interface UserState {
   toggleIsLogin: () => void;
   setUser: (user: User) => void;
   clearUser: () => void;
-  setStarLst: (list: string[]) => void;
-         setStarIdMap: (map: Map<string, string>) => void;
-       addStarId: (postId: string, starId: string) => void;
-  removeStarId: (postId: string) => void;
   setFollowUser: (list: any[]) => void;
   setFollowCompany: (list: any[]) => void;
   setSocialLoginInfo: (provider: string, providerId: string) => void;
@@ -64,8 +58,6 @@ export const useUserStore = create(
       isLogin: false, // 기능 수정 후 isLogin 변수 삭제 예정
       user: null,
       newUser: null, // 신규 회원 정보
-      starLst: [],
-      starIdMap: new Map(),
       followUser: [],
       followCompany: [],
       socialProvider: null,
@@ -92,20 +84,6 @@ export const useUserStore = create(
           isLogin: false
         }),
 
-      setStarLst: (list: string[]) => set({ starLst: list }),
-             setStarIdMap: (map: Map<string, string>) => set({ starIdMap: map }),
-       addStarId: (postId: string, starId: string) => 
-         set((state) => {
-           const newMap = new Map(state.starIdMap);
-           newMap.set(postId, starId);
-           return { starIdMap: newMap };
-         }),
-      removeStarId: (postId: string) => 
-        set((state) => {
-          const newMap = new Map(state.starIdMap);
-          newMap.delete(postId);
-          return { starIdMap: newMap };
-        }),
       setFollowUser: (list: number[]) => set({ followUser: list }),
       setFollowCompany: (list: number[]) => set({ followCompany: list }),
 
@@ -138,34 +116,6 @@ export const useUserStore = create(
               isLogin: true,
               user: data, // ✅ (임시)
             });
-            
-            // 스타 정보도 함께 로드
-            try {
-              const starRes = await fetch(`https://i13a509.p.ssafy.io/api/v1/star?memberId=${data.memberId}`, {
-                credentials: 'include'
-              });
-              
-              if (starRes.ok) {
-                const starData = await starRes.json();
-                const starList = starData.data?.posts || [];
-                const starIds = starList.map((star: any) => star.postId.toString());
-                const starIdMap = new Map();
-                
-                                 starList.forEach((star: any) => {
-                   starIdMap.set(star.postId.toString(), star.starId.toString());
-                 });
-                
-                set((state) => ({
-                  ...state,
-                  starLst: starIds,
-                  starIdMap: starIdMap
-                }));
-                
-                console.log('🔍 checkAuth에서 스타 정보 로드:', { starIds, starIdMap: Array.from(starIdMap.entries()) });
-              }
-            } catch (starError) {
-              console.error('스타 정보 로드 실패:', starError);
-            }
           } else {
             set({
               isLogin: false,
@@ -182,25 +132,7 @@ export const useUserStore = create(
       },
     }),
     { 
-      name: 'userStateStorage',
-      // @ts-ignore - Zustand persist의 타입 정의 문제로 인한 임시 해결책
-      serialize: (state: any) => {
-        // Map 객체를 배열로 변환하여 직렬화
-        const serializedState = {
-          ...state,
-          starIdMap: Array.from(state.starIdMap.entries())
-        };
-        return JSON.stringify(serializedState);
-      },
-      // @ts-ignore - Zustand persist의 타입 정의 문제로 인한 임시 해결책
-      deserialize: (str: string) => {
-        const parsed = JSON.parse(str);
-        // 배열을 다시 Map으로 변환
-        return {
-          ...parsed,
-          starIdMap: new Map(parsed.starIdMap || [])
-        };
-      }
+      name: 'userStateStorage'
     }
   )
 );

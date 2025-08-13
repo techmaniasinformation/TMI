@@ -115,148 +115,99 @@ export const usePostData = (postId: string) => {
   };
 };
 
-// 스타 상태 관리 훅
-export const useStar = (postId: string) => {
-  const { user, starLst, starIdMap, setStarLst, addStarId, removeStarId } = useUserStore();
-  const [isStarred, setIsStarred] = useState(false);
-  const [isStarLoading, setIsStarLoading] = useState(false);
-     const [starId, setStarId] = useState<string | null>(null);
+ // 스타 상태 관리 훅
+ export const useStar = (postId: string) => {
+   const { user } = useUserStore();
+   const [isStarred, setIsStarred] = useState(false);
+   const [isStarLoading, setIsStarLoading] = useState(false);
 
-     // starIdMap이 Map 객체인지 확인하는 안전한 getter
-   const getStarId = useCallback((postId: string): string | null => {
+   // 스타 상태 확인
+   const checkStarStatus = useCallback(async () => {
+     if (!user?.memberId || !postId) return;
+
      try {
-       if (starIdMap instanceof Map) {
-         return starIdMap.get(postId) || null;
+       const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/star?memberId=${user.memberId}`, {
+         credentials: 'include'
+       });
+       
+       if (response.ok) {
+         const data = await response.json();
+         const starList = data.data?.stars || [];
+         const foundStar = starList.find((star: any) => star.postId.toString() === postId);
+         setIsStarred(!!foundStar);
        }
-       // starIdMap이 Map이 아닌 경우 (예: 배열이나 객체로 직렬화된 경우)
-       if (Array.isArray(starIdMap)) {
-         const entry = (starIdMap as any[]).find(([key]: [string, string]) => key === postId);
-         return entry ? entry[1] : null;
-       }
-       if (typeof starIdMap === 'object' && starIdMap !== null) {
-         return (starIdMap as any)[postId] || null;
-       }
-       return null;
      } catch (error) {
-       return null;
+       console.error('스타 상태 확인 실패:', error);
      }
-   }, [starIdMap]);
+   }, [user?.memberId, postId]);
 
-  // 전역 상태에서 스타 상태 확인
-  useEffect(() => {
-    const localIsStarred = starLst.includes(postId);
-    const localStarId = getStarId(postId);
-    
-    setIsStarred(localIsStarred);
-    setStarId(localStarId);
-  }, [postId, starLst, getStarId]);
+   useEffect(() => {
+     checkStarStatus();
+   }, [checkStarStatus]);
 
-  // 스타 토글
-  const toggleStar = useCallback(async () => {
-    if (isStarLoading) return;
-    
-    if (!user?.memberId) {
-      alert('로그인이 필요합니다.');
-      return;
-    }
+   // 스타 토글
+   const toggleStar = useCallback(async () => {
+     if (isStarLoading) return;
+     
+     if (!user?.memberId) {
+       alert('로그인이 필요합니다.');
+       return;
+     }
 
-    console.log('🔍 스타 토글 디버깅:', {
-      postId,
-      isStarred,
-      starId,
-      starIdMap: starIdMap instanceof Map ? Array.from(starIdMap.entries()) : starIdMap,
-      starLst
-    });
-
-    setIsStarLoading(true);
-    try {
-      if (isStarred) {
-        // 스타 취소
-        if (!starId) {
-          console.error('❌ starId가 없음:', { postId, starId, starIdMap });
-          
-          // starIdMap에서 다시 찾아보기
-          const recoveredStarId = getStarId(postId);
-          if (recoveredStarId) {
-            console.log('🔍 starId 복구됨:', recoveredStarId);
-            setStarId(recoveredStarId);
-          } else {
-            // 서버에서 스타 정보 다시 가져오기
-            try {
-              console.log('🔍 서버에서 스타 정보 재조회 시도');
-              const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/star?memberId=${user.memberId}`, {
-                credentials: 'include'
-              });
-              
-              if (response.ok) {
-                const data = await response.json();
-                const starList = data.data?.posts || [];
-                const foundStar = starList.find((star: any) => star.postId.toString() === postId);
-                
-                                 if (foundStar) {
-                   console.log('🔍 서버에서 starId 찾음:', foundStar.starId);
-                   setStarId(foundStar.starId.toString());
-                   addStarId(postId, foundStar.starId.toString());
-                } else {
-                  alert('스타 정보를 찾을 수 없습니다.');
-                  return;
-                }
-              } else {
-                alert('스타 정보를 찾을 수 없습니다.');
-                return;
-              }
-            } catch (error) {
-              console.error('❌ 스타 정보 재조회 실패:', error);
-              alert('스타 정보를 찾을 수 없습니다.');
-              return;
-            }
-          }
-        }
-
-                 const removeResult = await removeStar(starId!);
-
-        if (!removeResult.success) {
-          throw new Error(removeResult.error || '스타 취소 실패');
-        }
-
-        // 전역 상태 업데이트
-        const newStarLst = starLst.filter((id: string) => id !== postId);
-        setStarLst(newStarLst);
-        removeStarId(postId);
-        
-        // UI 상태 업데이트
-        setIsStarred(false);
-        setStarId(null);
-        
-        alert('스타를 취소했습니다');
-      } else {
-        // 스타 추가
-        const addResult = await addStar(user.memberId, postId);
-
-        if (!addResult.success) {
-          throw new Error(addResult.error || '스타 추가 실패');
-        }
-        
-        // 전역 상태 업데이트
-        const newStarLst = [...starLst, postId];
-        setStarLst(newStarLst);
-        
-                 if (addResult.starId) {
-           setStarId(addResult.starId.toString());
-           addStarId(postId, addResult.starId.toString());
+     setIsStarLoading(true);
+     try {
+       if (isStarred) {
+         // 스타 취소 - 서버에서 현재 스타 정보 가져오기
+         try {
+           const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/star?memberId=${user.memberId}`, {
+             credentials: 'include'
+           });
+           
+           if (response.ok) {
+             const data = await response.json();
+             const starList = data.data?.stars || [];
+             const foundStar = starList.find((star: any) => star.postId.toString() === postId);
+             
+             if (foundStar) {
+               const removeResult = await removeStar(foundStar.starId.toString());
+               
+               if (!removeResult.success) {
+                 throw new Error(removeResult.error || '스타 취소 실패');
+               }
+               
+               // UI 상태 업데이트
+               setIsStarred(false);
+               
+               alert('스타를 취소했습니다');
+             } else {
+               alert('스타 정보를 찾을 수 없습니다.');
+             }
+           } else {
+             alert('스타 정보를 찾을 수 없습니다.');
+           }
+         } catch (error) {
+           console.error('스타 취소 실패:', error);
+           alert('스타 취소에 실패했습니다.');
          }
-        
-        // UI 상태 업데이트
-        setIsStarred(true);
-        
-        alert('스타했습니다');
-      }
-    } catch (err) {
-      alert('스타 요청에 실패했습니다.');
-    } finally {
-      setIsStarLoading(false);
-    }
-  }, [isStarred, starId, user?.memberId, postId, starLst, setStarLst, addStarId, removeStarId, isStarLoading]);
+       } else {
+         // 스타 추가
+         const addResult = await addStar(user.memberId, postId);
+
+         if (!addResult.success) {
+           throw new Error(addResult.error || '스타 추가 실패');
+         }
+         
+         // UI 상태 업데이트
+         setIsStarred(true);
+         
+         alert('스타했습니다');
+       }
+     } catch (err) {
+       alert('스타 요청에 실패했습니다.');
+     } finally {
+       setIsStarLoading(false);
+     }
+   }, [isStarred, user?.memberId, postId, isStarLoading]);
 
   return {
     isStarred,

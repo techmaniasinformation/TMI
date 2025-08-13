@@ -10,9 +10,10 @@ interface AuthorInfoProps {
   onFollowClick: () => void;
   onAuthorClick: () => void;
   isFollowing: boolean;
+  showFollowButton?: boolean; // 팔로우 버튼 표시 여부
 }
 
-export const AuthorInfo: React.FC<AuthorInfoProps> = ({ post, formatDate, onFollowClick, onAuthorClick, isFollowing }) => {
+export const AuthorInfo: React.FC<AuthorInfoProps> = ({ post, formatDate, onFollowClick, onAuthorClick, isFollowing, showFollowButton = true }) => {
   // 프로필 이미지 URL을 메모이제이션
   const profileImageUrl = useMemo(() => {
     return post.memberProfileUrl;
@@ -48,13 +49,15 @@ export const AuthorInfo: React.FC<AuthorInfoProps> = ({ post, formatDate, onFoll
             />
           </div>
         </UserInfoBox>
-        <Button 
-          variant={isFollowing ? "light" : "dark"}
-          size="sm"
-          onClick={onFollowClick}
-        >
-          {isFollowing ? '팔로우 취소' : '팔로우'}
-        </Button>
+        {showFollowButton && (
+          <Button 
+            variant={isFollowing ? "light" : "dark"}
+            size="sm"
+            onClick={onFollowClick}
+          >
+            {isFollowing ? '팔로우 취소' : '팔로우'}
+          </Button>
+        )}
       </div>
     </div>
   );

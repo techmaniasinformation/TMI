@@ -21,7 +21,7 @@ export default function WithdrawalConfirmModal({
 }: WithdrawalConfirmModalProps) {
   const navigate = useNavigate();
   const {
-    user, clearUser, setStarLst, setFollowUser, setFollowCompany, clearSocialLoginInfo,
+    user, clearUser, setFollowUser, setFollowCompany, clearSocialLoginInfo,
   } = useUserStore();
 
   if (!isOpen) return null;
@@ -37,7 +37,6 @@ export default function WithdrawalConfirmModal({
     } catch {}
     try {
       clearUser();
-      setStarLst([]);
       setFollowUser([]);
       setFollowCompany([]);
       clearSocialLoginInfo();

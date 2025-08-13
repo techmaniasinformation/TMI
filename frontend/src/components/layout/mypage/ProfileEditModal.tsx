@@ -11,8 +11,6 @@ import { Button } from '@/components/foundation/button';
 import { Camera } from 'lucide-react';
 import { getSafeProfileUrl } from '@/utils/defaultImages';
 import { useThemeStore } from '@/stores/themeStore';
-
-// 이미지 압축 훅
 import { useImageCompression } from '@/hooks/useImageCompression';
 
 interface ProfileEditModalProps {
@@ -42,7 +40,6 @@ const countAllowed = (s: string) =>
 
 const DUP_API = 'https://i13a509.p.ssafy.io/api/v1/member/duplicate?nickname=';
 
-// URL 유틸
 const normalizeUrl = (raw: string) => {
   const v = (raw ?? '').trim();
   if (!v) return '';
@@ -119,7 +116,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
     handleImageUpload,
     setImagePreview,
     setExistingImageUrl,
-    setSelectedImage, // ✅ 추가: 삭제 시 selectedImage 초기화 위해
+    setSelectedImage,
   } = useImageCompression();
 
   const [nickname, setNickname] = useState(initialNickname);
@@ -257,24 +254,42 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogOverlay className="fixed inset-0 bg-black/70 z-40" />
-      <DialogContent className={`w-[512px] z-50 rounded-lg shadow-lg ${isDarkMode ? 'bg-zinc-800 text-white' : 'bg-white'}`}>
+      <DialogContent
+        className={`w-[512px] z-50 rounded-lg shadow-lg ${
+          isDarkMode ? 'bg-zinc-800 text-white' : 'bg-white'
+        }`}
+      >
         <DialogHeader>
-          <DialogTitle className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+          <DialogTitle
+            className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+          >
             프로필 수정
           </DialogTitle>
         </DialogHeader>
 
         {/* 프로필 이미지 */}
         <div className="flex flex-col items-center justify-center mt-4 mb-2">
-          <div className={`relative w-24 h-24 rounded-full border overflow-hidden flex items-center justify-center ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}>
+          <div
+            className={`relative w-24 h-24 rounded-full border overflow-hidden flex items-center justify-center ${
+              isDarkMode ? 'border-gray-600' : 'border-gray-300'
+            }`}
+          >
             {imagePreview || existingImageUrl ? (
-              <img src={getSafeProfileUrl(imagePreview || existingImageUrl)}alt="Profile" className="w-24 h-24 object-cover" draggable={false} />
+              <img
+                src={getSafeProfileUrl(imagePreview || existingImageUrl)}
+                alt="Profile"
+                className="w-24 h-24 object-cover"
+                draggable={false}
+              />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">
                 No Image
               </div>
             )}
-            <label htmlFor="image-upload" className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/50 transition cursor-pointer">
+            <label
+              htmlFor="image-upload"
+              className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/50 transition cursor-pointer"
+            >
               <Camera className="w-6 h-6 text-white" />
             </label>
             <input
@@ -287,7 +302,11 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
             />
           </div>
 
-          <p className={`text-sm mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+          <p
+            className={`text-sm mt-2 ${
+              isDarkMode ? 'text-gray-400' : 'text-gray-500'
+            }`}
+          >
             이미지는 10MB 이하만 업로드 가능해요.
           </p>
 
@@ -295,13 +314,16 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
             <div className="mt-2 flex items-center gap-3">
               <button
                 type="button"
-                className={`text-xs underline ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
+                className={`text-xs underline ${
+                  isDarkMode ? 'text-red-400' : 'text-red-600'
+                }`}
                 onClick={() => {
-                  // ✅ 완전 삭제 상태로 만들기
                   setImagePreview('');
                   setExistingImageUrl('');
-                  setSelectedImage(null); // 추가: 삭제 상태 반영
-                  const input = document.getElementById('image-upload') as HTMLInputElement | null;
+                  setSelectedImage(null);
+                  const input = document.getElementById(
+                    'image-upload'
+                  ) as HTMLInputElement | null;
                   if (input) input.value = '';
                 }}
                 disabled={isImageProcessing}
@@ -312,8 +334,49 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
           )}
         </div>
 
-        {/* ...닉네임/블로그/GitHub 필드 + 저장 버튼 기존 로직 동일... */}
-        {/* (생략 부분은 위 코드와 동일) */}
+        {/* 닉네임 */}
+        <div className="mt-4">
+          <Input
+            value={nickname}
+            onChange={handleNicknameChange}
+            placeholder="닉네임"
+            disabled={nicknameDisabled}
+          />
+          {nicknameError && <p className="text-xs text-red-500">{nicknameError}</p>}
+          {nicknameHelperText && !nicknameError && (
+            <p className="text-xs text-gray-500">{nicknameHelperText}</p>
+          )}
+        </div>
+
+        {/* 블로그 */}
+        <div className="mt-4">
+          <Input
+            value={blogUrl}
+            onChange={(e) => setBlogUrl(e.target.value)}
+            placeholder="블로그 주소"
+          />
+          {blogError && <p className="text-xs text-red-500">{blogError}</p>}
+        </div>
+
+        {/* GitHub */}
+        <div className="mt-4">
+          <Input
+            value={githubUrl}
+            onChange={(e) => setGithubUrl(e.target.value)}
+            placeholder="GitHub 주소"
+          />
+          {githubError && <p className="text-xs text-red-500">{githubError}</p>}
+        </div>
+
+        {/* 저장 버튼 */}
+        <div className="mt-6 flex justify-end gap-2">
+          <Button onClick={onClose} variant="outline">
+            취소
+          </Button>
+          <Button onClick={handleSubmit} disabled={saving}>
+            저장
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

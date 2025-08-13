@@ -223,7 +223,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
               <img
                 src={getSafeProfileUrl(imagePreview)}
                 alt="Profile"
-                className="w-24 h-24 object-contain"
+                className="w-24 h-24 object-cover rounded-full"
                 draggable={false}
               />
             ) : (

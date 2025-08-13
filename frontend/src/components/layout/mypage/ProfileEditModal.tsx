@@ -6,7 +6,7 @@ import {
   DialogTitle,
   DialogOverlay,
 } from '@/components/domain/Dialog';
-  import { Input } from '@/components/domain/Input';
+import { Input } from '@/components/domain/Input';
 import { Button } from '@/components/foundation/button';
 import { Camera } from 'lucide-react';
 
@@ -28,6 +28,9 @@ interface ProfileEditModalProps {
   ) => Promise<void>;
 }
 
+const NICKNAME_RE = /^[ㄱ-ㅎ가-힣a-zA-Z0-9]{2,16}$/;
+const isValidNickname = (v: string) => NICKNAME_RE.test(v);
+
 const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   isOpen,
   onClose,
@@ -40,6 +43,8 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   onSave,
 }) => {
   const [nickname, setNickname] = useState(initialNickname);
+  const [nicknameError, setNicknameError] = useState<string | null>(null);
+
   const [blogUrl, setBlogUrl] = useState(initialBlogUrl);
   const [githubUrl, setGithubUrl] = useState(initialGithubUrl || '');
   const [previewUrl, setPreviewUrl] = useState<string | null>(initialProfileImageUrl || null);
@@ -75,6 +80,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
 
   useEffect(() => {
     setNickname(initialNickname);
+    setNicknameError(null);
     setBlogUrl(initialBlogUrl);
     setGithubUrl(initialGithubUrl || '');
     setPreviewUrl(initialProfileImageUrl || null);
@@ -95,6 +101,34 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   const handleImgLoad = () => {
     setImgLoading(false);
     fallbackAppliedRef.current = false;
+  };
+
+  // ✅ 닉네임: 한글/영문/숫자만 허용 (공백·특수문자 제거) + 길이 검증
+  const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // 허용 문자 외 제거 (공백, 특수문자, 이모지 등)
+    const filtered = value.replace(/[^ㄱ-ㅎ가-힣a-zA-Z0-9]/g, '');
+    setNickname(filtered);
+
+    // 실시간 길이/형식 체크
+    if (filtered.length === 0) {
+      setNicknameError('닉네임을 입력해 주세요.');
+    } else if (!isValidNickname(filtered)) {
+      setNicknameError('닉네임은 2~16자의 한글/영문/숫자만 가능합니다.');
+    } else {
+      setNicknameError(null);
+    }
+  };
+
+  // 포커스 아웃 시 안전망(공백은 이미 입력 단계에서 제거되지만 한 번 더 보정)
+  const handleNicknameBlur = () => {
+    const v = (nickname ?? '').trim();
+    setNickname(v);
+    if (!isValidNickname(v)) {
+      setNicknameError('닉네임은 2~16자의 한글/영문/숫자만 가능합니다.');
+    } else {
+      setNicknameError(null);
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -159,12 +193,19 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   const [saving, setSaving] = useState(false);
   const handleSubmit = async () => {
     if (saving) return;
+
+    const cleanNickname = (nickname ?? '').trim();
+    // 저장 직전 최종 검증(서버 호출 차단)
+    if (!isValidNickname(cleanNickname)) {
+      setNicknameError('닉네임은 2~16자의 한글/영문/숫자만 가능합니다.');
+      return;
+    }
+
     setSaving(true);
     try {
       // 파일 없음 + 프리뷰가 초기 이미지와 같으면 URL은 보내지 않음(= undefined)
       const isSameAsInitial =
-        !selectedFile &&
-        (previewUrl ?? '') === (initialProfileImageUrl ?? '');
+        !selectedFile && (previewUrl ?? '') === (initialProfileImageUrl ?? '');
 
       // ✅ 제거면 null, 유지면 undefined, 프리뷰 변경이면 그 값
       const profileArg: string | null | undefined =
@@ -173,7 +214,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
       // ✅ 아무 것도 안 바뀐 경우만 스킵 (제거 의도면 변경으로 간주)
       const nothingChanged =
         !removed &&
-        (nickname ?? '') === (initialNickname ?? '') &&
+        cleanNickname === (initialNickname ?? '') &&
         (blogUrl ?? '') === (initialBlogUrl ?? '') &&
         (githubUrl ?? '') === (initialGithubUrl ?? '') &&
         !selectedFile &&
@@ -185,7 +226,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
       }
 
       await onSave(
-        nickname,
+        cleanNickname,
         blogUrl,
         githubUrl,
         profileArg,
@@ -244,7 +285,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
           </button>
 
           <p className="text-sm text-gray-500 mt-2">
-             이미지는 10MB 이하, 최대 1024×1024px만 업로드할 수 있어요.
+            이미지는 10MB 이하, 최대 1024×1024px만 업로드할 수 있어요.
           </p>
           {(previewUrl || selectedFile) && (
             <button
@@ -275,11 +316,20 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
             <label className="text-sm font-medium text-gray-700">닉네임</label>
             <Input
               value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
+              onChange={handleNicknameChange}
+              onBlur={handleNicknameBlur}
               disabled={!!nicknameDisabled}
+              placeholder="한글/영문/숫자만 입력 (2~16자)"
+              aria-invalid={!!nicknameError}
+              aria-describedby={nicknameError ? 'nickname-error' : undefined}
             />
-            {nicknameHelperText && (
-              <p className="mt-1 text-xs text-gray-500">{nicknameHelperText}</p>
+            {(nicknameHelperText || nicknameError) && (
+              <p
+                id="nickname-error"
+                className={`mt-1 text-xs ${nicknameError ? 'text-red-500' : 'text-gray-500'}`}
+              >
+                {nicknameError ?? nicknameHelperText}
+              </p>
             )}
           </div>
           <div>
@@ -297,7 +347,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
           <Button
             variant="primary"
             onClick={handleSubmit}
-            disabled={saving}
+            disabled={saving || !!nicknameError || (nickname ?? '').length === 0}
             className={`w-full h-10 text-white font-semibold ${saving ? 'opacity-60 cursor-not-allowed' : ''}`}
           >
             {saving ? '저장 중…' : '저장하기'}

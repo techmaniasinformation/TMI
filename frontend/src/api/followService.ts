@@ -115,7 +115,7 @@ export async function createCompanyFollow(
 
 // 회원 언팔
 export async function deleteMemberFollow(followerId: number, followeeId: number): Promise<FollowMutateResp> {
-  const res = await fetch(`${BASE}/memberFollow/followerId=${followerId}&followeeId=${followeeId}`, {
+  const res = await fetch(`${BASE}/memberFollow?followerId=${followerId}&followeeId=${followeeId}`, {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
   });
@@ -126,7 +126,7 @@ export async function deleteMemberFollow(followerId: number, followeeId: number)
 
 // 회사 언팔
 export async function deleteCompanyFollow(followerId: number, companyId: number): Promise<FollowMutateResp> {
-  const res = await fetch(`${BASE}/companyFollow/followerId=${followerId}&companyId=${companyId}`, {
+  const res = await fetch(`${BASE}/companyFollow?followerId=${followerId}&companyId=${companyId}`, {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
   });

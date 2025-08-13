@@ -61,6 +61,24 @@ interface UseImageCompressionReturn {
   clearExistingImageUrl: () => void;
 }
 
+type KnownMime = 'image/jpeg' | 'image/png' | 'image/gif';
+
+const ALLOWED_TYPES: KnownMime[] = ['image/jpeg', 'image/png', 'image/gif'];
+const EXT_TO_MIME: Record<string, KnownMime> = {
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  png: 'image/png',
+  gif: 'image/gif',
+};
+
+// 정책 값
+const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+const MIN_SIZE = 1024;             // 1KB
+const POST_MIN_SIZE = 100;         // 헤더 통과 후 추가 최소(보수)
+const MAX_DIMENSION = 1920;        // 압축 시 최대 변
+const RATIO_MIN = 0.5;
+const RATIO_MAX = 2.0;
+
 export const useImageCompression = (): UseImageCompressionReturn => {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
@@ -78,6 +96,74 @@ export const useImageCompression = (): UseImageCompressionReturn => {
   }, [existingImageUrl, imagePreview]);
 
   /**
+   * 내부 유틸: 앞 N바이트 읽기
+   */
+  const readBytes = (file: File, n: number): Promise<Uint8Array> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        resolve(new Uint8Array(e.target?.result as ArrayBuffer));
+      };
+      reader.onerror = () => reject(new Error('파일을 읽을 수 없습니다.'));
+      reader.readAsArrayBuffer(file.slice(0, n));
+    });
+
+  /**
+   * 내부 유틸: 매직바이트로 실제 MIME 판별 (PNG/JPEG/GIF)
+   */
+  const detectActualType = async (file: File): Promise<KnownMime | null> => {
+    const b = await readBytes(file, 12);
+
+    // PNG: 89 50 4E 47 0D 0A 1A 0A
+    const png = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
+    if (png.every((v, i) => b[i] === v)) return 'image/png';
+
+    // JPEG: FF D8 FF
+    const jpg = [0xFF, 0xD8, 0xFF];
+    if (jpg.every((v, i) => b[i] === v)) return 'image/jpeg';
+
+    // GIF87a / GIF89a
+    const gif87a = [0x47, 0x49, 0x46, 0x38, 0x37, 0x61];
+    const gif89a = [0x47, 0x49, 0x46, 0x38, 0x39, 0x61];
+    if (gif87a.every((v, i) => b[i] === v) || gif89a.every((v, i) => b[i] === v)) {
+      return 'image/gif';
+    }
+
+    return null;
+  };
+
+  /**
+   * 내부 유틸: 이미지 디코드 테스트 (createImageBitmap -> Image() 폴백)
+   */
+  const canDecodeImage = async (file: File): Promise<boolean> => {
+    try {
+      if ('createImageBitmap' in window) {
+        const bmp = await createImageBitmap(file);
+        // Safari 일부 버전 메모리 누수 방지
+        // @ts-ignore
+        bmp.close?.();
+        return true;
+      }
+    } catch {
+      /* 폴백 진행 */
+    }
+
+    return new Promise<boolean>((resolve) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        resolve(true);
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        resolve(false);
+      };
+      img.src = url;
+    });
+  };
+
+  /**
    * 이미지 업로드 및 압축 처리 함수
    *
    * 파일 선택 시 자동으로 압축을 수행하고 미리보기를 생성합니다.
@@ -89,216 +175,148 @@ export const useImageCompression = (): UseImageCompressionReturn => {
     const file = event.target.files?.[0];
     const fileInput = event.target;
 
-    if (file) {
-      // 파일 형식 검증
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-      if (!allowedTypes.includes(file.type)) {
-        alert('jpg, jpeg, png, gif 형식의 이미지만 업로드할 수 있습니다.\n\n파일명: ' + file.name + '\n감지된 형식: ' + file.type);
-        fileInput.value = '';
-        return;
-      }
+    if (!file) return;
 
-      // 파일명과 MIME 타입 일치성 검증
-      const fileName = file.name.toLowerCase();
-      const fileExtension = fileName.split('.').pop();
-      const expectedType = file.type;
+    // 기본 크기 검증
+    if (file.size > MAX_SIZE) {
+      alert(
+        '파일 크기는 10MB 이하여야 합니다.\n\n현재 파일 크기: ' +
+          (file.size / (1024 * 1024)).toFixed(2) +
+          'MB\n허용 최대 크기: 10MB'
+      );
+      fileInput.value = '';
+      return;
+    }
+    if (file.size === 0) {
+      alert('빈 파일은 업로드할 수 없습니다.\n\n파일명: ' + file.name);
+      fileInput.value = '';
+      return;
+    }
+    if (file.size < MIN_SIZE) {
+      alert(
+        `파일 크기가 너무 작습니다.\n\n파일명: ${file.name}\n파일 크기: ${file.size} bytes\n\n유효한 이미지 파일인지 확인해주세요.`
+      );
+      fileInput.value = '';
+      return;
+    }
 
-      // 파일 확장자와 MIME 타입이 일치하지 않는 경우 경고
-      if (fileExtension && expectedType) {
-        const extensionToMimeMap: { [key: string]: string } = {
-          'jpg': 'image/jpeg',
-          'jpeg': 'image/jpeg',
-          'png': 'image/png',
-          'gif': 'image/gif'
+    // 확장자 ↔ MIME 일치성 1차 검증
+    const fileName = file.name.toLowerCase();
+    const ext = fileName.split('.').pop() || '';
+    const extMime = EXT_TO_MIME[ext];
+    if (!ALLOWED_TYPES.includes(file.type as KnownMime) || !extMime || extMime !== file.type) {
+      alert(
+        `jpg, jpeg, png, gif 형식만 업로드할 수 있습니다.\n\n파일명: ${file.name}\n확장자: .${ext}\n감지된 형식: ${file.type || '(알 수 없음)'}`
+      );
+      fileInput.value = '';
+      return;
+    }
+
+    // 매직바이트로 실제 타입 판별 (2차 검증)
+    let actual: KnownMime | null = null;
+    try {
+      actual = await detectActualType(file);
+    } catch {
+      // 읽기 실패
+    }
+    if (!actual || actual !== file.type) {
+      alert(
+        `파일 헤더가 실제 이미지 형식과 일치하지 않습니다.\n\n파일명: ${file.name}\n확장자/MIME: ${extMime}\n실제감지: ${actual ?? '미확인'}\n\n올바른 이미지 파일을 업로드해주세요.`
+      );
+      fileInput.value = '';
+      return;
+    }
+
+    // 추가 보수 최소 크기
+    if (file.size < POST_MIN_SIZE) {
+      alert(
+        `파일이 너무 작습니다. 유효한 이미지 파일이 아닐 수 있습니다.\n\n파일명: ${file.name}\n파일 크기: ${file.size} bytes`
+      );
+      fileInput.value = '';
+      return;
+    }
+
+    // 디코드 테스트 (3차 검증)
+    const decodable = await canDecodeImage(file);
+    if (!decodable) {
+      alert('이미지 파일을 디코드할 수 없습니다. 손상되었거나 지원하지 않는 형식입니다.');
+      fileInput.value = '';
+      return;
+    }
+
+    setIsImageProcessing(true);
+    try {
+      // 기존 이미지 URL 초기화 (새 이미지 업로드 시)
+      if (existingImageUrl) setExistingImageUrl('');
+
+      // 원본 파일 크기 저장
+      setOriginalFileSize(file.size);
+
+      // 이미지 비율 검증
+      const testUrl = URL.createObjectURL(file);
+      const sizeOk = await new Promise<File>((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          const ratio = img.width / img.height;
+          URL.revokeObjectURL(testUrl);
+
+          if (ratio >= RATIO_MIN && ratio <= RATIO_MAX) {
+            resolve(file);
+          } else {
+            alert(
+              `이미지 비율이 허용 범위를 벗어났습니다.\n\n현재 비율: ${ratio.toFixed(
+                2
+              )} (가로/세로)\n허용 범위: ${RATIO_MIN} ~ ${RATIO_MAX}\n\n이미지 비율을 조정해주세요.`
+            );
+            reject(new Error('이미지 비율 범위 초과'));
+          }
         };
-
-        const expectedMime = extensionToMimeMap[fileExtension];
-        if (expectedMime && expectedMime !== expectedType) {
-          alert('파일 확장자와 실제 형식이 일치하지 않습니다.\n\n파일명: ' + file.name + '\n확장자: .' + fileExtension + '\n감지된 형식: ' + expectedType + '\n\n올바른 이미지 파일을 업로드해주세요.');
-          fileInput.value = '';
-          return;
-        }
-      }
-
-      // 파일 크기 검증 (10MB)
-      const maxSize = 10 * 1024 * 1024;
-      if (file.size > maxSize) {
-        alert('파일 크기는 10MB 이하여야 합니다.\n\n현재 파일 크기: ' +
-              (file.size / (1024 * 1024)).toFixed(2) + 'MB\n' +
-              '허용 최대 크기: 10MB');
-        fileInput.value = '';
-        return;
-      }
-
-      // 파일 크기가 0이거나 너무 작은 경우 검증
-      if (file.size === 0) {
-        alert('빈 파일은 업로드할 수 없습니다.\n\n파일명: ' + file.name);
-        fileInput.value = '';
-        return;
-      }
-
-      // 파일 크기가 1KB 미만인 경우 의심스러운 파일로 간주
-      if (file.size < 1024) {
-        alert('파일 크기가 너무 작습니다.\n\n파일명: ' + file.name + '\n파일 크기: ' + file.size + ' bytes\n\n유효한 이미지 파일인지 확인해주세요.');
-        fileInput.value = '';
-        return;
-      }
-
-      // 파일 헤더 검증 (실제 이미지 파일인지 확인)
-      const fileHeaderCheck = new Promise<boolean>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const arrayBuffer = e.target?.result as ArrayBuffer;
-          const uint8Array = new Uint8Array(arrayBuffer);
-          
-          // PNG 파일 시그니처 확인 (8바이트)
-          if (file.type === 'image/png') {
-            const pngSignature = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
-            const isPng = pngSignature.every((byte, index) => uint8Array[index] === byte);
-            if (!isPng) {
-              alert('PNG 파일이 아닙니다.\n\n파일명: ' + file.name + '\n\n올바른 PNG 이미지 파일을 업로드해주세요.');
-              resolve(false);
-              return;
-            }
-          }
-          
-          // JPEG 파일 시그니처 확인 (3바이트)
-          if (file.type === 'image/jpeg') {
-            const jpegSignature = [0xFF, 0xD8, 0xFF];
-            const isJpeg = jpegSignature.every((byte, index) => uint8Array[index] === byte);
-            if (!isJpeg) {
-              alert('JPEG 파일이 아닙니다.\n\n파일명: ' + file.name + '\n\n올바른 JPEG 이미지 파일을 업로드해주세요.');
-              resolve(false);
-              return;
-            }
-          }
-          
-          // GIF 파일 시그니처 확인 (6바이트)
-          if (file.type === 'image/gif') {
-            const gifSignature = [0x47, 0x49, 0x46, 0x38, 0x37, 0x61]; // GIF87a
-            const gif89aSignature = [0x47, 0x49, 0x46, 0x38, 0x39, 0x61]; // GIF89a
-            const isGif = gifSignature.every((byte, index) => uint8Array[index] === byte) ||
-                         gif89aSignature.every((byte, index) => uint8Array[index] === byte);
-            if (!isGif) {
-              alert('GIF 파일이 아닙니다.\n\n파일명: ' + file.name + '\n\n올바른 GIF 이미지 파일을 업로드해주세요.');
-              resolve(false);
-              return;
-            }
-          }
-          
-          // 추가 보안 검증: 파일 크기가 너무 작은 경우 의심스러운 파일로 간주
-          if (file.size < 100) {
-            alert('파일이 너무 작습니다. 유효한 이미지 파일이 아닙니다.\n\n파일명: ' + file.name + '\n파일 크기: ' + file.size + ' bytes');
-            resolve(false);
-            return;
-          }
-          
-          resolve(true);
+        img.onerror = () => {
+          URL.revokeObjectURL(testUrl);
+          reject(new Error('이미지 로드 실패'));
         };
-        reader.onerror = () => {
-          alert('파일을 읽을 수 없습니다.\n\n파일명: ' + file.name);
-          resolve(false);
-        };
-        reader.readAsArrayBuffer(file.slice(0, 8)); // 헤더만 읽기
+        img.src = testUrl;
+      }).catch(() => null as unknown as File);
+
+      if (!sizeOk) {
+        fileInput.value = '';
+        setIsImageProcessing(false);
+        return;
+      }
+
+      // 이미지 압축 옵션 설정
+      const options = {
+        maxSizeMB: 1, // 최대 1MB
+        maxWidthOrHeight: MAX_DIMENSION,
+        useWebWorker: true,
+        fileType: file.type as KnownMime,
+      };
+
+      // 이미지 압축 실행
+      const compressed = await imageCompression(file, options);
+
+      // Blob을 File 객체로 변환 (파일명 유지 시도)
+      const finalFile = new File([compressed], file.name, {
+        type: compressed.type || file.type,
+        lastModified: Date.now(),
       });
 
-      // 파일 헤더 검증 실행
-      const isValidImageFile = await fileHeaderCheck;
-      if (!isValidImageFile) {
-        fileInput.value = '';
-        return;
-      }
+      // 미리보기 생성 (dataURL)
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(finalFile);
 
-      setIsImageProcessing(true);
-      try {
-        // 기존 이미지 URL 초기화 (새 이미지 업로드 시)
-        if (existingImageUrl) {
-          setExistingImageUrl('');
-        }
-
-        // 원본 파일 크기 저장
-        setOriginalFileSize(file.size);
-
-        // 이미지 비율 검증
-        const img = new Image();
-        const url = URL.createObjectURL(file);
-
-        const ratioCheck = new Promise<File>((resolve, reject) => {
-          img.onload = () => {
-            URL.revokeObjectURL(url);
-            const ratio = img.width / img.height;
-
-            // 비율이 0.5 이상 2.0 이하인 경우만 허용
-            if (ratio >= 0.5 && ratio <= 2.0) {
-              resolve(file);
-            } else {
-              alert(`이미지 비율이 허용 범위를 벗어났습니다.\n\n현재 비율: ${ratio.toFixed(2)} (가로/세로)\n허용 범위: 0.5 ~ 2.0\n\n이미지 비율을 조정해주세요.`);
-              reject(new Error('이미지 비율이 허용 범위를 벗어남'));
-            }
-          };
-
-          img.onerror = () => {
-            URL.revokeObjectURL(url);
-            reject(new Error('이미지를 로드할 수 없습니다.'));
-          };
-
-          img.src = url;
-        });
-
-        let processedFile: File;
-        try {
-          processedFile = await ratioCheck;
-        } catch (ratioError) {
-          fileInput.value = '';
-          setIsImageProcessing(false);
-          return;
-        }
-
-        // 이미지 압축 옵션 설정
-        const options = {
-          maxSizeMB: 1, // 최대 1MB
-          maxWidthOrHeight: 1920, // 최대 해상도
-          useWebWorker: true,
-          fileType: processedFile.type
-        };
-
-        // 이미지 압축 실행
-        const compressedFile = await imageCompression(processedFile, options);
-
-        // Blob을 File 객체로 변환
-        let finalFile: File;
-
-        if (compressedFile) {
-          // 원본 파일명 유지 (가능한 경우)
-          const fileName = (compressedFile as any).name || 'compressed-image.jpg';
-          const fileType = compressedFile.type || 'image/jpeg';
-
-          // File 객체로 생성
-          finalFile = new File([compressedFile], fileName, {
-            type: fileType,
-            lastModified: Date.now()
-          });
-        } else {
-          console.error('압축된 파일이 유효하지 않음:', compressedFile);
-          throw new Error('이미지 압축 결과가 유효하지 않습니다.');
-        }
-
-        // 미리보기 생성
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          setImagePreview(e.target?.result as string);
-        };
-        reader.readAsDataURL(finalFile);
-
-        // File 객체 저장
-        setSelectedImage(finalFile);
-
-      } catch (error) {
-        console.error('이미지 압축 실패:', error);
-        alert('이미지 처리 중 오류가 발생했습니다.');
-      } finally {
-        setIsImageProcessing(false);
-      }
+      // 상태 저장
+      setSelectedImage(finalFile);
+    } catch (error) {
+      console.error('이미지 처리 실패:', error);
+      alert('이미지 처리 중 오류가 발생했습니다.');
+      fileInput.value = '';
+      // 실패 시 원래 상태 유지(기존 URL 있으면 그대로)
+    } finally {
+      setIsImageProcessing(false);
     }
   };
 
@@ -343,6 +361,6 @@ export const useImageCompression = (): UseImageCompressionReturn => {
     handleImageCancel,
     setImagePreview,
     setExistingImageUrl,
-    clearExistingImageUrl
+    clearExistingImageUrl,
   };
 };

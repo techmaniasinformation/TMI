@@ -70,10 +70,11 @@ export default function WithdrawalConfirmModal({
         <button onClick={onCancel} className="absolute top-3 right-3 text-gray-500 hover:text-gray-700" disabled={loading} aria-label="닫기">
           &times;
         </button>
-        <div className="pt-4">
-          <p className="text-center text-gray-800 mb-4">
-            탈퇴 후 7일 이내 재가입이 불가합니다. 정말 탈퇴하시겠습니까?
-          </p>
+        <div className="mt-8">
+          <div className="text-center text-gray-800 mb-12">
+            <p>탈퇴 시 모든 정보가 영구 삭제됩니다.</p>
+            <p className="mt-3">진행하시겠습니까?</p>
+          </div>
 
           {errorMessage && (
             <p role="alert" className="text-center text-sm text-red-600 mb-2">{errorMessage}</p>

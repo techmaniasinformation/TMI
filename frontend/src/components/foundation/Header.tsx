@@ -1,14 +1,14 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/utils/utils';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import SearchBar from './SearchBar'; // 검색바 컴포넌트 분리
+import SearchBar from './SearchBar';
 import { Button } from './button';
-import { useThemeStore } from '@/stores/themeStore'; // 테마 불러오기
-import { useUserStore } from '@/stores/userStore'; // 로그인 관련 전역변수
+import { useThemeStore } from '@/stores/themeStore';
+import { useUserStore } from '@/stores/userStore';
 
 import logo from '@/assets/icons/tmiLogo.svg';
-import { getSafeProfileUrl } from '@/utils/defaultImages'; // 디폴트 프로필 이미지
+import { getSafeProfileUrl } from '@/utils/defaultImages';
 
 const headerVariants = cva('text-white', {
   variants: {
@@ -30,10 +30,7 @@ const headerVariants = cva('text-white', {
 
 interface HeaderProps extends VariantProps<typeof headerVariants> {}
 
-const Header: React.FC<HeaderProps> = ({
-  variant = 'light',
-  size = 'default',
-}) => {
+const Header: React.FC<HeaderProps> = ({ variant = 'light', size = 'default' }) => {
   const {
     user,
     prevPath,
@@ -44,23 +41,21 @@ const Header: React.FC<HeaderProps> = ({
     setFollowCompany,
     clearSocialLoginInfo,
     setPrevPath,
-  } = useUserStore(); // 로그인 상태 확인
-  const { isDarkMode, toggleTheme } = useThemeStore(); // 전역 상태 사용
+  } = useUserStore();
+  const { isDarkMode, toggleTheme } = useThemeStore();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(true);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const navigate = useNavigate();
   const location = useLocation();
-  const [unreadCount, setUnreadCount] = useState(0); //알림 갯수
+  const [unreadCount, setUnreadCount] = useState(0);
 
-  // 로그인 여부
   const isAuthenticated = !!user;
 
-    //페이지 렌더링 시 알림 데이터 요청
   useEffect(() => {
     if (isAuthenticated && user?.memberId) {
       fetch(
-        `https://i13a509.p.ssafy.io/api/v1/notification?memberId=${user.memberId}&status=unread`, // &&& API 호출
+        `https://i13a509.p.ssafy.io/api/v1/notification?memberId=${user.memberId}&status=unread`,
         { method: 'GET', credentials: 'include' }
       )
         .then((res) => res.json())
@@ -80,114 +75,96 @@ const Header: React.FC<HeaderProps> = ({
           setUnreadCount(0);
         });
     }
-  }, [isAuthenticated, user?.memberId]); // 로그인/사용자 ID 변경 시 재요청
+  }, [isAuthenticated, user?.memberId]);
 
-  // 로그아웃 함수를 useCallback으로 메모이제이션
   const handleLogOut = useCallback(async () => {
     try {
-      // 현재 페이지 저장 &&&
-    setPrevPath(window.location.pathname + window.location.search);
-      if (socialProvider === 'google'){
-      const response = await fetch(
-        `https://i13a509.p.ssafy.io/api/v1/auth/logout/${user?.memberId}/${socialProvider}`,
-        {
-          method: 'GET',
-          credentials: 'include',
-        }
-      );} else{
-        window.location.href =`https://i13a509.p.ssafy.io/api/v1/auth/logout/${user?.memberId}/${socialProvider}`
+      setPrevPath(window.location.pathname + window.location.search);
+      if (socialProvider === 'google') {
+        await fetch(
+          `https://i13a509.p.ssafy.io/api/v1/auth/logout/${user?.memberId}/${socialProvider}`,
+          { method: 'GET', credentials: 'include' }
+        );
+      } else {
+        window.location.href = `https://i13a509.p.ssafy.io/api/v1/auth/logout/${user?.memberId}/${socialProvider}`;
       }
 
-      // 서버 응답과 관계없이 클라이언트 상태 정리
-      // 모든 전역변수 초기화
       clearUser();
       setFollowUser([]);
       setFollowCompany([]);
       clearSocialLoginInfo();
-
-      // 프로필 메뉴 닫기
       setShowProfileMenu(false);
 
-      console.log(prevPath);
       navigate(prevPath);
-
-      console.log('로그아웃 완료 - 모든 전역변수 정리됨');
       alert('로그아웃 되었습니다.');
-
     } catch (error) {
       console.error('로그아웃 중 오류:', error);
       setPrevPath(window.location.pathname + window.location.search);
-
-      // 서버 오류가 있어도 클라이언트 상태는 정리
       clearUser();
       setFollowUser([]);
       setFollowCompany([]);
       clearSocialLoginInfo();
       setShowProfileMenu(false);
-
       alert('로그아웃 되었습니다.');
-
-
       navigate(prevPath);
     }
-  }, [user?.memberId, clearUser, setFollowUser, setFollowCompany, clearSocialLoginInfo, navigate, prevPath, setPrevPath]);
+  }, [
+    user?.memberId,
+    clearUser,
+    setFollowUser,
+    setFollowCompany,
+    clearSocialLoginInfo,
+    navigate,
+    prevPath,
+    setPrevPath,
+    socialProvider,
+  ]);
 
-  // 최근 검색어 추가 함수를 useCallback으로 메모이제이션
   const addToRecentSearches = useCallback((term: string) => {
-    setRecentSearches((prev) =>
-      [term, ...prev.filter((item) => item !== term)].slice(0, 5)
-    );
+    setRecentSearches((prev) => [term, ...prev.filter((item) => item !== term)].slice(0, 5));
   }, []);
 
-  // 최근 검색어 제거 함수를 useCallback으로 메모이제이션
   const removeFromRecentSearches = useCallback((term: string) => {
-    if (term === '') {
-      setRecentSearches([]);
-    } else {
-      setRecentSearches((prev) => prev.filter((item) => item !== term));
-    }
+    if (term === '') setRecentSearches([]);
+    else setRecentSearches((prev) => prev.filter((item) => item !== term));
   }, []);
 
-  // 게시글 작성 버튼 클릭 핸들러를 useCallback으로 메모이제이션
   const handleWritePost = useCallback(() => {
     if (!isAuthenticated) {
-      setPrevPath('/post/create'); // 로그인 완료하면 게시글 작성으로 이동하게
-      console.log('prevPath', prevPath);
-      alert('로그인이 필요합니다.'); // 알림 표시
-      navigate('/login'); // 로그인 페이지로 이동
+      setPrevPath('/post/create');
+      alert('로그인이 필요합니다.');
+      navigate('/login');
     } else {
-      navigate('/post/create'); // 게시글 작성 페이지로 이동 (예: /write)
+      navigate('/post/create');
     }
-  }, [isAuthenticated, setPrevPath, prevPath, navigate]);
+  }, [isAuthenticated, setPrevPath, navigate]);
 
-  // 프로필 메뉴 토글 핸들러를 useCallback으로 메모이제이션
   const handleProfileMenuToggle = useCallback(() => {
-    setShowProfileMenu(!showProfileMenu);
-  }, [showProfileMenu]);
+    setShowProfileMenu((v) => !v);
+  }, []);
 
-  // 로그인 페이지 이동 핸들러를 useCallback으로 메모이제이션
   const handleLoginClick = useCallback(() => {
     if (location.pathname !== '/login') {
       setPrevPath(location.pathname + location.search);
     }
   }, [location.pathname, location.search, setPrevPath]);
 
-  // 알림 페이지로 이동 시 드롭다운 닫기
   const handleNotificationClick = () => {
     setShowProfileMenu(false);
     navigate('/notifications');
   };
 
-
-  // 마이페이지로 이동 시 드롭다운 닫기
   const handleMyPageClick = () => {
     setShowProfileMenu(false);
     navigate('/my-page');
   };
 
+  // ✅ 안전한 프로필 URL (유효하지 않으면 기본 이미지로 대체)
+  const safeProfileSrc = useMemo(
+    () => getSafeProfileUrl(user?.memberProfileUrl),
+    [user?.memberProfileUrl]
+  );
 
-
-  // variant에 따른 텍스트 색상 정의
   const textColor =
     variant === 'dark'
       ? 'text-white hover:font-bold hover:text-dark-bg'
@@ -195,13 +172,13 @@ const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className={cn(headerVariants({ variant, size }))}>
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-        <div className='flex justify-between items-center h-16'>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
           {/* 로고 */}
-          <div className='flex items-center'>
-            <Link to='/' className='flex items-center space-x-2'>
-              <img src={logo} alt='TMI Logo' className='w-20 h-20' />
-              <span className='text-xl font-bold'>TMI</span>
+          <div className="flex items-center">
+            <Link to="/" className="flex items-center space-x-2">
+              <img src={logo} alt="TMI Logo" className="w-20 h-20" />
+              <span className="text-xl font-bold">TMI</span>
             </Link>
           </div>
 
@@ -213,19 +190,9 @@ const Header: React.FC<HeaderProps> = ({
           />
 
           {/* 우측 메뉴 */}
-          <div className='flex items-center space-x-4'>
-            {/* 라이트/다크 토글 */}
-            {/* <button
-              onClick={toggleTheme}
-              className='p-2 text-gray-500 hover:text-gray-700 w-10 h-10 flex items-center justify-center'
-            >
-              <i
-                className={`fas ${isDarkMode ? 'fa-sun' : 'fa-moon'} text-lg`}
-              />
-            </button> */}
-            {/* ############## 로그인 여부에 따라 다르게 */}
+          <div className="flex items-center space-x-4">
             {isAuthenticated ? (
-              <div className='relative flex'>
+              <div className="relative flex">
                 {/* 프로필 */}
                 <button
                   onClick={handleProfileMenuToggle}
@@ -235,20 +202,24 @@ const Header: React.FC<HeaderProps> = ({
                     'hover:bg-opacity-70'
                   )}
                 >
-                  <div className='relative'>
+                  <div className="relative">
                     <img
-                      src={getSafeProfileUrl(user?.memberProfileUrl)}
-                      alt='Profile'
-                      className='w-8 h-8 rounded-full object-contain'
+                      key={safeProfileSrc}
+                      src={safeProfileSrc}
+                      alt="Profile"
+                      className="w-8 h-8 rounded-full object-contain"
+                      onError={(e) => {
+                        // 네트워크/404 시 최종 폴백
+                        (e.currentTarget as HTMLImageElement).src = getSafeProfileUrl(null);
+                      }}
                     />
-                    {/* 알림 뱃지 */}
-                    {hasUnreadNotifications && ( // &&& 조건부 렌더링
+                    {hasUnreadNotifications && (
                       <span className="absolute top-0 right-0 block w-3 h-3 bg-warning rounded-full border-2 border-blue"></span>
                     )}
                   </div>
                   <span
                     className={cn(
-                      'text-sm font-medium hover:font-bold', // 기본 크기와 두께
+                      'text-sm font-medium hover:font-bold',
                       variant === 'dark' ? 'text-white' : 'text-dark-bg'
                     )}
                   >
@@ -263,21 +234,20 @@ const Header: React.FC<HeaderProps> = ({
                     )}
                   ></i>
                 </button>
+
                 {/* 프로필 메뉴 */}
                 {showProfileMenu && (
                   <div
                     className={cn(
                       'absolute top-full right-0 mt-2 w-48 border rounded-lg shadow-lg z-50',
-                      // 테마 적용
                       variant === 'dark'
                         ? 'bg-dark-header border-light-header'
                         : 'bg-light-header border-dark-header'
                     )}
                   >
-                    <div className='py-1'>
-                      {/* 알림 */}
+                    <div className="py-1">
                       <button
-                        onClick={handleNotificationClick} // &&& 클릭 시 닫기 + 이동
+                        onClick={handleNotificationClick}
                         className={cn(
                           'flex items-center justify-between px-4 py-2 text-sm hover:bg-gray-100 hover:text-dark-bg w-full text-left',
                           textColor
@@ -285,15 +255,11 @@ const Header: React.FC<HeaderProps> = ({
                       >
                         <span>알림 확인</span>
                         {hasUnreadNotifications && (
-                          // db랑 연결되면 알림 갯수는 db에서 가져오기로
-                          <span className='ml-2 text-red-600 font-bold'>
-                            {unreadCount}
-                          </span>
+                          <span className="ml-2 text-red-600 font-bold">{unreadCount}</span>
                         )}
                       </button>
-                      {/* 마이 페이지로 */}
                       <button
-                        onClick={handleMyPageClick} // &&& 클릭 시 닫기 + 이동
+                        onClick={handleMyPageClick}
                         className={cn(
                           'flex items-center justify-between px-4 py-2 text-sm hover:bg-gray-100 hover:text-dark-bg w-full text-left',
                           textColor
@@ -301,10 +267,10 @@ const Header: React.FC<HeaderProps> = ({
                       >
                         마이페이지
                       </button>
-                      <hr className='my-1' />
+                      <hr className="my-1" />
                       <button
                         onClick={handleLogOut}
-                        className='block w-full text-left px-4 py-2 text-sm text-warning font-bold hover:bg-gray-100 hover:font-bold'
+                        className="block w-full text-left px-4 py-2 text-sm text-warning font-bold hover:bg-gray-100 hover:font-bold"
                       >
                         로그아웃
                       </button>
@@ -313,18 +279,13 @@ const Header: React.FC<HeaderProps> = ({
                 )}
               </div>
             ) : (
-              // 로그아웃 상태일 때
-              <div className='flex items-center space-x-2'>
-                <Link
-                  to='/login'
-                  onClick={handleLoginClick}
-                  className='px-4 py-2 text-sm hover:font-bold'
-                >
+              <div className="flex items-center space-x-2">
+                <Link to="/login" onClick={handleLoginClick} className="px-4 py-2 text-sm hover:font-bold">
                   로그인/회원가입
                 </Link>
               </div>
             )}
-            <Button variant='primary' onClick={handleWritePost}>
+            <Button variant="primary" onClick={handleWritePost}>
               게시글 작성
             </Button>
           </div>

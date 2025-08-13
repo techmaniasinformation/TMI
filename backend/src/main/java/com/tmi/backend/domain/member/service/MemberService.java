@@ -2,6 +2,7 @@ package com.tmi.backend.domain.member.service;
 
 import com.tmi.backend.domain.auth.jwt.service.RefreshTokenService;
 import com.tmi.backend.domain.auth.jwt.service.TokenService;
+import com.tmi.backend.domain.comment.repository.CommentRepository;
 import com.tmi.backend.domain.commentRecommendation.respository.CommentRecommendationRepository;
 import com.tmi.backend.domain.follow.company.repository.CompanyFollowRepository;
 import com.tmi.backend.domain.follow.member.repository.MemberFollowRepository;
@@ -14,6 +15,7 @@ import com.tmi.backend.domain.member.repository.MemberRepository;
 import com.tmi.backend.domain.memberBadge.repository.MemberBadgeRepository;
 import com.tmi.backend.domain.notification.event.MemberRegisteredEvent;
 import com.tmi.backend.domain.notification.repository.NotificationRepository;
+import com.tmi.backend.domain.post.repository.PostRepository;
 import com.tmi.backend.domain.star.repository.StarRepository;
 import com.tmi.backend.global.Utils.FileUtil;
 import com.tmi.backend.global.common.response.ServiceResult;
@@ -45,6 +47,8 @@ public class MemberService {
   private final CompanyFollowRepository companyFollowRepository;
   private final StarRepository starRepository;
   private final NotificationRepository notificationRepository;
+  private final PostRepository postRepository;
+  private final CommentRepository commentRepository;
   private final CommentRecommendationRepository commentRecommendationRepository;
   private final TokenService tokenService;
   private final RefreshTokenService refreshTokenService;
@@ -187,6 +191,11 @@ public class MemberService {
     commentRecommendationRepository.deleteAllByMemberId(memberId);
     tokenService.deleteAuthCookies(res);
     refreshTokenService.deleteByMemberId(memberId);
+
+    // 7일 제한 말고 그냥 삭제 + 관련 댓글과 게시글도 삭제됨
+    commentRepository.deleteByMemberId(memberId);
+    postRepository.deleteByMemberId(memberId);
+    memberRepository.deleteById(memberId);
     return ServiceResult.ok(Map.of("memberId", member.getId()));
   }
 }

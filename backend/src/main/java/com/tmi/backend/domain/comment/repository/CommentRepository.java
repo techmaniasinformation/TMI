@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -50,4 +51,8 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
   @Query("select sum(c.recommendCount) from Comment c where c.member.id = :memberId")
   Integer sumRecommendCountByMemberId(Long memberId);
+
+  @Modifying
+  @Query("DELETE FROM Comment c WHERE c.member.id = :memberId")
+  void deleteByMemberId(Long memberId);
 }

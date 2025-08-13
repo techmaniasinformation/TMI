@@ -38,7 +38,7 @@ const Footer: React.FC<FooterProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
-              <a href="https://www.notion.so/TMI-Tech-Mania-s-Information-229cf38b9ab180f9a9dbd35dfa7e6cbb" 
+              <a href="https://forms.gle/s1as8JXfeYZzsSmcA" 
               className="text-gray-400 hover:text-white transition-colors"
               target="_blank" // 새 탭에서 열기
               >

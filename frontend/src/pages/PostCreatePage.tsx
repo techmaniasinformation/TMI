@@ -211,7 +211,8 @@ const PostCreatePage: React.FC = () => {
       // 이미지가 선택된 경우 FormData에 추가 (필드명 확인 필요)
       if (selectedImage) {
         try {
-          formData.append('thumbnailImage', selectedImage); // 'thumbnail' -> 'thumbnailImage'로 변경
+          // selectedImage는 이미 File 객체로 저장되어 있음
+          formData.append('thumbnailImage', selectedImage);
           console.log('이미지 추가됨:', {
             fileName: selectedImage.name,
             fileSize: selectedImage.size,
@@ -349,7 +350,7 @@ const PostCreatePage: React.FC = () => {
           압축률: `${((1 - compressedFile.size / file.size) * 100).toFixed(1)}%`
         });
 
-        // 압축된 파일을 상태에 저장
+        // 압축된 파일을 상태에 저장 - File 객체만 허용
         if (compressedFile && compressedFile instanceof File) {
           setSelectedImage(compressedFile);
           
@@ -360,6 +361,21 @@ const PostCreatePage: React.FC = () => {
             name: compressedFile.name,
             size: compressedFile.size,
             type: compressedFile.type
+          });
+        } else if (compressedFile && (compressedFile as any) instanceof Blob) {
+          // Blob을 File로 변환
+          const blob = compressedFile as Blob;
+          const fileFromBlob = new File([blob], 'compressed-image.jpg', { 
+            type: blob.type || 'image/jpeg' 
+          });
+          setSelectedImage(fileFromBlob);
+          
+          console.log('Blob을 File로 변환하여 저장:', {
+            originalBlob: compressedFile,
+            convertedFile: fileFromBlob,
+            name: fileFromBlob.name,
+            size: fileFromBlob.size,
+            type: fileFromBlob.type
           });
         } else {
           console.error('압축된 파일이 유효하지 않음:', compressedFile);

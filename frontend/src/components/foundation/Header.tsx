@@ -60,7 +60,7 @@ const Header: React.FC<HeaderProps> = ({
   useEffect(() => {
     if (isAuthenticated && user?.memberId) {
       fetch(
-        `/myService/api/v1/notification?memberId=${user.memberId}&status=unread`, // &&& API 호출
+        `https://i13a509.p.ssafy.io/api/v1/notification?memberId=${user.memberId}&status=unread`, // &&& API 호출
         { method: 'GET', credentials: 'include' }
       )
         .then((res) => res.json())

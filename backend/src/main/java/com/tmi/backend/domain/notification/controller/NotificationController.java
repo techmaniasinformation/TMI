@@ -58,9 +58,9 @@ public class NotificationController implements BaseController {
   public ResponseEntity<ApiResponse<NotificationListResponse>> getNotifications(
       @RequestParam Long memberId,
       @RequestParam(defaultValue = "all") String status) {
-    if (!SecurityUtil.memberCheck(memberId)) {
-      return handle(ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED));
-    }
+//    if (!SecurityUtil.memberCheck(memberId)) {
+//      return handle(ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED));
+//    }
     return handle(notificationService.getNotifications(memberId, status));
   }
 
@@ -81,9 +81,9 @@ public class NotificationController implements BaseController {
   public ResponseEntity<ApiResponse<Map<String, List<Long>>>> readAllNotifications(
       @RequestParam Long memberId
   ) {
-    if (!SecurityUtil.memberCheck(memberId)) {
-      return handle(ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED));
-    }
+//    if (!SecurityUtil.memberCheck(memberId)) {
+//      return handle(ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED));
+//    }
 
     return handle(notificationService.readAllNotifications(memberId));
   }
@@ -96,9 +96,9 @@ public class NotificationController implements BaseController {
       @PathVariable Long notificationId,
       @RequestParam Long memberId
   ) {
-    if (!SecurityUtil.memberCheck(memberId)) {
-      return handle(ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED));
-    }
+//    if (!SecurityUtil.memberCheck(memberId)) {
+//      return handle(ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED));
+//    }
     return handle(notificationService.deleteNotification(notificationId, memberId));
   }
 
@@ -109,9 +109,9 @@ public class NotificationController implements BaseController {
   public ResponseEntity<ApiResponse<Map<String, Integer>>> deleteAllNotifications(
       @RequestParam Long memberId
   ) {
-    if (!SecurityUtil.memberCheck(memberId)) {
-      return handle(ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED));
-    }
+//    if (!SecurityUtil.memberCheck(memberId)) {
+//      return handle(ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED));
+//    }
     return handle(notificationService.deleteAllNotifications(memberId));
   }
 

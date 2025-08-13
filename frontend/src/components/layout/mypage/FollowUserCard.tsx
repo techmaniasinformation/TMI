@@ -1,6 +1,6 @@
 // /src/components/layout/mypage/FollowUserCard.tsx
 import React from "react";
-import DefaultUserImage from "@/assets/icons/expeople.svg";
+import { handleProfileImageError } from "@/utils/defaultImages";
 
 interface FollowUserCardProps {
   id: number;
@@ -18,9 +18,9 @@ const FollowUserCard: React.FC<FollowUserCardProps> = ({ id, nickname, image, ba
       onClick={onClick}
     >
       <img
-        src={image || DefaultUserImage}
+        src={image || ""}
         alt={nickname}
-        onError={(e) => { e.currentTarget.src = DefaultUserImage; }}
+        onError={handleProfileImageError}
         className="w-16 h-16 rounded-full object-contain"
       />
 

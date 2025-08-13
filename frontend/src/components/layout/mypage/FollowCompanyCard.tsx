@@ -1,5 +1,5 @@
 import React from "react";
-import DefaultCompanyImage from "@/assets/icons/excompany.svg";
+import { handleCompanyImageError } from "@/utils/defaultImages";
 
 interface FollowCompanyCardProps {
   id: string;
@@ -9,9 +9,6 @@ interface FollowCompanyCardProps {
 }
 
 const FollowCompanyCard: React.FC<FollowCompanyCardProps> = ({ id, name, image, onClick }) => {
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    e.currentTarget.src = DefaultCompanyImage;
-  };
 
   return (
     <div
@@ -20,9 +17,9 @@ const FollowCompanyCard: React.FC<FollowCompanyCardProps> = ({ id, name, image, 
       onClick={onClick}
     >
       <img
-        src={image || DefaultCompanyImage}
+        src={image || ""}
         alt={name}
-        onError={handleImageError}
+        onError={handleCompanyImageError}
         className="w-16 h-16 rounded-lg object-contain"
       />
       <span className="font-medium text-gray-900">{name}</span>

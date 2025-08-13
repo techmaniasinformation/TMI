@@ -1,5 +1,5 @@
 import React from 'react';
-import { getSafeProfileUrl, getSafeBadgeUrl } from '@/utils/defaultImages';
+import { getSafeProfileUrl, getSafeBadgeUrl, handleProfileImageError, handleBadgeImageError } from '@/utils/defaultImages';
 
 interface BestCommentsProps {
   comments: any[];
@@ -37,6 +37,7 @@ export const BestComments: React.FC<BestCommentsProps> = ({
           src={safeBestCommentProfileUrl}
           alt="프로필"
           className="w-12 h-12 rounded-full object-contain"
+          onError={handleProfileImageError}
         />
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
@@ -46,6 +47,7 @@ export const BestComments: React.FC<BestCommentsProps> = ({
                 src={safeBestCommentBadgeUrl}
                 alt="뱃지"
                 className="w-4 h-4"
+                onError={handleBadgeImageError}
               />
             )}
             <span className="text-gray-500 text-xs">

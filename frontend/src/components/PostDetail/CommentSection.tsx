@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Button } from '@/components/foundation/button';
-import { getSafeProfileUrl, getSafeBadgeUrl } from '@/utils/defaultImages';
+import { getSafeProfileUrl, getSafeBadgeUrl, handleProfileImageError, handleBadgeImageError } from '@/utils/defaultImages';
 import { useUserStore } from '@/stores/userStore';
 
 interface CommentSectionProps {
@@ -63,6 +63,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
             src={safeMemberProfileUrl}
             alt="프로필"
             className="w-10 h-10 rounded-full object-contain"
+            onError={handleProfileImageError}
           />
           <div className="flex-1">
             <textarea
@@ -128,21 +129,23 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
               return (
                 <div key={comment.commentId} className="border-b border-gray-200 pb-4">
                   <div className="flex gap-3">
-                    <img
-                      src={safeCommentProfileUrl}
-                      alt="프로필"
-                      className="w-10 h-10 rounded-full object-contain"
-                    />
+                                         <img
+                       src={safeCommentProfileUrl}
+                       alt="프로필"
+                       className="w-10 h-10 rounded-full object-contain"
+                       onError={handleProfileImageError}
+                     />
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
                         <span className="font-semibold text-sm">{comment.name}</span>
-                        {comment.badgeUrl && (
-                          <img
-                            src={safeCommentBadgeUrl}
-                            alt="뱃지"
-                            className="w-4 h-4"
-                          />
-                        )}
+                                                 {comment.badgeUrl && (
+                           <img
+                             src={safeCommentBadgeUrl}
+                             alt="뱃지"
+                             className="w-4 h-4"
+                             onError={handleBadgeImageError}
+                           />
+                         )}
                         <span className="text-gray-500 text-xs">
                           {formatDate(comment.createAt)}
                         </span>

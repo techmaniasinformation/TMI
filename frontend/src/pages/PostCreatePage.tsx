@@ -577,12 +577,12 @@ const PostCreatePage: React.FC = () => {
                         onKeyPress={handleTagKeyPress}
                         onBlur={handleTagInputBlur}
                         onFocus={() => newTag.trim() && setShowTagSuggestions(true)}
-                        maxLength={20}
+                        // maxLength={20} // 임시 주석처리
                         placeholder="태그를 입력하세요 (기존 태그 검색 가능)"
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                       <span className="absolute right-3 top-2 text-sm text-gray-500">
-                        {newTag.length}/20
+                        {newTag.length}/20 {/* 임시 주석처리 */}
                       </span>
                     </div>
                                          <button

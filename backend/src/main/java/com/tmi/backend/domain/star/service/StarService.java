@@ -84,4 +84,18 @@ public class StarService {
 
     return ServiceResult.ok();
   }
+
+  @Transactional
+  public ServiceResult<Void> deleteStar(Long postId, Long memberId) {
+
+    Star star = starRepository.findByMemberIdAndPostId(postId, memberId).orElse(null);
+    if (star == null) {
+      return ServiceResult.fail(ErrorCode.STAR_ALREADY_STARRED);
+    }
+
+    star.getPost().minusStarCount();
+    starRepository.delete(star);
+
+    return ServiceResult.ok();
+  }
 }

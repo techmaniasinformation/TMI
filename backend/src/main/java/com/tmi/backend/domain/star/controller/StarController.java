@@ -60,4 +60,12 @@ public class StarController implements BaseController {
 
     return handle(starService.deleteStar(starId));
   }
+
+  @DeleteMapping(params = {"postId", "memberId"})
+  public ResponseEntity<ApiResponse<Void>> deleteStarV2(
+      @RequestParam Long postId,
+      @RequestParam Long memberId
+  ) {
+    return handle(starService.deleteStar(postId, memberId));
+  }
 }

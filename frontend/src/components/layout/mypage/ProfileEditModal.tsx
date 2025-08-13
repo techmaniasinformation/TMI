@@ -10,6 +10,7 @@ import { Input } from '@/components/domain/Input';
 import { Button } from '@/components/foundation/button';
 import { Camera } from 'lucide-react';
 import { getSafeProfileUrl } from '@/utils/defaultImages';
+import { useThemeStore } from '@/stores/themeStore'; // Import useThemeStore
 
 // 이미지 압축 훅
 import { useImageCompression } from '@/hooks/useImageCompression';
@@ -109,6 +110,8 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   nicknameHelperText,
   onSave,
 }) => {
+  const { isDarkMode } = useThemeStore(); // Get isDarkMode state
+  // ⬇️ 훅 사용
   const {
     selectedImage,
     imagePreview,
@@ -288,14 +291,14 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogOverlay className="fixed inset-0 bg-black/70 backdrop-blur-none z-40" />
-      <DialogContent className="w-[512px] bg-white z-50 rounded-lg shadow-lg">
+      <DialogContent className={`w-[512px] z-50 rounded-lg shadow-lg ${isDarkMode ? 'bg-zinc-800 text-white' : 'bg-white'}`}>
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold">프로필 수정</DialogTitle>
+          <DialogTitle className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>프로필 수정</DialogTitle>
         </DialogHeader>
 
         {/* 프로필 이미지 */}
         <div className="flex flex-col items-center justify-center mt-4 mb-2">
-          <div className="relative w-24 h-24 rounded-full border border-gray-300 overflow-hidden flex items-center justify-center">
+          <div className={`relative w-24 h-24 rounded-full border overflow-hidden flex items-center justify-center ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}>
             {imagePreview ? (
               <img
                 src={getSafeProfileUrl(imagePreview)}
@@ -304,7 +307,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
                 draggable={false}
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+              <div className={`w-full h-full flex items-center justify-center text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-400'}`}>
                 No Image
               </div>
             )}
@@ -324,15 +327,23 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
               disabled={isImageProcessing}
             />
           </div>
-          <p className="text-sm text-gray-500 mt-2">
+
+          <p className={`text-sm mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
             이미지는 10MB 이하, 정해진 비율에 맞는 이미지만 업로드 가능해요.
           </p>
           {(imagePreview || selectedImage) && (
             <div className="mt-2 flex items-center gap-3">
               <button
                 type="button"
-                className="text-xs text-red-600 underline"
-                onClick={handleImageCancel} // ⬅️ 훅의 취소 함수 호출
+                className={`text-xs underline ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}
+                onClick={() => {
+                  // 기본이미지로 변경
+                  const defaultUrl = getSafeProfileUrl(null); // 기본이미지 URL 반환
+                  setImagePreview(defaultUrl);
+                  setExistingImageUrl(defaultUrl);
+                  const input = document.getElementById('image-upload') as HTMLInputElement | null;
+                  if (input) input.value = '';
+                }}
                 disabled={isImageProcessing}
               >
                 이미지 제거
@@ -345,9 +356,9 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
         <div className="space-y-4 mt-2">
           {/* 닉네임 */}
           <div>
-            <label className="text-sm font-medium text-gray-700 flex items-center justify-between">
+            <label className={`text-sm font-medium flex items-center justify-between ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
               <span>닉네임</span>
-              <span className="text-xs text-gray-500 flex items-center gap-2">
+              <span className={`text-xs flex items-center gap-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                 {isCheckingDup ? (
                   <span className="animate-pulse">중복 확인 중…</span>
                 ) : isValidNickname((nickname ?? '').trim()) &&
@@ -383,7 +394,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
 
           {/* 블로그 URL */}
           <div>
-            <label className="text-sm font-medium text-gray-700">블로그 URL</label>
+            <label className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>블로그 URL</label>
             <Input
               value={blogUrl}
               onChange={onBlogChange}
@@ -402,7 +413,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
 
           {/* GitHub URL */}
           <div>
-            <label className="text-sm font-medium text-gray-700">GitHub URL</label>
+            <label className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>GitHub URL</label>
             <Input
               value={githubUrl}
               onChange={onGithubChange}

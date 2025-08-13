@@ -19,7 +19,7 @@ interface UserState {
   user: User | null;
   newUser: NewUser | null;
   starLst: string[];
-  starIdMap: Map<string, number>; // postId -> starId 매핑
+  starIdMap: Map<string, string>; // postId -> starId 매핑
   followUser: number[];
   followCompany: number[];
 
@@ -35,8 +35,8 @@ interface UserState {
   setUser: (user: User) => void;
   clearUser: () => void;
   setStarLst: (list: string[]) => void;
-  setStarIdMap: (map: Map<string, number>) => void;
-  addStarId: (postId: string, starId: number) => void;
+         setStarIdMap: (map: Map<string, string>) => void;
+       addStarId: (postId: string, starId: string) => void;
   removeStarId: (postId: string) => void;
   setFollowUser: (list: any[]) => void;
   setFollowCompany: (list: any[]) => void;
@@ -93,13 +93,13 @@ export const useUserStore = create(
         }),
 
       setStarLst: (list: string[]) => set({ starLst: list }),
-      setStarIdMap: (map: Map<string, number>) => set({ starIdMap: map }),
-      addStarId: (postId: string, starId: number) => 
-        set((state) => {
-          const newMap = new Map(state.starIdMap);
-          newMap.set(postId, starId);
-          return { starIdMap: newMap };
-        }),
+             setStarIdMap: (map: Map<string, string>) => set({ starIdMap: map }),
+       addStarId: (postId: string, starId: string) => 
+         set((state) => {
+           const newMap = new Map(state.starIdMap);
+           newMap.set(postId, starId);
+           return { starIdMap: newMap };
+         }),
       removeStarId: (postId: string) => 
         set((state) => {
           const newMap = new Map(state.starIdMap);
@@ -151,9 +151,9 @@ export const useUserStore = create(
                 const starIds = starList.map((star: any) => star.postId.toString());
                 const starIdMap = new Map();
                 
-                starList.forEach((star: any) => {
-                  starIdMap.set(star.postId.toString(), star.starId);
-                });
+                                 starList.forEach((star: any) => {
+                   starIdMap.set(star.postId.toString(), star.starId.toString());
+                 });
                 
                 set((state) => ({
                   ...state,

@@ -103,7 +103,7 @@ export const addStar = async (memberId: number, postId: string) => {
 };
 
 // 스타 취소 함수
-export const removeStar = async (starId: number) => {
+export const removeStar = async (starId: string) => {
   try {
     const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/star/${starId}`, {
       method: 'DELETE',

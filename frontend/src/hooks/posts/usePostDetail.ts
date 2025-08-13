@@ -120,27 +120,27 @@ export const useStar = (postId: string) => {
   const { user, starLst, starIdMap, setStarLst, addStarId, removeStarId } = useUserStore();
   const [isStarred, setIsStarred] = useState(false);
   const [isStarLoading, setIsStarLoading] = useState(false);
-  const [starId, setStarId] = useState<number | null>(null);
+     const [starId, setStarId] = useState<string | null>(null);
 
-  // starIdMap이 Map 객체인지 확인하는 안전한 getter
-  const getStarId = useCallback((postId: string): number | null => {
-    try {
-      if (starIdMap instanceof Map) {
-        return starIdMap.get(postId) || null;
-      }
-      // starIdMap이 Map이 아닌 경우 (예: 배열이나 객체로 직렬화된 경우)
-      if (Array.isArray(starIdMap)) {
-        const entry = (starIdMap as any[]).find(([key]: [string, number]) => key === postId);
-        return entry ? entry[1] : null;
-      }
-      if (typeof starIdMap === 'object' && starIdMap !== null) {
-        return (starIdMap as any)[postId] || null;
-      }
-      return null;
-    } catch (error) {
-      return null;
-    }
-  }, [starIdMap]);
+     // starIdMap이 Map 객체인지 확인하는 안전한 getter
+   const getStarId = useCallback((postId: string): string | null => {
+     try {
+       if (starIdMap instanceof Map) {
+         return starIdMap.get(postId) || null;
+       }
+       // starIdMap이 Map이 아닌 경우 (예: 배열이나 객체로 직렬화된 경우)
+       if (Array.isArray(starIdMap)) {
+         const entry = (starIdMap as any[]).find(([key]: [string, string]) => key === postId);
+         return entry ? entry[1] : null;
+       }
+       if (typeof starIdMap === 'object' && starIdMap !== null) {
+         return (starIdMap as any)[postId] || null;
+       }
+       return null;
+     } catch (error) {
+       return null;
+     }
+   }, [starIdMap]);
 
   // 전역 상태에서 스타 상태 확인
   useEffect(() => {
@@ -193,10 +193,10 @@ export const useStar = (postId: string) => {
                 const starList = data.data?.posts || [];
                 const foundStar = starList.find((star: any) => star.postId.toString() === postId);
                 
-                if (foundStar) {
-                  console.log('🔍 서버에서 starId 찾음:', foundStar.starId);
-                  setStarId(foundStar.starId);
-                  addStarId(postId, foundStar.starId);
+                                 if (foundStar) {
+                   console.log('🔍 서버에서 starId 찾음:', foundStar.starId);
+                   setStarId(foundStar.starId.toString());
+                   addStarId(postId, foundStar.starId.toString());
                 } else {
                   alert('스타 정보를 찾을 수 없습니다.');
                   return;
@@ -213,7 +213,7 @@ export const useStar = (postId: string) => {
           }
         }
 
-        const removeResult = await removeStar(starId);
+                 const removeResult = await removeStar(starId!);
 
         if (!removeResult.success) {
           throw new Error(removeResult.error || '스타 취소 실패');
@@ -241,10 +241,10 @@ export const useStar = (postId: string) => {
         const newStarLst = [...starLst, postId];
         setStarLst(newStarLst);
         
-        if (addResult.starId) {
-          setStarId(addResult.starId);
-          addStarId(postId, addResult.starId);
-        }
+                 if (addResult.starId) {
+           setStarId(addResult.starId.toString());
+           addStarId(postId, addResult.starId.toString());
+         }
         
         // UI 상태 업데이트
         setIsStarred(true);

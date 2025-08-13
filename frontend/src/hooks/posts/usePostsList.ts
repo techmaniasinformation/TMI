@@ -165,22 +165,32 @@ export const usePostsList = () => {
   // 탭 변경 핸들러
   const handleTabChange = useCallback((newTab: 'latest' | 'following') => {
     console.log('🔍 탭 변경 시도:', newTab, '현재 탭:', activeTab);
+    
+    // 같은 탭을 클릭한 경우에도 페이지를 1로 초기화
     if (newTab === activeTab) {
-      console.log('🔍 같은 탭이므로 변경하지 않음');
+      console.log('🔍 같은 탭 클릭 - 페이지를 1로 초기화');
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.set('page', '1'); // 페이지를 1로 초기화
+      newSearchParams.set('size', '10');
+      console.log('🔍 같은 탭 클릭으로 인한 페이지 초기화:', newSearchParams.toString());
+      setSearchParams(newSearchParams);
       return;
     }
+    
+    // 탭 변경 시 페이지를 1로 초기화
+    console.log('🔍 탭 변경으로 인한 페이지 초기화: 1');
     
     // URL 업데이트 - API 형태로 변경
     const newSearchParams = new URLSearchParams(searchParams);
     if (newTab === 'following') {
       console.log('🔍 팔로우 탭으로 변경, 사용자 ID:', user?.memberId);
       newSearchParams.set('followMemberId', user?.memberId?.toString() || '');
-      newSearchParams.set('page', '1');
+      newSearchParams.set('page', '1'); // 페이지를 1로 초기화
       newSearchParams.set('size', '10');
       newSearchParams.delete('tab'); // 기존 tab 파라미터 제거
     } else {
       console.log('🔍 최신 탭으로 변경');
-      newSearchParams.set('page', '1');
+      newSearchParams.set('page', '1'); // 페이지를 1로 초기화
       newSearchParams.set('size', '10');
       newSearchParams.delete('followMemberId'); // 팔로우 파라미터 제거
       newSearchParams.delete('tab'); // 기존 tab 파라미터 제거

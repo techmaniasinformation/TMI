@@ -142,6 +142,8 @@ export default function HomePostList() {
         activeTab={activeTab}
         onTabChange={(tabId) => {
           console.log('🔍 HomeTabBar에서 탭 클릭:', tabId);
+          // 탭 변경 시 페이지를 1로 초기화
+          setCurrentPage(1);
           setActiveTab(tabId);
         }}
       />

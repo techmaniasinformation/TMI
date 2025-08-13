@@ -30,18 +30,17 @@ const PostEditPage: React.FC = () => {
   const [aiSummary, setAiSummary] = useState('');
   const [postId, setPostId] = useState<number | null>(null);
 
-  // 기존 이미지 URL 상태 (수정 페이지 전용)
-  const [existingImageUrl, setExistingImageUrl] = useState<string>('');
-  
   // 이미지 압축 커스텀 훅 사용
   const {
     selectedImage,
     imagePreview,
     isImageProcessing,
     originalFileSize,
+    existingImageUrl,
     handleImageUpload,
     handleImageCancel,
-    setImagePreview
+    setImagePreview,
+    setExistingImageUrl
   } = useImageCompression();
   
   // 에러 상태
@@ -205,14 +204,6 @@ const PostEditPage: React.FC = () => {
       formData.append('req', blob);
       
       if (selectedImage) {
-        console.log('수정 페이지 - FormData에 추가할 이미지:', {
-          selectedImage,
-          isFile: selectedImage instanceof File,
-          isBlob: selectedImage instanceof Blob,
-          name: selectedImage.name,
-          size: selectedImage.size,
-          type: selectedImage.type
-        });
         formData.append('thumbnailImage', selectedImage);
       }
 
@@ -299,34 +290,6 @@ const PostEditPage: React.FC = () => {
     navigate(-1);
   };
 
-  // 이미지 업로드 함수 (수정 페이지 전용)
-  const handleImageUploadEdit = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('🎬 === PostEditPage - handleImageUploadEdit 시작 ===');
-    console.log('📁 전달받은 event:', event);
-    console.log('📂 event.target.files:', event.target.files);
-    console.log('📄 첫 번째 파일:', event.target.files?.[0]);
-    
-    // 기존 이미지가 있으면 기존 이미지 URL 초기화
-    if (existingImageUrl) {
-      console.log('기존 이미지 URL 초기화:', existingImageUrl);
-      setExistingImageUrl('');
-    }
-    
-    // 커스텀 훅의 업로드 함수 호출
-    console.log('handleImageUpload 훅 함수 호출');
-    await handleImageUpload(event);
-    console.log('✅ === PostEditPage - handleImageUploadEdit 완료 ===');
-  };
-
-  // 이미지 취소 함수 (수정 페이지 전용)
-  const handleImageCancelEdit = () => {
-    handleImageCancel(); // 커스텀 훅의 취소 함수 호출
-    // 기존 이미지가 있었으면 다시 표시
-    if (existingImageUrl) {
-      setImagePreview(existingImageUrl);
-    }
-  };
-
   // 상세게시글에서 데이터 가져오기
   useEffect(() => {
     const postData = location.state?.postData;
@@ -337,18 +300,16 @@ const PostEditPage: React.FC = () => {
       setTitle(postData.title || '');
       setContent(postData.content || '');
       setTags(postData.tags || []);
-      // 기존 이미지가 있는 경우 미리보기로 설정
-      if (postData.thumbnailUrl) {
-        setImagePreview(postData.thumbnailUrl);
-        setExistingImageUrl(postData.thumbnailUrl);
-        console.log('기존 이미지 URL 설정:', postData.thumbnailUrl);
+              // 기존 이미지가 있는 경우 미리보기로 설정
+        if (postData.thumbnailUrl) {
+          // 기존 이미지 URL을 훅에 설정
+          setExistingImageUrl(postData.thumbnailUrl);
+        }
+          } else {
+        alert('잘못된 접근입니다.');
+        navigate('/home');
       }
-    } else {
-      console.log('게시글 데이터가 없습니다. 잘못된 접근입니다.');
-      alert('잘못된 접근입니다.');
-      navigate('/home');
-    }
-  }, [location.state, navigate]);
+  }, [location.state, navigate, setExistingImageUrl]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -458,7 +419,7 @@ const PostEditPage: React.FC = () => {
               <input
                 type="file"
                 accept="image/*"
-                onChange={handleImageUploadEdit}
+                onChange={handleImageUpload}  // 직접 훅의 함수 사용
                 className="hidden"
                 id="image-upload"
                 disabled={isImageProcessing}
@@ -483,7 +444,7 @@ const PostEditPage: React.FC = () => {
               {imagePreview && !isImageProcessing && (
                 <button
                   type="button"
-                  onClick={handleImageCancelEdit}
+                  onClick={handleImageCancel}  // 직접 훅의 함수 사용
                   className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 cursor-pointer text-sm"
                 >
                   이미지 취소

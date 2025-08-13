@@ -22,8 +22,8 @@ const fetchPostsFromAPI = async (params: { page: number; size: number; followMem
   // 팔로우 API와 최신글 API를 명확히 구분
   let apiUrl: string;
   if (followMemberId) {
-    // 팔로우 API: /api/v1/post?followMemberId=101&page=1&size=10
-    apiUrl = `https://i13a509.p.ssafy.io/api/v1/post?followMemberId=${followMemberId}&page=${page}&size=${size}`;
+    // 팔로우 API: /api/v1/post?followMemberId={:memberId}&page={:page}&size=10
+    apiUrl = `https://i13a509.p.ssafy.io/api/v1/post?followMemberId=${followMemberId}&page=${page}&size=10`;
   } else {
     // 최신글 API: /api/v1/post?page=1&size=10
     apiUrl = `https://i13a509.p.ssafy.io/api/v1/post?page=${page}&size=${size}`;

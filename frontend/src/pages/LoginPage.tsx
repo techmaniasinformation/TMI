@@ -69,7 +69,7 @@ const LoginPage: React.FC<LoginPageProps> = () => {
           />
 
           {/* 네이버 */}
-          <SocialLoginButton
+          {/* <SocialLoginButton
             provider="Naver"
             label="네이버로 시작하기"
             bgColor="#03C75A"
@@ -79,7 +79,7 @@ const LoginPage: React.FC<LoginPageProps> = () => {
             onHover={(isHover) => setHoveredButton(isHover ? 'naver' : null)}
             onClick={() => handleSocialLoginWithLocation('naver', from)} // 로케이션 방식
             // onClick={() => {window.location.href =https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=L000gCRdLnKJ0o11XI5j&&redirect_uri=http://localhost:3000/login}}
-          />
+          /> */}
 
           {/* 구글 */}
           <SocialLoginButton

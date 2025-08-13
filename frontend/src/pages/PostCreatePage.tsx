@@ -30,6 +30,7 @@ const PostCreatePage: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [isImageProcessing, setIsImageProcessing] = useState(false);
+  const [originalFileSize, setOriginalFileSize] = useState<number>(0);
   
   // 에러 상태
   const [urlError, setUrlError] = useState<string>('');
@@ -270,6 +271,9 @@ const PostCreatePage: React.FC = () => {
 
       setIsImageProcessing(true);
       try {
+        // 원본 파일 크기 저장
+        setOriginalFileSize(file.size);
+        
         // 이미지 압축 옵션 설정
         const options = {
           maxSizeMB: 1, // 최대 1MB
@@ -309,6 +313,7 @@ const PostCreatePage: React.FC = () => {
   const handleImageCancel = () => {
     setSelectedImage(null);
     setImagePreview('');
+    setOriginalFileSize(0);
     // 파일 입력 필드 초기화
     const fileInput = document.getElementById('image-upload') as HTMLInputElement;
     if (fileInput) {
@@ -527,6 +532,11 @@ const PostCreatePage: React.FC = () => {
                {selectedImage && (
                  <span className="text-sm text-gray-600">
                    {selectedImage.name} ({(selectedImage.size / 1024 / 1024).toFixed(2)}MB)
+                   {originalFileSize > selectedImage.size && (
+                     <span className="text-gray-400 ml-1">
+                       (원본: {(originalFileSize / 1024 / 1024).toFixed(2)}MB)
+                     </span>
+                   )}
                  </span>
                )}
              </div>

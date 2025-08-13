@@ -54,8 +54,23 @@ export const useImageCompression = (): UseImageCompressionReturn => {
    * @param event - 파일 입력 이벤트
    */
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('=== useImageCompression 훅 - 파일 업로드 시작 ===');
+    console.log('전달받은 event:', event);
+    console.log('event.target:', event.target);
+    console.log('event.target.files:', event.target.files);
+    
     const file = event.target.files?.[0];
     const fileInput = event.target;
+
+    console.log('추출된 file 객체:', file);
+    console.log('file 객체 상세 정보:', {
+      name: file?.name,
+      size: file?.size,
+      type: file?.type,
+      isFile: file instanceof File,
+      isBlob: file instanceof Blob,
+      lastModified: file?.lastModified
+    });
 
     if (file) {
       const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
@@ -87,7 +102,23 @@ export const useImageCompression = (): UseImageCompressionReturn => {
         };
 
         // 이미지 압축 실행
+        console.log('압축 전 원본 파일:', {
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          isFile: file instanceof File
+        });
+        
         const compressedFile = await imageCompression(file, options);
+        
+        console.log('압축 후 파일:', {
+          compressedFile,
+          isFile: compressedFile instanceof File,
+          isBlob: compressedFile instanceof Blob,
+          name: (compressedFile as any)?.name,
+          size: compressedFile?.size,
+          type: compressedFile?.type
+        });
         
         // 압축된 파일을 무조건 File 객체로 변환하여 저장
         let finalFile: File;
@@ -99,10 +130,26 @@ export const useImageCompression = (): UseImageCompressionReturn => {
           const fileName = (compressedFile as any).name || 'compressed-image.jpg';
           const fileType = compressedFile.type || 'image/jpeg';
           
+          console.log('File 객체 생성 전 정보:', {
+            fileName,
+            fileType,
+            compressedFileType: typeof compressedFile,
+            compressedFileConstructor: compressedFile.constructor.name
+          });
+          
           // 무조건 File 객체로 생성
           finalFile = new File([compressedFile], fileName, { 
             type: fileType,
             lastModified: Date.now()
+          });
+          
+          console.log('File 객체 생성 후:', {
+            finalFile,
+            isFile: finalFile instanceof File,
+            isBlob: finalFile instanceof Blob,
+            name: finalFile.name,
+            size: finalFile.size,
+            type: finalFile.type
           });
         } else {
           console.error('압축된 파일이 유효하지 않음:', compressedFile);
@@ -117,10 +164,7 @@ export const useImageCompression = (): UseImageCompressionReturn => {
         reader.readAsDataURL(finalFile); // finalFile 사용
         
         // File 객체로 저장 (미리보기 생성 후)
-        setSelectedImage(finalFile);
-        
-        // 디버깅 로그
-        console.log('최종 File 객체 (커스텀 훅):', {
+        console.log('setSelectedImage 호출 전 finalFile:', {
           finalFile,
           isFile: finalFile instanceof File,
           isBlob: finalFile instanceof Blob,
@@ -128,6 +172,10 @@ export const useImageCompression = (): UseImageCompressionReturn => {
           size: finalFile.size,
           type: finalFile.type
         });
+        
+        setSelectedImage(finalFile);
+        
+        console.log('=== useImageCompression 훅 - 파일 업로드 완료 ===');
         
       } catch (error) {
         console.error('이미지 압축 실패:', error);

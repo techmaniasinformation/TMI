@@ -301,12 +301,21 @@ const PostEditPage: React.FC = () => {
 
   // 이미지 업로드 함수 (수정 페이지 전용)
   const handleImageUploadEdit = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('=== PostEditPage - handleImageUploadEdit 시작 ===');
+    console.log('전달받은 event:', event);
+    console.log('event.target.files:', event.target.files);
+    console.log('첫 번째 파일:', event.target.files?.[0]);
+    
     // 기존 이미지가 있으면 기존 이미지 URL 초기화
     if (existingImageUrl) {
+      console.log('기존 이미지 URL 초기화:', existingImageUrl);
       setExistingImageUrl('');
     }
+    
     // 커스텀 훅의 업로드 함수 호출
+    console.log('handleImageUpload 훅 함수 호출');
     await handleImageUpload(event);
+    console.log('=== PostEditPage - handleImageUploadEdit 완료 ===');
   };
 
   // 이미지 취소 함수 (수정 페이지 전용)
@@ -480,10 +489,10 @@ const PostEditPage: React.FC = () => {
                   이미지 취소
                 </button>
               )}
-              {selectedImage && (
+              {selectedImage && selectedImage.name && selectedImage.size && (
                 <span className="text-sm text-gray-600">
                   {selectedImage.name} ({(selectedImage.size / 1024 / 1024).toFixed(2)}MB)
-                  {originalFileSize > selectedImage.size && (
+                  {originalFileSize > 0 && originalFileSize > selectedImage.size && (
                     <span className="text-gray-400 ml-1">
                       (원본: {(originalFileSize / 1024 / 1024).toFixed(2)}MB)
                     </span>

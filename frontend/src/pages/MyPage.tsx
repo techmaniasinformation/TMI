@@ -197,6 +197,8 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
       // PATCH
       await updateMemberProfile(myId, payload);
 
+      window.location.reload();
+
       // 닉네임 쿨타임 기록
       if (nicknameChanged) {
         localStorage.setItem(

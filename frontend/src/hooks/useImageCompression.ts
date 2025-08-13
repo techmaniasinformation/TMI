@@ -54,16 +54,16 @@ export const useImageCompression = (): UseImageCompressionReturn => {
    * @param event - 파일 입력 이벤트
    */
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('=== useImageCompression 훅 - 파일 업로드 시작 ===');
-    console.log('전달받은 event:', event);
-    console.log('event.target:', event.target);
-    console.log('event.target.files:', event.target.files);
+    console.log('🚀 === useImageCompression 훅 - 파일 업로드 시작 ===');
+    console.log('📁 전달받은 event:', event);
+    console.log('🎯 event.target:', event.target);
+    console.log('📂 event.target.files:', event.target.files);
     
     const file = event.target.files?.[0];
     const fileInput = event.target;
 
-    console.log('추출된 file 객체:', file);
-    console.log('file 객체 상세 정보:', {
+    console.log('📄 추출된 file 객체:', file);
+    console.log('🔍 file 객체 상세 정보:', {
       name: file?.name,
       size: file?.size,
       type: file?.type,
@@ -175,7 +175,7 @@ export const useImageCompression = (): UseImageCompressionReturn => {
         
         setSelectedImage(finalFile);
         
-        console.log('=== useImageCompression 훅 - 파일 업로드 완료 ===');
+        console.log('✅ === useImageCompression 훅 - 파일 업로드 완료 ===');
         
       } catch (error) {
         console.error('이미지 압축 실패:', error);

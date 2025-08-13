@@ -301,10 +301,10 @@ const PostEditPage: React.FC = () => {
 
   // 이미지 업로드 함수 (수정 페이지 전용)
   const handleImageUploadEdit = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('=== PostEditPage - handleImageUploadEdit 시작 ===');
-    console.log('전달받은 event:', event);
-    console.log('event.target.files:', event.target.files);
-    console.log('첫 번째 파일:', event.target.files?.[0]);
+    console.log('🎬 === PostEditPage - handleImageUploadEdit 시작 ===');
+    console.log('📁 전달받은 event:', event);
+    console.log('📂 event.target.files:', event.target.files);
+    console.log('📄 첫 번째 파일:', event.target.files?.[0]);
     
     // 기존 이미지가 있으면 기존 이미지 URL 초기화
     if (existingImageUrl) {
@@ -315,7 +315,7 @@ const PostEditPage: React.FC = () => {
     // 커스텀 훅의 업로드 함수 호출
     console.log('handleImageUpload 훅 함수 호출');
     await handleImageUpload(event);
-    console.log('=== PostEditPage - handleImageUploadEdit 완료 ===');
+    console.log('✅ === PostEditPage - handleImageUploadEdit 완료 ===');
   };
 
   // 이미지 취소 함수 (수정 페이지 전용)

@@ -59,6 +59,9 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.21.1'
 
     implementation 'org.apache.tika:tika-core:3.2.1'
+
+    // redis 의존관계 추가
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 }
 
 tasks.named('test') {

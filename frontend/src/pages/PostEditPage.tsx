@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useUserStore } from '@/stores/userStore';
 import { useTagAutocomplete } from '@/hooks/tags/useTagAutocomplete';
 import { useImageCompression } from '@/hooks/useImageCompression';
@@ -9,6 +9,7 @@ import '@uiw/react-markdown-preview/markdown.css';
 
 const PostEditPage: React.FC = () => {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
   const location = useLocation();
   const { user } = useUserStore();
   
@@ -19,8 +20,7 @@ const PostEditPage: React.FC = () => {
     searchTags,
     clearSuggestions
   } = useTagAutocomplete();
-
-  // 기본 상태
+  
   const [linkUrl, setLinkUrl] = useState('');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -28,7 +28,6 @@ const PostEditPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isAILoading, setIsAILoading] = useState(false);
   const [aiSummary, setAiSummary] = useState('');
-  const [postId, setPostId] = useState<number | null>(null);
 
   // 이미지 압축 커스텀 훅 사용
   const {
@@ -36,11 +35,11 @@ const PostEditPage: React.FC = () => {
     imagePreview,
     isImageProcessing,
     originalFileSize,
-    existingImageUrl,
     handleImageUpload,
     handleImageCancel,
     setImagePreview,
-    setExistingImageUrl
+    setExistingImageUrl,
+    clearExistingImageUrl
   } = useImageCompression();
   
   // 에러 상태
@@ -50,39 +49,100 @@ const PostEditPage: React.FC = () => {
   // 태그 관련 상태
   const [newTag, setNewTag] = useState('');
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
-  
-  // UI 상태
-  const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const [tagError, setTagError] = useState('');
+
+  // 기존 게시글 데이터 로드
+  useEffect(() => {
+    if (location.state?.postData) {
+      const postData = location.state.postData;
+      setTitle(postData.title || '');
+      setContent(postData.content || '');
+      setTags(postData.tags || []);
+      setLinkUrl(postData.link || '');
+      
+      if (postData.thumbnailUrl) {
+        setExistingImageUrl(postData.thumbnailUrl);
+      }
+    }
+  }, [location.state, setExistingImageUrl]);
 
   // URL 처리 및 유효성 검사 함수
   const processAndValidateUrl = (url: string) => {
-    // 에러 초기화
-    setUrlError('');
-    setAiError('');
+    let processedUrl = url.trim();
     
-    // URL에 프로토콜이 없으면 https:// 추가
-    let processedUrl = url;
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      processedUrl = `https://${url}`;
+    // URL이 http:// 또는 https://로 시작하지 않으면 https:// 추가
+    if (processedUrl && !processedUrl.match(/^https?:\/\//)) {
+      processedUrl = `https://${processedUrl}`;
     }
     
-    // URL 기본 유효성 검사
+    // URL 유효성 검사
     try {
-      const urlObj = new URL(processedUrl);
-      
-      // URL의 기본적인 구조만 확인
-      if (!urlObj.protocol || (!urlObj.protocol.startsWith('http'))) {
-        setUrlError('http 또는 https URL을 입력해주세요.');
-        return null;
-      }
-      
+      new URL(processedUrl);
       return processedUrl;
-    } catch (error) {
-      setUrlError('올바른 URL 형식을 입력해주세요.');
+    } catch {
       return null;
     }
   };
 
+  // 태그 입력 변경 핸들러
+  const handleTagInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value.length <= 20) {
+      setNewTag(value);
+      setTagError(''); // 사용자가 입력 시작 시 에러 메시지 초기화
+
+      if (value.trim()) {
+        searchTags(value.trim());
+        setShowTagSuggestions(true);
+      } else {
+        setShowTagSuggestions(false);
+        clearSuggestions();
+      }
+    }
+  };
+
+  const handleTagInputFocus = () => {
+    if (newTag.trim()) {
+      setShowTagSuggestions(true);
+    }
+  };
+
+  const handleTagInputBlur = () => {
+    // 잠시 후에 숨기기 (클릭 이벤트 처리 시간 확보)
+    setTimeout(() => {
+      setShowTagSuggestions(false);
+    }, 200);
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setTags(tags.filter(tag => tag !== tagToRemove));
+  };
+
+  const handleAddTag = (tagName?: string) => {
+    const tagToAdd = (tagName || newTag).trim();
+    if (tagToAdd) {
+      if (tags.includes(tagToAdd)) {
+        setTagError('중복된 태그입니다.');
+        return;
+      }
+      if (tags.length >= 5) {
+        setTagError('태그는 최대 5개까지 추가할 수 있습니다.');
+        return;
+      }
+      if (tagToAdd.length > 20) {
+        setTagError('태그는 20자 이하여야 합니다.');
+        return;
+      }
+      
+      setTagError(''); // 에러 초기화
+      setTags([...tags, tagToAdd]);
+      setNewTag('');
+      setShowTagSuggestions(false);
+      clearSuggestions();
+    }
+  };
+
+  // AI 요약 함수
   const handleAISummary = async () => {
     if (!linkUrl) {
       alert('링크 URL을 먼저 입력해주세요.');
@@ -107,6 +167,7 @@ const PostEditPage: React.FC = () => {
       });
 
       console.log('AI 요약 API 응답 상태:', response.status);
+      console.log('AI 요약 API 응답 헤더:', response.headers);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -152,318 +213,311 @@ const PostEditPage: React.FC = () => {
     }
   };
 
+  // 태그 선택 핸들러
+  const handleTagSelect = (tagName: string) => {
+    handleAddTag(tagName);
+  };
 
+  // AI 태그 생성 함수
+  const generateAITags = async () => {
+    if (!title.trim() && !content.trim()) {
+      setAiError('제목이나 내용을 입력해주세요.');
+      return;
+    }
 
+    setIsAILoading(true);
+    try {
+      const response = await fetch('https://i13a509.p.ssafy.io/api/v1/ai/tag', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: title.trim(),
+          content: content.trim()
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('AI 태그 생성에 실패했습니다.');
+      }
+
+      const data = await response.json();
+      
+      if (data.status === 'SUCCESS' && data.data && data.data.length > 0) {
+        // 기존 태그와 중복되지 않는 태그만 추가
+        const newTags = data.data.filter((tag: string) => !tags.includes(tag));
+        
+        if (newTags.length === 0) {
+          setAiError('추가할 수 있는 새로운 태그가 없습니다.');
+          return;
+        }
+        
+        // 최대 5개까지 추가
+        const tagsToAdd = newTags.slice(0, 5 - tags.length);
+        setTags([...tags, ...tagsToAdd]);
+        setAiSummary(`AI가 ${tagsToAdd.length}개의 태그를 생성했습니다.`);
+      } else {
+        setAiError('AI 태그 생성 결과가 없습니다.');
+      }
+    } catch (error) {
+      console.error('AI 태그 생성 실패:', error);
+      setAiError('AI 태그 생성 중 오류가 발생했습니다.');
+    } finally {
+      setIsAILoading(false);
+    }
+  };
+
+  // 게시글 수정 함수
   const handleSave = async () => {
-    if (!linkUrl || !title) {
-      alert('링크 URL과 제목을 입력해주세요.');
+    if (!title.trim()) {
+      alert('제목을 입력해주세요.');
+      return;
+    }
+    if (!content.trim()) {
+      alert('내용을 입력해주세요.');
+      return;
+    }
+    if (content.length < 50) {
+      alert('게시글 내용은 50자 이상 입력해주세요.');
+      return;
+    }
+    if (title.length > 100) {
+      alert('제목은 100자를 초과할 수 없습니다.');
       return;
     }
     if (content.length > 6000) {
-      alert('게시글 내용은 6000자 이하여야 합니다.');
-      return;
-    }
-    if (!postId) {
-      alert('게시글 ID가 없어 수정할 수 없습니다. 다시 시도해주세요.');
-      navigate('/home');
+      alert('내용은 6000자를 초과할 수 없습니다.');
       return;
     }
 
     setIsLoading(true);
-    
+
     try {
-      const processedUrl = processAndValidateUrl(linkUrl);
-      if (!processedUrl) {
-        setIsLoading(false);
-        return;
-      }
-      
       const formData = new FormData();
+      formData.append('title', title.trim());
+      formData.append('content', content.trim());
+      formData.append('tags', JSON.stringify(tags));
       
-      // 태그 데이터 검증 및 정리
-      const validatedTags = Array.isArray(tags) ? tags.filter(tag => 
-        typeof tag === 'string' && tag.trim().length > 0
-      ).slice(0, 5) : [];
-      
-      console.log('검증된 태그 (수정):', {
-        originalTags: tags,
-        validatedTags: validatedTags,
-        originalType: typeof tags,
-        validatedType: typeof validatedTags
-      });
-      
-      const requestData = {
-        memberId: user?.memberId,
-        link: processedUrl,
-        title: title,
-        content: content,
-        tags: validatedTags
-      };
-      
-      const blob = new Blob([JSON.stringify(requestData)], { type: 'application/json' });
-      formData.append('req', blob);
+      if (linkUrl.trim()) {
+        const processedUrl = processAndValidateUrl(linkUrl);
+        if (!processedUrl) {
+          alert('올바른 URL을 입력해주세요.');
+          setIsLoading(false);
+          return;
+        }
+        formData.append('link', processedUrl);
+      }
       
       if (selectedImage) {
-        formData.append('thumbnailImage', selectedImage);
+        formData.append('thumbnail', selectedImage);
       }
 
-      const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/post/${postId}`, {
+      const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/post/${id}`, {
         method: 'PATCH',
-        credentials: 'include',
-        body: formData
+        body: formData,
       });
 
-      if (!response.ok) {
+      if (response.ok) {
+        const result = await response.json();
+        if (result.status === 'SUCCESS') {
+          alert('게시글이 수정되었습니다.');
+          navigate(`/post/${id}`);
+        } else {
+          throw new Error(result.message || '게시글 수정에 실패했습니다.');
+        }
+      } else {
         throw new Error('게시글 수정에 실패했습니다.');
       }
-
-      const result = await response.json();
-
-      alert('게시글이 수정되었습니다!');
-      
-      // 수정 완료 후 상세 페이지로 이동
-      navigate(`/post/${postId}`, { replace: true });
-      
     } catch (error) {
-      console.error('저장 실패:', error);
+      console.error('게시글 수정 실패:', error);
       alert('게시글 수정에 실패했습니다.');
     } finally {
       setIsLoading(false);
     }
   };
 
-
-
-  const handleAddTag = (tagName?: string) => {
-    const tagToAdd = tagName || newTag.trim();
-    if (tagToAdd && !tags.includes(tagToAdd)) {
-      if (tags.length >= 5) {
-        alert('태그는 최대 5개까지 추가할 수 있습니다.');
-        return;
-      }
-      setTags([...tags, tagToAdd]);
-      setNewTag('');
-      setShowTagSuggestions(false);
-      clearSuggestions();
-    }
-  };
-  
-  const handleTagInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setNewTag(value);
-    
-    if (value.trim()) {
-      searchTags(value.trim());
-      setShowTagSuggestions(true);
-    } else {
-      setShowTagSuggestions(false);
-      clearSuggestions();
-    }
-  };
-  
-  const handleTagInputBlur = () => {
-    // 잠시 후에 숨기기 (클릭 이벤트 처리 시간 확보)
-    setTimeout(() => {
-      setShowTagSuggestions(false);
-    }, 200);
-  };
-
-  const handleRemoveTag = (tagToRemove: string) => {
-    setTags(tags.filter(tag => tag !== tagToRemove));
-  };
-
-  const handleTagKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleAddTag();
-    } else if (e.key === 'Escape') {
-      setShowTagSuggestions(false);
-      clearSuggestions();
-    }
-  };
-
-  const handleTogglePreview = () => {
-    setIsPreviewMode(!isPreviewMode);
-  };
-
   const handleCancel = () => {
-    navigate(-1);
+    navigate(`/post/${id}`);
   };
-
-  // 상세게시글에서 데이터 가져오기
-  useEffect(() => {
-    const postData = location.state?.postData;
-    if (postData && postData.postId) {
-      console.log('수정할 게시글 데이터:', postData);
-      setPostId(postData.postId);
-      setLinkUrl(postData.link || '');
-      setTitle(postData.title || '');
-      setContent(postData.content || '');
-      setTags(postData.tags || []);
-              // 기존 이미지가 있는 경우 미리보기로 설정
-        if (postData.thumbnailUrl) {
-          // 기존 이미지 URL을 훅에 설정
-          setExistingImageUrl(postData.thumbnailUrl);
-        }
-          } else {
-        alert('잘못된 접근입니다.');
-        navigate('/home');
-      }
-  }, [location.state, navigate, setExistingImageUrl]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-             <div className="max-w-4xl mx-auto p-6">
-         {/* Header */}
-         <div className="mb-6">
-           <h1 className="text-xl font-semibold text-gray-900 mb-4">게시글 수정</h1>
-           <button 
-             onClick={() => navigate(-1)}
-             className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
-           >
-             <span className="text-xl">←</span>
-             <span>돌아가기</span>
-           </button>
-         </div>
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-6">
-          
-          {/* Link URL */}
+    <div className="max-w-4xl mx-auto p-6">
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h1 className="text-2xl font-bold text-gray-900 mb-6">게시글 수정</h1>
+        
+        <div className="space-y-6">
+          {/* 제목 */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              링크 URL *
+              제목
             </label>
-            <div className="relative">
-              <input
-                type="url"
-                value={linkUrl}
-                onChange={(e) => setLinkUrl(e.target.value)}
-                maxLength={255}
-                placeholder="https://example.com"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <span className="absolute right-3 top-2 text-sm text-gray-500">
-                {linkUrl.length}/255
-              </span>
-            </div>
-            {/* URL 관련 경고 메시지 - 우선순위: urlError > !linkUrl */}
-            {urlError ? (
-              <div className="relative mt-2">
-                <div className="text-red-600 text-sm bg-red-50 border-l-4 border-red-400 rounded-r-md px-4 py-3 z-20 relative shadow-sm">
-                  <div className="flex items-start gap-3">
-                    <span className="text-red-500 text-lg flex-shrink-0">⚠️</span>
-                    <div className="flex-1">
-                      <p className="font-medium text-red-800 mb-1">URL 필터링 알림</p>
-                      <p className="text-red-700">{urlError}</p>
-                      <p className="text-red-600 text-xs mt-2 opacity-90">
-                        💡 모든 웹사이트 URL을 지원합니다
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ) : !linkUrl ? (
-              <div className="relative mt-2">
-                <p className="text-red-500 text-sm bg-red-50 border border-red-200 rounded-md px-3 py-2 z-10 relative">
-                  ⚠️ 링크 URL을 입력해주세요
-                </p>
-              </div>
-            ) : null}
-          </div>
-
-          {/* Title */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              제목 *
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                maxLength={20}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <span className="absolute right-3 top-2 text-sm text-gray-500">
-                {title.length}/20
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="제목을 입력하세요"
+              maxLength={100}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <div className="flex justify-between items-center mt-1">
+              <span className="text-xs text-gray-500">
+                {title.length}/100
               </span>
             </div>
           </div>
 
-          {/* Thumbnail Image */}
+          {/* 링크 URL */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              썸네일 이미지
+              링크 URL (선택사항)
             </label>
-            
-            {/* Image Display Area */}
-            <div className="w-48 h-32 bg-gray-100 rounded-md border border-gray-300 mb-3 overflow-hidden">
-              {imagePreview ? (
-                <img
-                  src={imagePreview}
-                  alt="업로드된 이미지"
-                  className="w-full h-full object-contain"
-                  style={{ objectPosition: 'center' }}
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="w-12 h-12 bg-gray-200 rounded-full mx-auto mb-2"></div>
-                    <p className="text-sm text-gray-500">디폴트 이미지</p>
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            {/* Image Upload */}
-            <div className="flex items-center gap-3">
+            <input
+              type="url"
+              value={linkUrl}
+              onChange={(e) => {
+                setLinkUrl(e.target.value);
+                setUrlError('');
+              }}
+              placeholder="https://example.com"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            {urlError && <p className="text-sm text-red-500 mt-1">{urlError}</p>}
+          </div>
+
+          {/* 이미지 업로드 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              썸네일 이미지 (선택사항)
+            </label>
+            <div className="space-y-4">
               <input
+                id="image-upload"
                 type="file"
                 accept="image/*"
-                onChange={handleImageUpload}  // 직접 훅의 함수 사용
+                onChange={handleImageUpload}
                 className="hidden"
-                id="image-upload"
-                disabled={isImageProcessing}
               />
               <label
                 htmlFor="image-upload"
-                className={`px-4 py-2 text-white rounded-md cursor-pointer text-sm ${
-                  isImageProcessing 
-                    ? 'bg-gray-400 cursor-not-allowed' 
-                    : 'bg-blue-600 hover:bg-blue-700'
-                }`}
+                className="block w-full px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer hover:border-gray-400 transition-colors"
               >
                 {isImageProcessing ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    처리 중...
+                  <div className="flex items-center justify-center">
+                    <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mr-2"></div>
+                    <span>이미지 처리 중...</span>
                   </div>
                 ) : (
-                  imagePreview ? '이미지 변경' : '이미지 업로드'
+                  <span>이미지를 선택하거나 드래그하여 업로드하세요</span>
                 )}
               </label>
-              {imagePreview && !isImageProcessing && (
-                <button
-                  type="button"
-                  onClick={handleImageCancel}  // 직접 훅의 함수 사용
-                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 cursor-pointer text-sm"
-                >
-                  이미지 취소
-                </button>
-              )}
-              {selectedImage && selectedImage.name && selectedImage.size && (
-                <span className="text-sm text-gray-600">
-                  {selectedImage.name} ({(selectedImage.size / 1024 / 1024).toFixed(2)}MB)
-                  {originalFileSize > 0 && originalFileSize > selectedImage.size && (
-                    <span className="text-gray-400 ml-1">
-                      (원본: {(originalFileSize / 1024 / 1024).toFixed(2)}MB)
-                    </span>
+              
+              {imagePreview && (
+                <div className="relative">
+                  <img
+                    src={imagePreview}
+                    alt="미리보기"
+                    className="w-full max-w-md h-auto rounded-lg"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleImageCancel}
+                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600"
+                  >
+                    ×
+                  </button>
+                  {originalFileSize > 0 && (
+                    <div className="mt-2 text-sm text-gray-600">
+                      원본 크기: {(originalFileSize / (1024 * 1024)).toFixed(2)}MB
+                    </div>
                   )}
-                </span>
+                </div>
               )}
             </div>
           </div>
 
-          {/* Content */}
+          {/* 태그 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              태그
+            </label>
+            {isAILoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="text-center">
+                  <div className="w-6 h-6 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                  <p className="text-sm text-gray-600">태그를 생성하고 있습니다...</p>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* 태그 입력 영역 */}
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={newTag}
+                    onChange={handleTagInputChange}
+                    onFocus={handleTagInputFocus}
+                    onBlur={handleTagInputBlur}
+                    placeholder="태그를 입력하세요 (DB에서 검색)"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  
+                  {/* 태그 제안 드롭다운 */}
+                  {showTagSuggestions && (tagLoading || tagSuggestions.length > 0) && (
+                    <div className="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
+                      {tagLoading && (
+                        <div className="flex items-center justify-center py-4">
+                          <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mr-2"></div>
+                          <span className="text-sm text-gray-600">검색 중...</span>
+                        </div>
+                      )}
+                      {tagSuggestions.map((suggestion) => (
+                        <button
+                          key={`${suggestion.type}-${suggestion.id}`}
+                          type="button"
+                          onClick={() => handleTagSelect(suggestion.name)}
+                          disabled={tags.length >= 5}
+                          className="w-full px-4 py-2 text-left hover:bg-gray-100 disabled:bg-gray-50 disabled:text-gray-400 flex items-center gap-2"
+                        >
+                          <span className={`text-xs px-1.5 py-0.5 rounded text-white font-medium ${
+                            suggestion.type === 'tech' ? 'bg-blue-500' : 'bg-purple-500'
+                          }`}>
+                            {suggestion.type === 'tech' ? 'T' : 'C'}
+                          </span>
+                          <span className="text-sm">{suggestion.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                
+                {tagError && <p className="text-sm text-red-500 mt-1">{tagError}</p>}
+                
+                {/* 태그 목록 */}
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                    >
+                      #{tag}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveTag(tag)}
+                        className="text-blue-600 hover:text-blue-800 text-lg font-bold"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                
+
+              </>
+            )}
+          </div>
+
+          {/* 내용 */}
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="block text-sm font-medium text-gray-700">
@@ -503,139 +557,30 @@ const PostEditPage: React.FC = () => {
                 </div>
               </div>
             )}
-            
-            {/* AI 로딩 상태 */}
-            {isAILoading ? (
-              <div className="flex items-center justify-center h-64 border border-gray-300 rounded-md">
-                <div className="text-center">
-                  <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                  <p className="text-gray-600">AI가 내용을 분석하고 있습니다...</p>
-                </div>
-              </div>
-            ) : (
-              /* MD Editor (AI 요약 여부와 관계없이 동일) */
-              <div data-color-mode="light">
-                <MDEditor
-                  value={content}
-                  onChange={(val) => {
-                    const newContent = val || '';
-                    if (newContent.length <= 6000) {
-                      setContent(newContent);
+            <div className="border border-gray-300 rounded-md">
+              <MDEditor
+                value={content}
+                onChange={(val) => setContent(val || '')}
+                height={400}
+                preview="edit"
+                onClick={(e) => {
+                  // 빈 공간 클릭 시 마지막에 커서 이동
+                  const editor = e.currentTarget.querySelector('.w-md-editor-text');
+                  if (editor) {
+                    const textArea = editor.querySelector('textarea');
+                    if (textArea) {
+                      textArea.focus();
+                      textArea.setSelectionRange(textArea.value.length, textArea.value.length);
                     }
-                  }}
-                  preview={isPreviewMode ? "preview" : "edit"}
-                  hideToolbar={isPreviewMode}
-                  height={300}
-                  data-color-mode="light"
-                />
-                <div className="flex justify-between items-center mt-2">
-                  <div className="text-sm text-gray-500">
-                    {content.length > 6000 ? (
-                      <span className="text-red-500">글자 수 제한을 초과했습니다 ({content.length}/6000)</span>
-                    ) : (
-                      <span>{content.length}/6000</span>
-                    )}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleTogglePreview}
-                    className="px-3 py-1 text-sm bg-gray-600 text-white rounded-md hover:bg-gray-700"
-                  >
-                    {isPreviewMode ? '편집 모드' : '미리보기'}
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Tags */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              태그
-            </label>
-            {isAILoading ? (
-              <div className="flex items-center justify-center py-8">
-                <div className="text-center">
-                  <div className="w-6 h-6 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-                  <p className="text-sm text-gray-600">태그를 생성하고 있습니다...</p>
-                </div>
-              </div>
-            ) : (
-              <>
-                {/* 태그 입력 영역 */}
-                <div className="relative">
-                  <div className="flex items-center gap-2 mb-3">
-                    <input
-                      type="text"
-                      value={newTag}
-                      onChange={handleTagInputChange}
-                      onKeyPress={handleTagKeyPress}
-                      onBlur={handleTagInputBlur}
-                      onFocus={() => newTag.trim() && setShowTagSuggestions(true)}
-                      placeholder="태그를 입력하세요 (기존 태그 검색 가능)"
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleAddTag()}
-                      disabled={!newTag.trim() || tags.length >= 5}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm"
-                    >
-                      추가
-                    </button>
-                  </div>
-                  
-                  {/* 태그 제안 드롭다운 */}
-                  {showTagSuggestions && (tagLoading || tagSuggestions.length > 0) && (
-                    <div className="absolute top-full left-0 right-12 bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
-                      {tagLoading && (
-                        <div className="flex items-center justify-center py-4">
-                          <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mr-2"></div>
-                          <span className="text-sm text-gray-600">검색 중...</span>
-                        </div>
-                      )}
-                      {tagSuggestions.map((suggestion) => (
-                        <button
-                          key={`${suggestion.type}-${suggestion.id}`}
-                          type="button"
-                          onClick={() => handleAddTag(suggestion.name)}
-                          disabled={tags.length >= 5}
-                          className="w-full px-4 py-2 text-left hover:bg-gray-100 disabled:bg-gray-50 disabled:text-gray-400"
-                        >
-                          <span className="text-sm">{suggestion.name}</span>
-                        </button>
-                      ))}
-                      {!tagLoading && tagSuggestions.length === 0 && newTag.trim() && (
-                        <div className="px-4 py-3 text-sm text-gray-500 text-center">
-                          '
-                          <span className="font-medium">{newTag.trim()}</span>
-                          '에 대한 검색 결과가 없습니다.
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-                
-                {/* 태그 목록 */}
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {tags.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
-                    >
-                      #{tag}
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveTag(tag)}
-                        className="text-blue-600 hover:text-blue-800 text-lg font-bold"
-                      >
-                        ×
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              </>
-            )}
+                  }
+                }}
+              />
+            </div>
+            <div className="flex justify-between items-center mt-1">
+              <span className="text-xs text-gray-500">
+                {content.length}/6000
+              </span>
+            </div>
           </div>
         </div>
 
@@ -645,21 +590,21 @@ const PostEditPage: React.FC = () => {
             onClick={handleCancel}
             className="px-6 py-2 text-gray-600 hover:text-gray-800"
           >
-            × 취소
+            취소
           </button>
           <button
             onClick={handleSave}
             disabled={isLoading}
             className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2"
           >
-                         {isLoading ? (
-               <>
-                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                 수정 중...
-               </>
-             ) : (
-                               '수정하기'
-             )}
+            {isLoading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                수정 중...
+              </>
+            ) : (
+              '수정하기'
+            )}
           </button>
         </div>
       </div>

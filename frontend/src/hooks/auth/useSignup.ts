@@ -221,8 +221,24 @@ const countAllowed = (s: string) =>
     console.log('회원가입 성공:', data);
 
     if (data.data && data.data.memberId) {
-      setUser(data.data);
-      console.log('회원가입 후 전역변수 저장 완료:', data.data);
+      const memberId = data.data.memberId;
+
+      // Fetch full user details after signup
+      const userDetailsRes = await fetch(`https://i13a509.p.ssafy.io/api/v1/member/${memberId}`, {
+        credentials: 'include',
+      });
+
+      if (!userDetailsRes.ok) throw new Error('Failed to fetch user details after signup');
+
+      const userDetails = await userDetailsRes.json();
+      const completeUser = {
+        memberId: userDetails.data.memberId,
+        nickname: userDetails.data.nickname,
+        memberProfileUrl: userDetails.data.memberProfileUrl,
+      };
+
+      setUser(completeUser);
+      console.log('회원가입 후 전역변수 저장 완료:', completeUser);
     }
 
     clearSocialLoginInfo();

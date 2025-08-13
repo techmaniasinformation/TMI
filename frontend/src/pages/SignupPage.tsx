@@ -72,13 +72,6 @@ const SignupPage: React.FC<SignupPageProps> = () => {
                   ${nicknameError ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'}
                 `}
               />
-              {/* 닉네임 에러 메시지 */}
-              {nicknameError && (
-                <p className='mt-1 text-xs text-red-600 flex items-center'>
-                  <i className='fas fa-exclamation-circle mr-1'></i>
-                  {nicknameError}
-                </p>
-              )}
             </div>
             <button
               onClick={handleNicknameCheck}
@@ -93,10 +86,22 @@ const SignupPage: React.FC<SignupPageProps> = () => {
             </button>
           </div>
           <div className='h-5 mt-1'>
+            {nicknameError && (
+              <div className='flex items-center text-red-600 text-xs'>
+                <i className='fas fa-exclamation-circle mr-1'></i>
+                {nicknameError}
+              </div>
+            )}
             {isNicknameChecked && isNicknameTaken && (
               <div className='flex items-center text-red-600 text-xs'>
                 <i className='fas fa-exclamation-circle mr-1'></i>
                 이미 사용 중인 닉네임입니다.
+              </div>
+            )}
+            {isNicknameChecked && !isNicknameTaken && (
+              <div className='flex items-center text-green-600 text-xs'>
+                <i className='fas fa-check-circle mr-1'></i>
+                사용 가능한 닉네임입니다.
               </div>
             )}
           </div>

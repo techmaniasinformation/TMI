@@ -105,11 +105,7 @@ const countAllowed = (s: string) =>
       setIsNicknameChecked(true);
       setIsNicknameTaken(json.data.isDuplicated);
 
-      if (json.data.isDuplicated) {
-        setNicknameError('이미 사용 중인 닉네임입니다.');
-      } else {
-        setNicknameError(null);
-      }
+      // 중복 확인 결과는 UI에서 별도로 표시하므로 nicknameError는 설정하지 않음
     } catch (err) {
       console.error(err);
       setNicknameError('닉네임 중복 확인 중 오류가 발생했습니다.');

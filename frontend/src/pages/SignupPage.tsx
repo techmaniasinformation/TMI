@@ -113,7 +113,7 @@ const SignupPage: React.FC<SignupPageProps> = () => {
             <div className='w-32 h-32 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200 shadow-lg flex-shrink-0'>
               {imagePreview ? (
                 <img
-                                    src={imagePreview}
+                  src={imagePreview}
                   alt='Profile'
                   className='w-full h-full object-cover object-center'
                 />

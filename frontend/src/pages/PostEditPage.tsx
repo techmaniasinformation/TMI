@@ -30,6 +30,9 @@ const PostEditPage: React.FC = () => {
   const [aiSummary, setAiSummary] = useState('');
   const [postId, setPostId] = useState<number | null>(null);
 
+  // 기존 이미지 URL 상태 (수정 페이지 전용)
+  const [existingImageUrl, setExistingImageUrl] = useState<string>('');
+  
   // 이미지 압축 커스텀 훅 사용
   const {
     selectedImage,
@@ -296,6 +299,25 @@ const PostEditPage: React.FC = () => {
     navigate(-1);
   };
 
+  // 이미지 업로드 함수 (수정 페이지 전용)
+  const handleImageUploadEdit = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    // 기존 이미지가 있으면 기존 이미지 URL 초기화
+    if (existingImageUrl) {
+      setExistingImageUrl('');
+    }
+    // 커스텀 훅의 업로드 함수 호출
+    await handleImageUpload(event);
+  };
+
+  // 이미지 취소 함수 (수정 페이지 전용)
+  const handleImageCancelEdit = () => {
+    handleImageCancel(); // 커스텀 훅의 취소 함수 호출
+    // 기존 이미지가 있었으면 다시 표시
+    if (existingImageUrl) {
+      setImagePreview(existingImageUrl);
+    }
+  };
+
   // 상세게시글에서 데이터 가져오기
   useEffect(() => {
     const postData = location.state?.postData;
@@ -306,11 +328,10 @@ const PostEditPage: React.FC = () => {
       setTitle(postData.title || '');
       setContent(postData.content || '');
       setTags(postData.tags || []);
-      // 기존 이미지가 있는 경우 미리보기 설정
+      // 기존 이미지가 있는 경우 미리보기로 설정
       if (postData.thumbnailUrl) {
-        // 기존 이미지 URL을 미리보기로 설정
         setImagePreview(postData.thumbnailUrl);
-        // selectedImage는 null로 유지 (새로운 이미지를 업로드할 때만 설정됨)
+        setExistingImageUrl(postData.thumbnailUrl);
         console.log('기존 이미지 URL 설정:', postData.thumbnailUrl);
       }
     } else {
@@ -428,7 +449,7 @@ const PostEditPage: React.FC = () => {
               <input
                 type="file"
                 accept="image/*"
-                onChange={handleImageUpload}
+                onChange={handleImageUploadEdit}
                 className="hidden"
                 id="image-upload"
                 disabled={isImageProcessing}
@@ -453,7 +474,7 @@ const PostEditPage: React.FC = () => {
               {imagePreview && !isImageProcessing && (
                 <button
                   type="button"
-                  onClick={handleImageCancel}
+                  onClick={handleImageCancelEdit}
                   className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 cursor-pointer text-sm"
                 >
                   이미지 취소

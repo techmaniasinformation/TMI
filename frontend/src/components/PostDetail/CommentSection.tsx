@@ -19,6 +19,9 @@ interface CommentSectionProps {
   onCommentRecommend: (commentId: number) => void;
   userRecommendations: Map<number, number>;
   recommendLoading: Map<number, boolean>;
+  deleteLoading: Map<number, boolean>;
+  onCommentDelete: (commentId: number) => void;
+  currentUserId?: number;
 }
 
 export const CommentSection: React.FC<CommentSectionProps> = ({
@@ -38,6 +41,9 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
   onCommentRecommend,
   userRecommendations,
   recommendLoading,
+  deleteLoading,
+  onCommentDelete,
+  currentUserId,
 }) => {
   // 안전한 프로필 이미지 URL을 메모이제이션
   const safeMemberProfileUrl = useMemo(() => {
@@ -64,13 +70,19 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
               rows={3}
             />
             {showLinkInput && (
-              <input
-                type="url"
-                value={linkUrl}
-                onChange={(e) => onLinkChange(e.target.value)}
-                placeholder="링크 URL을 입력하세요 (선택사항)"
-                className="w-full mt-2 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              <div className="relative mt-2">
+                <input
+                  type="url"
+                  value={linkUrl}
+                  onChange={(e) => onLinkChange(e.target.value)}
+                  maxLength={255}
+                  placeholder="링크 URL을 입력하세요 (선택사항)"
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <span className="absolute right-2 top-2 text-xs text-gray-500">
+                  {linkUrl.length}/255
+                </span>
+              </div>
             )}
             <div className="flex justify-between items-center mt-2">
               <button
@@ -137,7 +149,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
                           {comment.link}
                         </a>
                       )}
-                      <div className="flex items-center gap-4 mt-2">
+                      <div className="flex items-center justify-between mt-2">
                         <button
                           onClick={() => onCommentRecommend(comment.commentId)}
                           className={`flex items-center gap-1 text-sm ${
@@ -152,6 +164,30 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
                             {userRecommendations.has(comment.commentId) ? '추천됨' : '추천'}
                           </span>
                         </button>
+                        
+                        {/* 댓글 작성자와 현재 사용자가 같을 때만 삭제 버튼 표시 */}
+                        {currentUserId && comment.memberId && currentUserId === comment.memberId && (
+                          <button
+                            onClick={() => {
+                              if (window.confirm('정말로 이 댓글을 삭제하시겠습니까?')) {
+                                onCommentDelete(comment.commentId);
+                              }
+                            }}
+                            disabled={deleteLoading.has(comment.commentId)}
+                            className={`flex items-center gap-1 text-sm text-red-600 hover:text-red-800 ${
+                              deleteLoading.has(comment.commentId) ? 'opacity-50 cursor-not-allowed' : ''
+                            }`}
+                          >
+                            {deleteLoading.has(comment.commentId) ? (
+                              <span>삭제 중...</span>
+                            ) : (
+                              <>
+                                <span>🗑️</span>
+                                <span>삭제</span>
+                              </>
+                            )}
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>

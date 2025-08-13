@@ -428,7 +428,6 @@ const PostEditPage: React.FC = () => {
                   }}
                   preview={isPreviewMode ? "preview" : "edit"}
                   hideToolbar={isPreviewMode}
-                  data-color-mode="light"
                 />
                 <div className="flex justify-between items-center mt-2">
                   <div className="text-sm text-gray-500 dark:text-gray-400">

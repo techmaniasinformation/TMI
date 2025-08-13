@@ -74,8 +74,8 @@ export const usePostsList = () => {
   const [activeTab, setActiveTab] = useState<'latest' | 'following'>(urlTab);
   
   // 로그인 상태 확인
-  const { isLogin, user } = useUserStore();
-  const isLoggedIn = isLogin;
+  const { user } = useUserStore();
+  const isLoggedIn = user !== null && user.memberId > 0;
 
   // 게시글 목록 가져오기 함수를 useCallback으로 메모이제이션
   const fetchPosts = useCallback(async (page: number = 1, sort: 'latest' | 'following' = 'latest') => {

@@ -33,7 +33,8 @@ const LandingPage: React.FC<LandingPageProps> = () => {
   const { isDarkMode } = useThemeStore();
 
   // ##### 현재 로그인 여부, 로그인 했을 시 user 객체
-  const { isLogin, user } = useUserStore();
+  const { user } = useUserStore();
+  const isLogin = user !== null && user.memberId > 0;
 
   // 인기게시글 데이터 가져오기 (랜딩페이지에서는 3개만)
   const { posts: popularPosts, loading, error } = usePopularPosts(3);

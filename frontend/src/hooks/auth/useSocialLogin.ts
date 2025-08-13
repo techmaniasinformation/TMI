@@ -20,10 +20,10 @@ const useSocialLogin = () => {
     setPrevPath,
     setSocialProvider,
     prevPath,
-    isLogin,
     user,
     setStarIdMap,
   } = useUserStore();
+  const isLogin = user !== null && user.memberId > 0;
 
   // 이전 경로 함께 전달하는 소셜 로그인
   const handleSocialLoginWithLocation = (

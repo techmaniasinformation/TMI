@@ -103,66 +103,7 @@ export const useSignup = () => {
       new Blob([JSON.stringify(signupRequest)], 
       { type: 'application/json' }));
 
-    // let profileImageUrl = '';
-
-  //   try {
-  //     if (imageFile) {
-  //       const imageFormData = new FormData();
-  //       imageFormData.append('image', imageFile);
-
-  //       const imageRes = await fetch('https://i13a509.p.ssafy.io/api/v1/images', {
-  //         method: 'POST',
-  //         body: imageFormData,
-  //       });
-
-  //       if (!imageRes.ok) {
-  //         throw new Error('이미지 업로드 실패');
-  //       }
-
-  //       const imageData = await imageRes.json();
-  //       profileImageUrl = imageData.data.imageUrl;
-  //     }
-
-  //     const signupRequest = {
-  //       provider: formData.provider,
-  //       providerMemberId: formData.providerMemberId,
-  //       nickname: formData.nickname,
-  //       memberProfileUrl: profileImageUrl,
-  //     };
-
-  //     const res = await fetch('https://i13a509.p.ssafy.io/api/v1/member/signup', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       credentials: 'include',
-  //       body: JSON.stringify(signupRequest),
-  //     });
-
-  //     if (!res.ok) {
-  //       throw new Error('회원가입 요청 실패');
-  //     }
-
-  //     const data = await res.json();
-  //     console.log('회원가입 성공:', data);
-
-  //     if (data.data && data.data.memberId) {
-  //       setUser(data.data);
-  //       console.log('회원가입 후 전역변수 저장 완료:', data.data);
-  //     }
-
-  //     clearSocialLoginInfo();
-  //     alert('회원가입이 완료되었습니다!');
-  //     navigate(prevPath || '/'); // prevPath가 없으면 홈으로 이동
-
-  //   } catch (error) {
-  //     console.error('회원가입 실패:', error);
-  //     alert('회원가입에 실패했습니다. 다시 시도해주세요.');
-  //   } finally {
-  //     setIsSubmitting(false);
-  //   }
-  // };
-    // 이미지 파일이 있으면 'profileImage' 키로 같이 추가 &&&
+    // 이미지 파일이 있으면 'profileImage' 키로 같이 추가 
   if (imageFile) {
     apiFormData.append('profileImage', imageFile);
   }
@@ -170,7 +111,7 @@ export const useSignup = () => {
   try {
     const res = await fetch('https://i13a509.p.ssafy.io/api/v1/member/signup', {
       method: 'POST',
-      body: apiFormData, // Content-Type 지정하지 않음 &&&
+      body: apiFormData, // Content-Type 지정하지 않음
       credentials: 'include',
     });
 

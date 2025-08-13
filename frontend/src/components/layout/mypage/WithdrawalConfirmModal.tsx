@@ -66,22 +66,22 @@ export default function WithdrawalConfirmModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
-      <div className="bg-white rounded-lg shadow-lg w-[512px] h-[220px] px-6 pt-6 relative">
-        <button onClick={onCancel} className="absolute top-3 right-3 text-gray-500 hover:text-gray-700" disabled={loading} aria-label="닫기">
+      <div className="bg-light-header dark:bg-dark-header rounded-lg shadow-lg w-[512px] h-[220px] px-6 pt-6 relative">
+        <button onClick={onCancel} className="absolute top-3 right-3 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300" disabled={loading} aria-label="닫기">
           &times;
         </button>
         <div className="mt-8">
-          <div className="text-center text-gray-800 mb-12">
+          <div className="text-center text-gray-800 dark:text-white mb-12">
             <p>탈퇴 시 모든 정보가 영구 삭제됩니다.</p>
             <p className="mt-3">진행하시겠습니까?</p>
           </div>
 
           {errorMessage && (
-            <p role="alert" className="text-center text-sm text-red-600 mb-2">{errorMessage}</p>
+            <p role="alert" className="text-center text-sm text-red-600 dark:text-red-400 mb-2">{errorMessage}</p>
           )}
 
           <div className="flex justify-end space-x-2">
-            <button onClick={onCancel} disabled={loading} className={`px-4 py-2 border border-gray-300 rounded-md text-gray-700 ${loading ? 'opacity-60 cursor-not-allowed' : 'hover:bg-gray-100'}`}>
+            <button onClick={onCancel} disabled={loading} className={`px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-200 ${loading ? 'opacity-60 cursor-not-allowed' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}>
               취소
             </button>
             <button onClick={handleConfirmClick} disabled={loading} className={`px-4 py-2 bg-red-500 text-white rounded-md ${loading ? 'opacity-60 cursor-not-allowed' : 'hover:bg-red-600'}`}>

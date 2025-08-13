@@ -316,9 +316,9 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
   /* 렌더링 */
   return (
     <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as MyTab)} className='w-[1232px]'>
-      <TabsList className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 w-full flex justify-start p-0 h-auto">
+      <TabsList className="bg-light-header dark:bg-dark-header rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6 w-full flex justify-start p-0 h-auto">
         {(isMyPage || isOtherUser) && isPersonal && (
-          <TabsTrigger value="profile" className="flex items-center px-6 py-4 text-gray-500 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600">
+          <TabsTrigger value="profile" className="flex items-center px-6 py-4 text-gray-500 dark:text-gray-400 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600">
             <IconTab1 className="w-4 h-4 mr-2 text-inherit" />
             <span className="text-sm">내 정보</span>
           </TabsTrigger>
@@ -327,7 +327,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
         {isMyPage && isPersonal && (
           <TabsTrigger
             value="comments"
-            className="flex items-center px-6 py-4 text-gray-500 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600"
+            className="flex items-center px-6 py-4 text-gray-500 dark:text-gray-400 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600"
             onClick={() => setCurrentCommentPage(1)}
           >
             <IconTab2 className="w-4 h-4 mr-2 text-inherit" />
@@ -337,7 +337,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
 
         <TabsTrigger
           value="posts"
-          className="flex items-center px-6 py-4 text-gray-500 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600"
+          className="flex items-center px-6 py-4 text-gray-500 dark:text-gray-400 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600"
           onClick={() => setCurrentPostPage(1)}
         >
           <IconTab3 className="w-4 h-4 mr-2 text-inherit" />
@@ -350,7 +350,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
           <>
             <TabsTrigger
               value="follow"
-              className="flex items-center px-6 py-4 text-gray-500 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600"
+              className="flex items-center px-6 py-4 text-gray-500 dark:text-gray-400 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600"
               onClick={() => {
                 setCurrentCompanyPage(1);
                 setCurrentUserPage(1);
@@ -362,7 +362,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
             </TabsTrigger>
             <TabsTrigger
               value="starred"
-              className="flex items-center px-6 py-4 text-gray-500 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600"
+              className="flex items-center px-6 py-4 text-gray-500 dark:text-gray-400 border-b-2 border-transparent data-[state=active]:text-purple-600 data-[state=active]:border-purple-600"
               onClick={() => setCurrentStarPage(1)}
             >
               <IconTab5 className="w-4 h-4 mr-2 text-inherit" />
@@ -374,8 +374,8 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
       </TabsList>
 
       {(isMyPage || isOtherUser) && isPersonal && (
-        <TabsContent value="profile" className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-          <h2 className="text-lg font-semibold mb-6">업적</h2>
+        <TabsContent value="profile" className="p-6 bg-light-header dark:bg-dark-header border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm">
+          <h2 className="text-lg font-semibold mb-6 text-gray-900 dark:text-white">업적</h2>
           <div className="grid grid-cols-7 gap-4">
             {[...allBadges]
               .filter((b) => !HIDDEN_BADGE_IDS.has(b.badgeId))
@@ -413,7 +413,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
                           ? (canOpenBadgeModal
                               ? 'cursor-pointer hover:shadow-md border-purple-600'
                               : 'cursor-default border-purple-600')
-                          : 'cursor-not-allowed border-gray-300 opacity-50'
+                          : 'cursor-not-allowed border-gray-300 dark:border-gray-600 opacity-50'
                       }`}
                     aria-disabled={!canOpenBadgeModal}
                     title={canOpenBadgeModal ? badge.name : undefined}
@@ -423,7 +423,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
                       alt={badge.name}
                       className="w-20 h-20 mb-2 rounded-lg object-contain"
                     />
-                    <p className="text-sm font-medium text-center text-gray-700">{badge.name}</p>
+                    <p className="text-sm font-medium text-center text-gray-700 dark:text-gray-200">{badge.name}</p>
                   </div>
                 );
               })}
@@ -433,14 +433,14 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
 
       {/* 댓글 */}
       {isMyPage && isPersonal && (
-        <TabsContent value="comments" className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-          <h2 className="text-lg font-semibold mb-4">작성한 댓글</h2>
+        <TabsContent value="comments" className="p-6 bg-light-header dark:bg-dark-header border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm">
+          <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">작성한 댓글</h2>
           {commentLoading ? (
-            <p className="text-sm text-gray-500">불러오는 중...</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">불러오는 중...</p>
           ) : commentError ? (
-            <p className="text-sm text-red-500">에러: {commentError}</p>
+            <p className="text-sm text-red-500 dark:text-red-400">에러: {commentError}</p>
           ) : comments.length === 0 ? (
-            <p className="text-sm text-gray-500">작성한 댓글이 없습니다.</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">작성한 댓글이 없습니다.</p>
           ) : (
             <div className="space-y-4">
               {comments.map((comment) => (
@@ -466,14 +466,14 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
       )}
 
       {/* 작성한 게시글 */}
-      <TabsContent value="posts" className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-        <h2 className="text-lg font-semibold mb-4">작성한 게시글</h2>
+      <TabsContent value="posts" className="p-6 bg-light-header dark:bg-dark-header border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm">
+        <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">작성한 게시글</h2>
 
         {isCompany ? (
           companyPostLoading ? (
-            <p className="text-sm text-gray-500">불러오는 중...</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">불러오는 중...</p>
           ) : companyPosts.length === 0 ? (
-            <p className="text-sm text-gray-500">게시글이 없습니다.</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">게시글이 없습니다.</p>
           ) : (
             <>
               <div className="space-y-4">
@@ -505,11 +505,11 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
             </>
           )
         ) : postLoading ? (
-          <p className="text-sm text-gray-500">불러오는 중...</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">불러오는 중...</p>
         ) : postError ? (
-          <p className="text-sm text-red-500">에러: {postError}</p>
+          <p className="text-sm text-red-500 dark:text-red-400">에러: {postError}</p>
         ) : memberPosts.length === 0 ? (
-          <p className="text-sm text-gray-500">게시글이 없습니다.</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">게시글이 없습니다.</p>
         ) : (
           <>
             <div className="space-y-4">
@@ -544,7 +544,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
 
       {/* 팔로우 */}
       {isMyPage && isPersonal && (
-        <TabsContent value="follow" className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+        <TabsContent value="follow" className="p-6 bg-light-header dark:bg-dark-header border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm">
           <div className="flex space-x-2 mb-4">
             <button
               onClick={() => {
@@ -552,7 +552,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
                 setCurrentCompanyPage(1);
               }}
               className={`px-4 py-1.5 text-sm rounded-md transition ${
-                followSubTab === 'company' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-500'
+                followSubTab === 'company' ? 'bg-purple-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300'
               }`}
             >
               {/* [FIX] 전체 개수로 표시 */}
@@ -564,7 +564,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
                 setCurrentUserPage(1);
               }}
               className={`px-4 py-1.5 text-sm rounded-md transition ${
-                followSubTab === 'user' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-500'
+                followSubTab === 'user' ? 'bg-purple-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300'
               }`}
             >
               {/* [FIX] 전체 개수로 표시 */}
@@ -575,7 +575,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
           {followSubTab === 'company' && (
             <>
               {followedCompanies.length === 0 ? (
-                <p className="text-sm text-gray-500">팔로우한 기업이 없습니다.</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">팔로우한 기업이 없습니다.</p>
               ) : (
                 <div className="grid grid-cols-3 gap-4 w-full max-w-full">
                   {followedCompanies.map((company) => (
@@ -603,7 +603,7 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
           {followSubTab === 'user' && (
             <>
               {followedUsers.length === 0 ? (
-                <p className="text-sm text-gray-500">팔로우한 유저가 없습니다.</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">팔로우한 유저가 없습니다.</p>
               ) : (
                 <div className="grid grid-cols-3 gap-4 w-full max-w-full">
                   {followedUsers.map((user) => (
@@ -633,15 +633,15 @@ const MyPageTabs: React.FC<MyPageTabsProps> = ({
 
       {/* 스타 게시글 */}
       {isMyPage && isPersonal && (
-        <TabsContent value="starred" className="p-6 bg-white border border-gray-200 rounded-lg shadow_sm">
-          <h2 className="text-lg font-semibold mb-4">스타 게시글</h2>
+        <TabsContent value="starred" className="p-6 bg-light-header dark:bg-dark-header border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm">
+          <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">스타 게시글</h2>
 
           {starLoading ? (
-            <p className="text-sm text-gray-500">불러오는 중...</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">불러오는 중...</p>
           ) : starError ? (
-            <p className="text-sm text-red-500">에러: {starError}</p>
+            <p className="text-sm text-red-500 dark:text-red-400">에러: {starError}</p>
           ) : starredPosts.length === 0 ? (
-            <p className="text_sm text-gray-500">스타한 게시글이 없습니다.</p>
+            <p className="text_sm text-gray-500 dark:text-gray-400">스타한 게시글이 없습니다.</p>
           ) : (
             <div className="space-y-4">
               {starredPosts.map((post) => (

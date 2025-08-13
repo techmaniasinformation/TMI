@@ -146,8 +146,8 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
-            <i className="fas fa-spinner fa-spin text-4xl text-blue-500 mb-4"></i>
-            <p className="text-gray-500">게시글을 불러오는 중...</p>
+            <i className="fas fa-spinner fa-spin text-4xl text-blue-500 dark:text-blue-400 mb-4"></i>
+            <p className="text-gray-500 dark:text-gray-400">게시글을 불러오는 중...</p>
           </div>
         </div>
       </div>
@@ -161,7 +161,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         <div className="mb-6">
           <Link
             to="/home"
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors cursor-pointer"
+            className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 transition-colors cursor-pointer"
           >
             <i className="fas fa-arrow-left"></i>
             <span>목록으로</span>
@@ -169,9 +169,9 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         </div>
         
         <div className="text-center py-12">
-          <i className="fas fa-exclamation-triangle text-6xl text-red-300 mb-4"></i>
-          <p className="text-lg text-red-500 mb-2">오류가 발생했습니다</p>
-          <p className="text-gray-500 mb-4">{error || '게시글을 찾을 수 없습니다.'}</p>
+          <i className="fas fa-exclamation-triangle text-6xl text-red-300 dark:text-red-400 mb-4"></i>
+          <p className="text-lg text-red-500 dark:text-red-400 mb-2">오류가 발생했습니다</p>
+          <p className="text-gray-500 dark:text-gray-400 mb-4">{error || '게시글을 찾을 수 없습니다.'}</p>
           <Button 
             onClick={() => navigate('/home')}
             className="!rounded-button cursor-pointer whitespace-nowrap"
@@ -184,7 +184,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto bg-light-bg dark:bg-dark-bg">
       {/* 뒤로가기 버튼 */}
       <PostHeader onBack={() => navigate('/home')} />
 
@@ -212,7 +212,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
           </Button>
           <Button
             variant="outline"
-            className="!rounded-button cursor-pointer whitespace-nowrap text-red-600 hover:bg-red-50"
+            className="!rounded-button cursor-pointer whitespace-nowrap text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-900"
             onClick={handleDelete}
           >
             <i className="fas fa-trash-alt mr-2"></i>

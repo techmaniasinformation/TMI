@@ -72,7 +72,7 @@ export default function UserInfoBox({
       {/* 닉네임 + 하위 정보 */}
       <div className="flex flex-col">
         <div className="flex items-center space-x-2">
-          <span className="font-semibold text-sm">{nickname}</span>
+          <span className="font-semibold text-sm dark:text-white">{nickname}</span>
           {badge && badge}
         </div>
         {/* 추가로 렌더링 될 정보 */}

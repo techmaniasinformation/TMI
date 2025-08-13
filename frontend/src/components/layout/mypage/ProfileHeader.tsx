@@ -152,8 +152,8 @@ export default function ProfileHeader({
   // 로딩 중
   if (loading) {
     return (
-      <div className="w-[1232px] h-[150px] bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6 flex items-center justify-center">
-        <p className="text-gray-500">불러오는 중...</p>
+      <div className="w-[1232px] h-[150px] bg-light-header dark:bg-dark-header rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6 flex items-center justify-center">
+        <p className="text-gray-500 dark:text-gray-400">불러오는 중...</p>
       </div>
     );
   }
@@ -161,14 +161,14 @@ export default function ProfileHeader({
   // 데이터 없을 때
   if ((isCompany && !companyData) || (!isCompany && !memberData)) {
     return (
-      <div className="w-[1232px] h-[150px] bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6 flex items-center justify-center">
-        <p className="text-red-500">프로필 정보를 불러올 수 없습니다.</p>
+      <div className="w-[1232px] h-[150px] bg-light-header dark:bg-dark-header rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6 flex items-center justify-center">
+        <p className="text-red-500 dark:text-red-400">프로필 정보를 불러올 수 없습니다.</p>
       </div>
     );
   }
 
   return (
-    <div className="w-[1232px] h-[150px] bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+    <div className="w-[1232px] h-[150px] bg-light-header dark:bg-dark-header rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
       <div className="flex justify-between h-full">
         {/* 왼쪽: 프로필 */}
         <div className="flex items-start space-x-4">
@@ -182,7 +182,7 @@ export default function ProfileHeader({
           />
           <div className="flex-1">
             <div className="flex items-center mt-3">
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                 {isCompany ? companyData?.name : memberData?.nickname}
               </h1>
 
@@ -201,7 +201,7 @@ export default function ProfileHeader({
               )}
 
               {isCompany && (
-                <span className="bg-blue-100 text-blue-800 text-sm font-medium px-2 py-0.5 rounded-md ml-3">
+                <span className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 text-sm font-medium px-2 py-0.5 rounded-md ml-3">
                   기업
                 </span>
               )}
@@ -215,7 +215,8 @@ export default function ProfileHeader({
                     href={memberData.blogUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center text-sm text-gray-600 hover:text-gray-900"
+                    className="flex items-center text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                    title="블로그로 이동 (새 탭)"
                   >
                     <img src={Blog} alt="blog" className="w-4 h-4 mr-2" />
                     블로그
@@ -226,7 +227,8 @@ export default function ProfileHeader({
                     href={memberData.githubUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center text-sm text-gray-600 hover:text-gray-900"
+                    className="flex items-center text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                    title="GitHub로 이동 (새 탭)"
                   >
                     <img src={GitHub} alt="github" className="w-4 h-4 mr-2" />
                     깃허브
@@ -238,8 +240,8 @@ export default function ProfileHeader({
             {/* 기업 정보 */}
             {isCompany && (
               <>
-                <div className="flex items-center text-sm text-gray-500 mt-1">
-                  <img src={Update} alt="update" className="w-4 h-4 mr-2" />
+                <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  <img src={Update} alt="update icon" className="w-4 h-4 mr-2" />
                   최근 업데이트: {lastUpdate}
                 </div>
                 {companyData?.techBlogUrl && (
@@ -248,7 +250,8 @@ export default function ProfileHeader({
                       href={companyData.techBlogUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center text-sm text-gray-600 hover:text-gray-900"
+                      className="flex items-center text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                      title="기업 블로그로 이동 (새 탭)"
                     >
                       <img src={Blog} alt="blog" className="w-4 h-4 mr-2" />
                       블로그

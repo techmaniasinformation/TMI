@@ -145,16 +145,16 @@ export default function BadgeModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" role="dialog" aria-modal="true">
-      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+      <div className="bg-light-header dark:bg-dark-header rounded-lg p-6 max-w-md w-full mx-4">
         <div className="text-center">
           <img
             src={badgeImageUrl || '/fallback.png'}
             alt={badge.name}
             className="w-32 h-32 mx-auto mb-4 rounded-lg object-contain"
           />
-          <h3 className="text-xl font-semibold mb-2">{badge.name}</h3>
-          <p className="text-gray-600 mb-2">{badge.description}</p>
-          <p className="text-sm text-gray-500 mb-6">{formattedDate}</p>
+          <h3 className="text-xl font-semibold mb-2 dark:text-white">{badge.name}</h3>
+          <p className="text-gray-600 mb-2 dark:text-gray-300">{badge.description}</p>
+          <p className="text-sm text-gray-500 mb-6 dark:text-gray-400">{formattedDate}</p>
 
           <div className="flex gap-2">
             <button
@@ -162,7 +162,7 @@ export default function BadgeModal({
               disabled={submitting || (!isOwned && !isRep)}
               className={`flex-1 py-2 px-4 rounded-lg transition-colors
                 ${submitting || (!isOwned && !isRep)
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
                   : isRep
                     ? 'bg-red-600 text-white hover:bg-red-700'
                     : 'bg-blue-600 text-white hover:bg-blue-700'
@@ -176,14 +176,14 @@ export default function BadgeModal({
             </button>
             <button
               onClick={onClose}
-              className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors"
+              className="flex-1 bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-200 py-2 px-4 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-600 transition-colors"
             >
               취소
             </button>
           </div>
 
           {!isOwned && !isRep && (
-            <p className="mt-3 text-xs text-red-500">
+            <p className="mt-3 text-xs text-red-500 dark:text-red-400">
               이 배지는 아직 획득하지 않아 대표 배지로 설정할 수 없습니다.
             </p>
           )}

@@ -7,7 +7,7 @@ interface StarBadgeProps {
 
 export default function StarBadge({ count = 0 }: StarBadgeProps) {
   return (
-    <span className="inline-flex items-center text-xs text-gray-600">
+    <span className="inline-flex items-center text-xs text-gray-600 dark:text-gray-300">
       <img src={Star} alt="star" className="w-4 h-4 mr-1" />
       {count.toLocaleString()}
     </span>

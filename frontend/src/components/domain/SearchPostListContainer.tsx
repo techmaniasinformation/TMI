@@ -85,7 +85,7 @@ export default function SearchPostListContainer({
 
     case 'no-results':
       return (
-        <div className="w-full max-w-4xl mx-auto">
+        <div className="w-full max-w-4xl mx-auto bg-light-bg dark:bg-dark-bg">
           {hasSearchConditions && (
             <SearchResultBar
               totalCount={totalCount}
@@ -110,7 +110,7 @@ export default function SearchPostListContainer({
 
     case 'success':
       return (
-        <div className="w-full max-w-4xl mx-auto">
+        <div className="w-full max-w-4xl mx-auto bg-light-bg dark:bg-dark-bg">
           {hasSearchConditions && (
             <SearchResultBar
               totalCount={totalCount}

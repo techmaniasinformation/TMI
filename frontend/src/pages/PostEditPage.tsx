@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useUserStore } from '@/stores/userStore';
+import { useThemeStore } from '@/stores/themeStore';
 import { useTagAutocomplete } from '@/hooks/tags/useTagAutocomplete';
 import { useImageCompression } from '@/hooks/useImageCompression';
 import MDEditor from '@uiw/react-md-editor';
@@ -12,6 +13,7 @@ const PostEditPage: React.FC = () => {
   const { id: postId } = useParams<{ id: string }>();
   const location = useLocation();
   const { user } = useUserStore();
+  const { isDarkMode } = useThemeStore();
 
   // 태그 자동완성 훅 사용
   const {
@@ -303,18 +305,18 @@ const PostEditPage: React.FC = () => {
   const handleCancel = () => navigate(`/post/${postId}`);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-light-bg dark:bg-dark-bg">
       <div className="max-w-4xl mx-auto p-6">
         <div className="mb-6">
-          <h1 className="text-xl font-semibold text-gray-900 mb-4">게시글 수정</h1>
-          <button onClick={handleCancel} className="flex items-center gap-2 text-gray-600 hover:text-gray-800">
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">게시글 수정</h1>
+          <button onClick={handleCancel} className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100">
             <span className="text-xl">←</span>
             <span>돌아가기</span>
           </button>
         </div>
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-6">
+        <div className="bg-light-header dark:bg-dark-header rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">링크 URL *</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">링크 URL *</label>
             <div className="relative">
               <input
                 type="url"
@@ -322,46 +324,46 @@ const PostEditPage: React.FC = () => {
                 onChange={(e) => setLinkUrl(e.target.value)}
                 maxLength={255}
                 placeholder="https://example.com"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
-              <span className="absolute right-3 top-2 text-sm text-gray-500">{linkUrl.length}/255</span>
+              <span className="absolute right-3 top-2 text-sm text-gray-500 dark:text-gray-400">{linkUrl.length}/255</span>
             </div>
-            {urlError && <p className="text-sm text-red-500 mt-1">{urlError}</p>}
-            {!linkUrl && <p className="text-sm text-red-500 mt-1">⚠️ 링크 URL을 입력해주세요</p>}
+            {urlError && <p className="text-sm text-red-500 dark:text-red-400 mt-1">{urlError}</p>}
+            {!linkUrl && <p className="text-sm text-red-500 dark:text-red-400 mt-1">⚠️ 링크 URL을 입력해주세요</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">제목 *</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">제목 *</label>
             <div className="relative">
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 maxLength={20}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent break-words break-all"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent break-words break-all"
               />
-              <span className="absolute right-3 top-2 text-sm text-gray-500">{title.length}/20</span>
+              <span className="absolute right-3 top-2 text-sm text-gray-500 dark:text-gray-400">{title.length}/20</span>
             </div>
-            {titleError && <p className="text-sm text-red-500 mt-1">{titleError}</p>}
+            {titleError && <p className="text-sm text-red-500 dark:text-red-400 mt-1">{titleError}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">썸네일 이미지</label>
-            <div className="w-48 h-32 bg-gray-100 rounded-md border border-gray-300 mb-3 overflow-hidden">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">썸네일 이미지</label>
+            <div className="w-48 h-32 bg-gray-100 dark:bg-gray-700 rounded-md border border-gray-300 dark:border-gray-600 mb-3 overflow-hidden">
               {imagePreview ? (
                 <img src={imagePreview} alt="업로드된 이미지" className="w-full h-full object-cover" style={{ objectPosition: 'center' }} />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <div className="text-center">
-                    <div className="w-12 h-12 bg-gray-200 rounded-full mx-auto mb-2"></div>
-                    <p className="text-sm text-gray-500">디폴트 이미지</p>
+                    <div className="w-12 h-12 bg-gray-200 dark:bg-gray-600 rounded-full mx-auto mb-2"></div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">디폴트 이미지</p>
                   </div>
                 </div>
               )}
             </div>
             <div className="flex items-center gap-3">
               <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" id="image-upload" disabled={isImageProcessing} />
-              <label htmlFor="image-upload" className={`px-4 py-2 text-white rounded-md cursor-pointer text-sm ${isImageProcessing ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}>
+              <label htmlFor="image-upload" className={`px-4 py-2 text-white rounded-md cursor-pointer text-sm ${                  isImageProcessing ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}}`}>
                 {isImageProcessing ? (
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -375,9 +377,9 @@ const PostEditPage: React.FC = () => {
                 </button>
               )}
               {selectedImage && (
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-600 dark:text-gray-300">
                   {selectedImage.name} ({(selectedImage.size / 1024 / 1024).toFixed(2)}MB)
-                  {originalFileSize > selectedImage.size && <span className="text-gray-400 ml-1">(원본: {(originalFileSize / 1024 / 1024).toFixed(2)}MB)</span>}
+                  {originalFileSize > selectedImage.size && <span className="text-gray-400 dark:text-gray-500 ml-1">(원본: {(originalFileSize / 1024 / 1024).toFixed(2)}MB)</span>}
                 </span>
               )}
             </div>
@@ -386,7 +388,7 @@ const PostEditPage: React.FC = () => {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="block text-sm font-medium text-gray-700">내용</label>
-              <button type="button" onClick={handleAISummary} disabled={isAILoading} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm">
+              <button type="button" onClick={handleAISummary} disabled={isAILoading} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed text-sm">
                 {isAILoading ? (
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -397,27 +399,27 @@ const PostEditPage: React.FC = () => {
             </div>
             {aiError && (
               <div className="mb-3">
-                <div className="text-red-600 text-sm bg-red-50 border-l-4 border-red-400 rounded-r-md px-4 py-3 relative shadow-sm">
+                <div className="text-red-600 dark:text-red-300 text-sm bg-red-50 dark:bg-red-900 border-l-4 border-red-400 dark:border-red-500 rounded-r-md px-4 py-3 relative shadow-sm">
                   <div className="flex items-start gap-3">
-                    <span className="text-red-500 text-lg flex-shrink-0">⚠️</span>
+                    <span className="text-red-500 dark:text-red-400 text-lg flex-shrink-0">⚠️</span>
                     <div className="flex-1">
-                      <p className="font-medium text-red-800 mb-1">AI 요약 오류</p>
-                      <p className="text-red-700">{aiError}</p>
-                      <p className="text-red-600 text-xs mt-2 opacity-90">💡 URL을 확인하고 다시 시도해주세요</p>
+                      <p className="font-medium text-red-800 dark:text-red-100 mb-1">AI 요약 오류</p>
+                      <p className="text-red-700 dark:text-red-200">{aiError}</p>
+                      <p className="text-red-600 dark:text-red-300 text-xs mt-2 opacity-90">💡 URL을 확인하고 다시 시도해주세요</p>
                     </div>
                   </div>
                 </div>
               </div>
             )}
             {isAILoading ? (
-              <div className="flex items-center justify-center h-64 border border-gray-300 rounded-md">
+              <div className="flex items-center justify-center h-64 border border-gray-300 dark:border-gray-600 rounded-md">
                 <div className="text-center">
                   <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                  <p className="text-gray-600">AI가 내용을 분석하고 있습니다...</p>
+                  <p className="text-gray-600 dark:text-gray-300">AI가 내용을 분석하고 있습니다...</p>
                 </div>
               </div>
             ) : (
-              <div data-color-mode="light" className="md-editor-container h-[300px]">
+              <div data-color-mode={isDarkMode ? "dark" : "light"} className="md-editor-container h-[300px]">
                 <MDEditor
                   value={content}
                   onChange={(val) => {
@@ -429,10 +431,10 @@ const PostEditPage: React.FC = () => {
                   data-color-mode="light"
                 />
                 <div className="flex justify-between items-center mt-2">
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
                     {content.length > 6000 ? <span className="text-red-500">글자 수 제한 초과 ({content.length}/6000)</span> : <span>{content.length}/6000</span>}
                   </div>
-                  <button type="button" onClick={handleTogglePreview} className="px-3 py-1 text-sm bg-gray-600 text-white rounded-md hover:bg-gray-700">
+                  <button type="button" onClick={handleTogglePreview} className="px-3 py-1 text-sm bg-gray-600 dark:bg-gray-700 text-white rounded-md hover:bg-gray-700 dark:hover:bg-gray-600">
                     {isPreviewMode ? '편집 모드' : '미리보기'}
                   </button>
                 </div>
@@ -463,27 +465,27 @@ const PostEditPage: React.FC = () => {
                         onBlur={handleTagInputBlur}
                         onFocus={() => newTag.trim() && setShowTagSuggestions(true)}
                         placeholder="태그를 입력하세요 (기존 태그 검색 가능)"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent break-words break-all"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent break-words break-all"
                       />
-                      <span className="absolute right-3 top-2 text-sm text-gray-500">{newTag.length}/20</span>
+                      <span className="absolute right-3 top-2 text-sm text-gray-500 dark:text-gray-400">{newTag.length}/20</span>
                     </div>
                   </div>
                   {tagError && <p className="text-sm text-red-500 mt-1">{tagError}</p>}
                   {showTagSuggestions && (tagLoading || tagSuggestions.length > 0) && (
-                    <div className="absolute top-full left-0 right-12 bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
+                    <div className="absolute top-full left-0 right-12 bg-light-header dark:bg-dark-header border border-gray-300 dark:border-gray-600 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
                       {tagLoading && (
                         <div className="flex items-center justify-center py-4">
                           <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mr-2"></div>
-                          <span className="text-sm text-gray-600">검색 중...</span>
+                          <span className="text-sm text-gray-600 dark:text-gray-300">검색 중...</span>
                         </div>
                       )}
                       {tagSuggestions.map((suggestion) => (
-                        <button key={`${suggestion.type}-${suggestion.id}`} type="button" onClick={() => handleAddTag(suggestion.name)} disabled={tags.length >= 5} className="w-full px-4 py-2 text-left hover:bg-gray-100 disabled:bg-gray-50 disabled:text-gray-400">
+                        <button key={`${suggestion.type}-${suggestion.id}`} type="button" onClick={() => handleAddTag(suggestion.name)} disabled={tags.length >= 5} className="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 disabled:bg-gray-50 dark:disabled:bg-gray-800 disabled:text-gray-400 dark:disabled:text-gray-500">
                           <span className="text-sm">{suggestion.name}</span>
                         </button>
                       ))}
                       {!tagLoading && tagSuggestions.length === 0 && newTag.trim() && (
-                        <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                        <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 text-center">
                           '<span className="font-medium">{newTag.trim()}</span>'에 대한 검색 결과가 없습니다.
                         </div>
                       )}
@@ -492,7 +494,7 @@ const PostEditPage: React.FC = () => {
                 </div>
                 <div className="flex flex-wrap gap-2 mb-4">
                   {tags.map((tag, index) => (
-                    <span key={index} className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                    <span key={index} className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300 rounded-full text-sm">
                       #{tag}
                       <button type="button" onClick={() => handleRemoveTag(tag)} className="text-blue-600 hover:text-blue-800 text-lg font-bold">
                         ×

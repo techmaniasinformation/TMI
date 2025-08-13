@@ -72,11 +72,11 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
   return (
     <div
       onClick={() => onClick(notification)}
-      className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 cursor-pointer transition-colors hover:bg-gray-50"
+      className="bg-light-header dark:bg-dark-header rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
     >
       <div className="flex items-start space-x-4">
         <div className="flex-shrink-0">
-          <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
             <img
               src={initialSrc}
               alt={altText}
@@ -92,10 +92,10 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <p className={`text-sm mb-1 ${notification.isRead ? 'text-[#4b5563]' : 'text-gray-900'}`}>
+              <p className={`text-sm mb-1 ${notification.isRead ? 'text-[#4b5563] dark:text-gray-400' : 'text-gray-900 dark:text-white'}`}>
                 {notification.message}
               </p>
-              <p className="text-xs text-gray-500">{formatTimestamp(notification.timestamp)}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{formatTimestamp(notification.timestamp)}</p>
             </div>
 
             <div className="flex items-center gap-4 ml-4 h-6 pt-2">

@@ -31,7 +31,7 @@ export default function SearchResultBar({
 
   return (
     <div className="mb-6">
-      <h1 className="text-2xl font-bold text-gray-900 mb-4">
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
         검색 결과 ({totalCount}개)
       </h1>
       

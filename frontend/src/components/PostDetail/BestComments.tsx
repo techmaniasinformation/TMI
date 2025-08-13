@@ -32,10 +32,10 @@ export const BestComments: React.FC<BestCommentsProps> = ({
   const safeBestCommentBadgeUrl = getSafeBadgeUrl(bestComment.badgeUrl);
 
   return (
-    <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg p-6 mb-6">
+    <div className="bg-gradient-to-r from-yellow-50 dark:from-gray-800 to-orange-50 dark:to-gray-900 border border-yellow-200 dark:border-gray-700 rounded-lg p-6 mb-6">
       <div className="flex items-center gap-2 mb-4">
-        <span className="text-yellow-600 font-semibold">⭐ 베스트 댓글</span>
-        <span className="text-sm text-gray-500">가장 많은 추천을 받은 댓글입니다</span>
+        <span className="text-yellow-600 dark:text-yellow-400 font-semibold">⭐ 베스트 댓글</span>
+        <span className="text-sm text-gray-500 dark:text-gray-400">가장 많은 추천을 받은 댓글입니다</span>
       </div>
       
       <div className="flex gap-3">
@@ -47,12 +47,12 @@ export const BestComments: React.FC<BestCommentsProps> = ({
         />
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
-            <span className="font-semibold text-sm">{bestComment.name}</span>
-            <span className="text-gray-500 text-xs">
+            <span className="font-semibold text-sm dark:text-white">{bestComment.name}</span>
+            <span className="text-gray-500 dark:text-gray-400 text-xs">
               {formatDate(bestComment.createAt)}
             </span>
           </div>
-          <p className="text-gray-700 mb-2 break-words break-all">{bestComment.comment}</p>
+          <p className="text-gray-700 dark:text-gray-200 mb-2 break-words break-all">{bestComment.comment}</p>
           {bestComment.link && (
             <a
               href={bestComment.link}
@@ -69,7 +69,7 @@ export const BestComments: React.FC<BestCommentsProps> = ({
               className={`flex items-center gap-1 ${
                 userRecommendations.has(bestComment.commentId)
                   ? 'text-blue-600'
-                  : 'text-gray-500 hover:text-blue-600'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'
               }`}
               disabled={recommendLoading.has(bestComment.commentId)}
             >

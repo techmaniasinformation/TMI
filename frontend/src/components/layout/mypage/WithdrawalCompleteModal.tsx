@@ -20,9 +20,9 @@ const WithdrawalCompleteModal: React.FC<WithdrawalCompleteModalProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogOverlay className="fixed inset-0 bg-black/70 z-40" />
-      <DialogContent className="w-[400px] bg-white rounded-lg z-50 p-6">
+      <DialogContent className="w-[400px] bg-light-header dark:bg-dark-header rounded-lg z-50 p-6">
         <DialogHeader>
-          <DialogTitle className="text-base font-semibold text-center text-gray-800">
+          <DialogTitle className="text-base font-semibold text-center text-gray-800 dark:text-white">
             탈퇴가 정상 처리되었습니다.
           </DialogTitle>
         </DialogHeader>

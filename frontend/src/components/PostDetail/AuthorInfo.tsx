@@ -20,7 +20,7 @@ export const AuthorInfo: React.FC<AuthorInfoProps> = ({ post, formatDate, onFoll
   }, [post.memberProfileUrl]);
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+    <div className="bg-light-header dark:bg-dark-header rounded-lg shadow-md dark:shadow-lg p-4 mb-6">
       <div className="flex items-center justify-between">
         <UserInfoBox
           profileImageUrl={profileImageUrl}
@@ -28,17 +28,17 @@ export const AuthorInfo: React.FC<AuthorInfoProps> = ({ post, formatDate, onFoll
           imageSize="64px"
           onClick={onAuthorClick}
           badge={
-            <Badge className="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">
+            <Badge className="bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 px-2 py-1 rounded-full text-xs font-medium">
               인증
             </Badge>
           }
         >
-          <div className="flex items-center space-x-2 text-sm text-gray-500 mt-4">
+          <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400 mt-4">
             <DateTimeComponent 
               date={post.createAt}
               formatDate={formatDate}
             />
-            <span className="text-gray-400">•</span>
+            <span className="text-gray-400 dark:text-gray-500">•</span>
             <CardInfoCount 
               viewCount={post.viewCount}
               starCount={post.starCount}

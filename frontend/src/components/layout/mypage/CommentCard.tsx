@@ -31,12 +31,12 @@ const CommentCard: React.FC<CommentCardProps> = ({
 }) => {
   return (
     <div
-      className="p-4 border border-gray-100 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors duration-200"
+      className="p-4 border border-gray-100 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors duration-200"
       onClick={onClick}
     >
-      <h3 className="font-medium text-gray-900 mb-2">{postTitle}</h3>
-      <p className="text-gray-600 text-sm break-all break-words">{comment}</p>
-      <div className="mt-2 text-xs text-gray-400">{formatDate(date)}</div>
+      <h3 className="font-medium text-gray-900 dark:text-white mb-2">{postTitle}</h3>
+      <p className="text-gray-600 dark:text-gray-300 text-sm break-all break-words">{comment}</p>
+      <div className="mt-2 text-xs text-gray-400 dark:text-gray-500">{formatDate(date)}</div>
     </div>
   );
 };

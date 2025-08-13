@@ -83,9 +83,9 @@ export default function HomePostList() {
     return (
       <div className="text-center py-12">
         <div className="mb-6">
-          <i className="fas fa-exclamation-triangle text-6xl text-red-300 mb-4"></i>
-          <h3 className="text-lg font-semibold text-red-600 mb-2">게시글을 불러오는 중 오류가 발생했습니다</h3>
-          <p className="text-gray-600 mb-4">{error}</p>
+          <i className="fas fa-exclamation-triangle text-6xl text-red-300 dark:text-red-400 mb-4"></i>
+          <h3 className="text-lg font-semibold text-red-600 dark:text-red-500 mb-2">게시글을 불러오는 중 오류가 발생했습니다</h3>
+          <p className="text-gray-600 dark:text-gray-300 mb-4">{error}</p>
         </div>
         
         <div className="space-y-3">
@@ -116,9 +116,9 @@ export default function HomePostList() {
         <CardContent className="p-6">
           <div className="text-center">
             <div className="mb-4">
-              <i className="fas fa-users text-4xl text-gray-400 mb-4"></i>
-              <h3 className="text-lg font-semibold text-gray-700 mb-2">팔로우한 사용자의 게시글</h3>
-              <p className="text-gray-500 mb-4">
+              <i className="fas fa-users text-4xl text-gray-400 dark:text-gray-500 mb-4"></i>
+              <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">팔로우한 사용자의 게시글</h3>
+              <p className="text-gray-500 dark:text-gray-400 mb-4">
                 팔로우한 사용자들의 최신 게시글을 확인하려면 로그인이 필요합니다
               </p>
             </div>
@@ -185,8 +185,8 @@ export default function HomePostList() {
             // 팔로우한 모든 사람들의 게시글 목록
             <div>
               <div className="mb-6">
-                <h2 className="text-xl font-semibold text-gray-900">팔로우한 사용자들의 게시글</h2>
-                <p className="text-gray-500 mt-1">팔로우한 사용자들의 최신 게시글을 확인할 수 있습니다.</p>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">팔로우한 사용자들의 게시글</h2>
+                <p className="text-gray-500 dark:text-gray-400 mt-1">팔로우한 사용자들의 최신 게시글을 확인할 수 있습니다.</p>
               </div>
               
               {posts.length > 0 ? (
@@ -201,7 +201,7 @@ export default function HomePostList() {
                 />
               ) : (
                 <div className="text-center py-12">
-                  <i className="fas fa-file-alt text-6xl text-gray-300 mb-4"></i>
+                  <i className="fas fa-file-alt text-6xl text-gray-300 dark:text-gray-600 mb-4"></i>
                   <h3 className="text-lg font-semibold text-gray-600 mb-2">팔로우한 사용자의 게시글이 없습니다</h3>
                   <p className="text-gray-500">팔로우한 사용자들이 아직 게시글을 작성하지 않았습니다.</p>
                 </div>

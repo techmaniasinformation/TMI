@@ -15,10 +15,10 @@ export default function UnreadOnlyToggle({ checked, onChange }: UnreadOnlyToggle
           onChange={(e) => onChange(e.target.checked)}
           className="sr-only peer"
         />
-        <div className="w-10 h-5 bg-gray-300 rounded-full peer-checked:bg-blue-600 transition-colors" />
-        <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow peer-checked:translate-x-5 transition-transform" />
+        <div className="w-10 h-5 bg-gray-300 dark:bg-gray-600 rounded-full peer-checked:bg-blue-600 transition-colors" />
+        <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-white dark:bg-gray-300 rounded-full shadow peer-checked:translate-x-5 transition-transform" />
       </div>
-      <span className="text-sm text-gray-700">읽지 않은 알림만 보기</span>
+      <span className="text-sm text-gray-700 dark:text-gray-200">읽지 않은 알림만 보기</span>
     </label>
   );
 }

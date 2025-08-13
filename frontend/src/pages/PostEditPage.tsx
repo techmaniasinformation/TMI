@@ -34,6 +34,7 @@ const PostEditPage: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [isImageProcessing, setIsImageProcessing] = useState(false);
+  const [originalFileSize, setOriginalFileSize] = useState<number>(0);
   
   // 에러 상태
   const [urlError, setUrlError] = useState<string>('');
@@ -116,9 +117,14 @@ const PostEditPage: React.FC = () => {
         setContent(summary); // content에도 AI 요약 내용 설정
         
         // AI 태그 설정 (최대 5개)
-        if (result.data.tags && Array.isArray(result.data.tags)) {
-          const tagsToSet = result.data.tags.slice(0, 5);
-          setTags(tagsToSet);
+        if (result.data.tags && Array.isArray(result.data.tags) && result.data.tags.length > 0) {
+          try {
+            const tagsToSet = result.data.tags.slice(0, 5);
+            setTags(tagsToSet);
+          } catch (error) {
+            console.warn('AI 태그 처리 중 오류 발생:', error);
+            setTags([]);
+          }
         }
         
         alert('AI 요약이 완료되었습니다!');
@@ -145,6 +151,10 @@ const PostEditPage: React.FC = () => {
   const handleSave = async () => {
     if (!linkUrl || !title) {
       alert('링크 URL과 제목을 입력해주세요.');
+      return;
+    }
+    if (content.length > 6000) {
+      alert('게시글 내용은 6000자 이하여야 합니다.');
       return;
     }
     if (!postId) {
@@ -177,7 +187,20 @@ const PostEditPage: React.FC = () => {
       
       if (selectedImage) {
         formData.append('thumbnailImage', selectedImage);
+        console.log('이미지 추가됨 (수정):', {
+          fileName: selectedImage.name,
+          fileSize: selectedImage.size,
+          fileType: selectedImage.type,
+          isFile: selectedImage instanceof File,
+          isBlob: selectedImage instanceof Blob
+        });
       }
+
+      // FormData 내용 확인
+      console.log('FormData 내용 (수정):');
+      Array.from(formData.entries()).forEach(([key, value]) => {
+        console.log(`${key}:`, value);
+      });
 
       const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/post/${postId}`, {
         method: 'PATCH',
@@ -227,6 +250,9 @@ const PostEditPage: React.FC = () => {
 
       setIsImageProcessing(true);
       try {
+        // 원본 파일 크기 저장
+        setOriginalFileSize(file.size);
+        
         // 이미지 압축 옵션 설정
         const options = {
           maxSizeMB: 1, // 최대 1MB
@@ -247,6 +273,15 @@ const PostEditPage: React.FC = () => {
         // 압축된 파일을 상태에 저장
         setSelectedImage(compressedFile);
         
+        console.log('압축된 이미지 상태 저장 (수정):', {
+          compressedFile: compressedFile,
+          isFile: compressedFile instanceof File,
+          isBlob: compressedFile instanceof Blob,
+          name: compressedFile.name,
+          size: compressedFile.size,
+          type: compressedFile.type
+        });
+        
         // 미리보기 생성
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -266,6 +301,7 @@ const PostEditPage: React.FC = () => {
   const handleImageCancel = () => {
     setSelectedImage(null);
     setImagePreview('');
+    setOriginalFileSize(0);
     // 파일 입력 필드 초기화
     const fileInput = document.getElementById('image-upload') as HTMLInputElement;
     if (fileInput) {
@@ -489,6 +525,11 @@ const PostEditPage: React.FC = () => {
               {selectedImage && (
                 <span className="text-sm text-gray-600">
                   {selectedImage.name} ({(selectedImage.size / 1024 / 1024).toFixed(2)}MB)
+                  {originalFileSize > selectedImage.size && (
+                    <span className="text-gray-400 ml-1">
+                      (원본: {(originalFileSize / 1024 / 1024).toFixed(2)}MB)
+                    </span>
+                  )}
                 </span>
               )}
             </div>
@@ -548,23 +589,35 @@ const PostEditPage: React.FC = () => {
               <div data-color-mode="light">
                 <MDEditor
                   value={content}
-                  onChange={(val) => setContent(val || '')}
+                  onChange={(val) => {
+                    const newContent = val || '';
+                    if (newContent.length <= 6000) {
+                      setContent(newContent);
+                    }
+                  }}
                   preview={isPreviewMode ? "preview" : "edit"}
                   hideToolbar={isPreviewMode}
                   height={300}
                   data-color-mode="light"
                 />
+                <div className="flex justify-between items-center mt-2">
+                  <div className="text-sm text-gray-500">
+                    {content.length > 6000 ? (
+                      <span className="text-red-500">글자 수 제한을 초과했습니다 ({content.length}/6000)</span>
+                    ) : (
+                      <span>{content.length}/6000</span>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleTogglePreview}
+                    className="px-3 py-1 text-sm bg-gray-600 text-white rounded-md hover:bg-gray-700"
+                  >
+                    {isPreviewMode ? '편집 모드' : '미리보기'}
+                  </button>
+                </div>
               </div>
             )}
-            <div className="flex justify-end mt-2">
-              <button
-                type="button"
-                onClick={handleTogglePreview}
-                className="px-3 py-1 text-sm bg-gray-600 text-white rounded-md hover:bg-gray-700"
-              >
-                {isPreviewMode ? '편집 모드' : '미리보기'}
-              </button>
-            </div>
           </div>
 
           {/* Tags */}

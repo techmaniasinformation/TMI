@@ -115,9 +115,14 @@ const PostCreatePage: React.FC = () => {
          setContent(summary); // content에도 AI 요약 내용 설정
         
         // AI 태그 설정 (최대 5개)
-        if (result.data.tags && Array.isArray(result.data.tags)) {
-          const tagsToSet = result.data.tags.slice(0, 5);
-          setTags(tagsToSet);
+        if (result.data.tags && Array.isArray(result.data.tags) && result.data.tags.length > 0) {
+          try {
+            const tagsToSet = result.data.tags.slice(0, 5);
+            setTags(tagsToSet);
+          } catch (error) {
+            console.warn('AI 태그 처리 중 오류 발생:', error);
+            setTags([]);
+          }
         }
         
         alert('AI 요약이 완료되었습니다!');
@@ -147,8 +152,8 @@ const PostCreatePage: React.FC = () => {
       return;
     }
 
-    if (content.length > 3000) {
-      alert('게시글 내용은 3000자 이하여야 합니다.');
+    if (content.length > 6000) {
+      alert('게시글 내용은 6000자 이하여야 합니다.');
       return;
     }
 
@@ -187,6 +192,13 @@ const PostCreatePage: React.FC = () => {
       // 이미지가 선택된 경우 FormData에 추가 (필드명 확인 필요)
       if (selectedImage) {
         formData.append('thumbnailImage', selectedImage); // 'thumbnail' -> 'thumbnailImage'로 변경
+        console.log('이미지 추가됨:', {
+          fileName: selectedImage.name,
+          fileSize: selectedImage.size,
+          fileType: selectedImage.type,
+          isFile: selectedImage instanceof File,
+          isBlob: selectedImage instanceof Blob
+        });
       }
 
       console.log('전송할 FormData:', {
@@ -195,7 +207,14 @@ const PostCreatePage: React.FC = () => {
         title: title,
         content: content,
         tags: tags,
-        hasImage: !!selectedImage
+        hasImage: !!selectedImage,
+        selectedImage: selectedImage
+      });
+
+      // FormData 내용 확인
+      console.log('FormData 내용:');
+      Array.from(formData.entries()).forEach(([key, value]) => {
+        console.log(`${key}:`, value);
       });
 
       // API 호출 - FormData 사용
@@ -293,6 +312,15 @@ const PostCreatePage: React.FC = () => {
 
         // 압축된 파일을 상태에 저장
         setSelectedImage(compressedFile);
+        
+        console.log('압축된 이미지 상태 저장:', {
+          compressedFile: compressedFile,
+          isFile: compressedFile instanceof File,
+          isBlob: compressedFile instanceof Blob,
+          name: compressedFile.name,
+          size: compressedFile.size,
+          type: compressedFile.type
+        });
         
         // 미리보기 생성
         const reader = new FileReader();
@@ -597,7 +625,7 @@ const PostCreatePage: React.FC = () => {
                   value={content}
                   onChange={(val) => {
                     const newContent = val || '';
-                    if (newContent.length <= 3000) {
+                    if (newContent.length <= 6000) {
                       setContent(newContent);
                     }
                   }}
@@ -608,10 +636,10 @@ const PostCreatePage: React.FC = () => {
                 />
                 <div className="flex justify-between items-center mt-2">
                   <div className="text-sm text-gray-500">
-                    {content.length > 3000 ? (
-                      <span className="text-red-500">글자 수 제한을 초과했습니다 ({content.length}/3000)</span>
+                    {content.length > 6000 ? (
+                      <span className="text-red-500">글자 수 제한을 초과했습니다 ({content.length}/6000)</span>
                     ) : (
-                      <span>{content.length}/3000</span>
+                      <span>{content.length}/6000</span>
                     )}
                   </div>
                   <button

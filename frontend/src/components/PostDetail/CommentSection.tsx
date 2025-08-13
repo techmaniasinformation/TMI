@@ -44,9 +44,8 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
   deleteLoading,
   onCommentDelete,
 }) => {
-  // 전역 사용자 정보 가져오기
+  // 전역 사용자 정보 가져오기 (닉네임 비교용)
   const { user } = useUserStore();
-  const currentUserMemberId = user?.memberId;
   
   // 안전한 프로필 이미지 URL을 메모이제이션
   const safeMemberProfileUrl = useMemo(() => {
@@ -178,7 +177,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
                         </button>
                         
                         {/* 댓글 작성자와 현재 사용자가 같을 때만 삭제 버튼 표시 */}
-                        {currentUserMemberId && comment.memberId && currentUserMemberId === comment.memberId && (
+                        {user?.nickname && comment.name === user.nickname && (
                           <button
                             onClick={() => {
                               if (window.confirm('정말로 이 댓글을 삭제하시겠습니까?')) {

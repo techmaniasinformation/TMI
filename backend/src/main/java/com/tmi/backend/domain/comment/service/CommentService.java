@@ -95,7 +95,8 @@ public class CommentService {
     }
 
     Comment best = commentRepository
-        .findTopByRecommendCountGreaterThanEqualOrderByRecommendCountDescCreatedAtAsc(5)
+        .findTopByPostIdAndRecommendCountGreaterThanEqualOrderByRecommendCountDescCreatedAtAsc(
+            postId, 5)
         .orElse(null);
 
     List<Comment> comments = commentRepository.findByPostId(postId, convertSort(sort));

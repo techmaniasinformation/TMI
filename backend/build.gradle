@@ -63,9 +63,6 @@ dependencies {
     //redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-    // selenium
-    implementation("org.seleniumhq.selenium:selenium-java:4.34.0")
-    implementation("io.github.bonigarcia:webdrivermanager:6.2.0")
 }
 
 tasks.named('test') {

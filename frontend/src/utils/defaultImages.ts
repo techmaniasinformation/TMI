@@ -62,7 +62,7 @@ export const getSafeImageUrl = (
 
 // 기존 함수들
 export const getSafeProfileUrl = (url: string | null | undefined): string => {
-  if (!url || url === 'null' || url === 'undefined' || url.trim() === '') {
+  if (!url || url === 'null' || url === 'undefined' || url.trim() === '' || url.toLowerCase().includes('default')) {
     return DEFAULT_IMAGES.PROFILE;
   }
   return url;

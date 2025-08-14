@@ -9,7 +9,7 @@ import {
 import { Input } from '@/components/domain/Input';
 import { Button } from '@/components/foundation/button';
 import { Camera } from 'lucide-react';
-import { getSafeProfileUrl } from '@/utils/defaultImages';
+import { getSafeProfileUrl, handleProfileImageError } from '@/utils/defaultImages';
 import { useThemeStore } from '@/stores/themeStore';
 import { useImageCompression } from '@/hooks/useImageCompression';
 
@@ -307,15 +307,16 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
                 alt="Profile"
                 className="w-24 h-24 object-cover"
                 draggable={false}
+                onError={handleProfileImageError} // ← 추가
               />
             ) : (
-              <div
-                className={`w-full h-full flex items-center justify-center text-xs ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-400'
-                }`}
-              >
-                No Image
-              </div>
+              <img
+                src={getSafeProfileUrl(null)} // 기본 이미지 표시
+                alt="Profile"
+                className="w-24 h-24 object-cover"
+                draggable={false}
+                onError={handleProfileImageError}
+              />
             )}
             <label
               htmlFor="image-upload"
@@ -343,9 +344,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
                   setImagePreview('');
                   setExistingImageUrl('');
                   setSelectedImage(null);
-                  const input = document.getElementById(
-                    'image-upload'
-                  ) as HTMLInputElement | null;
+                  const input = document.getElementById('image-upload') as HTMLInputElement | null;
                   if (input) input.value = '';
                 }}
               >

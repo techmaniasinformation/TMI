@@ -100,8 +100,7 @@ export default function ProfileHeader({
     };
   }, [isCompany, targetId, refreshKey]);
 
-  const getProfileImage = (url: string | null | undefined) =>
-    url && url.trim() !== '' ? url : '/default-profile.png';
+  const getProfileImage = (url: string | null | undefined) => getSafeProfileUrl(url);
 
   // 회원 탈퇴 클릭
   const handleWithdrawalClick = () => {
@@ -194,7 +193,7 @@ export default function ProfileHeader({
                   alt="대표 배지"
                   className="w-8 h-8 rounded-md"
                   onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).style.display = 'none';
+                    (e.target as HTMLImageElement).src = getSafeProfileUrl(null);
                   }}
                 />
               )}

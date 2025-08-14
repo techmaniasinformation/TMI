@@ -314,7 +314,7 @@ export const useFollow = (postData: PostDetail | null, companyId?: string) => {
         if (companyId || postData.companyId) {
           // 회사 팔로우 추가
           const targetCompanyId = companyId || postData.companyId;
-          const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/companies/${targetCompanyId}/follow`, {
+          const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/companyFollow`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

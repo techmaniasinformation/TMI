@@ -188,7 +188,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'light', size = 'default' }) 
     };
   }, [showProfileMenu]);
 
-  // ✅ 안전한 프로필 URL
+  // ✅ 안전한 프로필 URL (유효하지 않으면 기본 이미지로 대체)
   const safeProfileSrc = useMemo(
     () => getSafeProfileUrl(user?.memberProfileUrl),
     [user?.memberProfileUrl]

@@ -34,6 +34,9 @@ interface ProfileEditModalProps {
 const NICKNAME_RE = /^[가-힣a-zA-Z0-9]{2,8}$/;
 const isValidNickname = (v: string) => NICKNAME_RE.test(v);
 
+// 🔗 닉네임 중복 확인 API
+const DUP_API = 'https://i13a509.p.ssafy.io/api/v1/member/duplicate?nickname=';
+
 // 블로그 허용 도메인
 const ALLOWED_BLOG_HOSTS = [
   'tistory.com',
@@ -115,10 +118,11 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
 
   const [saving, setSaving] = useState(false);
 
-  // 닉네임 중복 확인 상태
-  const [isChecking, setIsChecking] = useState(false);
-  const [isDuplicate, setIsDuplicate] = useState(false);
-  const abortRef = useRef<AbortController | null>(null);
+  // ✅ 닉네임 중복 검사 상태
+  const [isCheckingDup, setIsCheckingDup] = useState(false);
+  const [isDuplicated, setIsDuplicated] = useState(false);
+  const dupAbortRef = useRef<AbortController | null>(null);
+  const dupTimerRef = useRef<number | null>(null);
 
   // ✅ 모달 열릴 때마다 최신 props 값으로 초기화
   useEffect(() => {
@@ -132,7 +136,8 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
       setNicknameError(null);
       setBlogError('');
       setGithubError('');
-      setIsDuplicate(false);
+      setIsDuplicated(false);
+      setIsCheckingDup(false);
     }
   }, [
     isOpen,
@@ -161,45 +166,71 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
     setNickname(v);
     if (!isValidNickname(v)) {
       setNicknameError('닉네임은 2~8자의 완성형 한글/영문/숫자만 가능합니다.');
+    } else if (isDuplicated) {
+      setNicknameError('이미 사용 중인 닉네임입니다.');
+    } else {
+      setNicknameError(null);
     }
   };
 
-  // 닉네임 중복 확인 API 호출 (디바운스)
+  // ✅ 닉네임 중복 검사 (디바운스 + AbortController)
   useEffect(() => {
-    if (!nickname || nickname === initialNickname || nicknameError) {
-      setIsDuplicate(false);
-      setIsChecking(false);
-      return;
+    const value = (nickname ?? '').trim();
+
+    // 타이머/요청 정리
+    if (dupTimerRef.current) {
+      clearTimeout(dupTimerRef.current);
+      dupTimerRef.current = null;
+    }
+    dupAbortRef.current?.abort();
+
+    // 검사 필요 조건: 유효 형식 통과 + 기존 닉네임과 다를 때 + 수정 가능할 때
+    if (!nicknameDisabled && isValidNickname(value) && value !== (initialNickname ?? '')) {
+      setIsCheckingDup(true);
+      setIsDuplicated(false);
+
+      dupTimerRef.current = window.setTimeout(async () => {
+        const controller = new AbortController();
+        dupAbortRef.current = controller;
+        try {
+          const res = await fetch(DUP_API + encodeURIComponent(value), {
+            method: 'GET',
+            signal: controller.signal,
+          });
+          const json = await res.json().catch(() => null);
+          const duplicated = !!json?.data?.isDuplicated;
+
+          setIsDuplicated(duplicated);
+          // 에러 메시지는 여기서도 업데이트(형식 에러가 없는 경우에만)
+          setNicknameError((prev) => {
+            // 기존에 형식/기타 에러가 있으면 그대로 두고, 없으면 중복 에러 반영
+            if (prev && prev !== '이미 사용 중인 닉네임입니다.') return prev;
+            return duplicated ? '이미 사용 중인 닉네임입니다.' : null;
+          });
+        } catch {
+          // 네트워크 오류는 저장 자체를 막진 않고 안내만
+          setNicknameError((prev) => prev ?? null);
+        } finally {
+          setIsCheckingDup(false);
+          dupAbortRef.current = null;
+        }
+      }, 400); // 400ms 디바운스
+    } else {
+      // 검사 조건이 아니면 상태 초기화
+      setIsCheckingDup(false);
+      setIsDuplicated(false);
+      // 형식 에러는 유지, 중복 에러는 제거
+      setNicknameError((prev) => (prev === '이미 사용 중인 닉네임입니다.' ? null : prev));
     }
 
-    const timer = setTimeout(async () => {
-      if (!isValidNickname(nickname)) return;
-
-      abortRef.current?.abort();
-      const controller = new AbortController();
-      abortRef.current = controller;
-
-      try {
-        setIsChecking(true);
-        const res = await fetch(
-          `https://i13a509.p.ssafy.io/api/v1/member/duplicate?nickname=${encodeURIComponent(
-            nickname
-          )}`,
-          { signal: controller.signal }
-        );
-        const data = await res.json();
-        setIsDuplicate(data.data.isDuplicated);
-      } catch (err) {
-        if ((err as any).name !== 'AbortError') {
-          console.error(err);
-        }
-      } finally {
-        setIsChecking(false);
+    return () => {
+      if (dupTimerRef.current) {
+        clearTimeout(dupTimerRef.current);
+        dupTimerRef.current = null;
       }
-    }, 400);
-
-    return () => clearTimeout(timer);
-  }, [nickname, nicknameError, initialNickname]);
+      dupAbortRef.current?.abort();
+    };
+  }, [nickname, initialNickname, nicknameDisabled]);
 
   // 블로그/GitHub URL
   const onBlogChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -343,21 +374,21 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
               placeholder="완성형 한글/영문/숫자 (2~8자)"
               aria-invalid={!!nicknameError}
             />
-            {(nicknameHelperText || nicknameError || isChecking || isDuplicate) && (
+            {(nicknameHelperText || nicknameError || isCheckingDup || isDuplicated) && (
               <p
                 className={`mt-1 text-xs ${
                   nicknameError
                     ? 'text-red-500'
-                    : isDuplicate
+                    : isDuplicated
                     ? 'text-red-500'
                     : 'text-gray-500'
                 }`}
               >
                 {nicknameError
                   ? nicknameError
-                  : isChecking
+                  : isCheckingDup
                   ? '중복 확인 중...'
-                  : isDuplicate
+                  : isDuplicated
                   ? '이미 사용 중인 닉네임입니다.'
                   : nicknameHelperText || '사용 가능한 닉네임입니다.'}
               </p>
@@ -420,7 +451,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
               !isValidNickname((nickname ?? '').trim()) ||
               !!blogError ||
               !!githubError ||
-              isDuplicate
+              isDuplicated
             }
             className={`w-full h-10 text-white font-semibold ${
               saving ? 'opacity-60 cursor-not-allowed' : ''

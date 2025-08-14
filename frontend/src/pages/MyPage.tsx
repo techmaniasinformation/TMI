@@ -197,8 +197,6 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
       // PATCH
       await updateMemberProfile(myId, payload);
 
-      window.location.reload();
-
       // 닉네임 쿨타임 기록
       if (nicknameChanged) {
         localStorage.setItem(
@@ -227,6 +225,9 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
 
       // (선택) 모달 닫기
       setIsEditModalOpen(false);
+
+      // 성공 메시지
+      alert('프로필이 성공적으로 수정되었습니다.');
     } catch (e: any) {
       console.error('프로필 저장 실패:', e);
       alert(e?.message || '프로필 저장에 실패했습니다. 잠시 후 다시 시도해 주세요.');

@@ -207,6 +207,9 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
                           <span>
                             {userRecommendations.has(comment.commentId) ? '추천됨' : '추천'}
                           </span>
+                          <span className="ml-1 font-medium text-yellow-600">
+                            {formatNumber(comment.recommendCount || 0)}
+                          </span>
                         </button>
                         
                         {/* 댓글 작성자와 현재 사용자가 같을 때만 삭제 버튼 표시 */}

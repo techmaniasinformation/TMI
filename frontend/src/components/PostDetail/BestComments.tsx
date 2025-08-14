@@ -77,7 +77,7 @@ export const BestComments: React.FC<BestCommentsProps> = ({
               <span>
                 {userRecommendations.has(bestComment.commentId) ? '추천됨' : '추천'}
               </span>
-              <span className="ml-1">{formatNumber(bestComment.recommendCount)}</span>
+              <span className="ml-1 font-medium text-yellow-600">{formatNumber(bestComment.recommendCount)}</span>
             </button>
           </div>
         </div>

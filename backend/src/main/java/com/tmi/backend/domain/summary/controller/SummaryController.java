@@ -7,9 +7,11 @@ import com.tmi.backend.global.common.controller.BaseController;
 import com.tmi.backend.global.common.response.ApiResponse;
 import com.tmi.backend.global.common.response.ServiceResult;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/summary")
 @RequiredArgsConstructor
@@ -20,6 +22,7 @@ public class SummaryController implements BaseController {
   @PostMapping()
   public ResponseEntity<ApiResponse<SummaryResponse>> extractAndSummarize(@RequestParam String url)
       throws JsonProcessingException {
+    log.info("SummaryController::extractAndSummarize");
     ServiceResult<String> extractResult = summaryService.extractContent(url);
 
     if (!extractResult.success()) {

@@ -71,6 +71,13 @@ public enum ErrorCode {
   /* 14. AI – AI */
   CRAWLING_FAILED(HttpStatus.BAD_GATEWAY, "AI-001"),
   CONTENT_EXTRACTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AI-002"),
+  SSL_ERROR(HttpStatus.BAD_GATEWAY, "AI-003"),                        // SSL 인증서 문제
+  UNKNOWN_HOST(HttpStatus.BAD_GATEWAY, "AI-004"),                     // 호스트를 찾을 수 없음
+  TIMEOUT(HttpStatus.GATEWAY_TIMEOUT, "AI-005"),                      // 네트워크 타임아웃
+  HTTP_CLIENT_ERROR(HttpStatus.BAD_REQUEST, "AI-006"),                // 4xx 에러
+  HTTP_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AI-007"),      // 5xx 에러
+  SELENIUM_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AI-008"),         // Selenium 동작 오류
+  NETWORK_ERROR(HttpStatus.BAD_GATEWAY, "AI-009"),                 // 기타 네트워크 오류
 
   /* 15. FILE */
   FILE_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "FILE-001");

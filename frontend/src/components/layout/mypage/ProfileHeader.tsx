@@ -100,7 +100,8 @@ export default function ProfileHeader({
     };
   }, [isCompany, targetId, refreshKey]);
 
-  const getProfileImage = (url: string | null | undefined) => getSafeProfileUrl(url);
+  const getProfileImage = (url: string | null | undefined) =>
+    url && url.trim() !== '' ? url : '/default-profile.png';
 
   // 회원 탈퇴 클릭
   const handleWithdrawalClick = () => {
@@ -177,7 +178,7 @@ export default function ProfileHeader({
             alt="profile"
             className="w-20 h-20 rounded-full object-cover"
             onError={(e) => {
-              (e.target as HTMLImageElement).src = getSafeProfileUrl(null);
+              (e.currentTarget as HTMLImageElement).src = '/default-profile.png';
             }}
           />
           <div className="flex-1">

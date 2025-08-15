@@ -3,6 +3,7 @@ import { fetchMemberProfile, updateMemberProfile } from '@/api/mypage/memberSevi
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
+import { useAlertStore } from '@/stores/alertStore';
 
 import ProfileHeader from '@/components/layout/mypage/ProfileHeader';
 import MyPageTabs from '@/components/layout/mypage/MypageTabs';
@@ -54,6 +55,7 @@ interface UserStats {
 }
 
 const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
+  const { showError, showSuccess, showWarning } = useAlertStore();
   // 프로필 수정 모달 초기값
   const [modalInit, setModalInit] = useState({
     nickname: '',
@@ -162,14 +164,14 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
     file?: File | null
   ) => {
     if (!isMyPage || !myId || myId <= 0) {
-      alert('내 프로필에서만 수정할 수 있습니다.');
+      showError('내 프로필에서만 수정할 수 있습니다.');
       return;
     }
 
     // 닉네임 쿨타임 프리체크
     const nicknameChanged = (newNickname ?? '').trim() !== (modalInit.nickname ?? '').trim();
     if (nicknameChanged && nicknameDaysLeft > 0) {
-      alert(`닉네임은 ${nicknameDaysLeft}일 후에 변경할 수 있어요.`);
+      showWarning(`닉네임은 ${nicknameDaysLeft}일 후에 변경할 수 있어요.`);
       return;
     }
 
@@ -227,10 +229,10 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
       setIsEditModalOpen(false);
 
       // 성공 메시지
-      alert('프로필이 성공적으로 수정되었습니다.');
+      showSuccess('프로필이 성공적으로 수정되었습니다.');
     } catch (e: any) {
       console.error('프로필 저장 실패:', e);
-      alert(e?.message || '프로필 저장에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+      showError(e?.message || '프로필 저장에 실패했습니다. 잠시 후 다시 시도해 주세요.');
     }
   };
 
@@ -292,7 +294,7 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
   const handleFollowToggle = useCallback(async () => {
     if (isMyPage) return;
     if (!currentUserId) {
-      alert('로그인이 필요합니다.');
+      showError('로그인이 필요합니다.');
       return;
     }
 
@@ -363,7 +365,7 @@ const MyPage: React.FC<MyPageProps> = ({ isCompany }) => {
         }
       }
 
-      alert(e?.message || '팔로우 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+      showError(e?.message || '팔로우 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
     }
   }, [
     isCompany,

@@ -1,4 +1,4 @@
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, ScrollRestoration } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import { useThemeStore } from '@/stores/themeStore'; // 테마 전역변수
@@ -19,6 +19,9 @@ const Layout = () => {
 
   return (
     <div className='min-h-screen flex flex-col'>
+      {/* 스크롤 복원 - 페이지 이동 시 상단으로 스크롤 */}
+      <ScrollRestoration />
+      
       {/* 헤더 */}
       <Header variant={isDarkMode ? 'dark' : 'light'} />
 

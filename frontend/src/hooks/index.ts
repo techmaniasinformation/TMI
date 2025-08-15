@@ -11,3 +11,6 @@ export type { AutocompleteTag } from './tags';
 
 // Image hooks
 export { useImageError } from './useImageError';
+
+// Alert hooks
+export { useCustomAlert } from './useCustomAlert';

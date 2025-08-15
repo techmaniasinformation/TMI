@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/router/routes';
+import { useAlertStore } from '@/stores/alertStore';
 
 import ClientPagination from '@/components/domain/ClientPagination';
 import NotificationItem from '@/components/layout/notifications/NotifiactionItem';
@@ -98,6 +99,7 @@ const resolveBadgeSrc = (file?: string | null) => {
 };
 
 const NotificationsPage: React.FC = () => {
+  const { showError } = useAlertStore();
   const { decrementUnread, setUnreadNotifications, unreadCount } = useUserStore();
   const navigate = useNavigate();
   const { user } = useUserStore();
@@ -231,7 +233,7 @@ const NotificationsPage: React.FC = () => {
         prev.map((n) => (n.id === notification.id ? { ...n, isRead: false } : n))
       );
       console.error(e);
-      alert('읽음 처리에 실패했습니다.');
+      showError('읽음 처리에 실패했습니다.');
       return;
     }
 
@@ -275,7 +277,7 @@ const NotificationsPage: React.FC = () => {
     } catch (err) {
       setNotifications(prev);
       console.error(err);
-      alert('알림 삭제에 실패했습니다.');
+      showError('알림 삭제에 실패했습니다.');
     }
   };
 
@@ -290,7 +292,7 @@ const NotificationsPage: React.FC = () => {
     } catch (err) {
       setNotifications(prev);
       console.error(err);
-      alert('전체 읽음 처리에 실패했습니다.');
+      showError('전체 읽음 처리에 실패했습니다.');
     }
   };
 
@@ -312,7 +314,7 @@ const NotificationsPage: React.FC = () => {
     } catch (err) {
       setNotifications(prev);
       console.error(err);
-      alert('전체 삭제에 실패했습니다.');
+      showError('전체 삭제에 실패했습니다.');
     }
   };
 

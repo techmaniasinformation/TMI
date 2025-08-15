@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '@/stores/userStore';
 import { useThemeStore } from '@/stores/themeStore';
+import { useAlertStore } from '@/stores/alertStore';
 import { useTagAutocomplete } from '@/hooks/tags/useTagAutocomplete';
 import { useImageCompression } from '@/hooks/useImageCompression';
 import MDEditor from '@uiw/react-md-editor';
@@ -12,6 +13,7 @@ const PostCreatePage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useUserStore();
   const { isDarkMode } = useThemeStore();
+  const { showError, showSuccess, showWarning } = useAlertStore();
   
   // 태그 자동완성 훅 사용
   const {
@@ -91,7 +93,7 @@ const PostCreatePage: React.FC = () => {
 
   const handleAISummary = async () => {
     if (!linkUrl) {
-      alert('링크 URL을 먼저 입력해주세요.');
+      showWarning('링크 URL을 먼저 입력해주세요.');
       return;
     }
 
@@ -141,7 +143,7 @@ const PostCreatePage: React.FC = () => {
           }
         }
         
-        alert('AI 요약이 완료되었습니다!');
+        showSuccess('AI 요약이 완료되었습니다!');
              } else if (result.status === 'ERROR' && result.code === 'AI-001') {
          // 유효하지 않은 URL 에러 처리
          setAiError('입력하신 URL이 유효하지 않습니다. 올바른 웹사이트 주소를 입력해주세요.');
@@ -194,7 +196,7 @@ const PostCreatePage: React.FC = () => {
 
     // 사용자 정보 확인
     if (!user?.memberId) {
-      alert('로그인이 필요합니다.');
+      showError('로그인이 필요합니다.');
       navigate('/login');
       return;
     }
@@ -259,7 +261,7 @@ const PostCreatePage: React.FC = () => {
 
       const result = await response.json();
 
-      alert('게시글이 작성되었습니다!');
+      showSuccess('게시글이 작성되었습니다!');
       
       // 저장 완료 후 상세 페이지로 이동 - 응답에서 받은 게시글 ID 사용
       if (result.data && result.data.postId) {
@@ -270,7 +272,7 @@ const PostCreatePage: React.FC = () => {
     
     } catch (error) {
       console.error('저장 실패:', error);
-      alert('게시글 작성에 실패했습니다.');
+      showError('게시글 작성에 실패했습니다.');
     } finally {
       setIsLoading(false);
     }

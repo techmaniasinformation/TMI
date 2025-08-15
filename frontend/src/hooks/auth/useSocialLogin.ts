@@ -2,12 +2,14 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useRef } from 'react';
 import { useUserStore } from '@/stores/userStore';
+import { useAlertStore } from '@/stores/alertStore';
 
 
 const useSocialLogin = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const hasProcessed = useRef(false);
+  const { showError } = useAlertStore();
 
   const {
     toggleIsLogin, //isLogin 정리되면 삭제 예정
@@ -77,7 +79,7 @@ const useSocialLogin = () => {
         hasProcessed.current = true; // 처리 완료 표시
         navigate('/signup');
       } else {
-        alert('회원가입 정보가 누락되었습니다. 다시 시도해주세요.');
+        showError('회원가입 정보가 누락되었습니다. 다시 시도해주세요.');
         navigate('/login');
       }
       return;
@@ -157,7 +159,7 @@ const useSocialLogin = () => {
           });
 
       } else {
-        alert('로그인 정보가 누락되었습니다. 다시 시도해주세요.');
+        showError('로그인 정보가 누락되었습니다. 다시 시도해주세요.');
         navigate('/login');
         return;
       }

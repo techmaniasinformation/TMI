@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { NavigateFunction } from 'react-router-dom';
+import { useAlertStore } from '@/stores/alertStore';
 
 const useMessageHandler = (isHandled: boolean, setIsHandled: React.Dispatch<React.SetStateAction<boolean>>, navigate: NavigateFunction) => {
   const [messageData, setMessageData] = useState<any>(null);
+  const { showError } = useAlertStore();
 
   useEffect(() => {
     if (messageData) {
@@ -18,7 +20,7 @@ const useMessageHandler = (isHandled: boolean, setIsHandled: React.Dispatch<Reac
         }
       } else {
         console.error('❌ 로그인 실패:', messageData.message);
-        alert('로그인에 실패했습니다.');
+        showError('로그인에 실패했습니다.');
       }
     }
   }, [messageData, navigate]);

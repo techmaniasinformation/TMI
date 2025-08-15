@@ -4,6 +4,7 @@ import {
   patchRepresentativeBadge,
   DEFAULT_BADGE_ID,
 } from '@/api/mypage/badgeService';
+import { useAlertStore } from '@/stores/alertStore';
 
 // 배지 이미지 import
 import ai_1 from '@/assets/images/ai_1.png';
@@ -83,6 +84,7 @@ export default function BadgeModal({
 }: BadgeModalProps) {
   const [badgeImageUrl, setBadgeImageUrl] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
+  const { showError, showWarning } = useAlertStore();
 
   useEffect(() => {
     if (badge?.badgeUrl) {
@@ -101,7 +103,7 @@ export default function BadgeModal({
 
   const handleToggleRepresentative = async () => {
     if (!isOwned && !isRep) {
-      alert('획득한 배지만 대표 배지로 설정할 수 있습니다.');
+      showWarning('획득한 배지만 대표 배지로 설정할 수 있습니다.');
       return;
     }
 
@@ -112,14 +114,14 @@ export default function BadgeModal({
         // 해제: 기본 배지(22)의 memberBadgeId로 다시 설정
         const defaultId = getDefaultMemberBadgeId();
         if (!defaultId) {
-          alert('기본 배지를 찾을 수 없습니다.');
+          showError('기본 배지를 찾을 수 없습니다.');
           return;
         }
         await patchRepresentativeBadge(defaultId);
       } else {
         // 설정: 선택 배지의 memberBadgeId로 설정
         if (!badge.memberBadgeId) {
-          alert('이 배지는 아직 획득하지 않았습니다.');
+          showError('이 배지는 아직 획득하지 않았습니다.');
           return;
         }
         await patchRepresentativeBadge(badge.memberBadgeId);
@@ -129,7 +131,7 @@ export default function BadgeModal({
       onClose();
     } catch (e: any) {
       console.error(e);
-      alert(e?.message || '대표 배지 변경 실패');
+      showError(e?.message || '대표 배지 변경 실패');
     } finally {
       setSubmitting(false);
     }

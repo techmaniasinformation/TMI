@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '@/stores/userStore';
+import { useAlertStore } from '@/stores/alertStore';
 import { useImageCompression } from '@/hooks/useImageCompression';
 
 export const useSignup = () => {
@@ -12,6 +13,7 @@ export const useSignup = () => {
     clearSocialLoginInfo,
     setUser,
   } = useUserStore();
+  const { showSuccess, showError } = useAlertStore();
 
   const [formData, setFormData] = useState({
     provider: socialProvider || '',
@@ -180,11 +182,11 @@ const countAllowed = (s: string) =>
     }
 
     clearSocialLoginInfo();
-    alert('회원가입이 완료되었습니다!');
+    showSuccess('회원가입이 완료되었습니다!');
     navigate(prevPath || '/');
   } catch (error) {
     console.error('회원가입 실패:', error);
-    alert('회원가입에 실패했습니다. 다시 시도해주세요.');
+    showError('회원가입에 실패했습니다. 다시 시도해주세요.');
   } finally {
     setIsSubmitting(false);
   }

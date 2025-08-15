@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useUserStore } from '@/stores/userStore';
+import { useAlertStore } from '@/stores/alertStore';
 import { 
   getSafeProfileUrl, 
   getSafeThumbnailUrl, 
@@ -117,10 +118,11 @@ export const usePostData = (postId: string) => {
 };
 
  // 스타 상태 관리 훅
- export const useStar = (postId: string) => {
-   const { user } = useUserStore();
-   const [isStarred, setIsStarred] = useState(false);
-   const [isStarLoading, setIsStarLoading] = useState(false);
+export const useStar = (postId: string) => {
+  const { user } = useUserStore();
+  const { showError, showSuccess } = useAlertStore();
+  const [isStarred, setIsStarred] = useState(false);
+  const [isStarLoading, setIsStarLoading] = useState(false);
 
    // 스타 상태 확인
    const checkStarStatus = useCallback(async () => {
@@ -151,7 +153,7 @@ export const usePostData = (postId: string) => {
      if (isStarLoading) return;
      
      if (!user?.memberId) {
-       alert('로그인이 필요합니다.');
+       showError('로그인이 필요합니다.');
        return;
      }
 
@@ -179,16 +181,16 @@ export const usePostData = (postId: string) => {
                // UI 상태 업데이트
                setIsStarred(false);
                
-               alert('스타를 취소했습니다');
+               showSuccess('스타를 취소했습니다');
              } else {
-               alert('스타 정보를 찾을 수 없습니다.');
+               showError('스타 정보를 찾을 수 없습니다.');
              }
            } else {
-             alert('스타 정보를 찾을 수 없습니다.');
+             showError('스타 정보를 찾을 수 없습니다.');
            }
          } catch (error) {
            console.error('스타 취소 실패:', error);
-           alert('스타 취소에 실패했습니다.');
+           showError('스타 취소에 실패했습니다.');
          }
        } else {
          // 스타 추가
@@ -201,10 +203,10 @@ export const usePostData = (postId: string) => {
          // UI 상태 업데이트
          setIsStarred(true);
          
-         alert('스타했습니다');
+         showSuccess('스타했습니다');
        }
      } catch (err) {
-       alert('스타 요청에 실패했습니다.');
+       showError('스타 요청에 실패했습니다.');
      } finally {
        setIsStarLoading(false);
      }
@@ -220,6 +222,7 @@ export const usePostData = (postId: string) => {
 // 팔로우 상태 관리 훅
 export const useFollow = (postData: PostDetail | null, companyId?: string) => {
   const { user, followUser, followCompany, setFollowUser, setFollowCompany } = useUserStore();
+  const { showError, showSuccess } = useAlertStore();
   const [isFollowing, setIsFollowing] = useState(false);
   const [memberFollowId, setMemberFollowId] = useState<number | null>(null);
   const [companyFollowId, setCompanyFollowId] = useState<number | null>(null);
@@ -250,13 +253,13 @@ export const useFollow = (postData: PostDetail | null, companyId?: string) => {
   // 팔로우 토글
   const toggleFollow = useCallback(async () => {
     if (!postData) {
-      alert('게시글 정보를 찾을 수 없습니다.');
+      showError('게시글 정보를 찾을 수 없습니다.');
       return;
     }
     
     // 로그인 상태 확인
     if (!user?.memberId) {
-      alert('로그인이 필요합니다.');
+      showError('로그인이 필요합니다.');
       return;
     }
 
@@ -264,7 +267,7 @@ export const useFollow = (postData: PostDetail | null, companyId?: string) => {
       if (isFollowing) {
         // 팔로우 취소
         if (postData.memberId === 1 && !postData.companyId) {
-          alert('해당 사용자는 팔로우할 수 없습니다.');
+          showError('해당 사용자는 팔로우할 수 없습니다.');
           return;
         }
         
@@ -282,7 +285,7 @@ export const useFollow = (postData: PostDetail | null, companyId?: string) => {
             setFollowCompany(followCompany.filter(id => id !== Number(targetCompanyId)));
             setIsFollowing(false);
             setCompanyFollowId(null);
-            alert('회사 팔로우를 취소했습니다.');
+            showSuccess('회사 팔로우를 취소했습니다.');
           } else {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
@@ -299,7 +302,7 @@ export const useFollow = (postData: PostDetail | null, companyId?: string) => {
             setFollowUser(followUser.filter(id => id !== postData.memberId));
             setIsFollowing(false);
             setMemberFollowId(null);
-            alert('사용자 팔로우를 취소했습니다.');
+            showSuccess('사용자 팔로우를 취소했습니다.');
           } else {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
@@ -307,7 +310,7 @@ export const useFollow = (postData: PostDetail | null, companyId?: string) => {
       } else {
         // 팔로우 추가
         if (postData.memberId === 1 && !postData.companyId) {
-          alert('해당 사용자는 팔로우할 수 없습니다.');
+          showError('해당 사용자는 팔로우할 수 없습니다.');
           return;
         }
         
@@ -337,7 +340,7 @@ export const useFollow = (postData: PostDetail | null, companyId?: string) => {
 
           setFollowCompany([...followCompany, Number(targetCompanyId)]);
           setIsFollowing(true);
-          alert('회사를 팔로우했습니다.');
+          showSuccess('회사를 팔로우했습니다.');
         } else if (postData.memberId) {
           // 개인 사용자 팔로우 추가
           const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/memberFollow`, {
@@ -363,12 +366,12 @@ export const useFollow = (postData: PostDetail | null, companyId?: string) => {
           
           setFollowUser([...followUser, postData.memberId]);
           setIsFollowing(true);
-          alert('사용자를 팔로우했습니다.');
+          showSuccess('사용자를 팔로우했습니다.');
         }
       }
     } catch (err) {
       console.error('❌ [useFollow] 팔로우 요청 실패:', err);
-      alert('팔로우 요청에 실패했습니다.');
+      showError('팔로우 요청에 실패했습니다.');
     }
   }, [isFollowing, postData, user?.memberId, followUser, followCompany, setFollowUser, setFollowCompany, memberFollowId, companyFollowId]);
 
@@ -390,6 +393,7 @@ export const useComments = (postId: string) => {
   const [recommendLoading, setRecommendLoading] = useState<Map<number, boolean>>(new Map());
   const [deleteLoading, setDeleteLoading] = useState<Map<number, boolean>>(new Map());
   const { user } = useUserStore();
+  const { showError, showSuccess, showWarning } = useAlertStore();
 
   // 댓글 목록 가져오기
   const fetchComments = useCallback(async () => {
@@ -460,13 +464,13 @@ export const useComments = (postId: string) => {
   // 댓글 추가
   const addComment = useCallback(async () => {
     if (!commentText.trim()) {
-      alert('댓글 내용을 입력해주세요.');
+      showWarning('댓글 내용을 입력해주세요.');
       return;
     }
     
     // 로그인 상태 확인
     if (!user?.memberId) {
-      alert('로그인이 필요합니다.');
+      showError('로그인이 필요합니다.');
       return;
     }
 
@@ -479,16 +483,16 @@ export const useComments = (postId: string) => {
       try {
         const urlObj = new URL(processedUrl);
         if (!urlObj.protocol || (!urlObj.protocol.startsWith('http'))) {
-          alert('http 또는 https URL을 입력해주세요.');
+          showError('http 또는 https URL을 입력해주세요.');
           return;
         }
         const hostname = urlObj.hostname.toLowerCase();
         if (!hostname.includes('tistory.com') && !hostname.includes('velog.io') && !hostname.includes('blog.naver.com') && !hostname.includes('medium.com')) {
-          alert('티스토리(tistory.com), 벨로그(velog.io), 네이버 블로그(blog.naver.com), Medium(medium.com) 링크만 허용됩니다.');
+          showError('티스토리(tistory.com), 벨로그(velog.io), 네이버 블로그(blog.naver.com), Medium(medium.com) 링크만 허용됩니다.');
           return;
         }
       } catch (error) {
-        alert('올바른 URL 형식을 입력해주세요.');
+        showError('올바른 URL 형식을 입력해주세요.');
         return;
       }
     }
@@ -518,10 +522,10 @@ export const useComments = (postId: string) => {
       setCommentText('');
       setLinkUrl('');
       setShowLinkInput(false);
-      alert('댓글이 작성되었습니다.');
+      showSuccess('댓글이 작성되었습니다.');
     } catch (error) {
       console.error('댓글 작성 실패:', error);
-      alert('댓글 작성에 실패했습니다.');
+      showError('댓글 작성에 실패했습니다.');
     } finally {
       setCommentLoading(false);
     }
@@ -531,7 +535,7 @@ export const useComments = (postId: string) => {
   const toggleCommentRecommend = useCallback(async (commentId: number) => {
     // 로그인 상태 확인
     if (!user?.memberId) {
-      alert('로그인이 필요합니다.');
+      showError('로그인이 필요합니다.');
       return;
     }
 
@@ -546,7 +550,7 @@ export const useComments = (postId: string) => {
         // 추천 취소
         const recommendationId = userRecommendations.get(commentId);
         if (!recommendationId) {
-          alert('추천 정보를 찾을 수 없습니다.');
+          showError('추천 정보를 찾을 수 없습니다.');
           return;
         }
 
@@ -574,7 +578,7 @@ export const useComments = (postId: string) => {
             : comment
         ));
 
-        alert('추천을 취소했습니다.');
+        showSuccess('추천을 취소했습니다.');
       } else {
         // 추천 추가
         const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/recommendation`, {
@@ -608,11 +612,11 @@ export const useComments = (postId: string) => {
             : comment
         ));
 
-        alert('댓글을 추천했습니다.');
+        showSuccess('댓글을 추천했습니다.');
       }
     } catch (err) {
       console.error('❌ [useComments] 댓글 추천 요청 실패:', err);
-      alert('추천 요청에 실패했습니다.');
+      showError('추천 요청에 실패했습니다.');
     } finally {
       setRecommendLoading(prev => {
         const newMap = new Map(prev);
@@ -626,7 +630,7 @@ export const useComments = (postId: string) => {
   const deleteComment = useCallback(async (commentId: number) => {
     // 로그인 상태 확인
     if (!user?.memberId) {
-      alert('로그인이 필요합니다.');
+      showError('로그인이 필요합니다.');
       return;
     }
 
@@ -649,10 +653,10 @@ export const useComments = (postId: string) => {
       // 댓글 목록에서 삭제된 댓글 제거
       setComments(prev => prev.filter(comment => comment.commentId !== commentId));
       
-      alert('댓글이 삭제되었습니다.');
+      showSuccess('댓글이 삭제되었습니다.');
     } catch (err) {
       console.error('❌ [useComments] 댓글 삭제 요청 실패:', err);
-      alert('댓글 삭제에 실패했습니다.');
+      showError('댓글 삭제에 실패했습니다.');
     } finally {
       setDeleteLoading(prev => {
         const newMap = new Map(prev);

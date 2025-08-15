@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import imageCompression from 'browser-image-compression';
+import { useAlertStore } from '@/stores/alertStore';
 
 /**
  * 이미지 압축 커스텀 훅
@@ -87,6 +88,7 @@ export const useImageCompression = (): UseImageCompressionReturn => {
   const [isImageProcessing, setIsImageProcessing] = useState(false);
   const [originalFileSize, setOriginalFileSize] = useState<number>(0);
   const [existingImageUrl, setExistingImageUrl] = useState<string>('');
+  const { showError, showWarning } = useAlertStore();
 
   /**
    * 기존 이미지 URL이 설정되면 imagePreview에 반영
@@ -181,7 +183,7 @@ export const useImageCompression = (): UseImageCompressionReturn => {
 
     // 기본 크기 검증
     if (file.size > MAX_SIZE) {
-      alert(
+      showError(
         '파일 크기는 10MB 이하여야 합니다.\n\n현재 파일 크기: ' +
           (file.size / (1024 * 1024)).toFixed(2) +
           'MB\n허용 최대 크기: 10MB'
@@ -190,12 +192,12 @@ export const useImageCompression = (): UseImageCompressionReturn => {
       return;
     }
     if (file.size === 0) {
-      alert('빈 파일은 업로드할 수 없습니다.\n\n파일명: ' + file.name);
+      showError('빈 파일은 업로드할 수 없습니다.\n\n파일명: ' + file.name);
       fileInput.value = '';
       return;
     }
     if (file.size < MIN_SIZE) {
-      alert(
+      showError(
         `파일 크기가 너무 작습니다.\n\n파일명: ${file.name}\n파일 크기: ${file.size} bytes\n\n유효한 이미지 파일인지 확인해주세요.`
       );
       fileInput.value = '';
@@ -207,7 +209,7 @@ export const useImageCompression = (): UseImageCompressionReturn => {
     const ext = fileName.split('.').pop() || '';
     const extMime = EXT_TO_MIME[ext];
     if (!ALLOWED_TYPES.includes(file.type as KnownMime) || !extMime || extMime !== file.type) {
-      alert(
+      showError(
         `jpg, jpeg, png, gif 형식만 업로드할 수 있습니다.\n\n파일명: ${file.name}\n확장자: .${ext}\n감지된 형식: ${file.type || '(알 수 없음)'}`
       );
       fileInput.value = '';
@@ -222,7 +224,7 @@ export const useImageCompression = (): UseImageCompressionReturn => {
       // 읽기 실패
     }
     if (!actual || actual !== file.type) {
-      alert(
+      showError(
         `파일 헤더가 실제 이미지 형식과 일치하지 않습니다.\n\n파일명: ${file.name}\n확장자/MIME: ${extMime}\n실제감지: ${actual ?? '미확인'}\n\n올바른 이미지 파일을 업로드해주세요.`
       );
       fileInput.value = '';
@@ -231,7 +233,7 @@ export const useImageCompression = (): UseImageCompressionReturn => {
 
     // 추가 보수 최소 크기
     if (file.size < POST_MIN_SIZE) {
-      alert(
+      showError(
         `파일이 너무 작습니다. 유효한 이미지 파일이 아닐 수 있습니다.\n\n파일명: ${file.name}\n파일 크기: ${file.size} bytes`
       );
       fileInput.value = '';
@@ -241,7 +243,7 @@ export const useImageCompression = (): UseImageCompressionReturn => {
     // 디코드 테스트 (3차 검증)
     const decodable = await canDecodeImage(file);
     if (!decodable) {
-      alert('이미지 파일을 디코드할 수 없습니다. 손상되었거나 지원하지 않는 형식입니다.');
+      showError('이미지 파일을 디코드할 수 없습니다. 손상되었거나 지원하지 않는 형식입니다.');
       fileInput.value = '';
       return;
     }
@@ -265,7 +267,7 @@ export const useImageCompression = (): UseImageCompressionReturn => {
           if (ratio >= RATIO_MIN && ratio <= RATIO_MAX) {
             resolve(file);
           } else {
-            alert(
+            showWarning(
               `이미지 비율이 허용 범위를 벗어났습니다.\n\n현재 비율: ${ratio.toFixed(
                 2
               )} (가로/세로)\n허용 범위: ${RATIO_MIN} ~ ${RATIO_MAX}\n\n이미지 비율을 조정해주세요.`
@@ -314,7 +316,7 @@ export const useImageCompression = (): UseImageCompressionReturn => {
       setSelectedImage(finalFile);
     } catch (error) {
       console.error('이미지 처리 실패:', error);
-      alert('이미지 처리 중 오류가 발생했습니다.');
+      showError('이미지 처리 중 오류가 발생했습니다.');
       fileInput.value = '';
       // 실패 시 원래 상태 유지(기존 URL 있으면 그대로)
     } finally {

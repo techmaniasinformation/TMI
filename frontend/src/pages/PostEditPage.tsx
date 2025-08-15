@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useUserStore } from '@/stores/userStore';
 import { useThemeStore } from '@/stores/themeStore';
+import { useAlertStore } from '@/stores/alertStore';
 import { useTagAutocomplete } from '@/hooks/tags/useTagAutocomplete';
 import { useImageCompression } from '@/hooks/useImageCompression';
 import MDEditor from '@uiw/react-md-editor';
@@ -14,6 +15,7 @@ const PostEditPage: React.FC = () => {
   const location = useLocation();
   const { user } = useUserStore();
   const { isDarkMode } = useThemeStore();
+  const { showError, showSuccess, showWarning } = useAlertStore();
 
   // 태그 자동완성 훅 사용
   const {
@@ -115,7 +117,7 @@ const PostEditPage: React.FC = () => {
 
   const handleAISummary = async () => {
     if (!linkUrl) {
-      alert('링크 URL을 먼저 입력해주세요.');
+      showWarning('링크 URL을 먼저 입력해주세요.');
       return;
     }
     const processedUrl = processAndValidateUrl(linkUrl);
@@ -142,7 +144,7 @@ const PostEditPage: React.FC = () => {
         if (result.data.tags && Array.isArray(result.data.tags)) {
           setTags(result.data.tags.slice(0, 5));
         }
-        alert('AI 요약이 완료되었습니다!');
+        showSuccess('AI 요약이 완료되었습니다!');
       } else if (result.status === 'ERROR' && result.code === 'AI-001') {
         setAiError('입력하신 URL이 유효하지 않습니다. 올바른 웹사이트 주소를 입력해주세요.');
       } else {
@@ -178,7 +180,7 @@ const PostEditPage: React.FC = () => {
     if (hasError) return;
 
     if (!user?.memberId) {
-      alert('로그인이 필요합니다.');
+      showError('로그인이 필요합니다.');
       navigate('/login');
       return;
     }
@@ -233,7 +235,7 @@ const PostEditPage: React.FC = () => {
       }
 
       const result = await response.json();
-      alert('게시글이 수정되었습니다!');
+      showSuccess('게시글이 수정되었습니다!');
       if (result.data && result.data.postId) {
         navigate(`/post/${result.data.postId}`);
       } else {
@@ -241,7 +243,7 @@ const PostEditPage: React.FC = () => {
       }
     } catch (error) {
       console.error('수정 실패:', error);
-      alert('게시글 수정에 실패했습니다.');
+      showError('게시글 수정에 실패했습니다.');
     } finally {
       setIsLoading(false);
     }

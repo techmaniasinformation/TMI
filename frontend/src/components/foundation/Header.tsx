@@ -6,6 +6,7 @@ import SearchBar from './SearchBar';
 import { Button } from './button';
 import { useThemeStore } from '@/stores/themeStore';
 import { useUserStore } from '@/stores/userStore';
+import { useAlertStore } from '@/stores/alertStore';
 
 import logo from '@/assets/icons/tmiLogo.svg';
 import { getSafeProfileUrl } from '@/utils/defaultImages';
@@ -45,6 +46,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'light', size = 'default' }) 
     unreadCount,               // ✅ 추가
     hasUnreadNotifications     // ✅ 추가
   } = useUserStore();
+  const { showSuccess, showError } = useAlertStore();
 
   const { isDarkMode, toggleTheme } = useThemeStore();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -102,7 +104,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'light', size = 'default' }) 
       setShowProfileMenu(false);
 
       navigate(prevPath);
-      alert('로그아웃 되었습니다.');
+      showSuccess('로그아웃 되었습니다.');
     } catch (error) {
       console.error('로그아웃 중 오류:', error);
       setPrevPath(window.location.pathname + window.location.search);
@@ -111,7 +113,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'light', size = 'default' }) 
       setFollowCompany([]);
       clearSocialLoginInfo();
       setShowProfileMenu(false);
-      alert('로그아웃 되었습니다.');
+      showSuccess('로그아웃 되었습니다.');
       navigate(prevPath);
     }
   }, [
@@ -138,12 +140,12 @@ const Header: React.FC<HeaderProps> = ({ variant = 'light', size = 'default' }) 
   const handleWritePost = useCallback(() => {
     if (!isAuthenticated) {
       setPrevPath('/post/create');
-      alert('로그인이 필요합니다.');
+      showError('로그인이 필요합니다.');
       navigate('/login');
     } else {
       navigate('/post/create');
     }
-  }, [isAuthenticated, setPrevPath, navigate]);
+  }, [isAuthenticated, setPrevPath, navigate, showError]);
 
   const handleProfileMenuToggle = useCallback(() => {
     setShowProfileMenu((v) => !v);

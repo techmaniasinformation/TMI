@@ -14,12 +14,14 @@ import SignupPage from '../pages/SignupPage';
 import OAuthCallbackPage from '../pages/OAuthCallbackPage';
 import { ROUTES } from './routes';
 import { useUserStore } from '@/stores/userStore';
+import { useAlertStore } from '@/stores/alertStore';
 import { useLocation } from 'react-router-dom';
 
 // 로그인 페이지 접근 확인 위함.
 function LoginRouteGuard() {
   const location = useLocation();  
   const { user } = useUserStore();
+  const { showInfo } = useAlertStore();
 
   console.log('[LoginRouteGuard]user:', user);
   const searchParams = new URLSearchParams(location.search);  // &&& 수정: location.search 사용
@@ -28,7 +30,7 @@ function LoginRouteGuard() {
 
   if (user && !(isNew === 'false' && queryMemberId)) {
     console.log('[LoginRouteGuard] 이미 로그인 상태이므로 홈으로 리다이렉트');
-    alert('이미 로그인 되어 있습니다');
+    showInfo('이미 로그인 되어 있습니다');
     return <Navigate to={ROUTES.HOME} replace />;
   }
 

@@ -9,6 +9,7 @@ import { AuthorInfo } from "@/components/PostDetail/AuthorInfo";
 import { CommentSection } from "@/components/PostDetail/CommentSection";
 import { BestComments } from "@/components/PostDetail/BestComments";
 import { useUserStore } from "@/stores/userStore";
+import { useAlertStore } from "@/stores/alertStore";
 import { usePostDetail } from "@/hooks/posts/usePostDetail";
 import { fetchMemberBadges, fetchAllBadges } from "@/api/mypage/badgeService";
 
@@ -81,6 +82,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
   const { id, companyId } = useParams<{ id: string; companyId?: string }>();
   const navigate = useNavigate();
   const { user } = useUserStore();
+  const { showSuccess, showError, showInfo } = useAlertStore();
 
   // 커스텀 훅 사용
   const {
@@ -116,17 +118,17 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
   const handleShare = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
-      alert('링크가 클립보드에 복사되었습니다.');
+      showSuccess('링크가 클립보드에 복사되었습니다.');
     } catch (error) {
       console.error('링크 복사 실패:', error);
-      alert('링크 복사에 실패했습니다.');
+      showError('링크 복사에 실패했습니다.');
     }
-  }, []);
+  }, [showSuccess, showError]);
 
   // 작성자 클릭 핸들러
   const handleAuthorClick = useCallback(() => {
     if (!postData) {
-      alert('게시글 정보를 찾을 수 없습니다.');
+      showError('게시글 정보를 찾을 수 없습니다.');
       return;
     }
     
@@ -135,9 +137,9 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
     } else if (postData.memberId) {
       navigate(`/member/${postData.memberId}`);
     } else {
-      alert(postData.companyProfileUrl ? '회사 프로필 ID 정보가 없습니다.' : '개인 프로필 ID 정보가 없습니다.');
+      showError(postData.companyProfileUrl ? '회사 프로필 ID 정보가 없습니다.' : '개인 프로필 ID 정보가 없습니다.');
     }
-  }, [postData, navigate]);
+  }, [postData, navigate, showError]);
 
   // 삭제 핸들러
   const handleDelete = useCallback(async () => {
@@ -153,14 +155,14 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
       });
 
       if (response.ok && (await response.json()).status === 'SUCCESS') {
-        alert('게시글이 삭제되었습니다.');
+        showSuccess('게시글이 삭제되었습니다.');
         setTimeout(() => navigate('/home'), 1500);
       } else {
         throw new Error('게시글 삭제에 실패했습니다.');
       }
     } catch (err) {
       console.error('❌ [PostDetailPage] 게시글 삭제 실패:', err);
-      alert('게시글 삭제에 실패했습니다.');
+      showError('게시글 삭제에 실패했습니다.');
     }
   }, [postData?.postId, navigate]);
 

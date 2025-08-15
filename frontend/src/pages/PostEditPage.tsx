@@ -442,7 +442,10 @@ const PostEditPage: React.FC = () => {
             )}
           </div>
 
-          <div className="mt-12">
+          {/* ✅ 스페이서 */}
+          <div aria-hidden className="h-4" />
+
+          <div className="mt-0">
             <label className="block text-sm font-medium text-gray-700 mb-4">태그</label>
             {isAILoading ? (
               <div className="flex items-center justify-center py-8">

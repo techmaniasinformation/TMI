@@ -11,27 +11,50 @@ interface AuthorInfoProps {
   onAuthorClick: () => void;
   isFollowing: boolean;
   showFollowButton?: boolean; // 팔로우 버튼 표시 여부
+  /** ✅ 부모에서 내려주는 대표 배지 이름(개인 글에서만). 없으면 표시 X */
+  badgeName?: string;
 }
 
-export const AuthorInfo: React.FC<AuthorInfoProps> = ({ post, formatDate, onFollowClick, onAuthorClick, isFollowing, showFollowButton = true }) => {
+export const AuthorInfo: React.FC<AuthorInfoProps> = ({
+  post,
+  formatDate,
+  onFollowClick,
+  onAuthorClick,
+  isFollowing,
+  showFollowButton = true,
+  badgeName // ✅ 추가
+}) => {
+  
   // 프로필 이미지 URL을 메모이제이션
   const profileImageUrl = useMemo(() => {
     return post.memberProfileUrl;
   }, [post.memberProfileUrl]);
+
+  // 닉네임 옆에 표시할 라벨(기업 또는 대표 배지명). 없으면 null로 둠.
+  const badgeLabel = useMemo(() => {
+    // 1) 회사 글이면 무조건 '기업'
+    if (post?.companyId) return '기업';
+    // 2) 개인 글이면 부모에서 받은 badgeName 있을 때만 표시
+    return badgeName?.trim() ? badgeName.trim() : null;
+  }, [post?.companyId, badgeName]);
 
   return (
     <div className="bg-light-header dark:bg-dark-header rounded-lg shadow-md dark:shadow-lg p-4 mb-6">
       <div className="flex items-center justify-between">
         <UserInfoBox
           profileImageUrl={profileImageUrl}
-          nickname={post.name}
+          nickname={
+            <div className="flex items-center gap-3">
+              <span>{post.name}</span>
+              {badgeLabel && (
+                <span className="px-2 py-0.5 rounded-md text-sm font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800">
+                  {badgeLabel}
+                </span>
+              )}
+            </div>
+          }
           imageSize="64px"
           onClick={onAuthorClick}
-          badge={
-            <Badge className="bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 px-2 py-1 rounded-full text-xs font-medium">
-              인증
-            </Badge>
-          }
         >
           <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400 mt-4">
             <DateTimeComponent 
@@ -61,4 +84,4 @@ export const AuthorInfo: React.FC<AuthorInfoProps> = ({ post, formatDate, onFoll
       </div>
     </div>
   );
-}; 
+};

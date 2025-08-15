@@ -1,5 +1,5 @@
 // The exported code uses Tailwind CSS. Install Tailwind CSS in your dev environment to ensure all styles work.
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/foundation/button";
 import { PostHeader } from "@/components/PostDetail/PostHeader";
@@ -10,6 +10,70 @@ import { CommentSection } from "@/components/PostDetail/CommentSection";
 import { BestComments } from "@/components/PostDetail/BestComments";
 import { useUserStore } from "@/stores/userStore";
 import { usePostDetail } from "@/hooks/posts/usePostDetail";
+import { fetchMemberBadges, fetchAllBadges } from "@/api/mypage/badgeService";
+
+/** 작성자의 대표 배지 이름을 가져오는 헬퍼 훅 (회사 글이면 빈 문자열) */
+function useRepBadgeName(postData?: any) {
+  const [name, setName] = React.useState<string>("");
+
+  React.useEffect(() => {
+    let alive = true;
+
+    async function run() {
+      // 회사 글이면 배지 이름은 내려주지 않음(AuthorInfo에서 '기업' 표시)
+      if (!postData?.memberId || postData?.companyId) {
+        if (alive) setName("");
+        return;
+      }
+
+      // 0) 글 응답에 배지 이름이 이미 실려있는 경우 우선 사용
+      const inline =
+        postData?.badgeName ||
+        postData?.representativeBadgeName ||
+        postData?.memberBadgeName ||
+        postData?.repBadgeName;
+      if (inline && typeof inline === "string" && inline.trim()) {
+        if (alive) setName(inline.trim());
+        return;
+      }
+
+      try {
+        // 1) API로 대표배지 찾기
+        const [memberBadges, allBadges] = await Promise.all([
+          fetchMemberBadges(postData.memberId),
+          fetchAllBadges(),
+        ]);
+
+        // 2) 대표배지 판별(필드명 변형 최대한 커버)
+        const rep = memberBadges.find((b: any) =>
+          b?.isRepresentative === true ||
+          b?.representative === true ||
+          b?.representativeYn === "Y" ||
+          b?.isRep === true ||
+          b?.rep === true
+        );
+
+        if (!rep) {
+          if (alive) setName(""); // 대표배지 미설정 ⇒ 표시 안 함
+          return;
+        }
+
+        // 3) 메타에서 이름 매핑 (문자/숫자 혼용 방어)
+        const meta = allBadges.find((m: any) => String(m.badgeId) === String(rep.badgeId));
+        if (alive) setName((meta?.name || "").trim());
+      } catch (e) {
+        if (alive) setName(""); // 실패해도 조용히 무시
+      }
+    }
+
+    run();
+    return () => { alive = false; };
+  }, [postData?.memberId, postData?.companyId,
+      postData?.badgeName, postData?.representativeBadgeName,
+      postData?.memberBadgeName, postData?.repBadgeName]);
+
+  return name;
+}
 
 interface PostDetailPageProps {}
 
@@ -44,6 +108,9 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
     toggleCommentRecommend,
     deleteComment
   } = usePostDetail(id || '', companyId);
+
+  // ✅ 작성자 대표 배지 이름
+  const authorBadgeName = useRepBadgeName(postData);
 
   // 공유 핸들러
   const handleShare = useCallback(async () => {
@@ -246,6 +313,8 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
           // 2. 상대방 멤버ID가 1이지만 companyId가 있음
           (postData.memberId !== 1 || (postData.memberId === 1 && postData.companyId !== null))
         }
+        // ✅ 작성자 대표 배지 이름 전달 (회사 글이면 빈 문자열 전달)
+        badgeName={postData.companyId ? "" : authorBadgeName}
       />
 
       {/* 본문 콘텐츠 */}

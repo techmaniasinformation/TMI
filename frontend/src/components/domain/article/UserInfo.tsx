@@ -1,9 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, ReactNode } from 'react';
 import { getSafeProfileUrl, DEFAULT_IMAGES } from '@/utils/defaultImages';
 
 interface UserInfoBoxProps {
   profileImageUrl: string;
-  nickname: string;
+  nickname: string | ReactNode;
   badge?: React.ReactNode; // 뱃지 추가
   // 닉네임 아래에 추가 정보를 넣고 싶을 때 사용
   children?: React.ReactNode;
@@ -72,7 +72,7 @@ export default function UserInfoBox({
       {/* 닉네임 + 하위 정보 */}
       <div className="flex flex-col">
         <div className="flex items-center space-x-2">
-          <span className="font-semibold text-sm dark:text-white">{nickname}</span>
+          <span className="font-semibold mt-2 text-lg dark:text-white">{nickname}</span>
           {badge && badge}
         </div>
         {/* 추가로 렌더링 될 정보 */}

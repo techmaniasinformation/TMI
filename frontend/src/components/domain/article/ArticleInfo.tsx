@@ -69,7 +69,7 @@ export default function ArticleInfo({
       </UserInfo>
       
       {/* 2. 제목 */}
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors break-words break-all">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 my-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors break-words break-all">
         {title}
       </h3>
       

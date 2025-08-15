@@ -582,10 +582,10 @@ const PostCreatePage: React.FC = () => {
 
            </div>
           
-          <div className="mt-8" />
+          <div aria-hidden className="h-4" /> 
 
           {/* Tags */}
-          <div className="mt-12">
+          <div className="mt-0">
             <label className="block text-sm font-medium text-gray-700 mb-4">
               태그
             </label>

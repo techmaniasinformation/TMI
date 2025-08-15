@@ -581,6 +581,8 @@ const PostCreatePage: React.FC = () => {
             )}
 
            </div>
+          
+          <div className="mt-8" />
 
           {/* Tags */}
           <div className="mt-12">

@@ -28,6 +28,13 @@ interface UserState {
   // 이전 페이지
   prevPath: string | '/';
 
+    // === 알림 상태 ===
+  unreadCount: number; // 안 읽은 개수
+  hasUnreadNotifications: boolean; // 빨간 점 표시 여부
+  setUnreadNotifications: (hasUnread: boolean, count: number) => void;
+  incrementUnread: () => void;
+  decrementUnread: () => void;
+
   // === 기존 액션들 (유지) ===
   toggleIsLogin: () => void;
   setUser: (user: User) => void;
@@ -64,6 +71,28 @@ export const useUserStore = create(
       socialProviderId: null,
 
       prevPath: '/', // 이전 페이지
+
+            // === 알림 상태 ===
+      unreadCount: 0,
+      hasUnreadNotifications: false,
+
+      setUnreadNotifications: (hasUnread, count) =>
+        set({ hasUnreadNotifications: hasUnread, unreadCount: count }),
+
+      incrementUnread: () =>
+        set((state) => ({
+          unreadCount: state.unreadCount + 1,
+          hasUnreadNotifications: true,
+        })),
+
+      decrementUnread: () =>
+        set((state) => {
+          const newCount = Math.max(0, state.unreadCount - 1);
+          return {
+            unreadCount: newCount,
+            hasUnreadNotifications: newCount > 0,
+          };
+        }),
 
       toggleIsLogin: () => set((state) => ({ isLogin: !state.isLogin })),
 

@@ -41,14 +41,18 @@ const Header: React.FC<HeaderProps> = ({ variant = 'light', size = 'default' }) 
     setFollowCompany,
     clearSocialLoginInfo,
     setPrevPath,
+    setUnreadNotifications,   // ✅ 추가
+    unreadCount,               // ✅ 추가
+    hasUnreadNotifications     // ✅ 추가
   } = useUserStore();
+
   const { isDarkMode, toggleTheme } = useThemeStore();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [hasUnreadNotifications, setHasUnreadNotifications] = useState(true);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const navigate = useNavigate();
   const location = useLocation();
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [loadingNotifications, setLoadingNotifications] = useState(true);
+
 
   const isAuthenticated = !!user;
 
@@ -57,6 +61,8 @@ const Header: React.FC<HeaderProps> = ({ variant = 'light', size = 'default' }) 
 
   useEffect(() => {
     if (isAuthenticated && user?.memberId) {
+      setLoadingNotifications(true); // ✅ 로딩 시작
+
       fetch(
         `https://i13a509.p.ssafy.io/api/v1/notification?memberId=${user.memberId}&status=unread`,
         { method: 'GET', credentials: 'include' }
@@ -65,20 +71,17 @@ const Header: React.FC<HeaderProps> = ({ variant = 'light', size = 'default' }) 
         .then((data) => {
           if (data?.status === 'SUCCESS') {
             const contentList = data.data?.content || [];
-            setHasUnreadNotifications(contentList.length > 0);
-            setUnreadCount(contentList.length);
+            setUnreadNotifications(contentList.length > 0, contentList.length);
           } else {
-            setHasUnreadNotifications(false);
-            setUnreadCount(0);
+            setUnreadNotifications(false, 0);
           }
         })
-        .catch((err) => {
-          console.error('알림 조회 실패:', err);
-          setHasUnreadNotifications(false);
-          setUnreadCount(0);
-        });
+        .catch(() => {
+          setUnreadNotifications(false, 0);
+        })
+        .finally(() => setLoadingNotifications(false)); // ✅ 로딩 끝
     }
-  }, [isAuthenticated, user?.memberId]);
+  }, [isAuthenticated, user?.memberId, setUnreadNotifications]);
 
   const handleLogOut = useCallback(async () => {
     try {
@@ -254,7 +257,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'light', size = 'default' }) 
                         (e.currentTarget as HTMLImageElement).src = getSafeProfileUrl(null);
                       }}
                     />
-                    {hasUnreadNotifications && (
+                    {!loadingNotifications && hasUnreadNotifications && (
                       <span className="absolute top-0 right-0 block w-3 h-3 bg-warning rounded-full border-2 border-blue"></span>
                     )}
                   </div>

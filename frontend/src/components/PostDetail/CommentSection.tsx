@@ -124,7 +124,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
                   onChange={(e) => handleLinkChange(e.target.value)}
                   maxLength={255}
                   placeholder="링크 URL을 입력하세요 (선택사항)"
-                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 />
                 {urlError && (
                   <p className="text-red-500 dark:text-red-400 text-xs mt-1">{urlError}</p>

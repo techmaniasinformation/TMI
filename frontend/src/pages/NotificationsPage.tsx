@@ -98,6 +98,7 @@ const resolveBadgeSrc = (file?: string | null) => {
 };
 
 const NotificationsPage: React.FC = () => {
+  const { decrementUnread, setUnreadNotifications, unreadCount } = useUserStore();
   const navigate = useNavigate();
   const { user } = useUserStore();
   const memberId = user?.memberId;
@@ -188,6 +189,9 @@ const NotificationsPage: React.FC = () => {
       const list = await fetchNotifications(memberId, status);
       let adapted = list.map(adapt);
 
+      const unreadTotal = adapted.filter(n => !n.isRead).length;
+      setUnreadNotifications(unreadTotal > 0, unreadTotal); // ✅ 전역 갱신
+
       adapted.sort(
         (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
       );
@@ -220,6 +224,8 @@ const NotificationsPage: React.FC = () => {
 
     try {
       await apiMarkNotificationRead(Number(notification.id));
+      const remainingUnread = notifications.filter(n => !n.isRead && n.id !== notification.id).length;
+      setUnreadNotifications(remainingUnread > 0, remainingUnread);
     } catch (e) {
       setNotifications((prev) =>
         prev.map((n) => (n.id === notification.id ? { ...n, isRead: false } : n))
@@ -251,7 +257,19 @@ const NotificationsPage: React.FC = () => {
     if (!memberId) return;
 
     const prev = notifications;
+    // 삭제 대상이 안 읽은 알림인지 확인
+    const deletedNotification = prev.find((n) => n.id === id);
+
     setNotifications(prev.filter((n) => n.id !== id));
+
+    // 🔽 전역 unreadCount 갱신
+    if (deletedNotification && !deletedNotification.isRead) {
+      const remainingUnread = notifications.filter(
+        n => !n.isRead && n.id !== id
+      ).length;
+      setUnreadNotifications(remainingUnread > 0, remainingUnread);
+    }
+
     try {
       await apiDeleteNotification(Number(id), memberId);
     } catch (err) {
@@ -268,6 +286,7 @@ const NotificationsPage: React.FC = () => {
     setNotifications(prev.map((n) => ({ ...n, isRead: true })));
     try {
       await apiMarkAllNotificationsRead(memberId);
+      setUnreadNotifications(false, 0); // ✅ 빨간 점 없애고 카운트 0으로
     } catch (err) {
       setNotifications(prev);
       console.error(err);
@@ -279,7 +298,15 @@ const NotificationsPage: React.FC = () => {
   const handleDeleteAll = async () => {
     if (!memberId) return;
     const prev = notifications;
+
+    // 🔽 안 읽은 알림 개수만큼 unreadCount 감소
+    const unreadToDelete = prev.filter((n) => !n.isRead).length;
+    if (unreadToDelete > 0) {
+      setUnreadNotifications(false, 0);
+    }
+
     setNotifications([]);
+
     try {
       await apiDeleteAllNotifications(memberId);
     } catch (err) {

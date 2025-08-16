@@ -13,28 +13,30 @@ import { useAlertStore } from "@/stores/alertStore";
 import { usePostDetail } from "@/hooks/posts/usePostDetail";
 import { fetchMemberBadges, fetchAllBadges } from "@/api/mypage/badgeService";
 
-/** 작성자의 대표 배지 이름을 가져오는 헬퍼 훅 (회사 글이면 빈 문자열) */
-function useRepBadgeName(postData?: any) {
-  const [name, setName] = React.useState<string>("");
+/** 작성자의 대표 배지 정보를 가져오는 헬퍼 훅 (회사 글이면 빈 문자열) */
+function useRepBadgeInfo(postData?: any) {
+  const [badgeInfo, setBadgeInfo] = React.useState<{name: string, url: string}>({name: "", url: ""});
 
   React.useEffect(() => {
     let alive = true;
 
     async function run() {
-      // 회사 글이면 배지 이름은 내려주지 않음(AuthorInfo에서 '기업' 표시)
+      // 회사 글이면 배지 정보는 내려주지 않음(AuthorInfo에서 '기업' 표시)
       if (!postData?.memberId || postData?.companyId) {
-        if (alive) setName("");
+        if (alive) setBadgeInfo({name: "", url: ""});
         return;
       }
 
-      // 0) 글 응답에 배지 이름이 이미 실려있는 경우 우선 사용
-      const inline =
+      // 0) 글 응답에 배지 정보가 이미 실려있는 경우 우선 사용
+      const inlineName =
         postData?.badgeName ||
         postData?.representativeBadgeName ||
         postData?.memberBadgeName ||
         postData?.repBadgeName;
-      if (inline && typeof inline === "string" && inline.trim()) {
-        if (alive) setName(inline.trim());
+      const inlineUrl = postData?.repBadgeUrl || postData?.badgeUrl;
+      
+      if (inlineName && typeof inlineName === "string" && inlineName.trim()) {
+        if (alive) setBadgeInfo({name: inlineName.trim(), url: inlineUrl || ""});
         return;
       }
 
@@ -55,15 +57,44 @@ function useRepBadgeName(postData?: any) {
         );
 
         if (!rep) {
-          if (alive) setName(""); // 대표배지 미설정 ⇒ 표시 안 함
+          if (alive) setBadgeInfo({name: "", url: ""}); // 대표배지 미설정 ⇒ 표시 안 함
           return;
         }
 
-        // 3) 메타에서 이름 매핑 (문자/숫자 혼용 방어)
+        // 3) 메타에서 정보 매핑 (문자/숫자 혼용 방어)
         const meta = allBadges.find((m: any) => String(m.badgeId) === String(rep.badgeId));
-        if (alive) setName((meta?.name || "").trim());
+        if (meta) {
+          // 배지 이미지 매핑
+          const badgeImages: Record<string, string> = {
+            'ai_1.png': '/src/assets/images/ai_1.png',
+            'amumu.png': '/src/assets/images/amumu.png',
+            'aws_1.png': '/src/assets/images/aws_1.png',
+            'db_1.png': '/src/assets/images/db_1.png',
+            'fctmi_1.png': '/src/assets/images/fctmi_1.png',
+            'first_article.png': '/src/assets/images/first_article.png',
+            'first_comment.png': '/src/assets/images/first_comment.png',
+            'followmany.png': '/src/assets/images/followmany.png',
+            'helloworld.png': '/src/assets/images/helloworld.png',
+            'like10.png': '/src/assets/images/like10.png',
+            'like100.png': '/src/assets/images/like100.png',
+            'like1000.png': '/src/assets/images/like1000.png',
+            'paris.png': '/src/assets/images/paris.png',
+            'react.png': '/src/assets/images/react.png',
+            'spring.png': '/src/assets/images/spring.png',
+            'star_5.png': '/src/assets/images/star_5.png',
+            'star_13.png': '/src/assets/images/star_13.png',
+            'star_42.png': '/src/assets/images/star_42.png',
+            'view_50.png': '/src/assets/images/view1.png',
+            'view_100.png': '/src/assets/images/view2.png',
+            'view_1000.png': '/src/assets/images/view3.png',
+            'locked.png': '/src/assets/images/locked.png',
+          };
+          
+          const badgeImage = badgeImages[meta.badgeUrl] || '/fallback.png';
+          if (alive) setBadgeInfo({name: (meta.name || "").trim(), url: badgeImage});
+        }
       } catch (e) {
-        if (alive) setName(""); // 실패해도 조용히 무시
+        if (alive) setBadgeInfo({name: "", url: ""}); // 실패해도 조용히 무시
       }
     }
 
@@ -71,9 +102,10 @@ function useRepBadgeName(postData?: any) {
     return () => { alive = false; };
   }, [postData?.memberId, postData?.companyId,
       postData?.badgeName, postData?.representativeBadgeName,
-      postData?.memberBadgeName, postData?.repBadgeName]);
+      postData?.memberBadgeName, postData?.repBadgeName,
+      postData?.repBadgeUrl, postData?.badgeUrl]);
 
-  return name;
+  return badgeInfo;
 }
 
 interface PostDetailPageProps {}
@@ -111,8 +143,8 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
     deleteComment
   } = usePostDetail(id || '', companyId);
 
-  // ✅ 작성자 대표 배지 이름
-  const authorBadgeName = useRepBadgeName(postData);
+  // ✅ 작성자 대표 배지 정보
+  const authorBadgeInfo = useRepBadgeInfo(postData);
 
   // 공유 핸들러
   const handleShare = useCallback(async () => {
@@ -315,8 +347,9 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
           // 2. 상대방 멤버ID가 1이지만 companyId가 있음
           (postData.memberId !== 1 || (postData.memberId === 1 && postData.companyId !== null))
         }
+        badgeImage={authorBadgeInfo.url}
         // ✅ 작성자 대표 배지 이름 전달 (회사 글이면 빈 문자열 전달)
-        badgeName={postData.companyId ? "" : authorBadgeName}
+        badgeName={postData.companyId ? "" : authorBadgeInfo.name}
       />
 
       {/* 본문 콘텐츠 */}

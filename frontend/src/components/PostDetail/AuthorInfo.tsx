@@ -13,6 +13,8 @@ interface AuthorInfoProps {
   showFollowButton?: boolean; // 팔로우 버튼 표시 여부
   /** ✅ 부모에서 내려주는 대표 배지 이름(개인 글에서만). 없으면 표시 X */
   badgeName?: string;
+  /** ✅ 실제 대표 배지 이미지 URL */
+  badgeImage?: string;
 }
 
 export const AuthorInfo: React.FC<AuthorInfoProps> = ({
@@ -22,7 +24,8 @@ export const AuthorInfo: React.FC<AuthorInfoProps> = ({
   onAuthorClick,
   isFollowing,
   showFollowButton = true,
-  badgeName // ✅ 추가
+  badgeName, // ✅ 추가
+  badgeImage // ✅ 추가
 }) => {
   
   // 프로필 이미지 URL을 메모이제이션
@@ -43,16 +46,8 @@ export const AuthorInfo: React.FC<AuthorInfoProps> = ({
       <div className="flex items-center justify-between">
         <UserInfoBox
           profileImageUrl={profileImageUrl}
-          nickname={
-            <div className="flex items-center gap-3">
-              <span>{post.name}</span>
-              {badgeLabel && (
-                <span className="px-2 py-0.5 rounded-md text-sm font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800">
-                  {badgeLabel}
-                </span>
-              )}
-            </div>
-          }
+          nickname={post.name}
+          badgeImage={badgeImage}
           imageSize="64px"
           onClick={onAuthorClick}
         >

@@ -48,8 +48,8 @@ export default function UserInfoBox({
       if (/^https?:\/\//i.test(badgeImage)) {
         url = badgeImage;
       } 
-      // 로컬 이미지 경로이면 그대로 사용 (빌드 시 서버 URL로 변환됨)
-      else if (badgeImage.startsWith('/src/assets/images/') || badgeImage.startsWith('@/assets/images/')) {
+      // 빌드된 이미지 경로이면 그대로 사용
+      else if (badgeImage.startsWith('/assets/')) {
         url = badgeImage;
       }
       // 파일명만 있으면 서버 CDN에서 로딩

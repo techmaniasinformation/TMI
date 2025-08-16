@@ -23,7 +23,7 @@ public record SimplePostResponse(
     String thumbnailUrl
 ) {
 
-  public static SimplePostResponse of(Post post, int commentCount) {
+  public static SimplePostResponse of(Post post, int commentCount, String badgeUrl) {
     String memberName = (post.getMember().getId() == 1 && !Objects.isNull(post.getCompany())) ? post.getCompany().getName() :post.getMember().getNickname();
     String profile = (post.getMember().getId() == 1 && !Objects.isNull(post.getCompany())) ? post.getCompany().getCompanyProfileUrl() : post.getMember().getMemberProfileUrl();
     profile = Objects.isNull(profile) ? "" : profile;
@@ -33,7 +33,7 @@ public record SimplePostResponse(
         .memberProfile(profile)
         .companyProfileUrl(profile)
         .name(memberName)
-//        .badgeUrl(post.getMember().getBadgeUrl())
+        .badgeUrl(badgeUrl == null ? "" : badgeUrl)
         .title(post.getTitle())
         .createAt(post.getCreatedAt())
         .viewCount(post.getViewCount())

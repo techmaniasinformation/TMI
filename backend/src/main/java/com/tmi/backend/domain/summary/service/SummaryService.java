@@ -114,7 +114,7 @@ public class SummaryService {
 
     WebDriver driver = null;
     try {
-      driver = webDriverPool.getDriver();
+      driver = webDriverPool.borrowDriver();
       driver.get(url);
 
       for (WebElement iframe : driver.findElements(By.tagName("iframe"))) {
@@ -135,7 +135,7 @@ public class SummaryService {
       return ServiceResult.fail(ErrorCode.CONTENT_EXTRACTION_FAILED);
     } finally {
       if (driver != null) {
-        webDriverPool.releaseDriver();
+        webDriverPool.returnDriver(driver);
       }
     }
 

@@ -1,64 +1,77 @@
 package com.tmi.backend.global.component;
 
+import io.github.bonigarcia.wdm.WebDriverManager;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
+@Slf4j
 @Component
 public class WebDriverPool {
 
-  private WebDriver driver;
-  private boolean inUse = false; // 드라이버 사용 여부 체크
+  private static final int POOL_SIZE = 5;
+  private final BlockingQueue<WebDriver> pool = new ArrayBlockingQueue<>(POOL_SIZE);
 
   @PostConstruct
-  public synchronized void init() {
-    driver = createDriver();
+  public void init() {
+    WebDriverManager.chromedriver().setup();
+    for (int i = 0; i < POOL_SIZE; i++) {
+      pool.offer(createDriver());
+    }
+  }
+
+  @PreDestroy
+  public void cleanup() {
+    for (WebDriver driver : pool) {
+      driver.quit();
+    }
+  }
+
+  public WebDriver borrowDriver() throws InterruptedException {
+    return pool.take(); // 드라이버가 없으면 대기
+  }
+
+  public void returnDriver(WebDriver driver) {
+    if (driver == null) {
+      return;
+    }
+
+    if (isDriverAlive(driver)) {
+      // 드라이버 상태 초기화 로직
+      driver.manage().deleteAllCookies();
+      driver.get("about:blank");
+      pool.offer(driver);
+    } else {
+      log.warn("죽은 WebDriver를 감지하여 풀에서 제거하고 새로 생성합니다.");
+      driver.quit();
+      pool.offer(createDriver());
+    }
+  }
+
+  private boolean isDriverAlive(WebDriver driver) {
+    try {
+      // getWindowHandles()는 드라이버 세션이 살아있는지 확인하는 가장 안정적인 방법 중 하나입니다.
+      return !driver.getWindowHandles().isEmpty();
+    } catch (Exception e) {
+      // 예외 발생 시 드라이버가 비정상 상태임을 의미
+      return false;
+    }
   }
 
   private WebDriver createDriver() {
     ChromeOptions options = new ChromeOptions();
-    options.addArguments("--headless=new");
+    options.addArguments("--headless");
     options.addArguments("--disable-gpu");
     options.addArguments("--no-sandbox");
     options.addArguments("--disable-dev-shm-usage");
-    // Docker 환경에서 안전한 임시 유저 데이터 디렉토리
-    options.addArguments("--user-data-dir=/tmp/chrome-user-" + UUID.randomUUID());
-    options.addArguments("--window-size=1920,1080");
-
     return new ChromeDriver(options);
   }
 
-  /**
-   * 드라이버 가져오기 (동시 요청 대기)
-   */
-  public synchronized WebDriver getDriver() throws InterruptedException {
-    while (inUse) {
-      wait(); // 다른 스레드가 반환할 때까지 대기
-    }
-    inUse = true;
-    return driver;
-  }
-
-  /**
-   * 사용 후 드라이버 반환
-   */
-  public synchronized void releaseDriver() {
-    inUse = false;
-    notifyAll(); // 대기 중인 스레드 깨움
-  }
-
-  @PreDestroy
-  public synchronized void destroy() {
-    if (driver != null) {
-      try {
-        driver.quit();
-      } catch (Exception ignored) {}
-      driver = null;
-    }
-  }
 }

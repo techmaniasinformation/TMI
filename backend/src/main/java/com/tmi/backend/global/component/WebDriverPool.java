@@ -21,7 +21,6 @@ public class WebDriverPool {
 
   @PostConstruct
   public void init() {
-    WebDriverManager.chromedriver().setup();
     for (int i = 0; i < POOL_SIZE; i++) {
       pool.offer(createDriver());
     }
@@ -67,7 +66,7 @@ public class WebDriverPool {
 
   private WebDriver createDriver() {
     ChromeOptions options = new ChromeOptions();
-    options.addArguments("--headless");
+    options.addArguments("--headless=new");
     options.addArguments("--disable-gpu");
     options.addArguments("--no-sandbox");
     options.addArguments("--disable-dev-shm-usage");

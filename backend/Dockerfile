@@ -1,11 +1,12 @@
 # 1. 베이스 이미지
 FROM eclipse-temurin:17-jdk
 
-# 2. 필수 패키지 설치 (Chrome, Selenium용 최소 라이브러리 포함)
+# 2. 필수 패키지 설치 (안정적인 실행을 위해 라이브러리 보강)
 RUN apt-get update && apt-get install -y \
-    wget unzip curl fontconfig libnss3 libx11-6 libx11-xcb1 \
-    libxcomposite1 libxdamage1 libxext6 libxfixes3 \
-    libxi6 libxtst6 libglib2.0-0 libcups2 libdrm2 libgbm1 \
+    wget unzip fontconfig \
+    libfontconfig1 libfreetype6 libnss3 libcups2 libdpkg-dev libgconf-2-4 \
+    libxi6 libxtst6 libxss1 libxrandr2 libasound2 libpangocairo-1.0-0 \
+    libatk1.0-0 libatk-bridge2.0-0 libgtk-3-0 libdrm2 libgbm1 \
     --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
 # 3. Chrome 설치

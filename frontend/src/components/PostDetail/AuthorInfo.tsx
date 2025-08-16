@@ -15,6 +15,7 @@ interface AuthorInfoProps {
   badgeName?: string;
   /** ✅ 실제 대표 배지 이미지 URL */
   badgeImage?: string;
+
 }
 
 export const AuthorInfo: React.FC<AuthorInfoProps> = ({

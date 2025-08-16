@@ -3,7 +3,9 @@ package com.tmi.backend.global.component;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.stereotype.Component;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+@Slf4j
 @Component
 public class WebDriverPool {
 
@@ -43,12 +46,16 @@ public class WebDriverPool {
   }
 
   private WebDriver createDriver() {
-    ChromeOptions options = new ChromeOptions();
-    options.addArguments("--headless");
-    options.addArguments("--disable-gpu");
-    options.addArguments("--no-sandbox");
-    options.addArguments("--disable-dev-shm-usage");
-    return new ChromeDriver(options);
+    try {
+      ChromeOptions options = new ChromeOptions();
+      options.addArguments("--headless=new");
+      options.addArguments("--disable-gpu");
+      options.addArguments("--no-sandbox");
+      options.addArguments("--disable-dev-shm-usage");
+      return new ChromeDriver(options);
+    } catch (WebDriverException e) {
+      log.error("WebDriverPool: ChromeDriver creation failed", e);
+      throw e;
+    }
   }
-
 }

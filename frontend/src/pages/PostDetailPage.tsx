@@ -13,6 +13,55 @@ import { useAlertStore } from "@/stores/alertStore";
 import { usePostDetail } from "@/hooks/posts/usePostDetail";
 import { fetchMemberBadges, fetchAllBadges } from "@/api/mypage/badgeService";
 
+// 뱃지 이미지 import (마이페이지와 동일한 방식)
+import ai_1 from '@/assets/images/ai_1.png';
+import amumu from '@/assets/images/amumu.png';
+import aws_1 from '@/assets/images/aws_1.png';
+import db_1 from '@/assets/images/db_1.png';
+import fctmi_1 from '@/assets/images/fctmi_1.png';
+import first_article from '@/assets/images/first_article.png';
+import first_comment from '@/assets/images/first_comment.png';
+import followmany from '@/assets/images/followmany.png';
+import helloworld from '@/assets/images/helloworld.png';
+import like10 from '@/assets/images/like10.png';
+import like100 from '@/assets/images/like100.png';
+import like1000 from '@/assets/images/like1000.png';
+import paris from '@/assets/images/paris.png';
+import react from '@/assets/images/react.png';
+import spring from '@/assets/images/spring.png';
+import star_5 from '@/assets/images/star_5.png';
+import star_13 from '@/assets/images/star_13.png';
+import star_42 from '@/assets/images/star_42.png';
+import view1 from '@/assets/images/view1.png';
+import view2 from '@/assets/images/view2.png';
+import view3 from '@/assets/images/view3.png';
+import locked from '@/assets/images/locked.png';
+
+const badgeImages: Record<string, string> = {
+  'ai_1.png': ai_1,
+  'amumu.png': amumu,
+  'aws_1.png': aws_1,
+  'db_1.png': db_1,
+  'fctmi_1.png': fctmi_1,
+  'first_article.png': first_article,
+  'first_comment.png': first_comment,
+  'followmany.png': followmany,
+  'helloworld.png': helloworld,
+  'like10.png': like10,
+  'like100.png': like100,
+  'like1000.png': like1000,
+  'paris.png': paris,
+  'react.png': react,
+  'spring.png': spring,
+  'star_5.png': star_5,
+  'star_13.png': star_13,
+  'star_42.png': star_42,
+  'view_50.png': view1,
+  'view_100.png': view2,
+  'view_1000.png': view3,
+  'locked.png': locked,
+};
+
 /** 작성자의 대표 배지 정보를 가져오는 헬퍼 훅 (회사 글이면 빈 문자열) */
 function useRepBadgeInfo(postData?: any) {
   const [badgeInfo, setBadgeInfo] = React.useState<{name: string, url: string}>({name: "", url: ""});
@@ -64,32 +113,7 @@ function useRepBadgeInfo(postData?: any) {
         // 3) 메타에서 정보 매핑 (문자/숫자 혼용 방어)
         const meta = allBadges.find((m: any) => String(m.badgeId) === String(rep.badgeId));
         if (meta) {
-          // 배지 이미지 매핑
-          const badgeImages: Record<string, string> = {
-            'ai_1.png': '/src/assets/images/ai_1.png',
-            'amumu.png': '/src/assets/images/amumu.png',
-            'aws_1.png': '/src/assets/images/aws_1.png',
-            'db_1.png': '/src/assets/images/db_1.png',
-            'fctmi_1.png': '/src/assets/images/fctmi_1.png',
-            'first_article.png': '/src/assets/images/first_article.png',
-            'first_comment.png': '/src/assets/images/first_comment.png',
-            'followmany.png': '/src/assets/images/followmany.png',
-            'helloworld.png': '/src/assets/images/helloworld.png',
-            'like10.png': '/src/assets/images/like10.png',
-            'like100.png': '/src/assets/images/like100.png',
-            'like1000.png': '/src/assets/images/like1000.png',
-            'paris.png': '/src/assets/images/paris.png',
-            'react.png': '/src/assets/images/react.png',
-            'spring.png': '/src/assets/images/spring.png',
-            'star_5.png': '/src/assets/images/star_5.png',
-            'star_13.png': '/src/assets/images/star_13.png',
-            'star_42.png': '/src/assets/images/star_42.png',
-            'view_50.png': '/src/assets/images/view1.png',
-            'view_100.png': '/src/assets/images/view2.png',
-            'view_1000.png': '/src/assets/images/view3.png',
-            'locked.png': '/src/assets/images/locked.png',
-          };
-          
+          // 마이페이지와 동일한 방식으로 로컬 이미지 사용
           const badgeImage = badgeImages[meta.badgeUrl] || '/fallback.png';
           if (alive) setBadgeInfo({name: (meta.name || "").trim(), url: badgeImage});
         }

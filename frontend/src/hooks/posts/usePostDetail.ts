@@ -7,6 +7,7 @@ import {
   getSafeBadgeUrl, 
   getSafeCompanyUrl 
 } from '@/utils/defaultImages';
+
 import { 
   addStar, 
   removeStar 
@@ -87,12 +88,12 @@ export const usePostData = (postId: string) => {
 
       const data: PostDetailResponse = await response.json();
       
-      // 이미지 URL 처리를 한 번만 수행
+      // 이미지 URL 처리를 한 번만 수행 (뱃지는 PostDetailPage에서 별도 처리)
       const postWithDefaultImages = {
         ...data.data,
         memberProfileUrl: getSafeProfileUrl(data.data.memberProfileUrl),
         companyProfileUrl: getSafeCompanyUrl(data.data.companyProfileUrl),
-        badgeUrl: getSafeBadgeUrl(data.data.badgeUrl),
+        badgeUrl: getSafeBadgeUrl(data.data.badgeUrl), // 기본값만 설정
         thumbnailUrl: getSafeThumbnailUrl(data.data.thumbnailUrl),
       };
       
@@ -413,11 +414,13 @@ export const useComments = (postId: string) => {
 
       const data = await response.json();
       
-      const commentsWithDefaultImages = (data.data?.comments || []).map((comment: Comment) => ({
-        ...comment,
-        memberProfileUrl: getSafeProfileUrl(comment.memberProfileUrl),
-        badgeUrl: getSafeBadgeUrl(comment.badgeUrl),
-      }));
+      const commentsWithDefaultImages = (data.data?.comments || []).map((comment: Comment) => {
+        return {
+          ...comment,
+          memberProfileUrl: getSafeProfileUrl(comment.memberProfileUrl),
+          badgeUrl: getSafeBadgeUrl(comment.badgeUrl),
+        };
+      });
       
       setComments(commentsWithDefaultImages);
       setBestCommentId(data.data?.bestCommentId || -1);

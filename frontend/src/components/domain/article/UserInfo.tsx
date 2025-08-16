@@ -42,8 +42,24 @@ export default function UserInfoBox({
 
   // 안전한 뱃지 이미지 URL을 메모이제이션
   const safeBadgeUrl = useMemo(() => {
-    return badgeImage ? getSafeProfileUrl(badgeImage) : '';
-  }, [badgeImage]);
+    let url = '';
+    if (badgeImage) {
+      // 이미 전체 URL이면 그대로 사용
+      if (/^https?:\/\//i.test(badgeImage)) {
+        url = badgeImage;
+      } 
+      // 로컬 이미지 경로이면 그대로 사용 (빌드 시 서버 URL로 변환됨)
+      else if (badgeImage.startsWith('/src/assets/images/') || badgeImage.startsWith('@/assets/images/')) {
+        url = badgeImage;
+      }
+      // 파일명만 있으면 서버 CDN에서 로딩
+      else {
+        const BADGE_CDN_BASE = 'https://i13a509.p.ssafy.io/api/v1/badge/images';
+        url = `${BADGE_CDN_BASE}/${badgeImage}`;
+      }
+    }
+    return url;
+  }, [badgeImage, nickname]);
 
   // 이미지 로딩 에러 핸들러
   const handleImageError = () => {

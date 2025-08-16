@@ -33,7 +33,8 @@ public record SimplePostResponse(
         .memberProfile(profile)
         .companyProfileUrl(profile)
         .name(memberName)
-        .badgeUrl(badgeUrl == null ? "" : badgeUrl)
+//        .badgeUrl(badgeUrl == null ? "" : badgeUrl) // 비활성화
+        .badgeUrl(null)
         .title(post.getTitle())
         .createAt(post.getCreatedAt())
         .viewCount(post.getViewCount())

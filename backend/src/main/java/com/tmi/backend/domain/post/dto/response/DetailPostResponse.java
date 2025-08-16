@@ -43,7 +43,8 @@ public record DetailPostResponse(
         .memberProfileUrl(profile)
         .companyProfileUrl(profile)
         .name(memberName)
-        .badgeUrl(badgeUrl == null ? "" : badgeUrl)
+//        .badgeUrl(badgeUrl == null ? "" : badgeUrl) // 비활성화
+        .badgeUrl(null)
         .createAt(post.getCreatedAt())
         .viewCount(post.getViewCount())
         .starCount(post.getStarCount())

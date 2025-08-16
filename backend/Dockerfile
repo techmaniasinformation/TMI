@@ -1,11 +1,11 @@
 # 1. 베이스 이미지
 FROM eclipse-temurin:17-jdk
 
-# 2. 필수 패키지 설치 (안정적인 실행을 위해 라이브러리 보강)
+# 2. 필수 패키지 설치 (최신 OS 버전에 맞게 패키지 이름 수정)
 RUN apt-get update && apt-get install -y \
     wget unzip fontconfig \
-    libfontconfig1 libfreetype6 libnss3 libcups2 libdpkg-dev libgconf-2-4 \
-    libxi6 libxtst6 libxss1 libxrandr2 libasound2 libpangocairo-1.0-0 \
+    libfontconfig1 libfreetype6 libnss3 libcups2 libdpkg-dev \
+    libxi6 libxtst6 libxss1 libxrandr2 libasound2t64 libpangocairo-1.0-0 \
     libatk1.0-0 libatk-bridge2.0-0 libgtk-3-0 libdrm2 libgbm1 \
     --no-install-recommends && rm -rf /var/lib/apt/lists/*
 

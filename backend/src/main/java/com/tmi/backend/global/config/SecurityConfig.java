@@ -5,7 +5,6 @@ import com.tmi.backend.domain.auth.oauth.handler.OAuth2FailureHandler;
 import com.tmi.backend.domain.auth.oauth.handler.OAuth2SuccessHandler;
 import com.tmi.backend.domain.auth.oauth.service.CustomOAuth2UserService;
 import com.tmi.backend.domain.auth.oauth.service.CustomOidcUserService;
-import com.tmi.backend.global.ratelimit.RateLimitingFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -24,7 +23,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
-  private final RateLimitingFilter rateLimitingFilter; // 추가
   private final OAuth2SuccessHandler oAuth2SuccessHandler;
   private final OAuth2FailureHandler oAuth2FailureHandler;
   private final CustomOAuth2UserService customOAuth2UserService;
@@ -72,9 +70,7 @@ public class SecurityConfig {
             )
             .successHandler(oAuth2SuccessHandler)
             .failureHandler(oAuth2FailureHandler)
-        )
-        .addFilterBefore(rateLimitingFilter, JwtAuthenticationFilter.class)
-        .addFilterBefore(
+        ).addFilterBefore(
             jwtAuthenticationFilter,
             UsernamePasswordAuthenticationFilter.class
         );

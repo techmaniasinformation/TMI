@@ -115,6 +115,11 @@ const PostCreatePage: React.FC = () => {
          body: JSON.stringify({})
        });
 
+       if (response.status === 429) {
+        setAiError('일일 요약 요청 한도를 초과하였습니다.');
+        return;
+      }
+      
        if (!response.ok) {
          throw new Error(`요약이 불가능한 링크입니다.`);
        }

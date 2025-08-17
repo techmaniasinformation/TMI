@@ -27,11 +27,10 @@ public record DetailPostResponse(
     String link
 ) {
 
-  public static DetailPostResponse of(Post post, int commentCount) {
+  public static DetailPostResponse of(Post post, int commentCount, String badgeUrl) {
     String memberName = (post.getMember().getId() == 1 && !Objects.isNull(post.getCompany())) ? post.getCompany().getName() :post.getMember().getNickname();
     String profile = (post.getMember().getId() == 1 && !Objects.isNull(post.getCompany())) ? post.getCompany().getCompanyProfileUrl() : post.getMember().getMemberProfileUrl();
     profile = Objects.isNull(profile) ? "" : profile;
-
 
     return DetailPostResponse.builder()
         .postId(post.getId())
@@ -44,8 +43,8 @@ public record DetailPostResponse(
         .memberProfileUrl(profile)
         .companyProfileUrl(profile)
         .name(memberName)
-        // .badgeUrl(post.getMember().getBadgeUrl())
-        .badgeUrl(null)                               // 예시: 아직 미구현
+//        .badgeUrl(badgeUrl == null ? "" : badgeUrl) // 비활성화
+        .badgeUrl(null)
         .createAt(post.getCreatedAt())
         .viewCount(post.getViewCount())
         .starCount(post.getStarCount())

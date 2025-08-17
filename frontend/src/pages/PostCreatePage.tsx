@@ -108,6 +108,7 @@ const PostCreatePage: React.FC = () => {
        // API 요청 - 백엔드 서버 URL 사용
        const response = await fetch(apiUrl, {
          method: 'POST',
+         credentials: 'include',
          headers: {
            'Content-Type': 'application/json',
          },

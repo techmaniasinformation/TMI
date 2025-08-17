@@ -128,6 +128,7 @@ const PostEditPage: React.FC = () => {
       const apiUrl = `https://i13a509.p.ssafy.io/api/v1/summary?url=${decodedUrl}`;
       const response = await fetch(apiUrl, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({})
       });

@@ -56,10 +56,12 @@ public class SummaryService {
 
       ServiceResult<String> jsoupResult = extractWithJsoup(doc);
       if (jsoupResult.success()) {
+        log.info("Jsoup extraction successful");
         return jsoupResult;
       }
-      ServiceResult<String> seleniumResult = extractWithSeleniumIfNeeded(doc, url);
+      ServiceResult<String> seleniumResult = extractWithSelenium(doc, url);
       if (seleniumResult.success()) {
+        log.info("Selenium extraction successful");
         return seleniumResult;
       }
       return ServiceResult.fail(ErrorCode.CONTENT_EXTRACTION_FAILED);
@@ -106,7 +108,7 @@ public class SummaryService {
     return ServiceResult.ok(resultText);
   }
 
-  private ServiceResult<String> extractWithSeleniumIfNeeded(Document doc, String url) {
+  private ServiceResult<String> extractWithSelenium(Document doc, String url) {
     Elements iframes = doc.select("iframe");
     if (iframes.isEmpty()) {
       return ServiceResult.fail(ErrorCode.CONTENT_EXTRACTION_FAILED);

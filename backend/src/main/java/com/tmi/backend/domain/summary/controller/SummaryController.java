@@ -24,7 +24,7 @@ public class SummaryController implements BaseController {
       throws JsonProcessingException {
     log.info("SummaryController::extractAndSummarize");
     ServiceResult<String> extractResult = summaryService.extractContent(url);
-
+    log.info("추출한 내용 : {}",extractResult.data());
     if (!extractResult.success()) {
       return handle(ServiceResult.fail(extractResult.code()));
     }

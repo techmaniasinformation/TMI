@@ -78,6 +78,7 @@ public enum ErrorCode {
   HTTP_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AI-007"),      // 5xx 에러
   SELENIUM_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AI-008"),         // Selenium 동작 오류
   NETWORK_ERROR(HttpStatus.BAD_GATEWAY, "AI-009"),                 // 기타 네트워크 오류
+  AI_REQUEST_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "AI-010"),
 
   /* 15. FILE */
   FILE_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "FILE-001");

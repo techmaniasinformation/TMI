@@ -133,9 +133,12 @@ const PostCreatePage: React.FC = () => {
         }
         
         showSuccess('AI 요약이 완료되었습니다!');
-      } else if (result.status === 'ERROR' && result.code === 'AI-001') {
-        // 유효하지 않은 URL 에러 처리
-        setAiError('요약이 불가능한 링크입니다.');
+      } else if (result.status === 'ERROR') {
+        if (result.code === 'AI-010') {
+          setAiError('일일 요청 한도에 도달했습니다.');
+        } else {
+          setAiError('요약이 불가능한 링크입니다.');
+        }
       } else {
         throw new Error('요약이 불가능한 링크입니다.');
       }
@@ -476,13 +479,10 @@ const PostCreatePage: React.FC = () => {
                   <div className="text-red-600 dark:text-red-300 text-sm bg-red-50 dark:bg-red-900 border-l-4 border-red-400 dark:border-red-500 rounded-r-md px-4 py-3 relative shadow-sm">
                     <div className="flex items-start gap-3">
                       <span className="text-red-500 dark:text-red-400 text-lg flex-shrink-0">⚠️</span>
-                      <div className="flex-1">
-                        <p className="font-medium text-red-800 dark:text-red-100 mb-1">요약 오류</p>
-                        <p className="text-red-700 dark:text-red-200">{aiError}</p>
-                        <p className="text-red-600 dark:text-red-300 text-xs mt-2 opacity-90">
-                          💡 URL을 확인하고 다시 시도해주세요
-                        </p>
-                      </div>
+                                             <div className="flex-1">
+                         <p className="font-medium text-red-800 dark:text-red-100 mb-1">요약 오류</p>
+                         <p className="text-red-700 dark:text-red-200">{aiError}</p>
+                       </div>
                     </div>
                   </div>
                 </div>

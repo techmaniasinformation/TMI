@@ -144,8 +144,12 @@ const PostEditPage: React.FC = () => {
           setTags(result.data.tags.slice(0, 5));
         }
         showSuccess('AI 요약이 완료되었습니다!');
-      } else if (result.status === 'ERROR' && result.code === 'AI-001') {
-        setAiError('요약이 불가능한 링크입니다.');
+      } else if (result.status === 'ERROR') {
+        if (result.code === 'AI-010') {
+          setAiError('일일 요청 한도에 도달했습니다.');
+        } else {
+          setAiError('요약이 불가능한 링크입니다.');
+        }
       } else {
         throw new Error('요약이 불가능한 링크입니다.');
       }
@@ -404,7 +408,6 @@ const PostEditPage: React.FC = () => {
                     <div className="flex-1">
                       <p className="font-medium text-red-800 dark:text-red-100 mb-1">요약 오류</p>
                       <p className="text-red-700 dark:text-red-200">{aiError}</p>
-                      <p className="text-red-600 dark:text-red-300 text-xs mt-2 opacity-90">💡 URL을 확인하고 다시 시도해주세요</p>
                     </div>
                   </div>
                 </div>

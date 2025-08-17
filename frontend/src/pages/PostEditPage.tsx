@@ -69,11 +69,10 @@ const PostEditPage: React.FC = () => {
       if (postData.thumbnailUrl) {
         setExistingImageUrl(postData.thumbnailUrl);
       }
-    } else {
-      // TODO: postData가 없을 경우 게시글 정보를 불러오는 API 호출
-      console.warn('Post data not found in location state.');
-      // 예: fetchPostData(postId);
-    }
+         } else {
+       // TODO: postData가 없을 경우 게시글 정보를 불러오는 API 호출
+       // 예: fetchPostData(postId);
+     }
   }, [location.state, postId, setExistingImageUrl]);
 
   // 기존 썸네일 URL 추적
@@ -134,7 +133,7 @@ const PostEditPage: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error(`AI 요약 요청에 실패했습니다. (${response.status})`);
+        throw new Error(`요약이 불가능한 링크입니다.`);
       }
       const result = await response.json();
       if (result.status === 'SUCCESS' && result.data) {
@@ -146,13 +145,12 @@ const PostEditPage: React.FC = () => {
         }
         showSuccess('AI 요약이 완료되었습니다!');
       } else if (result.status === 'ERROR' && result.code === 'AI-001') {
-        setAiError('입력하신 URL이 유효하지 않습니다. 올바른 웹사이트 주소를 입력해주세요.');
+        setAiError('요약이 불가능한 링크입니다.');
       } else {
-        throw new Error('AI 요약 응답 형식이 올바르지 않습니다.');
+        throw new Error('요약이 불가능한 링크입니다.');
       }
     } catch (error) {
-      console.error('AI 요약 실패:', error);
-      setAiError('AI 요약에 실패했습니다: ' + (error instanceof Error ? error.message : '알 수 없는 오류'));
+      setAiError('요약이 불가능한 링크입니다.');
     } finally {
       setIsAILoading(false);
     }
@@ -241,10 +239,9 @@ const PostEditPage: React.FC = () => {
       } else {
         navigate(`/post/${postId}`);
       }
-    } catch (error) {
-      console.error('수정 실패:', error);
-      showError('게시글 수정에 실패했습니다.');
-    } finally {
+         } catch (error) {
+       showError('게시글 수정에 실패했습니다.');
+     } finally {
       setIsLoading(false);
     }
   };
@@ -405,7 +402,7 @@ const PostEditPage: React.FC = () => {
                   <div className="flex items-start gap-3">
                     <span className="text-red-500 dark:text-red-400 text-lg flex-shrink-0">⚠️</span>
                     <div className="flex-1">
-                      <p className="font-medium text-red-800 dark:text-red-100 mb-1">AI 요약 오류</p>
+                      <p className="font-medium text-red-800 dark:text-red-100 mb-1">요약 오류</p>
                       <p className="text-red-700 dark:text-red-200">{aiError}</p>
                       <p className="text-red-600 dark:text-red-300 text-xs mt-2 opacity-90">💡 URL을 확인하고 다시 시도해주세요</p>
                     </div>

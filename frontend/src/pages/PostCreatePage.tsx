@@ -100,73 +100,53 @@ const PostCreatePage: React.FC = () => {
     const processedUrl = processAndValidateUrl(linkUrl);
     if (!processedUrl) return;
 
-         setIsAILoading(true);
-     try {
-       const decodedUrl = decodeURIComponent(processedUrl);
-       const apiUrl = `https://i13a509.p.ssafy.io/api/v1/summary?url=${decodedUrl}`;
-       console.log('AI 요약 API 요청:', apiUrl);
-      
-      // API 요청 - 백엔드 서버 URL 사용
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({})
-      });
+    setIsAILoading(true);
+    try {
+      const decodedUrl = decodeURIComponent(processedUrl);
+        const apiUrl = `https://i13a509.p.ssafy.io/api/v1/summary?url=${decodedUrl}`;
+        
+       // API 요청 - 백엔드 서버 URL 사용
+       const response = await fetch(apiUrl, {
+         method: 'POST',
+         headers: {
+           'Content-Type': 'application/json',
+         },
+         body: JSON.stringify({})
+       });
 
-      console.log('AI 요약 API 응답 상태:', response.status);
-      console.log('AI 요약 API 응답 헤더:', response.headers);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('AI 요약 API 에러 응답:', errorText);
-        throw new Error(`AI 요약 요청에 실패했습니다. (${response.status})`);
-      }
+       if (!response.ok) {
+         throw new Error(`요약이 불가능한 링크입니다.`);
+       }
 
       const result = await response.json();
       
       if (result.status === 'SUCCESS' && result.data) {
-                 // AI 요약 내용 설정
-         const summary = result.data.summary || '';
-         setAiSummary(summary);
-         setContent(summary); // content에도 AI 요약 내용 설정
+        // AI 요약 내용 설정
+        const summary = result.data.summary || '';
+        setAiSummary(summary);
+        setContent(summary); // content에도 AI 요약 내용 설정
         
         // AI 태그 설정 (최대 5개)
         if (result.data.tags && Array.isArray(result.data.tags) && result.data.tags.length > 0) {
-          try {
-            const tagsToSet = result.data.tags.slice(0, 5);
-            setTags(tagsToSet);
-          } catch (error) {
-            console.warn('AI 태그 처리 중 오류 발생:', error);
-            setTags([]);
-          }
+          const tagsToSet = result.data.tags.slice(0, 5);
+          setTags(tagsToSet);
         }
         
         showSuccess('AI 요약이 완료되었습니다!');
-             } else if (result.status === 'ERROR' && result.code === 'AI-001') {
-         // 유효하지 않은 URL 에러 처리
-         setAiError('입력하신 URL이 유효하지 않습니다. 올바른 웹사이트 주소를 입력해주세요.');
-              } else {
-          throw new Error('AI 요약 응답 형식이 올바르지 않습니다.');
-        }
+      } else if (result.status === 'ERROR' && result.code === 'AI-001') {
+        // 유효하지 않은 URL 에러 처리
+        setAiError('요약이 불가능한 링크입니다.');
+      } else {
+        throw new Error('요약이 불가능한 링크입니다.');
+      }
       } catch (error) {
-        console.error('AI 요약 실패:', error);
-        if (error instanceof Error && error.message.includes('502')) {
-          setAiError('AI 요약 서비스에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.');
-        } else if (error instanceof Error && error.message.includes('AI-')) {
-          setAiError('서비스 준비중입니다.');
-        } else {
-          setAiError('AI 요약에 실패했습니다: ' + (error instanceof Error ? error.message : '알 수 없는 오류'));
-        }
+        setAiError('요약이 불가능한 링크입니다.');
      } finally {
       setIsAILoading(false);
     }
   };
 
-
-
-     const handleSave = async () => {
+  const handleSave = async () => {
     // 에러 상태 초기화
     setTitleError('');
     setContentError('');
@@ -214,32 +194,24 @@ const PostCreatePage: React.FC = () => {
       // FormData 생성
       const formData = new FormData();
       
-      // 태그 데이터 검증 및 정리
       const validatedTags = Array.isArray(tags) ? tags.filter(tag => 
         typeof tag === 'string' && tag.trim().length > 0
       ).slice(0, 5) : [];
       
-      // 포스트맨과 동일한 구조로 JSON 데이터 생성
       const requestData = {
-        memberId: user.memberId, // null 체크 후 사용
+        memberId: user.memberId,
         link: processedUrl,
         title: title,
         content: content,
         tags: validatedTags
-        // thumbnailUrl 필드 제거 (서버에서 요구하지 않음)
       };
       
       const blob = new Blob([JSON.stringify(requestData)], { type: 'application/json' });
       formData.append('req', blob);
       
-      // 이미지가 선택된 경우 FormData에 추가
-      if (selectedImage) {
-        formData.append('thumbnailImage', selectedImage);
-      }
-
-
-
-
+       if (selectedImage) {
+         formData.append('thumbnailImage', selectedImage);
+       }
       
       const response = await fetch('https://i13a509.p.ssafy.io/api/v1/post', {
         method: 'POST',
@@ -247,15 +219,7 @@ const PostCreatePage: React.FC = () => {
         body: formData // Content-Type은 브라우저가 자동으로 설정
       });
       
-
-
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('API 응답 에러:', {
-          status: response.status,
-          statusText: response.statusText,
-          body: errorText
-        });
         throw new Error(`게시글 작성에 실패했습니다. (${response.status}: ${response.statusText})`);
       }
 
@@ -263,22 +227,17 @@ const PostCreatePage: React.FC = () => {
 
       showSuccess('게시글이 작성되었습니다!');
       
-      // 저장 완료 후 상세 페이지로 이동 - 응답에서 받은 게시글 ID 사용
       if (result.data && result.data.postId) {
         navigate(`/post/${result.data.postId}`);
       } else {
-        navigate('/'); // ID가 없으면 홈으로 이동
+        navigate('/');
       }
-    
     } catch (error) {
-      console.error('저장 실패:', error);
       showError('게시글 작성에 실패했습니다.');
     } finally {
       setIsLoading(false);
     }
   };
-
-
 
   const handleAddTag = (tagName?: string) => {
     const tagToAdd = (tagName || newTag).trim();
@@ -333,8 +292,7 @@ const PostCreatePage: React.FC = () => {
 
   const handleTagKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
-      e.preventDefault();
-      // 엔터키 입력 방지
+      e.preventDefault(); // 엔터키 입력 방지
       return;
     } else if (e.key === 'Escape') {
       setShowTagSuggestions(false);
@@ -519,7 +477,7 @@ const PostCreatePage: React.FC = () => {
                     <div className="flex items-start gap-3">
                       <span className="text-red-500 dark:text-red-400 text-lg flex-shrink-0">⚠️</span>
                       <div className="flex-1">
-                        <p className="font-medium text-red-800 dark:text-red-100 mb-1">AI 요약 오류</p>
+                        <p className="font-medium text-red-800 dark:text-red-100 mb-1">요약 오류</p>
                         <p className="text-red-700 dark:text-red-200">{aiError}</p>
                         <p className="text-red-600 dark:text-red-300 text-xs mt-2 opacity-90">
                           💡 URL을 확인하고 다시 시도해주세요
@@ -611,12 +569,11 @@ const PostCreatePage: React.FC = () => {
                         onKeyPress={handleTagKeyPress}
                         onBlur={handleTagInputBlur}
                         onFocus={() => newTag.trim() && setShowTagSuggestions(true)}
-                        // maxLength={20} // 임시 주석처리
                         placeholder="태그를 입력하세요 (기존 태그 검색 가능)"
                         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent break-words break-all dark:bg-gray-800 dark:text-white"
                       />
                       <span className="absolute right-3 top-2 text-sm text-gray-500 dark:text-gray-400">
-                        {newTag.length}/20 {/* 임시 주석처리 */}
+                        {newTag.length}/20
                       </span>
                     </div>
                   </div>

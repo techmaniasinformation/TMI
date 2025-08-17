@@ -14,8 +14,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class RateLimitingFilter implements Filter {
@@ -31,11 +33,13 @@ public class RateLimitingFilter implements Filter {
     HttpServletRequest httpRequest = (HttpServletRequest) request;
     HttpServletResponse httpResponse = (HttpServletResponse) response;
     String authHeader = httpRequest.getHeader("Authorization");
+    log.info("RateLimitingFilter invoked for URI: {}", httpRequest.getRequestURI());
 
     if (authHeader != null && authHeader.startsWith("Bearer ")) {
       String token = authHeader.substring(7);
 
       if (!jwtTokenProvider.validateToken(token)) {
+        log.warn("Invalid JWT token for request to {}", httpRequest.getRequestURI());
         httpResponse.setStatus(ErrorCode.AUTH_INVALID_TOKEN.getHttpStatus().value());
         httpResponse.setContentType("application/json");
         httpResponse.getWriter().write(
@@ -50,6 +54,7 @@ public class RateLimitingFilter implements Filter {
       Bucket bucket = rateLimiterService.resolveBucket(userId);
 
       if (bucket.tryConsume(1)) {
+        log.info("userId : {}, bucket : {}", userId, bucket);
         chain.doFilter(request, response);
       } else {
         httpResponse.setStatus(ErrorCode.AI_REQUEST_LIMIT_EXCEEDED.getHttpStatus().value());

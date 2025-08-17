@@ -34,10 +34,10 @@ public class RateLimitingFilter implements Filter {
     HttpServletResponse httpResponse = (HttpServletResponse) response;
     String authHeader = httpRequest.getHeader("Authorization");
     log.info("RateLimitingFilter invoked for URI: {}", httpRequest.getRequestURI());
-
+    log.info("authHeader: {}", authHeader);
     if (authHeader != null && authHeader.startsWith("Bearer ")) {
       String token = authHeader.substring(7);
-
+      log.info("token: {}", token);
       if (!jwtTokenProvider.validateToken(token)) {
         log.warn("Invalid JWT token for request to {}", httpRequest.getRequestURI());
         httpResponse.setStatus(ErrorCode.AUTH_INVALID_TOKEN.getHttpStatus().value());

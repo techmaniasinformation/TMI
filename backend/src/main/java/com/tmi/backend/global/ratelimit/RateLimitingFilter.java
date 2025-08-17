@@ -57,6 +57,8 @@ public class RateLimitingFilter implements Filter {
         log.info("userId : {}, bucket : {}", userId, bucket);
         chain.doFilter(request, response);
       } else {
+        log.warn("userId: {}, token limit exceeded, remaining tokens: {}", userId,
+            bucket.getAvailableTokens());
         httpResponse.setStatus(ErrorCode.AI_REQUEST_LIMIT_EXCEEDED.getHttpStatus().value());
         httpResponse.setContentType("application/json");
         httpResponse.getWriter().write(

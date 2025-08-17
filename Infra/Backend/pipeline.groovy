@@ -8,9 +8,6 @@ pipeline {
         IMAGE_NAME = 'tmi-app-image'
         CONTAINER_NAME = 'spring-app'
         PORT = '8080'
-        RDB_URL = credentials('RDB_URL')
-        RDB_USER = credentials('RDB_USER')
-        RDB_PASSWORD = credentials('RDB_PASSWORD')
     }
 
     stages {
@@ -65,11 +62,13 @@ pipeline {
               -e SPRING_REDIS_HOST=redis \
               -e SPRING_PROFILES_ACTIVE=dev \
               --env-file $ENV_FILE \
+              -v /home/ubuntu/tmi/images:/app/images \
               $IMAGE_NAME:latest
           '''
                 }
             }
         }
+
         stage('restart nginx') {
             steps {
                 sh '''

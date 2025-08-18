@@ -1,0 +1,440 @@
+[
+  {
+    "file": "src\\components\\PostDetail\\PostTitle.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\PostDetail\\PostHeader.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\PostDetail\\PostContent.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\PostDetail\\CommentSection.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\PostDetail\\BestComments.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\PostDetail\\AuthorInfo.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\layout\\search\\SearchFilter.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\layout\\search\\SearchConditions.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\layout\\search\\PostCard.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\layout\\search\\Pagination.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\layout\\search\\NoResults.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\layout\\notifications\\UnreadToggle.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\layout\\notifications\\NotificationLoader.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\layout\\notifications\\NotifiactionToolbar.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\layout\\notifications\\NotifiactionItem.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\layout\\notifications\\NoNotifications.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\layout\\mypage\\WithdrawalConfirmModal.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\layout\\mypage\\WithdrawalCompleteModal.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\layout\\mypage\\UserStatsCard.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\layout\\mypage\\UserProfile.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\layout\\mypage\\ProfileHeader.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\layout\\mypage\\ProfileEditModal.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\layout\\mypage\\PostCard.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\layout\\mypage\\MypageTabs.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\layout\\mypage\\MypageTabHeader.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\layout\\mypage\\MypageTabContent.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\layout\\mypage\\MypageBadgeGrid.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\layout\\mypage\\FollowUserCard.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\layout\\mypage\\FollowCompanyCard.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\layout\\mypage\\CommentCard.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\layout\\mypage\\BadgeModal.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\inter\\ViewBadge.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\inter\\StarBadge.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\inter\\SocialLoginButton.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\inter\\LandingCard.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\inter\\CommentBadge.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\inter\\Badges.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\foundation\\Skeleton.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\foundation\\SearchBar.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\foundation\\Layout.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\foundation\\Header.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\foundation\\Footer.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\foundation\\ErrorState.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\foundation\\EmptyState.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\foundation\\button.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\domain\\Tooltip.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\domain\\Textarea.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\domain\\Tabs.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\domain\\Switch.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\domain\\ServerPagination.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\domain\\SearchPostListContainer.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\domain\\PopularPosts.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\domain\\Label.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\domain\\Input.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\domain\\HomeTabBar.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\domain\\HomePostList.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\domain\\FollowSection.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\domain\\Dialog.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\domain\\ClientPagination.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\domain\\Card.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\domain\\Badge.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\domain\\Avatar.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\domain\\search\\SearchResultBar.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\domain\\search\\SearchPostList.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\domain\\article\\UserInfo.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\domain\\article\\TagArea.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\domain\\article\\Tag.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\domain\\article\\PostList.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\domain\\article\\PostItem.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\domain\\article\\PopularPostItem.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\domain\\article\\DateTimeComponent.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\domain\\article\\CardInfoCount.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  },
+  {
+    "file": "src\\components\\domain\\article\\ArticleInfo.tsx",
+    "functionComplexities": [],
+    "complexityLevel": "ok",
+    "complexitySum": 0
+  }
+]

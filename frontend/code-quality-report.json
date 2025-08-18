@@ -9,41 +9,41 @@
     }
   },
   "namingConventions": {
-    "totalFiles": 154,
+    "totalFiles": 158,
     "issues": [],
     "score": 100
   },
   "codeLength": {
-    "totalFiles": 154,
-    "totalLines": 15266,
-    "averageLines": 99,
-    "maxLines": 742,
+    "totalFiles": 158,
+    "totalLines": 15286,
+    "averageLines": 97,
+    "maxLines": 703,
     "minLines": 1,
     "fileDistribution": {
       "small": 70,
-      "medium": 65,
-      "large": 16,
-      "huge": 3
+      "medium": 69,
+      "large": 17,
+      "huge": 2
     }
   },
   "componentComplexity": {
-    "totalComponents": 154,
-    "averageComplexity": 19,
-    "maxComplexity": 425,
+    "totalComponents": 158,
+    "averageComplexity": 20,
+    "maxComplexity": 228,
     "complexityDistribution": {
-      "low": 119,
+      "low": 120,
       "medium": 6,
       "high": 2,
-      "veryHigh": 27
+      "veryHigh": 30
     }
   },
   "overall": {
-    "score": 68,
-    "grade": "B",
+    "score": 70,
+    "grade": "B+",
     "breakdown": {
       "folderStructure": 100,
       "namingConventions": 100,
-      "codeLength": 70,
+      "codeLength": 80,
       "componentComplexity": 0
     }
   }

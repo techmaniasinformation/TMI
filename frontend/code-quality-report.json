@@ -1,40 +1,40 @@
 {
   "folderStructure": {
-    "totalFolders": 36,
+    "totalFolders": 37,
     "maxDepth": 3,
     "folderDistribution": {
       "level_0": 9,
-      "level_1": 20,
+      "level_1": 21,
       "level_2": 7
     }
   },
   "namingConventions": {
-    "totalFiles": 162,
+    "totalFiles": 166,
     "issues": [],
     "score": 100
   },
   "codeLength": {
-    "totalFiles": 162,
-    "totalLines": 15396,
-    "averageLines": 95,
+    "totalFiles": 166,
+    "totalLines": 15507,
+    "averageLines": 93,
     "maxLines": 703,
     "minLines": 1,
     "fileDistribution": {
-      "small": 71,
-      "medium": 72,
+      "small": 73,
+      "medium": 74,
       "large": 17,
       "huge": 2
     }
   },
   "componentComplexity": {
-    "totalComponents": 162,
-    "averageComplexity": 20,
+    "totalComponents": 166,
+    "averageComplexity": 21,
     "maxComplexity": 228,
     "complexityDistribution": {
-      "low": 120,
+      "low": 121,
       "medium": 7,
       "high": 2,
-      "veryHigh": 33
+      "veryHigh": 36
     }
   },
   "overall": {

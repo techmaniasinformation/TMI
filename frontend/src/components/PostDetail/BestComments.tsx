@@ -34,8 +34,8 @@ export const BestComments: React.FC<BestCommentsProps> = ({
   }
 
   // 안전한 프로필 이미지 URL 사용
-  const safeBestCommentProfileUrl = getSafeProfileUrl(bestComment.memberProfileUrl);
-  const safeBestCommentBadgeUrl = getSafeBadgeUrl(bestComment.badgeUrl);
+  const safeProfileUrl = getSafeProfileUrl(bestComment.memberProfileUrl);
+  const safeBadgeUrl = getSafeBadgeUrl(bestComment.badgeUrl);
 
   return (
     <div className="bg-gradient-to-r from-yellow-50 dark:from-gray-800 to-orange-50 dark:to-gray-900 border border-yellow-200 dark:border-gray-700 rounded-lg p-6 mb-6">
@@ -46,7 +46,7 @@ export const BestComments: React.FC<BestCommentsProps> = ({
       
       <div className="flex gap-3">
         <img
-          src={safeBestCommentProfileUrl}
+          src={safeProfileUrl}
           alt="프로필"
           className="w-12 h-12 rounded-full object-cover"
           onError={handleProfileImageError}

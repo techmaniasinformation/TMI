@@ -42,40 +42,40 @@ export async function updateMemberProfile(
   memberId: number,
   body: UpdateMemberRequest
 ): Promise<number | null> {
-  const form = new FormData();
-  const usingFile = body.file instanceof Blob;
+  const formData = new FormData();
+  const isFileUpload = body.file instanceof Blob;
 
   // req(JSON) 구성 — 수정 의도가 있는 필드만 추가
-  const reqPayload: Record<string, any> = {};
-  if (body.nickname !== undefined) reqPayload.nickname = body.nickname;
-  if (body.blogUrl !== undefined) reqPayload.blogUrl = body.blogUrl ?? null;
-  if (body.githubUrl !== undefined) reqPayload.githubUrl = body.githubUrl ?? null;
+  const requestPayload: Record<string, any> = {};
+  if (body.nickname !== undefined) requestPayload.nickname = body.nickname;
+  if (body.blogUrl !== undefined) requestPayload.blogUrl = body.blogUrl ?? null;
+  if (body.githubUrl !== undefined) requestPayload.githubUrl = body.githubUrl ?? null;
 
-  if (!usingFile && "memberProfileUrl" in body) {
+  if (!isFileUpload && "memberProfileUrl" in body) {
     // null → 삭제, string → 외부 URL 교체
-    reqPayload.memberProfileUrl = body.memberProfileUrl;
+    requestPayload.memberProfileUrl = body.memberProfileUrl;
   }
 
-  form.append("req", new Blob([JSON.stringify(reqPayload)], { type: "application/json" }));
-  if (usingFile) {
-    form.append("profileImage", body.file as File); // 서버 파트명: profileImage
+  formData.append("req", new Blob([JSON.stringify(requestPayload)], { type: "application/json" }));
+  if (isFileUpload) {
+    formData.append("profileImage", body.file as File); // 서버 파트명: profileImage
   }
 
   try {
-    const res = await fetch(`https://i13a509.p.ssafy.io/api/v1/member/${memberId}`, {
+    const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/member/${memberId}`, {
       method: "PATCH",
-      body: form, // Content-Type 수동 지정 금지 (브라우저가 boundary 붙임)
+      body: formData, // Content-Type 수동 지정 금지 (브라우저가 boundary 붙임)
       credentials: "include",
     });
 
-    if (!res.ok) {
-      console.error(`프로필 수정 HTTP 오류 (HTTP ${res.status})`);
+    if (!response.ok) {
+      console.error(`프로필 수정 HTTP 오류 (HTTP ${response.status})`);
       return null;
     }
 
     let data: UpdateMemberResponse;
     try {
-      data = await res.json();
+      data = await response.json();
     } catch {
       console.warn("응답 JSON 파싱 실패");
       return null;

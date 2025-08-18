@@ -11,10 +11,10 @@ import type {
 
 const BASE_URL = 'https://i13a509.p.ssafy.io/api/v1';
 
-async function assertOk(res: Response) {
-  if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    throw new Error(`HTTP ${res.status}${text ? ` - ${text}` : ''}`);
+async function assertOk(response: Response) {
+  if (!response.ok) {
+    const text = await response.text().catch(() => '');
+    throw new Error(`HTTP ${response.status}${text ? ` - ${text}` : ''}`);
   }
 }
 
@@ -32,14 +32,14 @@ export async function fetchNotifications(
   if (opts?.page != null) url.searchParams.set('page', String(opts.page));
   if (opts?.size != null) url.searchParams.set('size', String(opts.size));
 
-  const res = await fetch(url.toString(), {
+  const response = await fetch(url.toString(), {
     method: 'GET',
     credentials: 'include',          // 세션/쿠키 인증일 때
     headers: { Accept: 'application/json' },
   });
-  await assertOk(res);
+  await assertOk(response);
 
-  const data = (await res.json()) as NotificationListResponse;
+  const data = (await response.json()) as NotificationListResponse;
   if (data.status !== 'SUCCESS') throw new Error('알림 목록 조회 실패');
   return data.data.content;
 }
@@ -54,13 +54,13 @@ export async function deleteNotification(
   const url = new URL(`${BASE_URL}/notification/${notificationId}`);
   url.searchParams.set('memberId', String(memberId));
 
-  const res = await fetch(url.toString(), {
+  const response = await fetch(url.toString(), {
     method: 'DELETE',
     credentials: 'include',
   });
-  await assertOk(res);
+  await assertOk(response);
 
-  const data = (await res.json()) as NotificationDeleteOneResponse;
+  const data = (await response.json()) as NotificationDeleteOneResponse;
   if (data.status !== 'SUCCESS') throw new Error('알림 삭제 실패');
   return data;
 }
@@ -74,13 +74,13 @@ export async function deleteAllNotifications(
   const url = new URL(`${BASE_URL}/notification/all`);
   url.searchParams.set('memberId', String(memberId));
 
-  const res = await fetch(url.toString(), {
+  const response = await fetch(url.toString(), {
     method: 'DELETE',
     credentials: 'include',
   });
-  await assertOk(res);
+  await assertOk(response);
 
-  const data = (await res.json()) as NotificationDeleteAllResponse;
+  const data = (await response.json()) as NotificationDeleteAllResponse;
   if (data.status !== 'SUCCESS') throw new Error('전체 알림 삭제 실패');
   return data;
 }
@@ -91,13 +91,13 @@ export async function deleteAllNotifications(
 export async function markNotificationRead(
   notificationId: number
 ): Promise<NotificationReadOneResponse> {
-  const res = await fetch(`${BASE_URL}/notification/${notificationId}/read`, {
+  const response = await fetch(`${BASE_URL}/notification/${notificationId}/read`, {
     method: 'PATCH',
     credentials: 'include',
   });
-  await assertOk(res);
+  await assertOk(response);
 
-  const data = (await res.json()) as NotificationReadOneResponse;
+  const data = (await response.json()) as NotificationReadOneResponse;
   if (data.status !== 'SUCCESS') throw new Error('알림 읽음 처리 실패');
   return data;
 }

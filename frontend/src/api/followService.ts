@@ -7,24 +7,24 @@ import type {
   CompanyFollow,
 } from '@/types/mypage/follow';
 
-const BASE = 'https://i13a509.p.ssafy.io/api/v1';
+const BASE_URL = 'https://i13a509.p.ssafy.io/api/v1';
 
 /* ----------------------------------------------------
  * 공통 유틸: 응답 파싱 + 에러 메시지 생성
  * --------------------------------------------------*/
-async function parseBody(res: Response) {
-  const text = await res.text();
+async function parseBody(response: Response) {
+  const text = await response.text();
   try { return text ? JSON.parse(text) : null; } catch { return text || null; }
 }
 
-function buildError(res: Response, body: any, fallback: string) {
+function buildError(response: Response, body: any, fallback: string) {
   // 서버가 메시지를 주면 그걸 우선 사용
   const serverMsg =
     (body && (body.message || body.error || body.status || body.detail)) || '';
 
   // 상태코드별 커스텀 문구
   let msg = '';
-  switch (res.status) {
+  switch (response.status) {
     case 400:
       msg = '자기 자신을 팔로우 할 수 없습니다.';
       break;
@@ -61,9 +61,9 @@ export async function getMemberFollows(
   page = 0,
   size = 9
 ): Promise<MemberFollowListResp> {
-  const res = await fetch(`${BASE}/memberFollow?followerId=${followerId}&page=${page}&size=${size}`);
-  const body = await parseBody(res);
-  if (!res.ok) throw buildError(res, body, '사용자 팔로우 목록 조회 실패');
+  const response = await fetch(`${BASE_URL}/memberFollow?followerId=${followerId}&page=${page}&size=${size}`);
+  const body = await parseBody(response);
+  if (!response.ok) throw buildError(response, body, '사용자 팔로우 목록 조회 실패');
   return body as MemberFollowListResp;
 }
 
@@ -73,9 +73,9 @@ export async function getCompanyFollows(
   page = 0,
   size = 9
 ): Promise<CompanyFollowListResp> {
-  const res = await fetch(`${BASE}/companyFollow?followerId=${followerId}&page=${page}&size=${size}`);
-  const body = await parseBody(res);
-  if (!res.ok) throw buildError(res, body, '기업 팔로우 목록 조회 실패');
+  const response = await fetch(`${BASE_URL}/companyFollow?followerId=${followerId}&page=${page}&size=${size}`);
+  const body = await parseBody(response);
+  if (!response.ok) throw buildError(response, body, '기업 팔로우 목록 조회 실패');
   return body as CompanyFollowListResp;
 }
 

@@ -224,6 +224,14 @@ class CodeQualityAnalyzer {
     
     while ((match = variablePattern.exec(content)) !== null) {
       const variableName = match[2];
+      const declarationType = match[1];
+      
+      // 상수명 검사 (const로 선언된 UPPER_SNAKE_CASE는 허용)
+      if (declarationType === 'const' && /^[A-Z][A-Z0-9_]*$/.test(variableName)) {
+        continue; // 올바른 상수명
+      }
+      
+      // 일반 변수명 검사 (camelCase 또는 PascalCase)
       if (!/^[a-z][a-zA-Z0-9]*$/.test(variableName) && !/^[A-Z][a-zA-Z0-9]*$/.test(variableName)) {
         issues.push({
           file: filePath,

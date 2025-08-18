@@ -3,7 +3,7 @@ import { getSafeProfileUrl, getSafeBadgeUrl, handleProfileImageError, handleBadg
 
 interface BestCommentsProps {
   comments: any[];
-  bestCommentId: number;
+  bestCommentId: number | null; // null도 허용하도록 타입 수정
   formatDate: (date: string) => string;
   formatNumber: (num: number) => string;
   onCommentRecommend: (commentId: number) => void;
@@ -20,9 +20,15 @@ export const BestComments: React.FC<BestCommentsProps> = ({
   userRecommendations,
   recommendLoading,
 }) => {
+  // 베스트 댓글 ID가 유효한지 확인 (-1, null, undefined가 아닌 경우)
+  if (!bestCommentId || bestCommentId <= 0) {
+    return null;
+  }
+
   // 베스트 댓글 찾기
   const bestComment = comments.find(comment => comment.commentId === bestCommentId);
 
+  // 베스트 댓글이 없으면 표시하지 않음
   if (!bestComment) {
     return null;
   }

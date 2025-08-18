@@ -1,0 +1,207 @@
+{
+  "folderStructure": {
+    "totalFolders": 35,
+    "maxDepth": 3,
+    "folderDistribution": {
+      "level_0": 9,
+      "level_1": 19,
+      "level_2": 7
+    }
+  },
+  "namingConventions": {
+    "totalFiles": 151,
+    "issues": [
+      {
+        "file": "src\\api\\company\\company.ts",
+        "line": 3,
+        "issue": "잘못된 변수명: BASE_URL",
+        "type": "naming"
+      },
+      {
+        "file": "src\\api\\company\\companyPost.ts",
+        "line": 3,
+        "issue": "잘못된 변수명: BASE_URL",
+        "type": "naming"
+      },
+      {
+        "file": "src\\api\\mypage\\badgeService.ts",
+        "line": 10,
+        "issue": "잘못된 변수명: BASE_URL",
+        "type": "naming"
+      },
+      {
+        "file": "src\\api\\mypage\\badgeService.ts",
+        "line": 53,
+        "issue": "잘못된 변수명: DEFAULT_BADGE_ID",
+        "type": "naming"
+      },
+      {
+        "file": "src\\api\\mypage\\postService.ts",
+        "line": 3,
+        "issue": "잘못된 변수명: BASE_URL",
+        "type": "naming"
+      },
+      {
+        "file": "src\\api\\mypage\\starService.ts",
+        "line": 3,
+        "issue": "잘못된 변수명: BASE_URL",
+        "type": "naming"
+      },
+      {
+        "file": "src\\api\\notification.ts",
+        "line": 12,
+        "issue": "잘못된 변수명: BASE_URL",
+        "type": "naming"
+      },
+      {
+        "file": "src\\components\\domain\\HomePostList.tsx",
+        "line": 15,
+        "issue": "잘못된 변수명: HOME_TABS",
+        "type": "naming"
+      },
+      {
+        "file": "src\\components\\layout\\mypage\\MypageTabs.tsx",
+        "line": 128,
+        "issue": "잘못된 변수명: HIDDEN_BADGE_IDS",
+        "type": "naming"
+      },
+      {
+        "file": "src\\components\\layout\\mypage\\ProfileEditModal.tsx",
+        "line": 34,
+        "issue": "잘못된 변수명: NICKNAME_RE",
+        "type": "naming"
+      },
+      {
+        "file": "src\\components\\layout\\mypage\\ProfileEditModal.tsx",
+        "line": 38,
+        "issue": "잘못된 변수명: DUP_API",
+        "type": "naming"
+      },
+      {
+        "file": "src\\components\\layout\\mypage\\ProfileEditModal.tsx",
+        "line": 41,
+        "issue": "잘못된 변수명: ALLOWED_BLOG_HOSTS",
+        "type": "naming"
+      },
+      {
+        "file": "src\\hooks\\auth\\useSignup.ts",
+        "line": 36,
+        "issue": "잘못된 변수명: NICKNAME_RE",
+        "type": "naming"
+      },
+      {
+        "file": "src\\hooks\\auth\\useSignup.ts",
+        "line": 40,
+        "issue": "잘못된 변수명: ALLOWED_CHAR_RE",
+        "type": "naming"
+      },
+      {
+        "file": "src\\hooks\\posts\\useSearchResults.ts",
+        "line": 8,
+        "issue": "잘못된 변수명: API_BASE_URL",
+        "type": "naming"
+      },
+      {
+        "file": "src\\hooks\\tags\\useTagAutocomplete.ts",
+        "line": 28,
+        "issue": "잘못된 변수명: API_BASE_URL",
+        "type": "naming"
+      },
+      {
+        "file": "src\\hooks\\useImageCompression.ts",
+        "line": 77,
+        "issue": "잘못된 변수명: MAX_SIZE",
+        "type": "naming"
+      },
+      {
+        "file": "src\\hooks\\useImageCompression.ts",
+        "line": 78,
+        "issue": "잘못된 변수명: MIN_SIZE",
+        "type": "naming"
+      },
+      {
+        "file": "src\\hooks\\useImageCompression.ts",
+        "line": 79,
+        "issue": "잘못된 변수명: POST_MIN_SIZE",
+        "type": "naming"
+      },
+      {
+        "file": "src\\hooks\\useImageCompression.ts",
+        "line": 80,
+        "issue": "잘못된 변수명: MAX_DIMENSION",
+        "type": "naming"
+      },
+      {
+        "file": "src\\hooks\\useImageCompression.ts",
+        "line": 81,
+        "issue": "잘못된 변수명: RATIO_MIN",
+        "type": "naming"
+      },
+      {
+        "file": "src\\hooks\\useImageCompression.ts",
+        "line": 82,
+        "issue": "잘못된 변수명: RATIO_MAX",
+        "type": "naming"
+      },
+      {
+        "file": "src\\pages\\MyPage.tsx",
+        "line": 17,
+        "issue": "잘못된 변수명: NICK_COOLDOWN_KEY",
+        "type": "naming"
+      },
+      {
+        "file": "src\\pages\\NotificationsPage.tsx",
+        "line": 88,
+        "issue": "잘못된 변수명: BASE_URL",
+        "type": "naming"
+      },
+      {
+        "file": "src\\pages\\NotificationsPage.tsx",
+        "line": 89,
+        "issue": "잘못된 변수명: BADGE_CDN_BASE",
+        "type": "naming"
+      },
+      {
+        "file": "src\\utils\\defaultImages.ts",
+        "line": 2,
+        "issue": "잘못된 변수명: DEFAULT_IMAGES",
+        "type": "naming"
+      }
+    ],
+    "score": 0
+  },
+  "codeLength": {
+    "totalFiles": 151,
+    "totalLines": 14959,
+    "averageLines": 99,
+    "maxLines": 742,
+    "minLines": 1,
+    "fileDistribution": {
+      "small": 70,
+      "medium": 63,
+      "large": 14,
+      "huge": 4
+    }
+  },
+  "componentComplexity": {
+    "totalComponents": 151,
+    "averageComplexity": 19,
+    "maxComplexity": 425,
+    "complexityDistribution": {
+      "low": 116,
+      "medium": 6,
+      "high": 2,
+      "veryHigh": 27
+    }
+  },
+  "overall": {
+    "score": 40,
+    "grade": "C",
+    "breakdown": {
+      "folderStructure": 100,
+      "namingConventions": 0,
+      "codeLength": 60,
+      "componentComplexity": 0
+    }
+  }
+}

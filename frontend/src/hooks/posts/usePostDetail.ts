@@ -416,11 +416,13 @@ export const useComments = (postId: string) => {
       }));
       
       setComments(commentsWithDefaultImages);
-      setBestCommentId(data.data?.bestCommentId || -1);
+      // bestCommentId가 유효한 값인 경우에만 설정, 그렇지 않으면 -1로 설정
+      const validBestCommentId = data.data?.bestCommentId && data.data.bestCommentId > 0 ? data.data.bestCommentId : -1;
+      setBestCommentId(validBestCommentId);
     } catch (err) {
       console.error('❌ [useComments] 댓글 가져오기 실패:', err);
       setComments([]);
-      setBestCommentId(-1);
+      setBestCommentId(-1); // 에러 시에도 -1로 설정하여 안전하게 처리
     }
   }, [postId]);
 

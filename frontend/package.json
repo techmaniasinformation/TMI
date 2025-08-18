@@ -22,6 +22,9 @@
     "zustand": "^5.0.6"
   },
   "devDependencies": {
+    "@babel/cli": "^7.28.3",
+    "@babel/preset-react": "^7.27.1",
+    "@babel/preset-typescript": "^7.27.1",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
@@ -30,8 +33,16 @@
     "@types/node": "^22.16.5",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
+    "@typescript-eslint/eslint-plugin": "^8.39.1",
+    "@typescript-eslint/parser": "^8.39.1",
     "@vitejs/plugin-react": "^4.7.0",
     "autoprefixer": "^10.4.21",
+    "complexity-report": "^2.0.0-alpha",
+    "cyclomatic-complexity": "^1.2.5",
+    "es6-plato": "^1.2.3",
+    "eslint-plugin-complexity": "^1.0.2",
+    "eslint-plugin-sonarjs": "^3.0.4",
+    "eslintcc": "^0.8.3",
     "jsdom": "^25.0.1",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",
@@ -45,7 +56,16 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "complexity": "npx cyclomatic-complexity 'src/**/*.{ts,tsx}' --json > complexity-report.json",
+    "complexity-check": "npx cyclomatic-complexity 'src/**/*.{ts,tsx}' --threshold-errors 15",
+    "complexity-warnings": "npx cyclomatic-complexity 'src/**/*.{ts,tsx}' --threshold-warnings 10 --threshold-errors 20",
+    "lint:complexity": "eslint src/ --ext .ts,.tsx",
+    "analyze": "npm run complexity && npm run complexity-check",
+    "quality:full": "node scripts/code-quality-analyzer.js",
+    "quality:folder": "tree src/ /f",
+    "quality:lines": "cloc src/ --by-file",
+    "quality:structure": "madge --image graph.svg src/"
   },
   "browserslist": {
     "production": [

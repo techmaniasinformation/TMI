@@ -9,32 +9,32 @@
     }
   },
   "namingConventions": {
-    "totalFiles": 180,
+    "totalFiles": 184,
     "issues": [],
     "score": 100
   },
   "codeLength": {
-    "totalFiles": 180,
-    "totalLines": 16153,
-    "averageLines": 90,
+    "totalFiles": 184,
+    "totalLines": 16370,
+    "averageLines": 89,
     "maxLines": 703,
     "minLines": 1,
     "fileDistribution": {
-      "small": 78,
-      "medium": 83,
-      "large": 17,
+      "small": 79,
+      "medium": 87,
+      "large": 16,
       "huge": 2
     }
   },
   "componentComplexity": {
-    "totalComponents": 180,
+    "totalComponents": 184,
     "averageComplexity": 23,
     "maxComplexity": 228,
     "complexityDistribution": {
-      "low": 128,
+      "low": 131,
       "medium": 7,
       "high": 2,
-      "veryHigh": 43
+      "veryHigh": 44
     }
   },
   "overall": {

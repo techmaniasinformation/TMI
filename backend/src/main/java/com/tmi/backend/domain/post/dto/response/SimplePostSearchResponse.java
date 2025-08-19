@@ -19,12 +19,15 @@ public record SimplePostSearchResponse(
   public static SimplePostSearchResponse of(Page<Post> page,
       int reqPage,
       Map<Long,Integer> countMap,
+      Map<Long, String> badgeUrlMap,
       AppliedFilters applied) {
 
     List<SimplePostResponse> posts = page.getContent().stream()
-        .map(p -> SimplePostResponse.of(
-            p,
-            countMap.getOrDefault(p.getId(), 0)))
+        .map(p -> {
+          Long mid = p.getMember() == null ? null : p.getMember().getId();
+          String badge = (mid == null || mid == 1L) ? "" : badgeUrlMap.getOrDefault(mid, "");
+          return SimplePostResponse.of(p, countMap.getOrDefault(p.getId(), 0), badge);
+        })
         .toList();
 
     PageDetail pd = PageDetail.of(

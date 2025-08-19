@@ -3,6 +3,7 @@ package com.tmi.backend.domain.memberBadge.repository;
 import com.tmi.backend.domain.memberBadge.entity.MemberBadge;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -32,5 +33,14 @@ public interface MemberBadgeRepository extends JpaRepository<MemberBadge, Long> 
 
   boolean existsByMemberIdAndBadgeId(Long memberId, Long badgeId);
 
+  Optional<MemberBadge> findByMemberIdAndIsRepresentativeTrue(Long memberId);
+
+  @Query("""
+      select mb
+        from MemberBadge mb
+       where mb.isRepresentative = true
+         and mb.member.id in :memberIds
+      """)
+  List<MemberBadge> findRepresentativesByMemberIds(@Param("memberIds") List<Long> memberIds);
 }
 

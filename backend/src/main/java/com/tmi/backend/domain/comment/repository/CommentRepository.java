@@ -33,7 +33,10 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
   Page<Comment> findByMemberId(Long memberId, Pageable pageable);
 
   // 추천수를 n 개 이상 받은 댓글 중 가장 추천을 많이 받은 댓글 (추천수가 같다면 등록일 순 오름차순)
-  Optional<Comment> findTopByRecommendCountGreaterThanEqualOrderByRecommendCountDescCreatedAtAsc(int minCount);
+  @EntityGraph(attributePaths = {"member"})
+  Optional<Comment> findTopByPostIdAndRecommendCountGreaterThanEqualOrderByRecommendCountDescCreatedAtAsc(
+      Long postId, int minCount
+  );
 
   @Query("""
     select c.post.id as postId, count(c) as cnt

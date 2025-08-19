@@ -17,13 +17,16 @@ public record SimplePostPageResponse(
   public static SimplePostPageResponse of(
       Page<Post> postPage,
       int page,
-      Map<Long, Integer> countMap) {
+      Map<Long, Integer> countMap,
+      Map<Long, String> badgeUrlMap
+  ) {
 
-    List<SimplePostResponse> posts = postPage.getContent()
-        .stream()
-        .map(p -> SimplePostResponse.of(
-            p,
-            countMap.getOrDefault(p.getId(), 0)))
+    List<SimplePostResponse> posts = postPage.getContent().stream()
+        .map(p -> {
+          Long mid = p.getMember() == null ? null : p.getMember().getId();
+          String badge = (mid == null || mid == 1L) ? "" : badgeUrlMap.getOrDefault(mid, "");
+          return SimplePostResponse.of(p, countMap.getOrDefault(p.getId(), 0), badge);
+        })
         .toList();
 
     PageDetail pageInfo = PageDetail.of(

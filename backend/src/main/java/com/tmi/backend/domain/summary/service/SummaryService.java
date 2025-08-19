@@ -57,13 +57,20 @@ public class SummaryService {
 
       ServiceResult<String> jsoupResult = extractWithJsoup(doc);
       if (jsoupResult.success()) {
+        log.info("Jsoup extraction successful");
         return jsoupResult;
       }
-      ServiceResult<String> seleniumResult = extractWithSeleniumIfNeeded(doc, url);
-      if (seleniumResult.success()) {
+      // 2. Selenium 시도
+      ServiceResult<String> seleniumResult = extractWithSelenium(doc, url);
+      if (!seleniumResult.success()) {
         return seleniumResult;
       }
-      return ServiceResult.fail(ErrorCode.CONTENT_EXTRACTION_FAILED);
+      if (seleniumResult.data() == null || seleniumResult.data().trim().isEmpty()) {
+        log.info("Selenium: 빈 문자열 추출");
+        return ServiceResult.fail(ErrorCode.CONTENT_EXTRACTION_FAILED);
+      }
+      log.info("Selenium extraction successful");
+      return seleniumResult;
     } catch (Exception e) {
       log.error("SummaryService : Exception : {}", e.getMessage());
       return ServiceResult.fail(ErrorCode.CRAWLING_FAILED);
@@ -107,7 +114,7 @@ public class SummaryService {
     return ServiceResult.ok(resultText);
   }
 
-  private ServiceResult<String> extractWithSeleniumIfNeeded(Document doc, String url) {
+  private ServiceResult<String> extractWithSelenium(Document doc, String url) {
     Elements iframes = doc.select("iframe");
     if (iframes.isEmpty()) {
       return ServiceResult.fail(ErrorCode.CONTENT_EXTRACTION_FAILED);

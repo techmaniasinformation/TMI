@@ -188,7 +188,7 @@ public class MemberService {
     companyFollowRepository.deleteByFollowerId(memberId);
     starRepository.deleteByMemberId(memberId);
     notificationRepository.deleteAllByMemberId(memberId);
-    commentRecommendationRepository.deleteAllByMemberId(memberId);
+    //commentRecommendationRepository.deleteAllByMemberId(memberId);
     tokenService.deleteAuthCookies(res);
     refreshTokenService.deleteByMemberId(memberId);
 

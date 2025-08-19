@@ -6,6 +6,8 @@ import com.tmi.backend.domain.follow.company.repository.CompanyFollowRepository;
 import com.tmi.backend.domain.follow.member.repository.MemberFollowRepository;
 import com.tmi.backend.domain.member.entity.Member;
 import com.tmi.backend.domain.member.repository.MemberRepository;
+import com.tmi.backend.domain.memberBadge.entity.MemberBadge;
+import com.tmi.backend.domain.memberBadge.repository.MemberBadgeRepository;
 import com.tmi.backend.domain.notification.event.PostViewIncrementedEvent;
 import com.tmi.backend.domain.post.dto.request.PostFilter;
 import com.tmi.backend.domain.post.dto.request.PostSearchFilter;
@@ -23,6 +25,7 @@ import com.tmi.backend.global.common.response.ServiceResult;
 import com.tmi.backend.global.error.ErrorCode;
 import com.tmi.backend.global.error.exception.BusinessException;
 import jakarta.validation.constraints.Positive;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -49,6 +52,7 @@ public class PostViewService {
   private final MemberRepository memberRepository;
   private final MemberFollowRepository memberFollowRepository;
   private final CompanyFollowRepository companyFollowRepository;
+  private final MemberBadgeRepository memberBadgeRepository;
   private final PostScoreRepository postScoreRepository;
   private final CommentRepository commentRepository;
   private final TagService tagService;
@@ -100,7 +104,12 @@ public class PostViewService {
         .stream()
         .collect(Collectors.toMap(CommentCount::getPostId, CommentCount::getCnt));
 
-    return ServiceResult.ok(SimplePostPageResponse.of(postPage, page, countMap));
+    List<Long> memberIds = postPage.getContent().stream()
+        .map(p -> p.getMember() == null ? null : p.getMember().getId())
+        .toList();
+    Map<Long, String> badgeUrlMap = resolveBadgeUrlsForMembers(memberIds);
+
+    return ServiceResult.ok(SimplePostPageResponse.of(postPage, page, countMap, badgeUrlMap));
   }
 
   public ServiceResult<SimplePostPageResponse> readCompanyPosts(Long companyId, int page, int size) {
@@ -117,7 +126,12 @@ public class PostViewService {
         .stream()
         .collect(Collectors.toMap(CommentCount::getPostId, CommentCount::getCnt));
 
-    return ServiceResult.ok(SimplePostPageResponse.of(postPage, page, countMap));
+    List<Long> memberIds = postPage.getContent().stream()
+        .map(p -> p.getMember() == null ? null : p.getMember().getId())
+        .toList();
+    Map<Long, String> badgeUrlMap = resolveBadgeUrlsForMembers(memberIds);
+
+    return ServiceResult.ok(SimplePostPageResponse.of(postPage, page, countMap, badgeUrlMap));
   }
 
   public ServiceResult<SimplePostPageResponse> readMemberPosts(Long memberId, int page, int size) {
@@ -134,7 +148,12 @@ public class PostViewService {
         .stream()
         .collect(Collectors.toMap(CommentCount::getPostId, CommentCount::getCnt));
 
-    return ServiceResult.ok(SimplePostPageResponse.of(postPage, page, countMap));
+    List<Long> memberIds = postPage.getContent().stream()
+        .map(p -> p.getMember() == null ? null : p.getMember().getId())
+        .toList();
+    Map<Long, String> badgeUrlMap = resolveBadgeUrlsForMembers(memberIds);
+
+    return ServiceResult.ok(SimplePostPageResponse.of(postPage, page, countMap, badgeUrlMap));
   }
 
   public ServiceResult<SimplePostPageResponse> readStarPosts(Long starMemberId, int page, int size) {
@@ -155,7 +174,12 @@ public class PostViewService {
         .stream()
         .collect(Collectors.toMap(CommentCount::getPostId, CommentCount::getCnt));
 
-    return ServiceResult.ok(SimplePostPageResponse.of(postPage, page, countMap));
+    List<Long> memberIds = postPage.getContent().stream()
+        .map(p -> p.getMember() == null ? null : p.getMember().getId())
+        .toList();
+    Map<Long, String> badgeUrlMap = resolveBadgeUrlsForMembers(memberIds);
+
+    return ServiceResult.ok(SimplePostPageResponse.of(postPage, page, countMap, badgeUrlMap));
   }
 
   public ServiceResult<SimplePostPageResponse> readLatest(int page, int size) {
@@ -172,7 +196,12 @@ public class PostViewService {
         .stream()
         .collect(Collectors.toMap(CommentCount::getPostId, CommentCount::getCnt));
 
-    return ServiceResult.ok(SimplePostPageResponse.of(postPage, page, countMap));
+    List<Long> memberIds = postPage.getContent().stream()
+        .map(p -> p.getMember() == null ? null : p.getMember().getId())
+        .toList();
+    Map<Long, String> badgeUrlMap = resolveBadgeUrlsForMembers(memberIds);
+
+    return ServiceResult.ok(SimplePostPageResponse.of(postPage, page, countMap, badgeUrlMap));
   }
 
   public ServiceResult<SimplePostSearchResponse> searchPosts(PostSearchFilter filter, int size, int page) {
@@ -204,8 +233,13 @@ public class PostViewService {
         tagService.findNames(filter.companyTags())
     );
 
+    List<Long> memberIds = postPage.getContent().stream()
+        .map(p -> p.getMember() == null ? null : p.getMember().getId())
+        .toList();
+    Map<Long, String> badgeUrlMap = resolveBadgeUrlsForMembers(memberIds);
+
     return ServiceResult.ok(
-        SimplePostSearchResponse.of(postPage, page, countMap, applied)
+        SimplePostSearchResponse.of(postPage, page, countMap, badgeUrlMap, applied)
     );
   }
 
@@ -222,9 +256,12 @@ public class PostViewService {
 
     int commentCount = commentRepository.countByPostId(postId);
 
+    Long mid = post.getMember() == null ? null : post.getMember().getId();
+    String badgeUrl = resolveBadgeUrl(mid);
+
     publisher.publishEvent(new PostViewIncrementedEvent(postId, post.getMember().getId(), post.getViewCount()));
 
-    return ServiceResult.ok(DetailPostResponse.of(post, commentCount));
+    return ServiceResult.ok(DetailPostResponse.of(post, commentCount, badgeUrl));
   }
 
   public ServiceResult<SimplePostPageResponse> readPopularPosts(int size) {
@@ -258,6 +295,39 @@ public class PostViewService {
     // 5. Page 래핑 → 기존 DTO 그대로 재사용
     Page<Post> page = new PageImpl<>(ordered, limit, ordered.size());
 
-    return ServiceResult.ok(SimplePostPageResponse.of(page, 1, countMap));
+    List<Long> mids = ordered.stream().map(p -> p.getMember() == null ? null : p.getMember().getId()).toList();
+    Map<Long, String> badgeUrlMap = resolveBadgeUrlsForMembers(mids);
+
+    return ServiceResult.ok(SimplePostPageResponse.of(page, 1, countMap, badgeUrlMap));
+  }
+
+  private String resolveBadgeUrl(Long memberId) {
+    if (memberId == null || memberId == 1L) return "";
+    return memberBadgeRepository.findByMemberIdAndIsRepresentativeTrue(memberId)
+        .map(mb -> mb.getBadge() == null ? "" : safeBadgeUrl(mb))
+        .orElse("");
+  }
+
+  private Map<Long, String> resolveBadgeUrlsForMembers(List<Long> memberIds) {
+    List<Long> target = memberIds.stream()
+        .filter(Objects::nonNull)
+        .filter(id -> id != 1L)
+        .distinct()
+        .toList();
+
+    if (target.isEmpty()) return Collections.emptyMap();
+
+    List<MemberBadge> reps = memberBadgeRepository.findRepresentativesByMemberIds(target);
+
+    return reps.stream().collect(Collectors.toMap(
+        mb -> mb.getMember().getId(),
+        this::safeBadgeUrl,
+        (a, b) -> a      // 충돌 시 첫 값 유지
+    ));
+  }
+
+  private String safeBadgeUrl(MemberBadge mb) {
+    String url = (mb.getBadge() == null) ? null : mb.getBadge().getBadgeUrl();
+    return url == null ? "" : url;
   }
 }

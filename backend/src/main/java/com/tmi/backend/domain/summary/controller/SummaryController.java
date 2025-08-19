@@ -28,7 +28,7 @@ public class SummaryController implements BaseController {
     if (!extractResult.success()) {
       return handle(ServiceResult.fail(extractResult.code()));
     }
-
+    log.info("추출 성공");
     // 3. 추출에 성공한 경우에만, 요약을 진행합니다.
     String content = extractResult.data();
     return handle(summaryService.summarize(content));

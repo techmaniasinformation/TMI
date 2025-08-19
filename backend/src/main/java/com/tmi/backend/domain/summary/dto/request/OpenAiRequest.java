@@ -14,11 +14,11 @@ public record OpenAiRequest(
 
   public static OpenAiRequest from(String content) {
     String prompt = """
-        The following is a blog article. Based on its content, please respond in JSON format while satisfying the conditions below:
+        The following is a blog article. Based on its content, respond ONLY in **valid JSON format** according to the conditions below:
         
         1. Summarize the core content of the blog in Korean.
         2. Recommend 1 to 5 relevant tags based on the content.
-        3. Respond strictly in the following JSON format. Do not include any explanations or additional sentences.
+        3. Respond strictly in the following JSON format. Do not include any explanations, code fences, or extra text.
         
         {
           "summary": "Summarized content",
@@ -26,10 +26,15 @@ public record OpenAiRequest(
         }
         
         Additional instructions:
-        - The summary should be concise, under 10 sentences.
+        - The summary length should be proportional to the original text length:
+          - For short articles, 2–3 sentences.
+          - For medium-length articles, 7-10 sentences.
+          - For very long articles, provide more detail, but never exceed 30% of the original content size.
+        - Keep the summary concise and natural.
         - The tags should be meaningful keywords that best represent the topic, theme, or domain of the article.
         - Do not include hashtags (#) or any formatting symbols in tags.
         - Do not generate tags that are too generic (e.g., "blog", "article", "general").
+        
         Blog content:
         """;
 
@@ -40,6 +45,10 @@ public record OpenAiRequest(
         new Message(prompt + "\n\n" + content, "user")
     );
 
-    return new OpenAiRequest("gpt-4o-mini", messages);
+    return new OpenAiRequest("gpt-4o", messages);
+  }
+
+  public record ResponseFormat(String type) {
+
   }
 }

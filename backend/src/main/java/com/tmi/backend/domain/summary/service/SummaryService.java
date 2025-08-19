@@ -6,6 +6,7 @@ import com.tmi.backend.domain.summary.dto.SummaryContent;
 import com.tmi.backend.domain.summary.dto.request.OpenAiRequest;
 import com.tmi.backend.domain.summary.dto.response.SummaryOpenAiResponse;
 import com.tmi.backend.domain.summary.dto.response.SummaryResponse;
+import com.tmi.backend.global.Utils.JsonExtractor;
 import com.tmi.backend.global.common.response.ServiceResult;
 import com.tmi.backend.global.component.WebDriverPool;
 import com.tmi.backend.global.error.ErrorCode;
@@ -162,15 +163,26 @@ public class SummaryService {
     try {
       SummaryOpenAiResponse parsed = objectMapper.readValue(customBody,
           SummaryOpenAiResponse.class);
+      log.info("JSON 파싱 시도");
+//      String contentJson = parsed.choices().get(0).message().content();
+      String raw = parsed.choices().get(0).message().content();
+      // 🔧 백틱/코드펜스 제거 + 첫 JSON 오브젝트만 추출
+      String contentJson = JsonExtractor.extractFirstJsonObject(raw);
 
-      String contentJson = parsed.choices().get(0).message().content();
+//      log.info("JSON : {}", contentJson);
+      // 가끔 \u00A0(불칸 공백) 등 제거
+      if (contentJson != null) {
+        contentJson = contentJson.replace('\u00A0', ' ').trim();
+      }
       SummaryContent tempContent = objectMapper.readValue(contentJson, SummaryContent.class);
       String summary = tempContent.summary();
       List<String> tags = tempContent.tags();
       SummaryResponse result = SummaryResponse.of(summary, tags);
       return ServiceResult.ok(result);
     } catch (Exception e) {
-      return ServiceResult.fail(ErrorCode.COMMON_INTERNAL_ERROR);
+      log.error("에러 발생 : {}", e.getMessage());
+      ServiceResult<SummaryResponse> fail = ServiceResult.fail(ErrorCode.COMMON_INTERNAL_ERROR);
+      return fail;
     }
   }
 

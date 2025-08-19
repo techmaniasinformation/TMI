@@ -116,3 +116,4 @@ export async function markAllNotificationsRead(
     throw handleNotificationError(error, '전체 알림 읽음 처리 실패');
   }
 }
+

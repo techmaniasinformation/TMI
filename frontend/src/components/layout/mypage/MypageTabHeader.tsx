@@ -109,3 +109,4 @@ const MypageTabHeader: React.FC<MypageTabHeaderProps> = ({
 };
 
 export default MypageTabHeader;
+

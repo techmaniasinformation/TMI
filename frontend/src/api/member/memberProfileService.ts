@@ -70,3 +70,4 @@ export async function updateMemberProfile(
     throw handleMemberError(error, '프로필 수정 실패');
   }
 }
+

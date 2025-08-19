@@ -52,3 +52,4 @@ export const validateGithubUrl = (raw: string) => {
     return { ok: false, msg: '올바른 URL 형식이 아닙니다.' };
   }
 };
+

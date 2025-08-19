@@ -75,3 +75,4 @@ const ProfileImageSection: React.FC<ProfileImageSectionProps> = ({
 };
 
 export default ProfileImageSection;
+

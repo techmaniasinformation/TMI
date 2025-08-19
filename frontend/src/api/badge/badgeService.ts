@@ -57,3 +57,4 @@ export const DEFAULT_BADGE_ID = 22;
 export function pickDefaultMemberBadgeId(list: MemberBadge[]): number | undefined {
   return list.find(b => b.badgeId === DEFAULT_BADGE_ID)?.memberBadgeId;
 }
+

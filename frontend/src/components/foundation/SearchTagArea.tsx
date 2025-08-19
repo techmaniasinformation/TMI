@@ -42,3 +42,4 @@ const SearchTagArea: React.FC<SearchTagAreaProps> = ({
 };
 
 export default SearchTagArea;
+

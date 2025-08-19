@@ -58,3 +58,4 @@ export function handleFollowError(error: any, fallbackMessage?: string): FollowE
     error
   );
 }
+

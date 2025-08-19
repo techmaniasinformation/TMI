@@ -115,3 +115,4 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
 };
 
 export default SearchDropdown;
+

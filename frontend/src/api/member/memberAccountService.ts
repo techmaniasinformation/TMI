@@ -18,3 +18,4 @@ export async function deleteMember(memberId: number): Promise<boolean> {
     throw handleMemberError(error, '회원탈퇴 실패');
   }
 }
+

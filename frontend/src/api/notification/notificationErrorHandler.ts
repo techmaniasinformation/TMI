@@ -58,3 +58,4 @@ export function handleNotificationError(error: any, fallbackMessage?: string): N
     error
   );
 }
+

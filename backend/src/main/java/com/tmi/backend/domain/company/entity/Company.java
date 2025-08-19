@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,7 +27,7 @@ public class Company {
 
   @Column(length = 100, nullable = false)
   private String name;
-  
+
   @Column(length = 255)
   private String companyProfileUrl;
 
@@ -43,8 +44,13 @@ public class Company {
         .name(name)
         .companyProfileUrl(companyProfileUrl)
         .techBlogUrl(techBlogUrl)
-        .createdAt(LocalDateTime.now())
-        .updatedAt(LocalDateTime.now())
+        .createdAt(LocalDateTime.now(ZoneOffset.UTC))
+        .updatedAt(LocalDateTime.now(ZoneOffset.UTC))
         .build();
+  }
+
+  public void updateCompany(String companyProfileUrl, String techBlogUrl) {
+    this.companyProfileUrl = companyProfileUrl;
+    this.techBlogUrl = techBlogUrl;
   }
 }

@@ -1,0 +1,75 @@
+spring:
+  datasource:
+    url: ${RDB_URL}
+    username: ${RDB_USER}
+    password: ${RDB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  task:
+    scheduling:
+      pool:
+        size: 4          # 스케줄러 스레드 풀
+  servlet:
+    multipart:
+      max-file-size: 10MB       # 단일 파일 최대 크기
+      max-request-size: 15MB    # 전체 요청의 최대 크기
+  jpa:
+    hibernate:
+      ddl-auto: update  # 또는 create, none, validate 등
+    show-sql: false
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100 # 배치 사이즈 설정
+        format_sql: true
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    open-in-view: false               # open-in-view 끄기 << 요거 추가
+
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_CLIENT_SECRET}
+            client-name: KAKAO
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            authorization-grant-type: authorization_code
+            client-authentication-method: client_secret_post
+            scope:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            client-name: GOOGLE
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope: openid
+
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth?prompt=login&max_age=0
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            user-name-attribute: sub
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-token-expiration-minutes: 180
+  refresh-token-expiration-minutes: 21060
+  registration-token-expiration-minutes: 5
+
+api:
+  gms-key: ${GMS_KEY}
+
+frontend:
+  redirect-uri: "https://i13a509.p.ssafy.io/login"
+
+file:
+  upload-dir: ${FILE_UPLOAD_DIR}
+  base-url: ${FILE_BASE_URL}
+
+kakao:
+  logout-redirect-uri: "https://i13a509.p.ssafy.io"

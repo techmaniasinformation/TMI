@@ -1,88 +1,201 @@
 package com.tmi.backend.domain.member.service;
 
+import com.tmi.backend.domain.auth.jwt.service.RefreshTokenService;
+import com.tmi.backend.domain.auth.jwt.service.TokenService;
+import com.tmi.backend.domain.comment.repository.CommentRepository;
+import com.tmi.backend.domain.commentRecommendation.respository.CommentRecommendationRepository;
+import com.tmi.backend.domain.follow.company.repository.CompanyFollowRepository;
+import com.tmi.backend.domain.follow.member.repository.MemberFollowRepository;
 import com.tmi.backend.domain.member.dto.request.MemberCreateRequest;
 import com.tmi.backend.domain.member.dto.request.MemberUpdateRequest;
 import com.tmi.backend.domain.member.dto.response.MemberResponse;
 import com.tmi.backend.domain.member.dto.response.MemberStats;
 import com.tmi.backend.domain.member.entity.Member;
 import com.tmi.backend.domain.member.repository.MemberRepository;
+import com.tmi.backend.domain.memberBadge.repository.MemberBadgeRepository;
+import com.tmi.backend.domain.notification.event.MemberRegisteredEvent;
+import com.tmi.backend.domain.notification.repository.NotificationRepository;
+import com.tmi.backend.domain.post.repository.PostRepository;
+import com.tmi.backend.domain.star.repository.StarRepository;
+import com.tmi.backend.global.Utils.FileUtil;
+import com.tmi.backend.global.common.response.ServiceResult;
 import com.tmi.backend.global.error.ErrorCode;
 import com.tmi.backend.global.error.exception.BusinessException;
+import java.io.IOException;
+import jakarta.servlet.http.HttpServletResponse;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MemberService {
 
   private final MemberRepository memberRepository;
-//  private final MemberBadgeRepository memberBadgeRepository;
-//  private final MemberFollowRepository memberFollowRepository;
-//  private final CompanyFollowRepository companyFollowRepository;
-//  private final StarRepository starRepository;
-//  private final NotificationRepository notificationRepository;
-//  private final CommentRecommendationRepository commentRecommendationRepository;
+  private final MemberBadgeRepository memberBadgeRepository;
+  private final MemberFollowRepository memberFollowRepository;
+  private final CompanyFollowRepository companyFollowRepository;
+  private final StarRepository starRepository;
+  private final NotificationRepository notificationRepository;
+  private final PostRepository postRepository;
+  private final CommentRepository commentRepository;
+  private final CommentRecommendationRepository commentRecommendationRepository;
+  private final TokenService tokenService;
+  private final RefreshTokenService refreshTokenService;
+  private final ApplicationEventPublisher publisher;
 
-  public MemberResponse getMember(Long memberId) {
-    Member member = memberRepository.findById(memberId)
-        .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+  private final FileUtil fileUtil;
 
-    MemberStats stats = memberRepository.fetchStatsById(memberId); // 하드코딩된 값 예시
-
-    return MemberResponse.of(member, stats);
+  public ServiceResult<MemberResponse> getMember(Long memberId) {
+    Member member = memberRepository.findById(memberId).orElse(null);
+    if (member == null) {
+      return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
+    }
+    MemberStats stats = memberRepository.fetchStatsById(memberId);
+    return ServiceResult.ok(MemberResponse.of(member, stats));
   }
 
-  public boolean existsByNickname(String nickname) {
-    return memberRepository.existsByNickname(nickname);
-  }
-
-  @Transactional
-  public void updateMember(Long memberId, MemberUpdateRequest req) {
-    Member member = memberRepository.findById(memberId)
-        .orElseThrow(() -> new BusinessException(ErrorCode.COMMON_INTERNAL_ERROR));
-
-    member.setNickname(req.nickname());
-    member.setMemberProfileUrl(req.memberProfileUrl());
-    member.setBlogUrl(req.blogUrl());
-    member.setGithubUrl(req.githubUrl());
+  public ServiceResult<Map<String, Boolean>> existsByNickname(String nickname) {
+    return ServiceResult.ok(Map.of("isDuplicated", memberRepository.existsByNickname(nickname)));
   }
 
   @Transactional
-  public Long createOrReviveMember(MemberCreateRequest req) {
-
-    Member member = memberRepository.findByProviderAndProviderMemberId(
-        req.provider(), req.providerMemberId()
-    ).orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-
-    // 이미 탈퇴된 회원 → 정보 갱신 후 복구
-    if (member.getDeletedAt() != null) {
-      member.reviveAndUpdate(); //시간 업데이트
-      member.setNickname(req.nickname());
-      member.setMemberProfileUrl(req.memberProfileUrl());
-      return member.getId();
+  public ServiceResult<Map<String, Long>> updateMember(Long memberId, MemberUpdateRequest req,
+      MultipartFile profileImage) {
+    Member member = memberRepository.findById(memberId).orElse(null);
+    if (member == null) {
+      return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
     }
 
-    // 신규 가입
-    Member newMember = Member.of(
-        req.provider(),
-        req.providerMemberId(),
-        req.nickname(),
-        req.memberProfileUrl()
-    );
-    memberRepository.save(newMember);
-    return newMember.getId();
+    String newProfileUrl = member.getMemberProfileUrl();
+
+    // 새로운 이미지 파일이 업로드된 경우
+    if (profileImage != null && !profileImage.isEmpty()) {
+      if (newProfileUrl != null && !newProfileUrl.isEmpty()) {
+        try {
+          fileUtil.deleteFile(newProfileUrl, "profile");
+        } catch (IOException e) {
+          log.error("기존 프로필 이미지 삭제 실패: {}", newProfileUrl, e);
+        }
+      }
+
+      // 새 파일 저장 및 롤백 처리
+      try {
+        newProfileUrl = fileUtil.saveFile(profileImage, "profile");
+        // 2. 트랜잭션 롤백 시 파일 삭제를 위한 동기화 작업 등록
+        final String finalNewProfileUrl = newProfileUrl; // 람다에서 사용하기 위해 final 변수로
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+          @Override
+          public void afterCompletion(int status) {
+            if (status == STATUS_ROLLED_BACK) {
+              try {
+                fileUtil.deleteFile(finalNewProfileUrl, "profile");
+              } catch (IOException e) {
+                log.error("프로필 이미지 롤백 중 파일 삭제 실패", e);
+              }
+            }
+          }
+        });
+      } catch (IOException e) {
+        return ServiceResult.fail(ErrorCode.FILE_UPLOAD_ERROR);
+      }
+    }
+
+    // 이미지 삭제
+    else {
+      String urlFromRequest = req.memberProfileUrl();
+      if ((urlFromRequest == null || urlFromRequest.isEmpty()) && (newProfileUrl != null
+          && !newProfileUrl.isEmpty())) {
+        try {
+          fileUtil.deleteFile(newProfileUrl, "profile");
+          newProfileUrl = "default.png"; // DB에 저장할 URL도 null로 변경
+        } catch (IOException e) {
+          log.error("프로필 이미지 삭제 실패: {}", newProfileUrl, e);
+        }
+      }
+    }
+
+    member.updateProfile(req.nickname(), newProfileUrl, req.blogUrl(), req.githubUrl());
+
+    return ServiceResult.ok(Map.of("memberId", member.getId()));
   }
 
   @Transactional
-  public Long resign(Long memberId) {
-    Member member = memberRepository.findById(memberId)
-        .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-    member.delete();
+  public Long createOrReviveMember(MemberCreateRequest req, MultipartFile profileImage) {
 
-    //TODO : 멤버뱃지, 멤버팔로우, 회사팔로우,스타, 댓글추천, 알림의 관련 행 삭제 구현하기.
+    Member member = memberRepository.findByProviderAndProviderMemberId(req.provider(),
+        req.providerMemberId()).orElse(null);
 
-    return member.getId();
+    if (member == null) {
+      // 신규 가입
+      Member newMember = Member.of(req);
+      // 프로필 이미지 저장 및 URL 세팅
+      if (profileImage != null && !profileImage.isEmpty()) {
+        try {
+          String profileImageUrl = fileUtil.saveFile(profileImage, "profile");
+          newMember.updateProfileUrl(profileImageUrl);
+        } catch (IOException e) {
+          log.error("프로필 이미지 저장 실패", e);
+          // 필요시 예외 처리하거나 기본값 세팅 가능
+        }
+      }
+
+      memberRepository.save(newMember);
+      publisher.publishEvent(new MemberRegisteredEvent(newMember.getId())); // 추가 하기
+      return newMember.getId();
+    }
+    // 재가입
+    if (member.getDeletedAt() != null && member.getDeletedAt()
+        .isAfter(LocalDateTime.now(ZoneOffset.UTC).minusDays(7))) {
+      //7일 이내
+      throw new BusinessException(ErrorCode.USER_RE_REGISTRATION_FORBIDDEN);
+
+    } else {
+      //7일 이후
+      member.reviveAndUpdate(req);
+      if (profileImage != null && !profileImage.isEmpty()) {
+        try {
+          String profileImageUrl = fileUtil.saveFile(profileImage, "profile");
+          member.updateProfileUrl(profileImageUrl);
+        } catch (IOException e) {
+          log.error("프로필 이미지 저장 실패", e);
+          // 필요시 예외 처리하거나 기본값 세팅 가능
+        }
+      }
+      return member.getId();
+    }
+  }
+
+  @Transactional
+  public ServiceResult<Map<String, Long>> deleteMember(Long memberId, HttpServletResponse res) {
+    Member member = memberRepository.findById(memberId).orElse(null);
+    if (member == null) {
+      return ServiceResult.fail(ErrorCode.USER_NOT_FOUND);
+    }
+    member.addDeleteAt();
+    memberBadgeRepository.deleteByMemberId(memberId);
+    memberFollowRepository.deleteByFollowerIdOrFolloweeId(memberId, memberId);
+    companyFollowRepository.deleteByFollowerId(memberId);
+    starRepository.deleteByMemberId(memberId);
+    notificationRepository.deleteAllByMemberId(memberId);
+    commentRecommendationRepository.deleteAllByMemberId(memberId);
+    tokenService.deleteAuthCookies(res);
+    refreshTokenService.deleteByMemberId(memberId);
+
+    // 7일 제한 말고 그냥 삭제 + 관련 댓글과 게시글도 삭제됨
+    commentRepository.deleteByMemberId(memberId);
+    postRepository.deleteByMemberId(memberId);
+    memberRepository.deleteById(memberId);
+    return ServiceResult.ok(Map.of("memberId", member.getId()));
   }
 }

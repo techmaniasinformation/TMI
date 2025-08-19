@@ -43,6 +43,7 @@ public class Star {
     return Star.builder()
         .member(member)
         .post(post)
+        .createdAt(LocalDateTime.now())
         .build();
   }
 }

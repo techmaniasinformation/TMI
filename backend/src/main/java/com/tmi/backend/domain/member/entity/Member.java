@@ -1,5 +1,7 @@
 package com.tmi.backend.domain.member.entity;
 
+import com.tmi.backend.domain.member.dto.request.MemberCreateRequest;
+import com.tmi.backend.domain.member.dto.request.MemberUpdateRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,12 +12,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(uniqueConstraints = {
@@ -24,7 +26,6 @@ import lombok.Setter;
     @UniqueConstraint(name = "uk_member_nickname", columnNames = "nickname")
 })
 @Getter
-@Setter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -60,27 +61,38 @@ public class Member {
 
   private LocalDateTime updatedAt;
 
-  public static Member of(Provider provider, String providerMemberId, String nickname,
-      String memberProfileUrl) {
+  public static Member of(MemberCreateRequest req) {
     return Member.builder()
-        .provider(provider)
-        .providerMemberId(providerMemberId)
-        .nickname(nickname)
-        .memberProfileUrl(memberProfileUrl)
-        .createdAt(LocalDateTime.now())
-        .updatedAt(LocalDateTime.now())
+        .provider(req.provider())
+        .providerMemberId(req.providerMemberId())
+        .nickname(req.nickname())
+        .memberProfileUrl("")
+        .createdAt(LocalDateTime.now(ZoneOffset.UTC))
+        .updatedAt(LocalDateTime.now(ZoneOffset.UTC))
         .build();
   }
 
-  public void delete() {
-    deletedAt = LocalDateTime.now();
+  public void updateProfileUrl(String url) {
+    this.memberProfileUrl = url;
   }
 
-  public void reviveAndUpdate() {
+  public void updateProfile(String nickname, String profileUrl, String blogUrl, String githubUrl) {
+    this.nickname = nickname;
+    this.memberProfileUrl = profileUrl;
+    this.blogUrl = blogUrl;
+    this.githubUrl = githubUrl;
+    this.updatedAt = LocalDateTime.now(ZoneOffset.UTC);
+  }
+
+  public void addDeleteAt() {
+    deletedAt = LocalDateTime.now(ZoneOffset.UTC);
+  }
+
+  public void reviveAndUpdate(MemberCreateRequest req) {
+    nickname = req.nickname();
+    memberProfileUrl = "";
     deletedAt = null;
-    createdAt = LocalDateTime.now();
-    updatedAt = LocalDateTime.now();
-
+    createdAt = LocalDateTime.now(ZoneOffset.UTC);
+    updatedAt = LocalDateTime.now(ZoneOffset.UTC);
   }
-
 }

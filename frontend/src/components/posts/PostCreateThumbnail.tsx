@@ -95,3 +95,4 @@ const PostCreateThumbnail: React.FC<PostCreateThumbnailProps> = ({
 
 export default PostCreateThumbnail;
 
+

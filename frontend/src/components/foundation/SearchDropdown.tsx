@@ -19,7 +19,7 @@ const dropdownVariants = cva(
   }
 );
 
-interface SearchDropdownProps extends VariantProps<typeof dropdownVariants> {
+interface SearchDropdownProps {
   showSearchResults: boolean;
   isDarkMode: boolean;
   tagLoading: boolean;
@@ -27,7 +27,7 @@ interface SearchDropdownProps extends VariantProps<typeof dropdownVariants> {
   matchedWords: AutocompleteTag[];
   searchKeyword: string;
   onTagSelect: (tag: AutocompleteTag) => void;
-  variant?: string;
+  variant?: 'light' | 'dark';
 }
 
 const SearchDropdown: React.FC<SearchDropdownProps> = ({
@@ -40,7 +40,7 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
   onTagSelect,
   variant,
 }) => {
-  const activeVariant = variant || (isDarkMode ? 'dark' : 'light');
+  const activeVariant = (variant || (isDarkMode ? 'dark' : 'light')) as 'light' | 'dark';
 
   if (!showSearchResults) return null;
 
@@ -115,4 +115,5 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
 };
 
 export default SearchDropdown;
+
 

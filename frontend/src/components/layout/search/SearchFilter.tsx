@@ -1,5 +1,7 @@
 import React from 'react';
-import { Input, Button, Tag } from '@/components';
+import { Input } from '@/components/domain';
+import { Button } from '@/components/foundation/button';
+import { Tag } from '@/components/domain/article';
 
 interface SearchFilterProps {
   keyword: string;
@@ -44,13 +46,13 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
             {availableTags.map((tag) => (
               <Tag
                 key={tag}
-                tag={tag}
-                variant={selectedTags.includes(tag) ? 'default' : 'default'}
                 className={`cursor-pointer ${
                   selectedTags.includes(tag) ? 'bg-blue-100 border-blue-300' : ''
                 }`}
                 onClick={() => onTagToggle(tag)}
-              />
+              >
+                {tag}
+              </Tag>
             ))}
           </div>
         </div>

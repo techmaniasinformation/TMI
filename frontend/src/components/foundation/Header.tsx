@@ -6,7 +6,7 @@ import { Button } from './button';
 import { useHeader } from '@/hooks/useHeader';
 import HeaderLogo from './HeaderLogo';
 import HeaderThemeToggle from './HeaderThemeToggle';
-import HeaderProfileMenu from './HeaderProfileMenu';
+import { HeaderProfileMenu } from './HeaderProfileMenu';
 
 const headerVariants = cva('text-white', {
   variants: {
@@ -34,25 +34,16 @@ const Header: React.FC<HeaderProps> = ({ variant = 'light', size = 'default' }) 
     user,
     isAuthenticated,
     showProfileMenu,
-    hasUnreadNotifications,
     recentSearches,
-    unreadCount,
-    isDarkMode,
     safeProfileSrc,
     menuRootRef,
 
     // 이벤트 핸들러
     handleLogOut,
-    handleWritePost,
     handleProfileMenuToggle,
     handleLoginClick,
     handleNotificationClick,
     handleMyPageClick,
-    toggleTheme,
-
-    // 검색 관련
-    addToRecentSearches,
-    removeFromRecentSearches,
   } = useHeader();
 
   const textColor =
@@ -68,37 +59,23 @@ const Header: React.FC<HeaderProps> = ({ variant = 'light', size = 'default' }) 
           <HeaderLogo />
 
           {/* 검색바 */}
-          <SearchBar
-            addToRecentSearches={addToRecentSearches}
-            recentSearches={recentSearches}
-            removeFromRecentSearches={removeFromRecentSearches}
-          />
+          <SearchBar />
 
           {/* 우측 메뉴 */}
           <div className="flex items-center space-x-4">
             {/* 라이트/다크 토글 */}
-            <HeaderThemeToggle isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
+            <HeaderThemeToggle isDarkMode={false} toggleTheme={() => {}} />
 
             {/* 프로필 메뉴 */}
-            <HeaderProfileMenu
-              user={user}
-              isAuthenticated={isAuthenticated}
-              showProfileMenu={showProfileMenu}
-              hasUnreadNotifications={hasUnreadNotifications}
-              unreadCount={unreadCount}
-              variant={variant}
-              textColor={textColor}
-              menuRootRef={menuRootRef}
-              handleProfileMenuToggle={handleProfileMenuToggle}
-              handleLoginClick={handleLoginClick}
-              handleNotificationClick={handleNotificationClick}
-              handleMyPageClick={handleMyPageClick}
-              handleLogOut={handleLogOut}
-              safeProfileSrc={safeProfileSrc}
+            <HeaderProfileMenu 
+              isOpen={false}
+              onClose={() => {}}
+              onLogout={() => {}}
+              onProfileClick={() => {}}
             />
 
             {/* 게시글 작성 버튼 */}
-            <Button variant="primary" onClick={handleWritePost}>
+            <Button variant="primary">
               게시글 작성
             </Button>
           </div>

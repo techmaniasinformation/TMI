@@ -90,49 +90,239 @@ class CodeQualityAnalyzer {
     return lengthStats;
   }
 
-  // 컴포넌트 복잡도 분석
+  // React 컴포넌트 복잡도 분석
   analyzeComponentComplexity() {
-    console.log('⚛️ 컴포넌트 복잡도 분석 중...');
+    console.log('⚛️ React 컴포넌트 복잡도 분석 중...');
     
-    try {
-      const complexityOutput = execSync(
-        'npx cyclomatic-complexity "./src/**/*.{ts,tsx}" --json',
-        { encoding: 'utf8' }
-      );
-      
-      const complexityData = JSON.parse(complexityOutput);
-      const componentStats = {
-        totalComponents: complexityData.length,
-        averageComplexity: 0,
-        maxComplexity: 0,
-        complexityDistribution: {
-          low: 0,      // 1-5
-          medium: 0,   // 6-10
-          high: 0,     // 11-15
-          veryHigh: 0  // 15+
-        }
-      };
+    const componentFiles = this.getAllFiles(this.srcPath, ['.tsx']);
+    const hookFiles = this.getAllFiles(this.srcPath, ['.ts']).filter(file => 
+      file.includes('/hooks/') || file.includes('use') || file.includes('Use')
+    );
+    
+    const allFiles = [...componentFiles, ...hookFiles];
+    const complexityData = [];
 
-      let totalComplexity = 0;
-      complexityData.forEach(file => {
-        const fileComplexity = file.complexitySum || 0;
-        totalComplexity += fileComplexity;
-        componentStats.maxComplexity = Math.max(componentStats.maxComplexity, fileComplexity);
-
-        if (fileComplexity <= 5) componentStats.complexityDistribution.low++;
-        else if (fileComplexity <= 10) componentStats.complexityDistribution.medium++;
-        else if (fileComplexity <= 15) componentStats.complexityDistribution.high++;
-        else componentStats.complexityDistribution.veryHigh++;
+    allFiles.forEach(file => {
+      const content = fs.readFileSync(file, 'utf8');
+      const complexity = this.calculateReactComplexity(content, file);
+      complexityData.push({
+        file: file,
+        complexity: complexity,
+        details: this.getComplexityDetails(content)
       });
+    });
 
-      componentStats.averageComplexity = Math.round(totalComplexity / complexityData.length);
-      this.results.componentComplexity = componentStats;
+    const componentStats = {
+      totalFiles: complexityData.length,
+      averageComplexity: 0,
+      maxComplexity: 0,
+      complexityDistribution: {
+        low: 0,      // 1-10
+        medium: 0,   // 11-25
+        high: 0,     // 26-50
+        veryHigh: 0  // 50+
+      },
+      details: complexityData
+    };
 
-      return componentStats;
-    } catch (error) {
-      console.error('복잡도 분석 실패:', error.message);
-      return { error: '복잡도 분석 실패' };
-    }
+    let totalComplexity = 0;
+    complexityData.forEach(file => {
+      const fileComplexity = file.complexity;
+      totalComplexity += fileComplexity;
+      componentStats.maxComplexity = Math.max(componentStats.maxComplexity, fileComplexity);
+
+      if (fileComplexity <= 10) componentStats.complexityDistribution.low++;
+      else if (fileComplexity <= 25) componentStats.complexityDistribution.medium++;
+      else if (fileComplexity <= 50) componentStats.complexityDistribution.high++;
+      else componentStats.complexityDistribution.veryHigh++;
+    });
+
+    componentStats.averageComplexity = Math.round(totalComplexity / complexityData.length);
+    this.results.componentComplexity = componentStats;
+
+    return componentStats;
+  }
+
+  // React 컴포넌트 복잡도 계산
+  calculateReactComplexity(content, filePath) {
+    const lines = content.split('\n');
+    let complexity = 0;
+
+    // 기본 복잡도: 파일 길이
+    complexity += Math.min(lines.length * 0.5, 20);
+
+    // 조건문 복잡도
+    const conditionals = this.countConditionals(content);
+    complexity += conditionals * 2;
+
+    // 반복문 복잡도
+    const loops = this.countLoops(content);
+    complexity += loops * 3;
+
+    // React 훅 복잡도
+    const hooks = this.countHooks(content);
+    complexity += hooks * 1.5;
+
+    // JSX 복잡도
+    const jsxComplexity = this.analyzeJSXComplexity(content);
+    complexity += jsxComplexity;
+
+    // 중첩 레벨 복잡도
+    const maxNesting = this.getMaxNestingLevel(content);
+    complexity += maxNesting * 2;
+
+    // 함수/컴포넌트 개수
+    const functions = this.countFunctions(content);
+    complexity += functions * 1;
+
+    return Math.round(complexity);
+  }
+
+  // 조건문 개수 세기
+  countConditionals(content) {
+    const patterns = [
+      /\bif\s*\(/g,
+      /\belse\s*{/g,
+      /\belse\s+if\s*\(/g,
+      /\bswitch\s*\(/g,
+      /\bcase\s+/g,
+      /\?\s*[^:]+:/g, // ternary operators
+    ];
+    
+    let count = 0;
+    patterns.forEach(pattern => {
+      const matches = content.match(pattern);
+      if (matches) count += matches.length;
+    });
+    
+    return count;
+  }
+
+  // 반복문 개수 세기
+  countLoops(content) {
+    const patterns = [
+      /\bfor\s*\(/g,
+      /\bwhile\s*\(/g,
+      /\bdo\s*{/g,
+      /\.map\s*\(/g,
+      /\.filter\s*\(/g,
+      /\.forEach\s*\(/g,
+      /\.reduce\s*\(/g,
+    ];
+    
+    let count = 0;
+    patterns.forEach(pattern => {
+      const matches = content.match(pattern);
+      if (matches) count += matches.length;
+    });
+    
+    return count;
+  }
+
+  // React 훅 개수 세기
+  countHooks(content) {
+    const hookPatterns = [
+      /\buseState\s*\(/g,
+      /\buseEffect\s*\(/g,
+      /\buseCallback\s*\(/g,
+      /\buseMemo\s*\(/g,
+      /\buseRef\s*\(/g,
+      /\buseContext\s*\(/g,
+      /\buseReducer\s*\(/g,
+      /\buseLayoutEffect\s*\(/g,
+      /\buseImperativeHandle\s*\(/g,
+      /\buseDebugValue\s*\(/g,
+    ];
+    
+    let count = 0;
+    hookPatterns.forEach(pattern => {
+      const matches = content.match(pattern);
+      if (matches) count += matches.length;
+    });
+    
+    return count;
+  }
+
+  // JSX 복잡도 분석
+  analyzeJSXComplexity(content) {
+    let complexity = 0;
+    
+    // JSX 요소 개수
+    const jsxElements = content.match(/<[A-Z][a-zA-Z]*/g);
+    if (jsxElements) complexity += jsxElements.length * 0.5;
+    
+    // JSX 속성 개수
+    const jsxProps = content.match(/\s[a-zA-Z-]+=/g);
+    if (jsxProps) complexity += jsxProps.length * 0.3;
+    
+    // JSX 중첩 레벨
+    const lines = content.split('\n');
+    let maxJsxDepth = 0;
+    let currentDepth = 0;
+    
+    lines.forEach(line => {
+      const openTags = (line.match(/</g) || []).length;
+      const closeTags = (line.match(/>/g) || []).length;
+      const selfClosingTags = (line.match(/\/>/g) || []).length;
+      
+      currentDepth += openTags - closeTags - selfClosingTags;
+      maxJsxDepth = Math.max(maxJsxDepth, currentDepth);
+    });
+    
+    complexity += maxJsxDepth * 1.5;
+    
+    return complexity;
+  }
+
+  // 최대 중첩 레벨 계산
+  getMaxNestingLevel(content) {
+    const lines = content.split('\n');
+    let maxDepth = 0;
+    let currentDepth = 0;
+    
+    lines.forEach(line => {
+      const trimmed = line.trim();
+      if (trimmed.startsWith('{') || trimmed.includes('{')) {
+        currentDepth++;
+        maxDepth = Math.max(maxDepth, currentDepth);
+      }
+      if (trimmed.startsWith('}') || trimmed.includes('}')) {
+        currentDepth = Math.max(0, currentDepth - 1);
+      }
+    });
+    
+    return maxDepth;
+  }
+
+  // 함수/컴포넌트 개수 세기
+  countFunctions(content) {
+    const patterns = [
+      /\bfunction\s+[a-zA-Z_$][a-zA-Z0-9_$]*\s*\(/g,
+      /\bconst\s+[a-zA-Z_$][a-zA-Z0-9_$]*\s*=\s*(?:function|\([^)]*\)\s*=>)/g,
+      /\bexport\s+(?:default\s+)?function\s+[a-zA-Z_$][a-zA-Z0-9_$]*/g,
+      /\bexport\s+(?:default\s+)?const\s+[a-zA-Z_$][a-zA-Z0-9_$]*\s*=\s*(?:function|\([^)]*\)\s*=>)/g,
+    ];
+    
+    let count = 0;
+    patterns.forEach(pattern => {
+      const matches = content.match(pattern);
+      if (matches) count += matches.length;
+    });
+    
+    return count;
+  }
+
+  // 복잡도 상세 정보
+  getComplexityDetails(content) {
+    return {
+      conditionals: this.countConditionals(content),
+      loops: this.countLoops(content),
+      hooks: this.countHooks(content),
+      jsxComplexity: Math.round(this.analyzeJSXComplexity(content)),
+      maxNesting: this.getMaxNestingLevel(content),
+      functions: this.countFunctions(content),
+      lines: content.split('\n').length
+    };
   }
 
   // 종합 점수 계산
@@ -281,13 +471,42 @@ class CodeQualityAnalyzer {
     
     const avgComplexity = stats.averageComplexity;
     const veryHighComplexity = stats.complexityDistribution.veryHigh;
+    const highComplexity = stats.complexityDistribution.high;
+    const totalFiles = stats.totalFiles;
     
     let score = 100;
-    if (avgComplexity > 10) score -= 30;
-    if (avgComplexity > 5) score -= 15;
-    if (veryHighComplexity > 0) score -= (veryHighComplexity * 15);
     
-    return Math.max(0, score);
+    // 평균 복잡도에 따른 감점
+    if (avgComplexity > 40) score -= 40;
+    else if (avgComplexity > 25) score -= 25;
+    else if (avgComplexity > 15) score -= 15;
+    else if (avgComplexity > 10) score -= 10;
+    
+    // 매우 높은 복잡도 파일에 따른 감점
+    if (veryHighComplexity > 0) {
+      const veryHighPercentage = (veryHighComplexity / totalFiles) * 100;
+      if (veryHighPercentage > 20) score -= 30;
+      else if (veryHighPercentage > 10) score -= 20;
+      else score -= (veryHighComplexity * 5);
+    }
+    
+    // 높은 복잡도 파일에 따른 감점
+    if (highComplexity > 0) {
+      const highPercentage = (highComplexity / totalFiles) * 100;
+      if (highPercentage > 50) score -= 15;
+      else if (highPercentage > 30) score -= 10;
+      else score -= (highComplexity * 2);
+    }
+    
+    // 낮은 복잡도 파일에 따른 가점
+    const lowComplexity = stats.complexityDistribution.low;
+    if (lowComplexity > 0) {
+      const lowPercentage = (lowComplexity / totalFiles) * 100;
+      if (lowPercentage > 70) score += 10;
+      else if (lowPercentage > 50) score += 5;
+    }
+    
+    return Math.max(0, Math.min(100, score));
   }
 
   getGrade(score) {

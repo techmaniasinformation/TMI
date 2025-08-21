@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Button } from '@/components/foundation/button';
 import { getSafeProfileUrl, getSafeBadgeUrl, handleProfileImageError, handleBadgeImageError } from '@/utils/defaultImages';
-import { useUserStore } from '@/stores/userStore';
+import { useAuth } from '@/hooks/store/useStoreActions';
 
 interface CommentSectionProps {
   comments: any[];
@@ -45,7 +45,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
   onCommentDelete,
 }) => {
   // 전역 사용자 정보 가져오기 (닉네임 비교용)
-  const { user } = useUserStore();
+  const { user } = useAuth();
   
   // URL 검증을 위한 상태 추가
   const [urlError, setUrlError] = useState<string>('');

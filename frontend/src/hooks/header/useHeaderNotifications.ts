@@ -3,7 +3,7 @@ import type { useHeaderState } from './useHeaderState';
 
 // 헤더 알림 관리 훅
 export const useHeaderNotifications = (state: ReturnType<typeof useHeaderState>) => {
-  const { user, isAuthenticated, setHasUnreadNotifications, setUnreadCount } = state;
+  const { user, isAuthenticated } = state;
 
   // 알림 조회
   useEffect(() => {
@@ -16,18 +16,15 @@ export const useHeaderNotifications = (state: ReturnType<typeof useHeaderState>)
         .then((data) => {
           if (data?.status === 'SUCCESS') {
             const contentList = data.data?.content || [];
-            setHasUnreadNotifications(contentList.length > 0);
-            setUnreadCount(contentList.length);
+            // console.log('Unread notifications:', contentList.length);
           } else {
-            setHasUnreadNotifications(false);
-            setUnreadCount(0);
+            // console.log('No notifications');
           }
         })
         .catch((err) => {
           console.error('알림 조회 실패:', err);
-          setHasUnreadNotifications(false);
-          setUnreadCount(0);
         });
     }
-  }, [isAuthenticated, user?.memberId, setHasUnreadNotifications, setUnreadCount]);
+  }, [isAuthenticated, user?.memberId]);
 };
+

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useUserStore } from '@/stores/userStore';
-import { Card, CardContent } from '@/components/domain/Card';
-import { getSafeProfileUrl, getSafeCompanyUrl } from '@/utils/defaultImages';
+import { useFollow } from '@/hooks/store/useStoreActions';
+import { ProfileCardGrid } from '@/components/domain/ProfileCard';
+import { Loading, Empty } from '@/components/foundation/Status';
 
 interface FollowSectionProps {
   onFollowClick: (type: 'user' | 'company', id: number) => void;
@@ -20,7 +20,7 @@ interface FollowCompany {
 }
 
 export const FollowSection: React.FC<FollowSectionProps> = ({ onFollowClick }) => {
-  const { followUser, followCompany } = useUserStore();
+  const { followUser, followCompany } = useFollow();
   const [followUsers, setFollowUsers] = useState<FollowUser[]>([]);
   const [followCompanies, setFollowCompanies] = useState<FollowCompany[]>([]);
   const [loading, setLoading] = useState(true);
@@ -100,33 +100,35 @@ export const FollowSection: React.FC<FollowSectionProps> = ({ onFollowClick }) =
   }, [followUser, followCompany]);
 
   if (loading) {
-    return (
-      <div className="space-y-4">
-        <div className="animate-pulse">
-          <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-24 bg-gray-200 rounded"></div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+    return <Loading message="팔로우 정보를 불러오는 중..." variant="skeleton" />;
   }
 
   const hasFollows = followUsers.length > 0 || followCompanies.length > 0;
 
   if (!hasFollows) {
     return (
-      <div className="text-center py-12">
-        <div className="mb-6">
-          <i className="fas fa-users text-6xl text-gray-300 mb-4"></i>
-          <h3 className="text-lg font-semibold text-gray-600 mb-2">팔로우한 사용자가 없습니다</h3>
-          <p className="text-gray-500 mb-4">사용자나 기업을 팔로우하면 여기에 표시됩니다.</p>
-        </div>
-      </div>
+      <Empty
+        emptyTitle="팔로우한 사용자가 없습니다"
+        emptyMessage="아직 팔로우한 사용자가 없습니다."
+        icon="fas fa-users"
+      />
     );
   }
+
+  // 프로필 데이터 변환
+  const userProfiles = followUsers.map(user => ({
+    id: user.memberId,
+    name: user.nickname,
+    profileUrl: user.memberProfileUrl,
+    type: 'user' as const,
+  }));
+
+  const companyProfiles = followCompanies.map(company => ({
+    id: company.companyId,
+    name: company.companyName,
+    profileUrl: company.companyProfileUrl,
+    type: 'company' as const,
+  }));
 
   return (
     <div className="space-y-8">
@@ -134,27 +136,11 @@ export const FollowSection: React.FC<FollowSectionProps> = ({ onFollowClick }) =
       {followUsers.length > 0 && (
         <div>
           <h2 className="text-xl font-semibold text-gray-900 mb-4">팔로우한 사용자</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {followUsers.map((user) => (
-              <Card 
-                key={user.memberId}
-                className="cursor-pointer hover:shadow-lg transition-shadow"
-                onClick={() => onFollowClick('user', user.memberId)}
-              >
-                <CardContent className="p-4 text-center">
-                  <div className="w-16 h-16 mx-auto mb-3">
-                    <img
-                      src={getSafeProfileUrl(user.memberProfileUrl)}
-                      alt={user.nickname}
-                      className="w-full h-full rounded-full object-cover"
-                    />
-                  </div>
-                  <h3 className="font-medium text-gray-900 truncate">{user.nickname}</h3>
-                  <p className="text-sm text-gray-500">사용자</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          <ProfileCardGrid
+            profiles={userProfiles}
+            onProfileClick={onFollowClick}
+            columns={4}
+          />
         </div>
       )}
 
@@ -162,27 +148,11 @@ export const FollowSection: React.FC<FollowSectionProps> = ({ onFollowClick }) =
       {followCompanies.length > 0 && (
         <div>
           <h2 className="text-xl font-semibold text-gray-900 mb-4">팔로우한 기업</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {followCompanies.map((company) => (
-              <Card 
-                key={company.companyId}
-                className="cursor-pointer hover:shadow-lg transition-shadow"
-                onClick={() => onFollowClick('company', company.companyId)}
-              >
-                <CardContent className="p-4 text-center">
-                  <div className="w-16 h-16 mx-auto mb-3">
-                    <img
-                      src={getSafeCompanyUrl(company.companyProfileUrl)}
-                      alt={company.companyName}
-                      className="w-full h-full rounded-full object-cover"
-                    />
-                  </div>
-                  <h3 className="font-medium text-gray-900 truncate">{company.companyName}</h3>
-                  <p className="text-sm text-gray-500">기업</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          <ProfileCardGrid
+            profiles={companyProfiles}
+            onProfileClick={onFollowClick}
+            columns={4}
+          />
         </div>
       )}
     </div>

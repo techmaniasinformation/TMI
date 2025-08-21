@@ -2,14 +2,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { usePostsList } from '@/hooks/posts/usePostsList';
 import HomeTabBar from './HomeTabBar';
-import PostList from './article/PostList';
+import { PostList } from './article/PostList';
 import ServerPagination from './ServerPagination';
 import { Card, CardContent } from '@/components/domain/Card';
 import { Button } from '@/components/foundation/button';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getSafeThumbnailUrl } from '@/utils/defaultImages';
 import { PostCardSkeleton } from '@/components/foundation/Skeleton';
-import { FollowSection } from './FollowSection';
 
 // 탭 설정
 const HOME_TABS = [
@@ -145,11 +144,11 @@ export default function HomePostList() {
         tabs={HOME_TABS}
         activeTab={currentTab}
         onTabChange={(tabId) => {
-          console.log('🔍 HomeTabBar에서 탭 클릭:', tabId);
+      
           
           // 팔로우 탭으로 변경하려고 하는데 로그인하지 않은 경우
           if (tabId === 'following' && !isLoggedIn) {
-            console.log('🔍 팔로우 탭 클릭했지만 로그인하지 않음');
+
             setActiveTab(tabId as 'latest' | 'following');
             return;
           }
@@ -192,12 +191,7 @@ export default function HomePostList() {
               {posts.length > 0 ? (
                 <PostList
                   posts={posts}
-                  formatDate={formatDate}
-                  formatNumber={formatNumber}
                   onPostClick={handlePostClick}
-                  showThumbnail={true}
-                  maxTags={5}
-                  className="mb-8"
                 />
               ) : (
                 <div className="text-center py-12">
@@ -215,12 +209,7 @@ export default function HomePostList() {
       {currentTab === 'latest' && posts.length > 0 && (
         <PostList
           posts={posts}
-          formatDate={formatDate}
-          formatNumber={formatNumber}
           onPostClick={handlePostClick}
-          showThumbnail={true}
-          maxTags={5}
-          className="mb-8"
         />
       )}
 

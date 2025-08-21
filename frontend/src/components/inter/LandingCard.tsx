@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/utils/utils';
-import Tag from '@/components/domain/article/Tag';
+import { Tag } from '@/components/domain/article/Tag';
 import CardInfoCount from '@/components/domain/article/CardInfoCount';
 import { getSafeProfileUrl, getSafeBadgeUrl, DEFAULT_IMAGES } from '@/utils/defaultImages';
 
@@ -157,11 +157,10 @@ const LandingCard: React.FC<LandingCardProps> = ({
               {tags.map((tag, index) => (
                 <Tag
                   key={index}
-                  tag={`#${tag}`}
-                  variant='tech'
-                  removable={false}
-                  className='text-xs'
-                />
+                  className='text-xs bg-blue-100 text-blue-800'
+                >
+                  #{tag}
+                </Tag>
               ))}
             </div>
           </div>

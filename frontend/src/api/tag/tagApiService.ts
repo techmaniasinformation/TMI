@@ -1,5 +1,5 @@
 import { TechTag, CompanyTag, TagSearchResponse } from '@/types/api.types';
-import type { AutocompleteTag } from '@/hooks/tags/useTagAutocomplete';
+import type { AutocompleteTag } from '@/types/tag.types';
 
 // 태그 API 서비스
 const API_BASE_URL = 'https://i13a509.p.ssafy.io/api/v1';
@@ -72,3 +72,4 @@ export const fetchTagSuggestions = async (
     tagSearchResults,
   };
 };
+

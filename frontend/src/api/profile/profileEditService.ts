@@ -49,3 +49,4 @@ export function validateProfileData(data: ProfileEditRequest): {
     errors
   };
 }
+

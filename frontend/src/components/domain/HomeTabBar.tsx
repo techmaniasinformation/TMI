@@ -24,7 +24,7 @@ export default function HomeTabBar({
         {tabs.map((tab) => (
           <Button
             key={tab.id}
-            variant="ghost"
+            variant="default"
             className={`flex-1 py-4 text-lg !rounded-button cursor-pointer whitespace-nowrap transition-all duration-300 ${
               activeTab === tab.id
                 ? 'bg-gradient-to-r from-indigo-600 to-blue-500 text-white font-medium shadow-lg shadow-indigo-200'

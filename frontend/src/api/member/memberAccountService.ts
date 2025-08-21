@@ -7,7 +7,7 @@ export async function deleteMember(memberId: number): Promise<boolean> {
     const data = await patchRequest(`/member/${memberId}/delete`);
     
     // 응답 바디가 있을 때만 상태 체크
-    if (data?.status && data.status !== "SUCCESS") {
+    if (data && typeof data === 'object' && 'status' in data && (data as any).status !== "SUCCESS") {
       console.warn("회원탈퇴 실패: API 상태 비정상", data);
       return false;
     }
@@ -18,4 +18,5 @@ export async function deleteMember(memberId: number): Promise<boolean> {
     throw handleMemberError(error, '회원탈퇴 실패');
   }
 }
+
 

@@ -14,17 +14,8 @@ const buttonVariants = cva(
         default: "bg-light-bg text-primary border border-dark-bg hover:bg-light-bg-hover",
         primary: "bg-prime-btn text-white hover:bg-prime-btn-hover",
         light: "bg-light-bg text-primary border border-dark-bg hover:bg-light-bg-hover",
-        dark: "bg-dark-bg text-white border border-light-bg qhover:bg-dark-bg-hover",
-        //이 아래는 사용 안 할 부분들. 다른 컴포넌트, 완성 전까지 임시로 남겨둠
-        destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-        secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
-        // 여기까지!!! 지울 부분!! 
+        dark: "bg-dark-bg text-white border border-light-bg hover:bg-dark-bg-hover",
+        outline: "bg-transparent text-primary border border-primary hover:bg-primary hover:text-white",
       },
       size: {
         default: "h-10 px-4 py-2",

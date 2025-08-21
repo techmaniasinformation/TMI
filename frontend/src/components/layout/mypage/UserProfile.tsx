@@ -1,5 +1,6 @@
 import React from 'react';
-import { Avatar, AvatarImage, AvatarFallback, Badge, Button } from '@/components';
+import { Avatar, AvatarImage, AvatarFallback, Badge } from '@/components/domain';
+import { Button } from '@/components/foundation/button';
 
 interface UserProfileProps {
   user: {

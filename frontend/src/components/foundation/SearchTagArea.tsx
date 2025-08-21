@@ -1,6 +1,6 @@
 import React from 'react';
 import { cn } from '@/utils/utils';
-import TagArea from '@/components/domain/article/TagArea';
+import { TagArea } from '@/components/domain/article/TagArea';
 
 interface SearchTagAreaProps {
   selectedTags: any[];
@@ -42,4 +42,5 @@ const SearchTagArea: React.FC<SearchTagAreaProps> = ({
 };
 
 export default SearchTagArea;
+
 

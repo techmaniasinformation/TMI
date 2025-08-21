@@ -1,5 +1,5 @@
 import HomePostList from '@/components/domain/HomePostList';
-import PopularPosts from '@/components/domain/PopularPosts';
+import { PopularPosts } from '@/components/domain/PopularPosts';
 
 const HomePage = () => {
   return (

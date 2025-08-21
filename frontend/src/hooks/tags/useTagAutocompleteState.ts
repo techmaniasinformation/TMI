@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { TechTag, CompanyTag } from '@/types/api.types';
-import type { AutocompleteTag } from './useTagAutocomplete';
+import type { AutocompleteTag } from '@/types/tag.types';
 
 // 태그 자동완성 상태 관리 훅
 export const useTagAutocompleteState = () => {
@@ -26,3 +26,4 @@ export const useTagAutocompleteState = () => {
     setTagSearchResults,
   };
 };
+

@@ -1,94 +1,117 @@
 import React from 'react';
-import { Badge } from "@/components/domain/Badge";
-import { getSafeProfileUrl, handleProfileImageError } from "@/utils/defaultImages";
-
-interface Post {
-  id: number;
-  title: string;
-  author: {
-    name: string;
-    avatar: string;
-    company: string;
-  };
-  tags: string[];
-  content: string;
-  createdAt: string;
-  views: number;
-  likes: number;
-}
+import { Post } from '@/types';
+import { getSafeThumbnailUrl, DEFAULT_IMAGES } from '@/utils/defaultImages';
 
 interface PostCardProps {
   post: Post;
-  highlightedTags: string[];
-  formatDate: (dateString: string) => string;
-  formatNumber: (num: number) => string;
+  onClick?: () => void;
+  searchKeyword?: string;
+  searchTechTags?: string[];
+  searchCompanyTags?: string[];
 }
 
-const PostCard: React.FC<PostCardProps> = ({ 
-  post, 
-  highlightedTags, 
-  formatDate, 
-  formatNumber 
+const PostCard: React.FC<PostCardProps> = ({
+  post,
+  onClick,
+  searchKeyword = '',
+  searchTechTags = [],
+  searchCompanyTags = [],
 }) => {
-  const isHighlightedTag = (tag: string) => {
-    return highlightedTags.includes(tag);
+  const [imageError, setImageError] = React.useState(false);
+
+  const handleImageError = () => {
+    setImageError(true);
+  };
+
+  // 검색어 하이라이트 함수
+  const highlightText = (text: string, keyword: string) => {
+    if (!keyword) return text;
+    const regex = new RegExp(`(${keyword})`, 'gi');
+    return text.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-800">$1</mark>');
+  };
+
+  // 태그 하이라이트 함수
+  const highlightTag = (tag: string, searchTags: string[]) => {
+    if (searchTags.includes(tag)) {
+      return `<span class="bg-blue-200 dark:bg-blue-800 px-2 py-1 rounded">${tag}</span>`;
+    }
+    return tag;
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-      <div className="flex items-start space-x-4">
-        <div className="flex-shrink-0">
+    <div
+      className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer border border-gray-200 dark:border-gray-700"
+      onClick={onClick}
+    >
+      <div className="flex">
+        {/* 썸네일 */}
+        <div className="w-48 h-32 flex-shrink-0">
           <img
-            src={getSafeProfileUrl(post.author.avatar)}
-            alt={post.author.name}
-            className="w-12 h-12 rounded-full object-cover"
-            onError={handleProfileImageError}
+            src={imageError ? DEFAULT_IMAGES.THUMBNAIL : getSafeThumbnailUrl(post.thumbnailUrl)}
+            alt={post.title}
+            className="w-full h-full object-cover rounded-l-lg"
+            onError={handleImageError}
           />
         </div>
-        
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between mb-2">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-1 break-words break-all">
-                {post.title}
-              </h3>
-              <div className="flex items-center space-x-2 text-sm text-gray-600 mb-2">
-                <span className="font-medium">{post.author.name}</span>
-                <span>•</span>
-                <span>{post.author.company}</span>
-                <span>•</span>
-                <span>{formatDate(post.createdAt)}</span>
-              </div>
-            </div>
+
+        {/* 콘텐츠 */}
+        <div className="flex-1 p-4">
+          {/* 제목 */}
+          <h3
+            className="text-lg font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2"
+            dangerouslySetInnerHTML={{
+              __html: highlightText(post.title, searchKeyword),
+            }}
+          />
+
+          {/* 작성자 정보 */}
+          <div className="flex items-center mb-2">
+            <img
+              src={post.memberProfileUrl || DEFAULT_IMAGES.PROFILE}
+              alt="Profile"
+              className="w-6 h-6 rounded-full mr-2"
+            />
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              {post.name}
+            </span>
+            {post.badgeUrl && (
+              <img
+                src={post.badgeUrl}
+                alt="Badge"
+                className="w-5 h-5 rounded-full ml-2"
+              />
+            )}
           </div>
-          
-          <p className="text-gray-700 mb-3 line-clamp-2 break-words break-all">
-            {post.content}
-          </p>
-          
-          <div className="flex flex-wrap gap-2 mb-3">
-            {post.tags.map((tag, index) => (
+
+          {/* 태그 */}
+          <div className="flex flex-wrap gap-1 mb-2">
+            {post.tags.slice(0, 3).map((tag, index) => (
               <span
                 key={index}
-                className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  isHighlightedTag(tag)
-                    ? 'bg-blue-100 text-blue-800'
-                    : 'bg-gray-100 text-gray-700'
-                }`}
-              >
-                {tag}
-              </span>
+                className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded"
+                dangerouslySetInnerHTML={{
+                  __html: highlightTag(tag, [...searchTechTags, ...searchCompanyTags]),
+                }}
+              />
             ))}
+            {post.tags.length > 3 && (
+              <span className="text-xs text-gray-500">+{post.tags.length - 3}</span>
+            )}
           </div>
-          
-          <div className="flex items-center space-x-4 text-sm text-gray-500">
-            <span className="flex items-center">
+
+          {/* 메타 정보 */}
+          <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+            <span className="mr-4">
               <i className="fas fa-eye mr-1"></i>
-              {formatNumber(post.views)}
+              {post.viewCount}
             </span>
-            <span className="flex items-center">
-              <i className="fas fa-heart mr-1"></i>
-              {formatNumber(post.likes)}
+            <span className="mr-4">
+              <i className="fas fa-star mr-1"></i>
+              {post.starCount}
+            </span>
+            <span>
+              <i className="fas fa-comment mr-1"></i>
+              {post.commentCount}
             </span>
           </div>
         </div>

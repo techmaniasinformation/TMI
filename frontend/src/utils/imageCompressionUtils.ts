@@ -209,3 +209,4 @@ export const fileToBase64 = (file: File): Promise<string> => {
 
 export { ALLOWED_TYPES, EXT_TO_MIME, MAX_SIZE, MIN_SIZE, POST_MIN_SIZE, MAX_DIMENSION, RATIO_MIN, RATIO_MAX };
 export type { KnownMime };
+

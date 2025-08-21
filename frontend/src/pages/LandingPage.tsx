@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/foundation/button';
-import { useThemeStore } from '@/stores/themeStore'; //테마
-import { useUserStore } from '@/stores/userStore'; //로그인 상태 정보
+import { useAuth, useTheme } from '@/hooks/store/useStoreActions'; //테마 및 로그인 상태 정보
 import LandingCard from '@/components/inter/LandingCard'; //인기 게시글 3개
 import { usePopularPosts } from '@/hooks/posts/usePopularPosts';
 import { formatUTCToKSTDate } from '@/utils/dateUtils';
@@ -30,32 +29,32 @@ const LandingPage: React.FC<LandingPageProps> = () => {
   const location = useLocation();
 
   // 테마 관련 변수 받기
-  const { isDarkMode } = useThemeStore();
+  const { isDarkMode } = useTheme();
 
   // ##### 현재 로그인 여부, 로그인 했을 시 user 객체
-  const { user } = useUserStore();
+  const { user } = useAuth();
   const isLogin = user !== null && user.memberId > 0;
 
   // 인기게시글 데이터 가져오기 (랜딩페이지에서는 3개만)
   const { posts: popularPosts, loading, error } = usePopularPosts(3);
 
   const handleSignupClick = (): void => {
-    // TODO: 로그인/회원가입 페이지로 이동 로직 구현
+    // 로그인/회원가입 페이지로 이동
     navigate('/login', {
       state: { from: location.pathname },
     });
-    console.log('로그인/회원가입 페이지로 이동');
+
   };
 
   const handleExploreClick = (): void => {
     navigate('/home');
-    console.log('메인 페이지로 이동');
+
   };
 
   // ######## 카드 클릭시 게시글 상세 페이지로 이동
   const handleCardClick = (postId: number) => {
     navigate(`/post/${postId}`);
-    console.log(`게시글 상세 페이지로 이동: post/${postId}`);
+
   };
 
   return (

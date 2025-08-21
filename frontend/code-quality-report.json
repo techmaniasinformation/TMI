@@ -9,42 +9,2787 @@
     }
   },
   "namingConventions": {
-    "totalFiles": 231,
+    "totalFiles": 286,
     "issues": [],
     "score": 100
   },
   "codeLength": {
-    "totalFiles": 231,
-    "totalLines": 18397,
-    "averageLines": 80,
-    "maxLines": 443,
+    "totalFiles": 286,
+    "totalLines": 19565,
+    "averageLines": 68,
+    "maxLines": 292,
     "minLines": 1,
     "fileDistribution": {
-      "small": 96,
-      "medium": 120,
-      "large": 15,
+      "small": 123,
+      "medium": 156,
+      "large": 7,
       "huge": 0
     }
   },
   "componentComplexity": {
-    "totalComponents": 231,
-    "averageComplexity": 25,
-    "maxComplexity": 169,
+    "totalFiles": 211,
+    "averageComplexity": 40,
+    "maxComplexity": 84,
     "complexityDistribution": {
-      "low": 154,
-      "medium": 11,
-      "high": 2,
-      "veryHigh": 64
-    }
+      "low": 3,
+      "medium": 46,
+      "high": 107,
+      "veryHigh": 55
+    },
+    "details": [
+      {
+        "file": "src\\App.tsx",
+        "complexity": 31,
+        "details": {
+          "conditionals": 3,
+          "loops": 0,
+          "hooks": 1,
+          "jsxComplexity": 1,
+          "maxNesting": 4,
+          "functions": 1,
+          "lines": 27
+        }
+      },
+      {
+        "file": "src\\assets\\icons\\IconTab1.tsx",
+        "complexity": 14,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 2,
+          "maxNesting": 1,
+          "functions": 0,
+          "lines": 20
+        }
+      },
+      {
+        "file": "src\\assets\\icons\\IconTab2.tsx",
+        "complexity": 15,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 2,
+          "maxNesting": 1,
+          "functions": 0,
+          "lines": 21
+        }
+      },
+      {
+        "file": "src\\assets\\icons\\IconTab3.tsx",
+        "complexity": 15,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 2,
+          "maxNesting": 1,
+          "functions": 0,
+          "lines": 21
+        }
+      },
+      {
+        "file": "src\\assets\\icons\\IconTab4.tsx",
+        "complexity": 15,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 2,
+          "maxNesting": 1,
+          "functions": 0,
+          "lines": 21
+        }
+      },
+      {
+        "file": "src\\assets\\icons\\IconTab5.tsx",
+        "complexity": 15,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 2,
+          "maxNesting": 1,
+          "functions": 0,
+          "lines": 21
+        }
+      },
+      {
+        "file": "src\\components\\domain\\article\\ArticleInfo.tsx",
+        "complexity": 35,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 7,
+          "maxNesting": 3,
+          "functions": 2,
+          "lines": 100
+        }
+      },
+      {
+        "file": "src\\components\\domain\\article\\CardInfoCount.tsx",
+        "complexity": 27,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 3,
+          "maxNesting": 2,
+          "functions": 2,
+          "lines": 37
+        }
+      },
+      {
+        "file": "src\\components\\domain\\article\\DateTimeComponent.tsx",
+        "complexity": 15,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 0,
+          "maxNesting": 2,
+          "functions": 2,
+          "lines": 17
+        }
+      },
+      {
+        "file": "src\\components\\domain\\article\\PopularPostItem.tsx",
+        "complexity": 34,
+        "details": {
+          "conditionals": 1,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 5,
+          "maxNesting": 3,
+          "functions": 1,
+          "lines": 60
+        }
+      },
+      {
+        "file": "src\\components\\domain\\article\\PostItem.tsx",
+        "complexity": 48,
+        "details": {
+          "conditionals": 3,
+          "loops": 1,
+          "hooks": 2,
+          "jsxComplexity": 7,
+          "maxNesting": 4,
+          "functions": 1,
+          "lines": 104
+        }
+      },
+      {
+        "file": "src\\components\\domain\\article\\PostList.tsx",
+        "complexity": 48,
+        "details": {
+          "conditionals": 2,
+          "loops": 1,
+          "hooks": 1,
+          "jsxComplexity": 10,
+          "maxNesting": 4,
+          "functions": 2,
+          "lines": 98
+        }
+      },
+      {
+        "file": "src\\components\\domain\\article\\Tag.tsx",
+        "complexity": 40,
+        "details": {
+          "conditionals": 4,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 3,
+          "maxNesting": 3,
+          "functions": 3,
+          "lines": 71
+        }
+      },
+      {
+        "file": "src\\components\\domain\\article\\TagArea.tsx",
+        "complexity": 47,
+        "details": {
+          "conditionals": 7,
+          "loops": 1,
+          "hooks": 0,
+          "jsxComplexity": 2,
+          "maxNesting": 3,
+          "functions": 2,
+          "lines": 101
+        }
+      },
+      {
+        "file": "src\\components\\domain\\article\\UserInfo.tsx",
+        "complexity": 49,
+        "details": {
+          "conditionals": 6,
+          "loops": 0,
+          "hooks": 2,
+          "jsxComplexity": 5,
+          "maxNesting": 3,
+          "functions": 3,
+          "lines": 86
+        }
+      },
+      {
+        "file": "src\\components\\domain\\Avatar.tsx",
+        "complexity": 27,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 5,
+          "maxNesting": 1,
+          "functions": 0,
+          "lines": 47
+        }
+      },
+      {
+        "file": "src\\components\\domain\\Badge.tsx",
+        "complexity": 30,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 3,
+          "maxNesting": 3,
+          "functions": 1,
+          "lines": 53
+        }
+      },
+      {
+        "file": "src\\components\\domain\\Card.tsx",
+        "complexity": 31,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 9,
+          "maxNesting": 1,
+          "functions": 0,
+          "lines": 94
+        }
+      },
+      {
+        "file": "src\\components\\domain\\ClientPagination.tsx",
+        "complexity": 74,
+        "details": {
+          "conditionals": 10,
+          "loops": 5,
+          "hooks": 1,
+          "jsxComplexity": 9,
+          "maxNesting": 4,
+          "functions": 1,
+          "lines": 168
+        }
+      },
+      {
+        "file": "src\\components\\domain\\Dialog.tsx",
+        "complexity": 34,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 10,
+          "maxNesting": 1,
+          "functions": 2,
+          "lines": 119
+        }
+      },
+      {
+        "file": "src\\components\\domain\\FollowSection.tsx",
+        "complexity": 80,
+        "details": {
+          "conditionals": 6,
+          "loops": 7,
+          "hooks": 2,
+          "jsxComplexity": 14,
+          "maxNesting": 5,
+          "functions": 0,
+          "lines": 191
+        }
+      },
+      {
+        "file": "src\\components\\domain\\HomePostList.tsx",
+        "complexity": 81,
+        "details": {
+          "conditionals": 6,
+          "loops": 2,
+          "hooks": 5,
+          "jsxComplexity": 23,
+          "maxNesting": 5,
+          "functions": 3,
+          "lines": 240
+        }
+      },
+      {
+        "file": "src\\components\\domain\\HomeTabBar.tsx",
+        "complexity": 37,
+        "details": {
+          "conditionals": 1,
+          "loops": 1,
+          "hooks": 0,
+          "jsxComplexity": 4,
+          "maxNesting": 3,
+          "functions": 2,
+          "lines": 42
+        }
+      },
+      {
+        "file": "src\\components\\domain\\Input.tsx",
+        "complexity": 16,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 2,
+          "maxNesting": 1,
+          "functions": 0,
+          "lines": 24
+        }
+      },
+      {
+        "file": "src\\components\\domain\\Label.tsx",
+        "complexity": 16,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 3,
+          "maxNesting": 1,
+          "functions": 0,
+          "lines": 23
+        }
+      },
+      {
+        "file": "src\\components\\domain\\PopularPosts.tsx",
+        "complexity": 76,
+        "details": {
+          "conditionals": 6,
+          "loops": 3,
+          "hooks": 5,
+          "jsxComplexity": 15,
+          "maxNesting": 5,
+          "functions": 2,
+          "lines": 170
+        }
+      },
+      {
+        "file": "src\\components\\domain\\search\\SearchPostList.tsx",
+        "complexity": 32,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 4,
+          "maxNesting": 2,
+          "functions": 4,
+          "lines": 44
+        }
+      },
+      {
+        "file": "src\\components\\domain\\search\\SearchResultBar.tsx",
+        "complexity": 45,
+        "details": {
+          "conditionals": 2,
+          "loops": 2,
+          "hooks": 0,
+          "jsxComplexity": 7,
+          "maxNesting": 3,
+          "functions": 2,
+          "lines": 69
+        }
+      },
+      {
+        "file": "src\\components\\domain\\SearchPostListContainer.tsx",
+        "complexity": 63,
+        "details": {
+          "conditionals": 7,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 16,
+          "maxNesting": 4,
+          "functions": 5,
+          "lines": 153
+        }
+      },
+      {
+        "file": "src\\components\\domain\\ServerPagination.tsx",
+        "complexity": 68,
+        "details": {
+          "conditionals": 10,
+          "loops": 3,
+          "hooks": 0,
+          "jsxComplexity": 8,
+          "maxNesting": 4,
+          "functions": 3,
+          "lines": 149
+        }
+      },
+      {
+        "file": "src\\components\\domain\\Switch.tsx",
+        "complexity": 18,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 3,
+          "maxNesting": 1,
+          "functions": 0,
+          "lines": 26
+        }
+      },
+      {
+        "file": "src\\components\\domain\\Tabs.tsx",
+        "complexity": 27,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 5,
+          "maxNesting": 1,
+          "functions": 0,
+          "lines": 52
+        }
+      },
+      {
+        "file": "src\\components\\domain\\Textarea.tsx",
+        "complexity": 15,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 2,
+          "maxNesting": 1,
+          "functions": 0,
+          "lines": 23
+        }
+      },
+      {
+        "file": "src\\components\\domain\\Tooltip.tsx",
+        "complexity": 18,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 3,
+          "maxNesting": 1,
+          "functions": 0,
+          "lines": 27
+        }
+      },
+      {
+        "file": "src\\components\\foundation\\button.tsx",
+        "complexity": 30,
+        "details": {
+          "conditionals": 1,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 2,
+          "maxNesting": 3,
+          "functions": 0,
+          "lines": 65
+        }
+      },
+      {
+        "file": "src\\components\\foundation\\EmptyState.tsx",
+        "complexity": 34,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 4,
+          "maxNesting": 3,
+          "functions": 4,
+          "lines": 66
+        }
+      },
+      {
+        "file": "src\\components\\foundation\\ErrorState.tsx",
+        "complexity": 32,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 4,
+          "maxNesting": 3,
+          "functions": 2,
+          "lines": 59
+        }
+      },
+      {
+        "file": "src\\components\\foundation\\Footer.tsx",
+        "complexity": 29,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 3,
+          "maxNesting": 3,
+          "functions": 0,
+          "lines": 60
+        }
+      },
+      {
+        "file": "src\\components\\foundation\\Header.tsx",
+        "complexity": 39,
+        "details": {
+          "conditionals": 1,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 11,
+          "maxNesting": 3,
+          "functions": 0,
+          "lines": 113
+        }
+      },
+      {
+        "file": "src\\components\\foundation\\HeaderLogo.tsx",
+        "complexity": 16,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 3,
+          "maxNesting": 2,
+          "functions": 0,
+          "lines": 18
+        }
+      },
+      {
+        "file": "src\\components\\foundation\\HeaderProfileMenu.tsx",
+        "complexity": 51,
+        "details": {
+          "conditionals": 4,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 13,
+          "maxNesting": 5,
+          "functions": 0,
+          "lines": 150
+        }
+      },
+      {
+        "file": "src\\components\\foundation\\HeaderThemeToggle.tsx",
+        "complexity": 17,
+        "details": {
+          "conditionals": 1,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 1,
+          "maxNesting": 1,
+          "functions": 0,
+          "lines": 23
+        }
+      },
+      {
+        "file": "src\\components\\foundation\\Layout.tsx",
+        "complexity": 38,
+        "details": {
+          "conditionals": 4,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 3,
+          "maxNesting": 3,
+          "functions": 1,
+          "lines": 49
+        }
+      },
+      {
+        "file": "src\\components\\foundation\\SearchBar.tsx",
+        "complexity": 35,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 9,
+          "maxNesting": 3,
+          "functions": 0,
+          "lines": 98
+        }
+      },
+      {
+        "file": "src\\components\\foundation\\SearchDropdown.tsx",
+        "complexity": 62,
+        "details": {
+          "conditionals": 14,
+          "loops": 1,
+          "hooks": 0,
+          "jsxComplexity": 5,
+          "maxNesting": 3,
+          "functions": 0,
+          "lines": 119
+        }
+      },
+      {
+        "file": "src\\components\\foundation\\SearchInput.tsx",
+        "complexity": 41,
+        "details": {
+          "conditionals": 4,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 7,
+          "maxNesting": 3,
+          "functions": 0,
+          "lines": 105
+        }
+      },
+      {
+        "file": "src\\components\\foundation\\SearchTagArea.tsx",
+        "complexity": 36,
+        "details": {
+          "conditionals": 2,
+          "loops": 1,
+          "hooks": 0,
+          "jsxComplexity": 3,
+          "maxNesting": 3,
+          "functions": 0,
+          "lines": 46
+        }
+      },
+      {
+        "file": "src\\components\\foundation\\Skeleton.tsx",
+        "complexity": 81,
+        "details": {
+          "conditionals": 0,
+          "loops": 3,
+          "hooks": 0,
+          "jsxComplexity": 42,
+          "maxNesting": 2,
+          "functions": 6,
+          "lines": 108
+        }
+      },
+      {
+        "file": "src\\components\\inter\\Badges.tsx",
+        "complexity": 21,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 1,
+          "maxNesting": 1,
+          "functions": 6,
+          "lines": 25
+        }
+      },
+      {
+        "file": "src\\components\\inter\\CommentBadge.tsx",
+        "complexity": 13,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 1,
+          "maxNesting": 1,
+          "functions": 2,
+          "lines": 15
+        }
+      },
+      {
+        "file": "src\\components\\inter\\LandingCard.tsx",
+        "complexity": 58,
+        "details": {
+          "conditionals": 5,
+          "loops": 1,
+          "hooks": 3,
+          "jsxComplexity": 14,
+          "maxNesting": 3,
+          "functions": 0,
+          "lines": 174
+        }
+      },
+      {
+        "file": "src\\components\\inter\\SocialLoginButton.tsx",
+        "complexity": 37,
+        "details": {
+          "conditionals": 4,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 3,
+          "maxNesting": 3,
+          "functions": 0,
+          "lines": 54
+        }
+      },
+      {
+        "file": "src\\components\\inter\\StarBadge.tsx",
+        "complexity": 13,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 1,
+          "maxNesting": 1,
+          "functions": 2,
+          "lines": 16
+        }
+      },
+      {
+        "file": "src\\components\\inter\\ViewBadge.tsx",
+        "complexity": 13,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 1,
+          "maxNesting": 1,
+          "functions": 2,
+          "lines": 16
+        }
+      },
+      {
+        "file": "src\\components\\layout\\mypage\\BadgeModal.tsx",
+        "complexity": 69,
+        "details": {
+          "conditionals": 14,
+          "loops": 0,
+          "hooks": 2,
+          "jsxComplexity": 5,
+          "maxNesting": 5,
+          "functions": 3,
+          "lines": 195
+        }
+      },
+      {
+        "file": "src\\components\\layout\\mypage\\CommentCard.tsx",
+        "complexity": 27,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 2,
+          "maxNesting": 2,
+          "functions": 1,
+          "lines": 44
+        }
+      },
+      {
+        "file": "src\\components\\layout\\mypage\\CommentsTabContent.tsx",
+        "complexity": 44,
+        "details": {
+          "conditionals": 3,
+          "loops": 1,
+          "hooks": 0,
+          "jsxComplexity": 7,
+          "maxNesting": 4,
+          "functions": 0,
+          "lines": 61
+        }
+      },
+      {
+        "file": "src\\components\\layout\\mypage\\FollowCompanyCard.tsx",
+        "complexity": 20,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 3,
+          "maxNesting": 1,
+          "functions": 0,
+          "lines": 31
+        }
+      },
+      {
+        "file": "src\\components\\layout\\mypage\\FollowTabContent.tsx",
+        "complexity": 58,
+        "details": {
+          "conditionals": 4,
+          "loops": 2,
+          "hooks": 0,
+          "jsxComplexity": 14,
+          "maxNesting": 5,
+          "functions": 0,
+          "lines": 129
+        }
+      },
+      {
+        "file": "src\\components\\layout\\mypage\\FollowUserCard.tsx",
+        "complexity": 27,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 3,
+          "maxNesting": 2,
+          "functions": 0,
+          "lines": 43
+        }
+      },
+      {
+        "file": "src\\components\\layout\\mypage\\MypageBadgeGrid.tsx",
+        "complexity": 59,
+        "details": {
+          "conditionals": 9,
+          "loops": 2,
+          "hooks": 0,
+          "jsxComplexity": 4,
+          "maxNesting": 5,
+          "functions": 1,
+          "lines": 131
+        }
+      },
+      {
+        "file": "src\\components\\layout\\mypage\\MypageTabContent.tsx",
+        "complexity": 45,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 19,
+          "maxNesting": 3,
+          "functions": 0,
+          "lines": 162
+        }
+      },
+      {
+        "file": "src\\components\\layout\\mypage\\MypageTabHeader.tsx",
+        "complexity": 45,
+        "details": {
+          "conditionals": 1,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 17,
+          "maxNesting": 3,
+          "functions": 0,
+          "lines": 113
+        }
+      },
+      {
+        "file": "src\\components\\layout\\mypage\\MypageTabs.tsx",
+        "complexity": 60,
+        "details": {
+          "conditionals": 3,
+          "loops": 1,
+          "hooks": 0,
+          "jsxComplexity": 25,
+          "maxNesting": 3,
+          "functions": 0,
+          "lines": 213
+        }
+      },
+      {
+        "file": "src\\components\\layout\\mypage\\PostCard.tsx",
+        "complexity": 37,
+        "details": {
+          "conditionals": 1,
+          "loops": 1,
+          "hooks": 1,
+          "jsxComplexity": 6,
+          "maxNesting": 2,
+          "functions": 1,
+          "lines": 77
+        }
+      },
+      {
+        "file": "src\\components\\layout\\mypage\\PostsTabContent.tsx",
+        "complexity": 52,
+        "details": {
+          "conditionals": 4,
+          "loops": 2,
+          "hooks": 0,
+          "jsxComplexity": 10,
+          "maxNesting": 4,
+          "functions": 0,
+          "lines": 113
+        }
+      },
+      {
+        "file": "src\\components\\layout\\mypage\\ProfileActions.tsx",
+        "complexity": 56,
+        "details": {
+          "conditionals": 9,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 8,
+          "maxNesting": 5,
+          "functions": 0,
+          "lines": 76
+        }
+      },
+      {
+        "file": "src\\components\\layout\\mypage\\ProfileEditModal.tsx",
+        "complexity": 51,
+        "details": {
+          "conditionals": 5,
+          "loops": 0,
+          "hooks": 1,
+          "jsxComplexity": 14,
+          "maxNesting": 3,
+          "functions": 0,
+          "lines": 162
+        }
+      },
+      {
+        "file": "src\\components\\layout\\mypage\\ProfileFormFields.tsx",
+        "complexity": 53,
+        "details": {
+          "conditionals": 8,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 11,
+          "maxNesting": 3,
+          "functions": 0,
+          "lines": 133
+        }
+      },
+      {
+        "file": "src\\components\\layout\\mypage\\ProfileHeader.tsx",
+        "complexity": 81,
+        "details": {
+          "conditionals": 13,
+          "loops": 0,
+          "hooks": 5,
+          "jsxComplexity": 11,
+          "maxNesting": 6,
+          "functions": 4,
+          "lines": 201
+        }
+      },
+      {
+        "file": "src\\components\\layout\\mypage\\ProfileImageSection.tsx",
+        "complexity": 41,
+        "details": {
+          "conditionals": 3,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 9,
+          "maxNesting": 3,
+          "functions": 0,
+          "lines": 79
+        }
+      },
+      {
+        "file": "src\\components\\layout\\mypage\\ProfileInfo.tsx",
+        "complexity": 56,
+        "details": {
+          "conditionals": 7,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 13,
+          "maxNesting": 4,
+          "functions": 1,
+          "lines": 107
+        }
+      },
+      {
+        "file": "src\\components\\layout\\mypage\\ProfileTabContent.tsx",
+        "complexity": 27,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 4,
+          "maxNesting": 2,
+          "functions": 0,
+          "lines": 39
+        }
+      },
+      {
+        "file": "src\\components\\layout\\mypage\\StarredTabContent.tsx",
+        "complexity": 44,
+        "details": {
+          "conditionals": 3,
+          "loops": 1,
+          "hooks": 0,
+          "jsxComplexity": 7,
+          "maxNesting": 4,
+          "functions": 0,
+          "lines": 69
+        }
+      },
+      {
+        "file": "src\\components\\layout\\mypage\\UserProfile.tsx",
+        "complexity": 41,
+        "details": {
+          "conditionals": 0,
+          "loops": 1,
+          "hooks": 0,
+          "jsxComplexity": 12,
+          "maxNesting": 3,
+          "functions": 0,
+          "lines": 71
+        }
+      },
+      {
+        "file": "src\\components\\layout\\mypage\\UserStatsCard.tsx",
+        "complexity": 36,
+        "details": {
+          "conditionals": 2,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 3,
+          "maxNesting": 3,
+          "functions": 3,
+          "lines": 57
+        }
+      },
+      {
+        "file": "src\\components\\layout\\mypage\\WithdrawalCompleteModal.tsx",
+        "complexity": 29,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 5,
+          "maxNesting": 2,
+          "functions": 0,
+          "lines": 43
+        }
+      },
+      {
+        "file": "src\\components\\layout\\mypage\\WithdrawalConfirmModal.tsx",
+        "complexity": 59,
+        "details": {
+          "conditionals": 10,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 5,
+          "maxNesting": 6,
+          "functions": 2,
+          "lines": 96
+        }
+      },
+      {
+        "file": "src\\components\\layout\\notifications\\NoNotifications.tsx",
+        "complexity": 17,
+        "details": {
+          "conditionals": 1,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 2,
+          "maxNesting": 1,
+          "functions": 0,
+          "lines": 23
+        }
+      },
+      {
+        "file": "src\\components\\layout\\notifications\\NotifiactionItem.tsx",
+        "complexity": 51,
+        "details": {
+          "conditionals": 8,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 8,
+          "maxNesting": 3,
+          "functions": 1,
+          "lines": 119
+        }
+      },
+      {
+        "file": "src\\components\\layout\\notifications\\NotifiactionToolbar.tsx",
+        "complexity": 30,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 6,
+          "maxNesting": 2,
+          "functions": 0,
+          "lines": 51
+        }
+      },
+      {
+        "file": "src\\components\\layout\\notifications\\NotificationLoader.tsx",
+        "complexity": 10,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 1,
+          "maxNesting": 1,
+          "functions": 0,
+          "lines": 14
+        }
+      },
+      {
+        "file": "src\\components\\layout\\notifications\\UnreadToggle.tsx",
+        "complexity": 19,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 3,
+          "maxNesting": 1,
+          "functions": 2,
+          "lines": 24
+        }
+      },
+      {
+        "file": "src\\components\\layout\\search\\NoResults.tsx",
+        "complexity": 12,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 1,
+          "maxNesting": 1,
+          "functions": 0,
+          "lines": 17
+        }
+      },
+      {
+        "file": "src\\components\\layout\\search\\Pagination.tsx",
+        "complexity": 50,
+        "details": {
+          "conditionals": 3,
+          "loops": 2,
+          "hooks": 0,
+          "jsxComplexity": 9,
+          "maxNesting": 3,
+          "functions": 3,
+          "lines": 67
+        }
+      },
+      {
+        "file": "src\\components\\layout\\search\\PostCard.tsx",
+        "complexity": 39,
+        "details": {
+          "conditionals": 1,
+          "loops": 1,
+          "hooks": 0,
+          "jsxComplexity": 7,
+          "maxNesting": 3,
+          "functions": 1,
+          "lines": 100
+        }
+      },
+      {
+        "file": "src\\components\\layout\\search\\SearchConditions.tsx",
+        "complexity": 35,
+        "details": {
+          "conditionals": 0,
+          "loops": 1,
+          "hooks": 0,
+          "jsxComplexity": 6,
+          "maxNesting": 3,
+          "functions": 0,
+          "lines": 65
+        }
+      },
+      {
+        "file": "src\\components\\layout\\search\\SearchFilter.tsx",
+        "complexity": 41,
+        "details": {
+          "conditionals": 2,
+          "loops": 1,
+          "hooks": 0,
+          "jsxComplexity": 8,
+          "maxNesting": 3,
+          "functions": 0,
+          "lines": 71
+        }
+      },
+      {
+        "file": "src\\components\\PostDetail\\AuthorInfo.tsx",
+        "complexity": 39,
+        "details": {
+          "conditionals": 2,
+          "loops": 0,
+          "hooks": 1,
+          "jsxComplexity": 9,
+          "maxNesting": 2,
+          "functions": 0,
+          "lines": 64
+        }
+      },
+      {
+        "file": "src\\components\\PostDetail\\BestComments.tsx",
+        "complexity": 41,
+        "details": {
+          "conditionals": 4,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 7,
+          "maxNesting": 3,
+          "functions": 0,
+          "lines": 93
+        }
+      },
+      {
+        "file": "src\\components\\PostDetail\\CommentSection.tsx",
+        "complexity": 83,
+        "details": {
+          "conditionals": 13,
+          "loops": 1,
+          "hooks": 1,
+          "jsxComplexity": 18,
+          "maxNesting": 6,
+          "functions": 2,
+          "lines": 249
+        }
+      },
+      {
+        "file": "src\\components\\PostDetail\\PostContent.tsx",
+        "complexity": 54,
+        "details": {
+          "conditionals": 4,
+          "loops": 0,
+          "hooks": 2,
+          "jsxComplexity": 16,
+          "maxNesting": 3,
+          "functions": 1,
+          "lines": 103
+        }
+      },
+      {
+        "file": "src\\components\\PostDetail\\PostHeader.tsx",
+        "complexity": 19,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 4,
+          "maxNesting": 1,
+          "functions": 0,
+          "lines": 25
+        }
+      },
+      {
+        "file": "src\\components\\PostDetail\\PostTitle.tsx",
+        "complexity": 42,
+        "details": {
+          "conditionals": 3,
+          "loops": 1,
+          "hooks": 0,
+          "jsxComplexity": 7,
+          "maxNesting": 3,
+          "functions": 0,
+          "lines": 59
+        }
+      },
+      {
+        "file": "src\\components\\posts\\PostCreateActions.tsx",
+        "complexity": 29,
+        "details": {
+          "conditionals": 1,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 3,
+          "maxNesting": 2,
+          "functions": 0,
+          "lines": 42
+        }
+      },
+      {
+        "file": "src\\components\\posts\\PostCreateContent.tsx",
+        "complexity": 55,
+        "details": {
+          "conditionals": 8,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 11,
+          "maxNesting": 4,
+          "functions": 0,
+          "lines": 128
+        }
+      },
+      {
+        "file": "src\\components\\posts\\PostCreateForm.tsx",
+        "complexity": 33,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 7,
+          "maxNesting": 3,
+          "functions": 0,
+          "lines": 76
+        }
+      },
+      {
+        "file": "src\\components\\posts\\PostCreateHeader.tsx",
+        "complexity": 18,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 2,
+          "maxNesting": 2,
+          "functions": 0,
+          "lines": 25
+        }
+      },
+      {
+        "file": "src\\components\\posts\\PostCreateTags.tsx",
+        "complexity": 49,
+        "details": {
+          "conditionals": 1,
+          "loops": 2,
+          "hooks": 0,
+          "jsxComplexity": 13,
+          "maxNesting": 4,
+          "functions": 0,
+          "lines": 128
+        }
+      },
+      {
+        "file": "src\\components\\posts\\PostCreateThumbnail.tsx",
+        "complexity": 45,
+        "details": {
+          "conditionals": 4,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 9,
+          "maxNesting": 4,
+          "functions": 0,
+          "lines": 98
+        }
+      },
+      {
+        "file": "src\\components\\posts\\PostEditActions.tsx",
+        "complexity": 31,
+        "details": {
+          "conditionals": 2,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 3,
+          "maxNesting": 2,
+          "functions": 0,
+          "lines": 46
+        }
+      },
+      {
+        "file": "src\\components\\posts\\PostEditContent.tsx",
+        "complexity": 55,
+        "details": {
+          "conditionals": 8,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 11,
+          "maxNesting": 4,
+          "functions": 0,
+          "lines": 128
+        }
+      },
+      {
+        "file": "src\\components\\posts\\PostEditForm.tsx",
+        "complexity": 33,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 7,
+          "maxNesting": 3,
+          "functions": 0,
+          "lines": 75
+        }
+      },
+      {
+        "file": "src\\components\\posts\\PostEditHeader.tsx",
+        "complexity": 18,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 2,
+          "maxNesting": 1,
+          "functions": 0,
+          "lines": 27
+        }
+      },
+      {
+        "file": "src\\components\\posts\\PostEditTags.tsx",
+        "complexity": 48,
+        "details": {
+          "conditionals": 1,
+          "loops": 2,
+          "hooks": 0,
+          "jsxComplexity": 12,
+          "maxNesting": 4,
+          "functions": 0,
+          "lines": 129
+        }
+      },
+      {
+        "file": "src\\components\\posts\\PostEditThumbnail.tsx",
+        "complexity": 45,
+        "details": {
+          "conditionals": 4,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 9,
+          "maxNesting": 4,
+          "functions": 0,
+          "lines": 98
+        }
+      },
+      {
+        "file": "src\\index.tsx",
+        "complexity": 8,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 1,
+          "maxNesting": 0,
+          "functions": 0,
+          "lines": 14
+        }
+      },
+      {
+        "file": "src\\pages\\HomePage.tsx",
+        "complexity": 20,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 3,
+          "maxNesting": 2,
+          "functions": 1,
+          "lines": 24
+        }
+      },
+      {
+        "file": "src\\pages\\LandingPage.tsx",
+        "complexity": 79,
+        "details": {
+          "conditionals": 10,
+          "loops": 1,
+          "hooks": 0,
+          "jsxComplexity": 27,
+          "maxNesting": 4,
+          "functions": 1,
+          "lines": 292
+        }
+      },
+      {
+        "file": "src\\pages\\LoginPage.tsx",
+        "complexity": 50,
+        "details": {
+          "conditionals": 5,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 14,
+          "maxNesting": 3,
+          "functions": 0,
+          "lines": 112
+        }
+      },
+      {
+        "file": "src\\pages\\MyPage.tsx",
+        "complexity": 53,
+        "details": {
+          "conditionals": 5,
+          "loops": 0,
+          "hooks": 4,
+          "jsxComplexity": 11,
+          "maxNesting": 3,
+          "functions": 0,
+          "lines": 134
+        }
+      },
+      {
+        "file": "src\\pages\\NotificationsPage.tsx",
+        "complexity": 46,
+        "details": {
+          "conditionals": 3,
+          "loops": 0,
+          "hooks": 3,
+          "jsxComplexity": 7,
+          "maxNesting": 4,
+          "functions": 0,
+          "lines": 85
+        }
+      },
+      {
+        "file": "src\\pages\\OAuthCallbackPage.tsx",
+        "complexity": 45,
+        "details": {
+          "conditionals": 2,
+          "loops": 0,
+          "hooks": 2,
+          "jsxComplexity": 4,
+          "maxNesting": 7,
+          "functions": 0,
+          "lines": 103
+        }
+      },
+      {
+        "file": "src\\pages\\PostCreatePage.tsx",
+        "complexity": 39,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 15,
+          "maxNesting": 2,
+          "functions": 0,
+          "lines": 123
+        }
+      },
+      {
+        "file": "src\\pages\\PostDetailPage.tsx",
+        "complexity": 60,
+        "details": {
+          "conditionals": 4,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 26,
+          "maxNesting": 3,
+          "functions": 0,
+          "lines": 198
+        }
+      },
+      {
+        "file": "src\\pages\\PostEditPage.tsx",
+        "complexity": 39,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 15,
+          "maxNesting": 2,
+          "functions": 0,
+          "lines": 124
+        }
+      },
+      {
+        "file": "src\\pages\\SearchResultsPage.tsx",
+        "complexity": 30,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 4,
+          "maxNesting": 2,
+          "functions": 2,
+          "lines": 50
+        }
+      },
+      {
+        "file": "src\\pages\\SignupPage.tsx",
+        "complexity": 78,
+        "details": {
+          "conditionals": 18,
+          "loops": 0,
+          "hooks": 1,
+          "jsxComplexity": 14,
+          "maxNesting": 3,
+          "functions": 0,
+          "lines": 147
+        }
+      },
+      {
+        "file": "src\\router\\index.tsx",
+        "complexity": 45,
+        "details": {
+          "conditionals": 3,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 11,
+          "maxNesting": 3,
+          "functions": 2,
+          "lines": 114
+        }
+      },
+      {
+        "file": "src\\hooks\\auth\\useAuth.ts",
+        "complexity": 17,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 0,
+          "maxNesting": 3,
+          "functions": 3,
+          "lines": 16
+        }
+      },
+      {
+        "file": "src\\hooks\\auth\\useSignup.ts",
+        "complexity": 81,
+        "details": {
+          "conditionals": 17,
+          "loops": 1,
+          "hooks": 5,
+          "jsxComplexity": 1,
+          "maxNesting": 5,
+          "functions": 6,
+          "lines": 209
+        }
+      },
+      {
+        "file": "src\\hooks\\auth\\useSocialLogin.ts",
+        "complexity": 73,
+        "details": {
+          "conditionals": 15,
+          "loops": 2,
+          "hooks": 2,
+          "jsxComplexity": 0,
+          "maxNesting": 6,
+          "functions": 2,
+          "lines": 184
+        }
+      },
+      {
+        "file": "src\\hooks\\follow\\useFollowActions.ts",
+        "complexity": 84,
+        "details": {
+          "conditionals": 20,
+          "loops": 2,
+          "hooks": 4,
+          "jsxComplexity": 0,
+          "maxNesting": 5,
+          "functions": 2,
+          "lines": 119
+        }
+      },
+      {
+        "file": "src\\hooks\\follow\\useFollowState.ts",
+        "complexity": 41,
+        "details": {
+          "conditionals": 4,
+          "loops": 0,
+          "hooks": 2,
+          "jsxComplexity": 0,
+          "maxNesting": 4,
+          "functions": 2,
+          "lines": 41
+        }
+      },
+      {
+        "file": "src\\hooks\\header\\useHeaderActions.ts",
+        "complexity": 80,
+        "details": {
+          "conditionals": 13,
+          "loops": 2,
+          "hooks": 9,
+          "jsxComplexity": 0,
+          "maxNesting": 5,
+          "functions": 4,
+          "lines": 156
+        }
+      },
+      {
+        "file": "src\\hooks\\header\\useHeaderNotifications.ts",
+        "complexity": 45,
+        "details": {
+          "conditionals": 6,
+          "loops": 0,
+          "hooks": 1,
+          "jsxComplexity": 0,
+          "maxNesting": 6,
+          "functions": 2,
+          "lines": 34
+        }
+      },
+      {
+        "file": "src\\hooks\\header\\useHeaderState.ts",
+        "complexity": 30,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 3,
+          "jsxComplexity": 1,
+          "maxNesting": 2,
+          "functions": 2,
+          "lines": 37
+        }
+      },
+      {
+        "file": "src\\hooks\\image\\useImageCompressionActions.ts",
+        "complexity": 54,
+        "details": {
+          "conditionals": 10,
+          "loops": 0,
+          "hooks": 2,
+          "jsxComplexity": 1,
+          "maxNesting": 4,
+          "functions": 2,
+          "lines": 138
+        }
+      },
+      {
+        "file": "src\\hooks\\image\\useImageCompressionState.ts",
+        "complexity": 35,
+        "details": {
+          "conditionals": 1,
+          "loops": 0,
+          "hooks": 2,
+          "jsxComplexity": 1,
+          "maxNesting": 3,
+          "functions": 3,
+          "lines": 46
+        }
+      },
+      {
+        "file": "src\\hooks\\mypage\\useBadgeManagement.ts",
+        "complexity": 75,
+        "details": {
+          "conditionals": 15,
+          "loops": 0,
+          "hooks": 3,
+          "jsxComplexity": 2,
+          "maxNesting": 7,
+          "functions": 5,
+          "lines": 107
+        }
+      },
+      {
+        "file": "src\\hooks\\mypage\\useCommentManagement.ts",
+        "complexity": 40,
+        "details": {
+          "conditionals": 1,
+          "loops": 0,
+          "hooks": 5,
+          "jsxComplexity": 1,
+          "maxNesting": 4,
+          "functions": 2,
+          "lines": 41
+        }
+      },
+      {
+        "file": "src\\hooks\\mypage\\useCompanyData.ts",
+        "complexity": 27,
+        "details": {
+          "conditionals": 2,
+          "loops": 0,
+          "hooks": 2,
+          "jsxComplexity": 1,
+          "maxNesting": 2,
+          "functions": 2,
+          "lines": 27
+        }
+      },
+      {
+        "file": "src\\hooks\\mypage\\useFetchJson.ts",
+        "complexity": 40,
+        "details": {
+          "conditionals": 2,
+          "loops": 0,
+          "hooks": 1,
+          "jsxComplexity": 1,
+          "maxNesting": 6,
+          "functions": 1,
+          "lines": 41
+        }
+      },
+      {
+        "file": "src\\hooks\\mypage\\useFollowManagement.ts",
+        "complexity": 46,
+        "details": {
+          "conditionals": 2,
+          "loops": 0,
+          "hooks": 8,
+          "jsxComplexity": 0,
+          "maxNesting": 4,
+          "functions": 2,
+          "lines": 66
+        }
+      },
+      {
+        "file": "src\\hooks\\mypage\\useNicknameCooldown.ts",
+        "complexity": 60,
+        "details": {
+          "conditionals": 10,
+          "loops": 0,
+          "hooks": 2,
+          "jsxComplexity": 0,
+          "maxNesting": 6,
+          "functions": 5,
+          "lines": 57
+        }
+      },
+      {
+        "file": "src\\hooks\\mypage\\usePagination.ts",
+        "complexity": 17,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 1,
+          "jsxComplexity": 1,
+          "maxNesting": 2,
+          "functions": 1,
+          "lines": 20
+        }
+      },
+      {
+        "file": "src\\hooks\\mypage\\usePostManagement.ts",
+        "complexity": 49,
+        "details": {
+          "conditionals": 2,
+          "loops": 0,
+          "hooks": 9,
+          "jsxComplexity": 1,
+          "maxNesting": 4,
+          "functions": 2,
+          "lines": 73
+        }
+      },
+      {
+        "file": "src\\hooks\\mypage\\useProfileData.ts",
+        "complexity": 49,
+        "details": {
+          "conditionals": 6,
+          "loops": 0,
+          "hooks": 1,
+          "jsxComplexity": 1,
+          "maxNesting": 6,
+          "functions": 3,
+          "lines": 53
+        }
+      },
+      {
+        "file": "src\\hooks\\mypage\\useProfileManagement.ts",
+        "complexity": 22,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 1,
+          "jsxComplexity": 0,
+          "maxNesting": 2,
+          "functions": 2,
+          "lines": 29
+        }
+      },
+      {
+        "file": "src\\hooks\\mypage\\useProfileSave.ts",
+        "complexity": 62,
+        "details": {
+          "conditionals": 14,
+          "loops": 0,
+          "hooks": 1,
+          "jsxComplexity": 0,
+          "maxNesting": 5,
+          "functions": 2,
+          "lines": 110
+        }
+      },
+      {
+        "file": "src\\hooks\\mypage\\useStarManagement.ts",
+        "complexity": 40,
+        "details": {
+          "conditionals": 1,
+          "loops": 0,
+          "hooks": 5,
+          "jsxComplexity": 1,
+          "maxNesting": 4,
+          "functions": 2,
+          "lines": 41
+        }
+      },
+      {
+        "file": "src\\hooks\\notifications\\useBadgeImages.ts",
+        "complexity": 39,
+        "details": {
+          "conditionals": 5,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 0,
+          "maxNesting": 2,
+          "functions": 5,
+          "lines": 75
+        }
+      },
+      {
+        "file": "src\\hooks\\notifications\\useNotificationActions.ts",
+        "complexity": 65,
+        "details": {
+          "conditionals": 8,
+          "loops": 4,
+          "hooks": 4,
+          "jsxComplexity": 1,
+          "maxNesting": 4,
+          "functions": 2,
+          "lines": 116
+        }
+      },
+      {
+        "file": "src\\hooks\\notifications\\useNotificationAdapter.ts",
+        "complexity": 64,
+        "details": {
+          "conditionals": 16,
+          "loops": 0,
+          "hooks": 1,
+          "jsxComplexity": 0,
+          "maxNesting": 4,
+          "functions": 2,
+          "lines": 85
+        }
+      },
+      {
+        "file": "src\\hooks\\notifications\\useNotificationData.ts",
+        "complexity": 38,
+        "details": {
+          "conditionals": 5,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 0,
+          "maxNesting": 2,
+          "functions": 4,
+          "lines": 50
+        }
+      },
+      {
+        "file": "src\\hooks\\notifications\\useNotificationLoader.ts",
+        "complexity": 46,
+        "details": {
+          "conditionals": 3,
+          "loops": 2,
+          "hooks": 2,
+          "jsxComplexity": 1,
+          "maxNesting": 4,
+          "functions": 2,
+          "lines": 69
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\useCommentActions.ts",
+        "complexity": 18,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 0,
+          "maxNesting": 2,
+          "functions": 2,
+          "lines": 23
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\useCommentCreateService.ts",
+        "complexity": 42,
+        "details": {
+          "conditionals": 5,
+          "loops": 0,
+          "hooks": 1,
+          "jsxComplexity": 0,
+          "maxNesting": 4,
+          "functions": 2,
+          "lines": 58
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\useCommentDeleteService.ts",
+        "complexity": 38,
+        "details": {
+          "conditionals": 3,
+          "loops": 0,
+          "hooks": 1,
+          "jsxComplexity": 0,
+          "maxNesting": 4,
+          "functions": 2,
+          "lines": 41
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\useCommentRecommendService.ts",
+        "complexity": 46,
+        "details": {
+          "conditionals": 6,
+          "loops": 0,
+          "hooks": 1,
+          "jsxComplexity": 0,
+          "maxNesting": 5,
+          "functions": 2,
+          "lines": 61
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\useComments.ts",
+        "complexity": 41,
+        "details": {
+          "conditionals": 3,
+          "loops": 0,
+          "hooks": 3,
+          "jsxComplexity": 0,
+          "maxNesting": 4,
+          "functions": 2,
+          "lines": 70
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\useCommentState.ts",
+        "complexity": 74,
+        "details": {
+          "conditionals": 8,
+          "loops": 2,
+          "hooks": 12,
+          "jsxComplexity": 2,
+          "maxNesting": 5,
+          "functions": 2,
+          "lines": 122
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\useFollow.ts",
+        "complexity": 25,
+        "details": {
+          "conditionals": 1,
+          "loops": 0,
+          "hooks": 1,
+          "jsxComplexity": 0,
+          "maxNesting": 3,
+          "functions": 2,
+          "lines": 26
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\usePopularPosts.ts",
+        "complexity": 14,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 0,
+          "maxNesting": 2,
+          "functions": 2,
+          "lines": 15
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\usePopularPostsActions.ts",
+        "complexity": 31,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 1,
+          "jsxComplexity": 0,
+          "maxNesting": 4,
+          "functions": 2,
+          "lines": 38
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\usePopularPostsState.ts",
+        "complexity": 20,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 1,
+          "maxNesting": 2,
+          "functions": 2,
+          "lines": 26
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\usePopularPostsUtils.ts",
+        "complexity": 20,
+        "details": {
+          "conditionals": 1,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 0,
+          "maxNesting": 4,
+          "functions": 2,
+          "lines": 15
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\usePostCreateActions.ts",
+        "complexity": 28,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 1,
+          "jsxComplexity": 0,
+          "maxNesting": 2,
+          "functions": 2,
+          "lines": 49
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\usePostCreateAIService.ts",
+        "complexity": 52,
+        "details": {
+          "conditionals": 9,
+          "loops": 0,
+          "hooks": 1,
+          "jsxComplexity": 0,
+          "maxNesting": 5,
+          "functions": 2,
+          "lines": 60
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\usePostCreateSaveService.ts",
+        "complexity": 59,
+        "details": {
+          "conditionals": 11,
+          "loops": 1,
+          "hooks": 1,
+          "jsxComplexity": 0,
+          "maxNesting": 5,
+          "functions": 2,
+          "lines": 93
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\usePostCreateState.ts",
+        "complexity": 65,
+        "details": {
+          "conditionals": 4,
+          "loops": 1,
+          "hooks": 16,
+          "jsxComplexity": 0,
+          "maxNesting": 4,
+          "functions": 2,
+          "lines": 129
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\usePostCreateTagService.ts",
+        "complexity": 55,
+        "details": {
+          "conditionals": 8,
+          "loops": 0,
+          "hooks": 4,
+          "jsxComplexity": 1,
+          "maxNesting": 5,
+          "functions": 2,
+          "lines": 70
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\usePostData.ts",
+        "complexity": 16,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 0,
+          "maxNesting": 2,
+          "functions": 2,
+          "lines": 20
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\usePostDataActions.ts",
+        "complexity": 30,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 2,
+          "jsxComplexity": 0,
+          "maxNesting": 3,
+          "functions": 2,
+          "lines": 38
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\usePostDataState.ts",
+        "complexity": 19,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 1,
+          "jsxComplexity": 1,
+          "maxNesting": 2,
+          "functions": 2,
+          "lines": 22
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\usePostDetail.ts",
+        "complexity": 26,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 0,
+          "maxNesting": 2,
+          "functions": 2,
+          "lines": 62
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\usePostDetailActions.ts",
+        "complexity": 60,
+        "details": {
+          "conditionals": 12,
+          "loops": 0,
+          "hooks": 4,
+          "jsxComplexity": 0,
+          "maxNesting": 4,
+          "functions": 2,
+          "lines": 84
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\usePostDetailUI.ts",
+        "complexity": 30,
+        "details": {
+          "conditionals": 1,
+          "loops": 0,
+          "hooks": 3,
+          "jsxComplexity": 0,
+          "maxNesting": 2,
+          "functions": 2,
+          "lines": 35
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\usePostDetailUtils.ts",
+        "complexity": 50,
+        "details": {
+          "conditionals": 6,
+          "loops": 0,
+          "hooks": 3,
+          "jsxComplexity": 3,
+          "maxNesting": 4,
+          "functions": 2,
+          "lines": 53
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\usePostEditActions.ts",
+        "complexity": 30,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 1,
+          "jsxComplexity": 0,
+          "maxNesting": 3,
+          "functions": 2,
+          "lines": 50
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\usePostEditAIService.ts",
+        "complexity": 44,
+        "details": {
+          "conditionals": 5,
+          "loops": 0,
+          "hooks": 1,
+          "jsxComplexity": 0,
+          "maxNesting": 5,
+          "functions": 2,
+          "lines": 54
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\usePostEditBasicState.ts",
+        "complexity": 38,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 8,
+          "jsxComplexity": 0,
+          "maxNesting": 2,
+          "functions": 2,
+          "lines": 62
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\usePostEditSaveService.ts",
+        "complexity": 61,
+        "details": {
+          "conditionals": 12,
+          "loops": 1,
+          "hooks": 1,
+          "jsxComplexity": 0,
+          "maxNesting": 5,
+          "functions": 2,
+          "lines": 102
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\usePostEditState.ts",
+        "complexity": 40,
+        "details": {
+          "conditionals": 3,
+          "loops": 0,
+          "hooks": 1,
+          "jsxComplexity": 0,
+          "maxNesting": 4,
+          "functions": 4,
+          "lines": 56
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\usePostEditTagService.ts",
+        "complexity": 55,
+        "details": {
+          "conditionals": 8,
+          "loops": 0,
+          "hooks": 4,
+          "jsxComplexity": 1,
+          "maxNesting": 5,
+          "functions": 2,
+          "lines": 68
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\usePostEditTagState.ts",
+        "complexity": 52,
+        "details": {
+          "conditionals": 4,
+          "loops": 1,
+          "hooks": 7,
+          "jsxComplexity": 0,
+          "maxNesting": 4,
+          "functions": 2,
+          "lines": 67
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\usePostEditUIState.ts",
+        "complexity": 41,
+        "details": {
+          "conditionals": 3,
+          "loops": 0,
+          "hooks": 3,
+          "jsxComplexity": 0,
+          "maxNesting": 4,
+          "functions": 2,
+          "lines": 48
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\usePosts.ts",
+        "complexity": 37,
+        "details": {
+          "conditionals": 3,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 1,
+          "maxNesting": 4,
+          "functions": 2,
+          "lines": 81
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\usePostSave.ts",
+        "complexity": 1,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 0,
+          "maxNesting": 0,
+          "functions": 0,
+          "lines": 1
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\usePostsList.ts",
+        "complexity": 23,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 0,
+          "maxNesting": 2,
+          "functions": 2,
+          "lines": 34
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\usePostsListActions.ts",
+        "complexity": 47,
+        "details": {
+          "conditionals": 7,
+          "loops": 0,
+          "hooks": 2,
+          "jsxComplexity": 0,
+          "maxNesting": 4,
+          "functions": 2,
+          "lines": 78
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\usePostsListState.ts",
+        "complexity": 24,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 1,
+          "maxNesting": 2,
+          "functions": 2,
+          "lines": 34
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\usePostsListUI.ts",
+        "complexity": 54,
+        "details": {
+          "conditionals": 8,
+          "loops": 0,
+          "hooks": 4,
+          "jsxComplexity": 0,
+          "maxNesting": 5,
+          "functions": 2,
+          "lines": 85
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\useSearchResults.ts",
+        "complexity": 22,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 0,
+          "maxNesting": 2,
+          "functions": 0,
+          "lines": 36
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\useSearchResultsActions.ts",
+        "complexity": 61,
+        "details": {
+          "conditionals": 12,
+          "loops": 1,
+          "hooks": 2,
+          "jsxComplexity": 1,
+          "maxNesting": 4,
+          "functions": 2,
+          "lines": 127
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\useSearchResultsState.ts",
+        "complexity": 24,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 1,
+          "maxNesting": 2,
+          "functions": 2,
+          "lines": 35
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\useSearchResultsUI.ts",
+        "complexity": 29,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 3,
+          "jsxComplexity": 0,
+          "maxNesting": 2,
+          "functions": 2,
+          "lines": 37
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\useStar.ts",
+        "complexity": 14,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 0,
+          "maxNesting": 2,
+          "functions": 2,
+          "lines": 16
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\useStarActions.ts",
+        "complexity": 57,
+        "details": {
+          "conditionals": 10,
+          "loops": 0,
+          "hooks": 3,
+          "jsxComplexity": 0,
+          "maxNesting": 5,
+          "functions": 2,
+          "lines": 86
+        }
+      },
+      {
+        "file": "src\\hooks\\posts\\useStarState.ts",
+        "complexity": 18,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 2,
+          "jsxComplexity": 0,
+          "maxNesting": 2,
+          "functions": 2,
+          "lines": 18
+        }
+      },
+      {
+        "file": "src\\hooks\\profile\\useProfileEditActions.ts",
+        "complexity": 26,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 0,
+          "maxNesting": 2,
+          "functions": 2,
+          "lines": 52
+        }
+      },
+      {
+        "file": "src\\hooks\\profile\\useProfileEditImage.ts",
+        "complexity": 20,
+        "details": {
+          "conditionals": 1,
+          "loops": 0,
+          "hooks": 1,
+          "jsxComplexity": 0,
+          "maxNesting": 2,
+          "functions": 2,
+          "lines": 20
+        }
+      },
+      {
+        "file": "src\\hooks\\profile\\useProfileEditNickname.ts",
+        "complexity": 66,
+        "details": {
+          "conditionals": 13,
+          "loops": 0,
+          "hooks": 3,
+          "jsxComplexity": 1,
+          "maxNesting": 6,
+          "functions": 2,
+          "lines": 92
+        }
+      },
+      {
+        "file": "src\\hooks\\profile\\useProfileEditSave.ts",
+        "complexity": 37,
+        "details": {
+          "conditionals": 2,
+          "loops": 0,
+          "hooks": 2,
+          "jsxComplexity": 0,
+          "maxNesting": 4,
+          "functions": 2,
+          "lines": 68
+        }
+      },
+      {
+        "file": "src\\hooks\\profile\\useProfileEditState.ts",
+        "complexity": 43,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 11,
+          "jsxComplexity": 0,
+          "maxNesting": 2,
+          "functions": 2,
+          "lines": 92
+        }
+      },
+      {
+        "file": "src\\hooks\\profile\\useProfileEditUrls.ts",
+        "complexity": 47,
+        "details": {
+          "conditionals": 6,
+          "loops": 0,
+          "hooks": 4,
+          "jsxComplexity": 1,
+          "maxNesting": 3,
+          "functions": 2,
+          "lines": 47
+        }
+      },
+      {
+        "file": "src\\hooks\\search\\useSearchBarEvents.ts",
+        "complexity": 77,
+        "details": {
+          "conditionals": 9,
+          "loops": 5,
+          "hooks": 8,
+          "jsxComplexity": 1,
+          "maxNesting": 4,
+          "functions": 3,
+          "lines": 192
+        }
+      },
+      {
+        "file": "src\\hooks\\search\\useSearchBarState.ts",
+        "complexity": 31,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 3,
+          "jsxComplexity": 1,
+          "maxNesting": 2,
+          "functions": 2,
+          "lines": 38
+        }
+      },
+      {
+        "file": "src\\hooks\\tags\\useTagAutocomplete.ts",
+        "complexity": 24,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 0,
+          "maxNesting": 2,
+          "functions": 0,
+          "lines": 42
+        }
+      },
+      {
+        "file": "src\\hooks\\tags\\useTagAutocompleteEvents.ts",
+        "complexity": 52,
+        "details": {
+          "conditionals": 7,
+          "loops": 0,
+          "hooks": 3,
+          "jsxComplexity": 1,
+          "maxNesting": 5,
+          "functions": 2,
+          "lines": 98
+        }
+      },
+      {
+        "file": "src\\hooks\\tags\\useTagAutocompleteState.ts",
+        "complexity": 25,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 1,
+          "jsxComplexity": 1,
+          "maxNesting": 3,
+          "functions": 2,
+          "lines": 29
+        }
+      },
+      {
+        "file": "src\\hooks\\useErrorHandler.ts",
+        "complexity": 24,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 2,
+          "jsxComplexity": 1,
+          "maxNesting": 3,
+          "functions": 2,
+          "lines": 24
+        }
+      },
+      {
+        "file": "src\\hooks\\useHeader.ts",
+        "complexity": 30,
+        "details": {
+          "conditionals": 1,
+          "loops": 0,
+          "hooks": 1,
+          "jsxComplexity": 0,
+          "maxNesting": 2,
+          "functions": 2,
+          "lines": 48
+        }
+      },
+      {
+        "file": "src\\hooks\\useImageCompression.ts",
+        "complexity": 26,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 2,
+          "maxNesting": 2,
+          "functions": 0,
+          "lines": 91
+        }
+      },
+      {
+        "file": "src\\hooks\\useImageError.ts",
+        "complexity": 31,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 4,
+          "jsxComplexity": 1,
+          "maxNesting": 2,
+          "functions": 0,
+          "lines": 47
+        }
+      },
+      {
+        "file": "src\\hooks\\usePostCreate.ts",
+        "complexity": 26,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 0,
+          "maxNesting": 2,
+          "functions": 2,
+          "lines": 56
+        }
+      },
+      {
+        "file": "src\\hooks\\usePostEdit.ts",
+        "complexity": 28,
+        "details": {
+          "conditionals": 1,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 0,
+          "maxNesting": 2,
+          "functions": 2,
+          "lines": 63
+        }
+      },
+      {
+        "file": "src\\hooks\\useProfileEdit.ts",
+        "complexity": 26,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 0,
+          "maxNesting": 2,
+          "functions": 2,
+          "lines": 69
+        }
+      },
+      {
+        "file": "src\\hooks\\useSearchBar.ts",
+        "complexity": 28,
+        "details": {
+          "conditionals": 1,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 0,
+          "maxNesting": 2,
+          "functions": 2,
+          "lines": 49
+        }
+      },
+      {
+        "file": "src\\stores\\userStore.ts",
+        "complexity": 38,
+        "details": {
+          "conditionals": 3,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 2,
+          "maxNesting": 5,
+          "functions": 0,
+          "lines": 139
+        }
+      },
+      {
+        "file": "src\\types\\user.types.ts",
+        "complexity": 16,
+        "details": {
+          "conditionals": 0,
+          "loops": 0,
+          "hooks": 0,
+          "jsxComplexity": 0,
+          "maxNesting": 1,
+          "functions": 0,
+          "lines": 27
+        }
+      }
+    ]
   },
   "overall": {
-    "score": 73,
-    "grade": "B+",
+    "score": 80,
+    "grade": "A",
     "breakdown": {
       "folderStructure": 90,
       "namingConventions": 100,
       "codeLength": 100,
-      "componentComplexity": 0
+      "componentComplexity": 30
     }
   }
 }

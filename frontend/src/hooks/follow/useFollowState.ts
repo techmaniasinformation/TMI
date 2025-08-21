@@ -38,3 +38,4 @@ export const useFollowState = (postData: PostDetail | null, companyId?: string) 
     checkFollowStatus,
   };
 };
+

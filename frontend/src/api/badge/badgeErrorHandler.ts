@@ -59,3 +59,4 @@ export function handleBadgeError(error: any, fallbackMessage?: string): BadgeErr
   );
 }
 
+

@@ -1,5 +1,5 @@
 // The exported code uses Tailwind CSS. Install Tailwind CSS in your dev environment to ensure all styles work.
-import React, { useMemo, useCallback } from 'react';
+import React from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/foundation/button";
 import { PostHeader } from "@/components/PostDetail/PostHeader";
@@ -8,15 +8,18 @@ import { PostContent } from "@/components/PostDetail/PostContent";
 import { AuthorInfo } from "@/components/PostDetail/AuthorInfo";
 import { CommentSection } from "@/components/PostDetail/CommentSection";
 import { BestComments } from "@/components/PostDetail/BestComments";
-import { useUserStore } from "@/stores/userStore";
+import { useAuth } from '@/hooks/store/useStoreActions';
 import { usePostDetail } from "@/hooks/posts/usePostDetail";
+import { usePostDetailActions } from "@/hooks/posts/usePostDetailActions";
+import { usePostDetailUtils } from "@/hooks/posts/usePostDetailUtils";
+import { usePostDetailUI } from "@/hooks/posts/usePostDetailUI";
 
 interface PostDetailPageProps {}
 
 const PostDetailPage: React.FC<PostDetailPageProps> = () => {
   const { id, companyId } = useParams<{ id: string; companyId?: string }>();
   const navigate = useNavigate();
-  const { user } = useUserStore();
+  const { user } = useAuth();
 
   // 커스텀 훅 사용
   const {
@@ -45,100 +48,10 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
     deleteComment
   } = usePostDetail(id || '', companyId);
 
-  // 공유 핸들러
-  const handleShare = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      alert('링크가 클립보드에 복사되었습니다.');
-    } catch (error) {
-      console.error('링크 복사 실패:', error);
-      alert('링크 복사에 실패했습니다.');
-    }
-  }, []);
-
-  // 작성자 클릭 핸들러
-  const handleAuthorClick = useCallback(() => {
-    if (!postData) {
-      alert('게시글 정보를 찾을 수 없습니다.');
-      return;
-    }
-    
-    if (postData.companyProfileUrl && postData.companyId) {
-      navigate(`/company/${postData.companyId}`);
-    } else if (postData.memberId) {
-      navigate(`/member/${postData.memberId}`);
-    } else {
-      alert(postData.companyProfileUrl ? '회사 프로필 ID 정보가 없습니다.' : '개인 프로필 ID 정보가 없습니다.');
-    }
-  }, [postData, navigate]);
-
-  // 삭제 핸들러
-  const handleDelete = useCallback(async () => {
-    if (!postData?.postId || !window.confirm('정말로 이 게시글을 삭제하시겠습니까?')) {
-      return;
-    }
-
-    try {
-      const response = await fetch(`https://i13a509.p.ssafy.io/api/v1/post/${postData.postId}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer accessToken' },
-        body: JSON.stringify({})
-      });
-
-      if (response.ok && (await response.json()).status === 'SUCCESS') {
-        alert('게시글이 삭제되었습니다.');
-        setTimeout(() => navigate('/home'), 1500);
-      } else {
-        throw new Error('게시글 삭제에 실패했습니다.');
-      }
-    } catch (err) {
-      console.error('❌ [PostDetailPage] 게시글 삭제 실패:', err);
-      alert('게시글 삭제에 실패했습니다.');
-    }
-  }, [postData?.postId, navigate]);
-
-  // 날짜 포맷팅 함수
-  const formatDate = useMemo(() => {
-    return (dateString: string) => {
-      const utcDate = new Date(dateString);
-      const kstDate = new Date(utcDate.getTime() + (9 * 60 * 60 * 1000));
-      
-      const diffInMs = Date.now() - kstDate.getTime();
-      const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-      const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
-      const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-
-      if (diffInMinutes < 1) return '방금 전';
-      if (diffInMinutes < 60) return `${diffInMinutes}분 전`;
-      if (diffInHours < 24) return `${diffInHours}시간 전`;
-      if (diffInDays < 7) return `${diffInDays}일 전`;
-      
-      return kstDate.toLocaleDateString('ko-KR', {
-        timeZone: 'Asia/Seoul'
-      });
-    };
-  }, []);
-
-  // 숫자 포맷팅 함수
-  const formatNumber = useMemo(() => {
-    return (num: number) => {
-      if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-      if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-      return num.toString();
-    };
-  }, []);
-
-  // 마크다운 렌더링 함수
-  const renderMarkdown = useMemo(() => {
-    return (content: string) => content
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/`(.*?)`/g, '<code>$1</code>')
-      .replace(/\n/g, '<br>')
-      .replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      .replace(/&lt;(strong|em|code|br)&gt;/g, '<$1>')
-      .replace(/&lt;\/(strong|em|code)&gt;/g, '</$1>');
-  }, []);
+  // 분리된 커스텀 훅들 사용
+  const { handleShare, handleAuthorClick, handleDelete, handleEdit } = usePostDetailActions(postData);
+  const { formatDate, formatNumber, renderMarkdown } = usePostDetailUtils();
+  const { isAuthor, showFollowButton, showStarButton } = usePostDetailUI(postData);
 
   // 로딩 상태
   if (loading) {
@@ -189,23 +102,12 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
       <PostHeader onBack={() => navigate('/home')} />
 
       {/* 상단 수정/삭제 버튼 - 작성자만 보임 */}
-      {user?.memberId === postData.memberId && (
+      {isAuthor && (
         <div className="flex justify-end gap-2 mb-4">
           <Button
             variant="outline"
             className="!rounded-button cursor-pointer whitespace-nowrap"
-            onClick={() => navigate(`/post/${postData.postId}/edit`, {
-              state: {
-                postData: {
-                  postId: postData.postId,
-                  link: postData.link,
-                  title: postData.title,
-                  content: postData.content,
-                  tags: postData.tags,
-                  thumbnailUrl: postData.thumbnailUrl
-                }
-              }
-            })}
+            onClick={handleEdit}
           >
             <i className="fas fa-edit mr-2"></i>
             수정하기
@@ -228,9 +130,9 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
           isStar: isStarred,
           tags: postData.tags || []
         }}
-        onStarClick={user?.memberId === postData.memberId ? undefined : toggleStar}
+        onStarClick={isAuthor ? undefined : toggleStar}
         isStarLoading={isStarLoading}
-        showStarButton={user?.memberId !== postData.memberId}
+        showStarButton={showStarButton}
       />
 
       {/* 작성자 정보 */}
@@ -240,12 +142,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
         onFollowClick={toggleFollow}
         onAuthorClick={handleAuthorClick}
         isFollowing={isFollowing}
-        showFollowButton={
-          // 1. 멤버ID가 현재 전역변수 ID와 같지 않음
-          user?.memberId !== postData.memberId &&
-          // 2. 상대방 멤버ID가 1이지만 companyId가 있음
-          (postData.memberId !== 1 || (postData.memberId === 1 && postData.companyId !== null))
-        }
+        showFollowButton={showFollowButton}
       />
 
       {/* 본문 콘텐츠 */}
@@ -255,10 +152,10 @@ const PostDetailPage: React.FC<PostDetailPageProps> = () => {
           content: renderMarkdown(postData.content),
           isStar: isStarred
         }}
-        onStarClick={user?.memberId === postData.memberId ? undefined : toggleStar}
+        onStarClick={isAuthor ? undefined : toggleStar}
         onShareClick={handleShare}
         isStarLoading={isStarLoading}
-        showStarButton={user?.memberId !== postData.memberId}
+        showStarButton={showStarButton}
       />
 
       {/* 베스트 댓글 */}

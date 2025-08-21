@@ -12,7 +12,7 @@ import SearchResultsPage from '../pages/SearchResultsPage';
 import LoginPage from '../pages/LoginPage';
 import SignupPage from '../pages/SignupPage';
 import OAuthCallbackPage from '../pages/OAuthCallbackPage';
-import { ROUTES } from './routes';
+import { ROUTES } from '@/utils/navigation';
 import { useUserStore } from '@/stores/userStore';
 import { useLocation } from 'react-router-dom';
 
@@ -21,18 +21,18 @@ function LoginRouteGuard() {
   const location = useLocation();  
   const { user } = useUserStore();
 
-  console.log('[LoginRouteGuard]user:', user);
+  
   const searchParams = new URLSearchParams(location.search);  // &&& 수정: location.search 사용
   const isNew = searchParams.get('isNew');
   const queryMemberId = searchParams.get('memberId');
 
   if (user && !(isNew === 'false' && queryMemberId)) {
-    console.log('[LoginRouteGuard] 이미 로그인 상태이므로 홈으로 리다이렉트');
+
     alert('이미 로그인 되어 있습니다');
     return <Navigate to={ROUTES.HOME} replace />;
   }
 
-  console.log('[LoginRouteGuard] 비로그인 상태, 로그인 페이지 렌더링');
+  
   return <LoginPage />;
 }
 

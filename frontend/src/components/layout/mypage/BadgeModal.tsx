@@ -1,9 +1,6 @@
 // src/components/layout/mypage/BadgeModal.tsx
 import React, { useState, useEffect } from 'react';
-import {
-  patchRepresentativeBadge,
-  DEFAULT_BADGE_ID,
-} from '@/api/mypage/badgeService';
+import { useApiActions } from '@/hooks/api/useApiActions';
 
 // 배지 이미지 import
 import ai_1 from '@/assets/images/ai_1.png';
@@ -82,7 +79,7 @@ export default function BadgeModal({
   allMemberBadges,
 }: BadgeModalProps) {
   const [badgeImageUrl, setBadgeImageUrl] = useState<string>('');
-  const [submitting, setSubmitting] = useState(false);
+  const { badge: badgeActions } = useApiActions({ onRefetch });
 
   useEffect(() => {
     if (badge?.badgeUrl) {
@@ -95,10 +92,6 @@ export default function BadgeModal({
   const isOwned = !!badge.memberBadgeId;
   const isRep = !!badge.isRepresentative;
 
-  // 기본 배지(22)의 memberBadgeId를 보유 목록에서 찾는다.
-  const getDefaultMemberBadgeId = () =>
-    allMemberBadges.find(mb => mb.badgeId === DEFAULT_BADGE_ID)?.memberBadgeId;
-
   const handleToggleRepresentative = async () => {
     if (!isOwned && !isRep) {
       alert('획득한 배지만 대표 배지로 설정할 수 있습니다.');
@@ -106,32 +99,15 @@ export default function BadgeModal({
     }
 
     try {
-      setSubmitting(true);
-
-      if (isRep) {
-        // 해제: 기본 배지(22)의 memberBadgeId로 다시 설정
-        const defaultId = getDefaultMemberBadgeId();
-        if (!defaultId) {
-          alert('기본 배지를 찾을 수 없습니다.');
-          return;
-        }
-        await patchRepresentativeBadge(defaultId);
-      } else {
-        // 설정: 선택 배지의 memberBadgeId로 설정
-        if (!badge.memberBadgeId) {
-          alert('이 배지는 아직 획득하지 않았습니다.');
-          return;
-        }
-        await patchRepresentativeBadge(badge.memberBadgeId);
-      }
-
-      await onRefetch?.(); // 서버 최신값 재동기화
+      await badgeActions.toggleRepresentative(
+        badge.memberBadgeId || null,
+        allMemberBadges,
+        isRep
+      );
       onClose();
     } catch (e: any) {
       console.error(e);
       alert(e?.message || '대표 배지 변경 실패');
-    } finally {
-      setSubmitting(false);
     }
   };
 
@@ -157,23 +133,23 @@ export default function BadgeModal({
           <p className="text-sm text-gray-500 mb-6 dark:text-gray-400">{formattedDate}</p>
 
           <div className="flex gap-2">
-            <button
-              onClick={handleToggleRepresentative}
-              disabled={submitting || (!isOwned && !isRep)}
-              className={`flex-1 py-2 px-4 rounded-lg transition-colors
-                ${submitting || (!isOwned && !isRep)
-                  ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-                  : isRep
-                    ? 'bg-red-600 text-white hover:bg-red-700'
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
-                }`}
-            >
-              {submitting
-                ? '변경 중…'
-                : isRep
-                ? '대표 배지 해제'
-                : '대표 배지로 설정'}
-            </button>
+                         <button
+               onClick={handleToggleRepresentative}
+               disabled={badgeActions.submitting || (!isOwned && !isRep)}
+               className={`flex-1 py-2 px-4 rounded-lg transition-colors
+                 ${badgeActions.submitting || (!isOwned && !isRep)
+                   ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                   : isRep
+                     ? 'bg-red-600 text-white hover:bg-red-700'
+                     : 'bg-blue-600 text-white hover:bg-blue-700'
+                 }`}
+             >
+               {badgeActions.submitting
+                 ? '변경 중…'
+                 : isRep
+                 ? '대표 배지 해제'
+                 : '대표 배지로 설정'}
+             </button>
             <button
               onClick={onClose}
               className="flex-1 bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-200 py-2 px-4 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-600 transition-colors"

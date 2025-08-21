@@ -7,10 +7,9 @@ import {
   DialogOverlay,
 } from '@/components/domain/Dialog';
 import { Button } from '@/components/foundation/button';
-import { useThemeStore } from '@/stores/themeStore';
+import { useTheme } from '@/hooks/store/useStoreActions';
 import { useProfileEdit } from '@/hooks/useProfileEdit';
-import ProfileImageSection from './ProfileImageSection';
-import ProfileFormFields from './ProfileFormFields';
+import { ProfileForm } from './ProfileForm';
 
 interface ProfileEditModalProps {
   isOpen: boolean;
@@ -41,7 +40,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   nicknameHelperText,
   onSave,
 }) => {
-  const { isDarkMode } = useThemeStore();
+  const { isDarkMode } = useTheme();
   
   const {
     // 상태
@@ -112,16 +111,12 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
           </DialogTitle>
         </DialogHeader>
 
-        {/* 프로필 이미지 섹션 */}
-        <ProfileImageSection
+        <ProfileForm
+          layout="vertical"
           imagePreview={imagePreview}
           existingImageUrl={existingImageUrl}
           handleImageUpload={handleImageUpload}
           handleImageRemove={handleImageRemove}
-        />
-
-        {/* 입력 필드 섹션 */}
-        <ProfileFormFields
           nickname={nickname}
           nicknameError={nicknameError}
           blogUrl={blogUrl}

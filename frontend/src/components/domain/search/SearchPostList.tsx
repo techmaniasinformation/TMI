@@ -1,5 +1,5 @@
 import React from 'react';
-import PostList from '../article/PostList';
+import { PostList } from '../article/PostList';
 import { Post } from '@/types';
 import { formatUTCToKSTDate } from '@/utils/dateUtils';
 
@@ -29,16 +29,8 @@ export default function SearchPostList({
 
   return (
     <PostList
-      formatDate={formatDate}
-      formatNumber={formatNumber}
       onPostClick={onPostClick}
-      showThumbnail={true}
-      maxTags={5}
-      className="mb-8"
       posts={posts}
-      searchKeyword={searchKeyword}
-      searchTechTags={searchTechTags}
-      searchCompanyTags={searchCompanyTags}
     />
   );
 }; 

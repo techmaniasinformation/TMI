@@ -1,5 +1,5 @@
 import React from 'react';
-import Tag from './Tag';
+import { Tag } from './Tag';
 
 interface TagAreaProps {
   tags: string[];
@@ -13,7 +13,7 @@ interface TagAreaProps {
 
 }
 
-export default function TagArea({ 
+export function TagArea({ 
   tags, 
 
   maxTags = 5,
@@ -90,11 +90,14 @@ export default function TagArea({
       {tags.slice(0, maxTags).map((tag, index) => (
         <Tag 
           key={index} 
-          tag={tag} 
-          variant={getTagVariant(tag)}
-                    removable={!!onRemoveTag} // &&&& onRemoveTag 있으면 삭제 버튼 표시
-          onRemove={() => onRemoveTag && onRemoveTag(tag)} // &&&& 클릭 시 부모에 알림
-        />
+          className={`${getTagVariant(tag) === 'tech' ? 'bg-green-100 text-green-800' : ''} ${getTagVariant(tag) === 'company' ? 'bg-purple-100 text-purple-800' : ''}`}
+          onClick={() => onRemoveTag && onRemoveTag(tag)}
+        >
+          {tag}
+          {onRemoveTag && (
+            <button className="ml-1 text-xs">×</button>
+          )}
+        </Tag>
       ))}
     </div>
   );

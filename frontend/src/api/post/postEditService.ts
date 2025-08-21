@@ -47,3 +47,4 @@ export async function updatePost(
 export function validateUrl(url: string): { isValid: boolean; processedUrl?: string; error?: string } {
   return validateAndProcessUrl(url);
 }
+

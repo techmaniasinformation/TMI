@@ -1,5 +1,4 @@
-// ===== Foundation 컴포넌트들 =====
-export * from '../foundation';
+
 
 // ===== Domain 컴포넌트들 =====
 export * from './Avatar';

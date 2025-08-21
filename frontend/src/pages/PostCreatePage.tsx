@@ -1,5 +1,5 @@
 import React from 'react';
-import { useThemeStore } from '@/stores/themeStore';
+import { useTheme } from '@/hooks/store/useStoreActions';
 import { usePostCreate } from '@/hooks/usePostCreate';
 import PostCreateHeader from '@/components/posts/PostCreateHeader';
 import PostCreateForm from '@/components/posts/PostCreateForm';
@@ -9,7 +9,7 @@ import PostCreateTags from '@/components/posts/PostCreateTags';
 import PostCreateActions from '@/components/posts/PostCreateActions';
 
 const PostCreatePage: React.FC = () => {
-  const { isDarkMode } = useThemeStore();
+  const { isDarkMode } = useTheme();
   
   const {
     // 상태

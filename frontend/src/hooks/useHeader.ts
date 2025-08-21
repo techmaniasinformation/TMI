@@ -23,25 +23,16 @@ export const useHeader = () => {
     user: state.user,
     isAuthenticated: state.isAuthenticated,
     showProfileMenu: state.showProfileMenu,
-    hasUnreadNotifications: state.hasUnreadNotifications,
     recentSearches: state.recentSearches,
-    unreadCount: state.unreadCount,
-    isDarkMode: state.isDarkMode,
     safeProfileSrc,
     menuRootRef: state.menuRootRef,
 
     // 이벤트 핸들러
     handleLogOut: actions.handleLogOut,
-    handleWritePost: actions.handleWritePost,
     handleProfileMenuToggle: actions.handleProfileMenuToggle,
     handleLoginClick: actions.handleLoginClick,
     handleNotificationClick: actions.handleNotificationClick,
     handleMyPageClick: actions.handleMyPageClick,
-    toggleTheme: actions.toggleTheme,
-
-    // 검색 관련
-    addToRecentSearches: actions.addToRecentSearches,
-    removeFromRecentSearches: actions.removeFromRecentSearches,
   };
 };
 

@@ -94,7 +94,7 @@ export const useFollowActions = (
       
       if (targetCompanyId) {
         // 회사 팔로우 처리
-        await handleCompanyFollow(targetCompanyId, !isFollowing);
+        await handleCompanyFollow(String(targetCompanyId), !isFollowing);
       } else if (postData?.memberId) {
         // 개인 사용자 팔로우 처리
         await handleMemberFollow(postData.memberId, !isFollowing);
@@ -116,3 +116,4 @@ export const useFollowActions = (
     toggleFollow,
   };
 };
+

@@ -50,3 +50,4 @@ export function processAISummaryResult(result: AISummaryResponse): {
     throw new Error('AI 요약 응답 형식이 올바르지 않습니다.');
   }
 }
+

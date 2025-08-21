@@ -1,98 +1,24 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import ArticleInfo from './ArticleInfo';
-import { Post } from '@/types';
-import { getSafeThumbnailUrl, DEFAULT_IMAGES } from '@/utils/defaultImages';
+import React from 'react';
+import PostCard from '@/components/layout/search/PostCard';
+import type { Post } from '@/types';
 
 interface PostListProps {
-  formatDate: (date: string) => string;
-  formatNumber: (num: number) => string;
-  onPostClick?: (id: number) => void;
-  className?: string;
-  showThumbnail?: boolean;
-  maxTags?: number;
-  posts: Post[]; // 서버에서 받은 현재 페이지 데이터
-  searchKeyword?: string;
-  searchTechTags?: string[];
-  searchCompanyTags?: string[];
+  posts: Post[];
+  onPostClick?: (postId: number) => void;
 }
 
-export default function PostList({
-  formatDate,
-  formatNumber,
-  onPostClick,
-  className = '',
-  showThumbnail = true,
-  maxTags = 5,
-  posts,
-  searchKeyword = '',
-  searchTechTags = [],
-  searchCompanyTags = []
-}: PostListProps) {
-  // 이미지 에러 상태를 객체로 관리 (postId를 키로 사용)
-  const [imageErrors, setImageErrors] = useState<Record<number, boolean>>({});
-
-  // 이미지 에러 핸들러
-  const handleImageError = useCallback((postId: number) => {
-    setImageErrors(prev => ({
-      ...prev,
-      [postId]: true
-    }));
-  }, []);
-
-  // 빈 결과 상태
-  if (posts.length === 0) {
-    return (
-      <div className={`text-center py-12 ${className}`}>
-        <i className="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
-        <p className="text-lg text-gray-500">게시글이 없습니다</p>
-      </div>
-    );
-  }
-
+const PostList: React.FC<PostListProps> = ({ posts, onPostClick }) => {
   return (
-    <div className={`space-y-6 ${className}`}>
-      {posts.map((post: Post) => {
-        const hasImageError = imageErrors[post.postId] || false;
-
-        return (
-          <div 
-            key={post.postId} 
-            className="group bg-light-header dark:bg-dark-header rounded-lg border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer p-4"
-            onClick={() => onPostClick?.(post.postId)}
-          >
-            <div className="flex items-start gap-4">
-              <ArticleInfo
-                id={post.postId}
-                title={post.title}
-                author={post.name}
-                authorProfile={post.memberProfileUrl}
-                authorBadge={post.badgeUrl}
-                tags={post.tags}
-                date={post.createAt}
-                views={post.viewCount}
-                stars={post.starCount}
-                comments={post.commentCount}
-                formatDate={formatDate}
-                formatNumber={formatNumber}
-                maxTags={maxTags}
-                keyword={searchKeyword}
-                techTags={searchTechTags}
-                companyTags={searchCompanyTags}
-              />
-              {showThumbnail && (
-                <div className="w-48 h-32 flex-shrink-0">
-                  <img
-                    src={hasImageError ? DEFAULT_IMAGES.THUMBNAIL : getSafeThumbnailUrl(post.thumbnailUrl)}
-                    alt={post.title}
-                    className="w-full h-full object-cover rounded-r-lg"
-                    onError={() => handleImageError(post.postId)}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-        );
-      })}
+    <div className="space-y-4">
+      {posts.map((post) => (
+        <PostCard
+          key={post.postId}
+          post={post}
+          onClick={() => onPostClick?.(post.postId)}
+        />
+      ))}
     </div>
   );
-} 
+};
+
+export { PostList }; 

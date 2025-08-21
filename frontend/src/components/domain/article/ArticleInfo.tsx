@@ -2,7 +2,7 @@ import React from 'react';
 import UserInfo from './UserInfo';
 import DateTimeComponent from './DateTimeComponent';
 import CardInfoCount from './CardInfoCount';
-import TagArea from './TagArea';
+import { TagArea } from './TagArea';
 
 // 게시글 데이터 타입
 interface PostData {

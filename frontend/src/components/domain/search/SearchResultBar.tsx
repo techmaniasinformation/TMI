@@ -1,6 +1,6 @@
 import React from 'react';
 import { AppliedFilters } from '@/types';
-import Tag from '../article/Tag';
+import { Tag } from '../article/Tag';
 
 interface SearchResultBarProps {
   totalCount: number;
@@ -39,29 +39,29 @@ export default function SearchResultBar({
       <div className="flex flex-wrap gap-2 mb-4">
         {appliedFilters.q && (
           <Tag
-            tag={`키워드: ${appliedFilters.q}`}
-            variant="search"
-            removable={true}
-            onRemove={onRemoveKeyword}
-          />
+            className="bg-yellow-100 text-yellow-800"
+            onClick={onRemoveKeyword}
+          >
+            키워드: {appliedFilters.q}
+          </Tag>
         )}
         {appliedFilters.techTags?.map((tag, index) => (
           <Tag
             key={index}
-            tag={tag}
-            variant="tech"
-            removable={true}
-            onRemove={() => onRemoveTechTag(tag)}
-          />
+            className="bg-green-100 text-green-800"
+            onClick={() => onRemoveTechTag(tag)}
+          >
+            {tag}
+          </Tag>
         ))}
         {appliedFilters.companyTags?.map((company, index) => (
           <Tag
             key={index}
-            tag={company}
-            variant="company"
-            removable={true}
-            onRemove={() => onRemoveCompanyTag(company)}
-          />
+            className="bg-purple-100 text-purple-800"
+            onClick={() => onRemoveCompanyTag(company)}
+          >
+            {company}
+          </Tag>
         ))}
       </div>
     </div>

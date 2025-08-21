@@ -62,3 +62,4 @@ export async function removeComment(commentId: number): Promise<void> {
   await deleteRequest(`/comment/${commentId}`);
 }
 
+

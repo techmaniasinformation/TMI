@@ -15,10 +15,8 @@ const App = () => {
   }, [isDarkMode]);
 
   return (
-    <div className={isDarkMode ? 'dark' : ''}>
-      <div className="bg-light-bg dark:bg-dark-bg">
-        <RouterProvider router={router} />
-      </div>
+    <div className="bg-light-bg dark:bg-dark-bg">
+      <RouterProvider router={router} />
     </div>
   );
 };

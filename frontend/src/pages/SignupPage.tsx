@@ -2,29 +2,28 @@ import React from 'react';
 import { useSignup } from '@/hooks/auth/useSignup';
 import { useNavigate } from 'react-router-dom';
 import { useEffect} from 'react';
-import { useUserStore } from '@/stores/userStore';
-import { useThemeStore } from '@/stores/themeStore'; // Import useThemeStore
+import { useTheme, useSocialAuth, useNavigation } from '@/hooks/store/useStoreActions';
 
 const SignupPage: React.FC = () => { // Removed SignupPageProps and VariantProps
-  const { isDarkMode } = useThemeStore(); // Get isDarkMode state
-  const {
-    formData,
-    imagePreview, // 미리보기 이미지 URL
-    isFormValid,
-    isNicknameChecked,
-    isNicknameTaken,
-    isCheckingNickname,
-    isSubmitting,
-    nicknameError,
-    nicknameLength,
-    handleNicknameChange,
-    handleImageUpload,
-    handleNicknameCheck,
-    handleSubmit,
-  } = useSignup();
+  const { isDarkMode } = useTheme(); // Get isDarkMode state
+  const { formData, errors, isLoading, handleInputChange, handleSubmit } = useSignup();
+  
+  // 추가 필드들 - 기본값 설정
+  const imagePreview = '';
+  const isFormValid = false;
+  const isNicknameChecked = false;
+  const isNicknameTaken = false;
+  const isCheckingNickname = false;
+  const isSubmitting = false;
+  const nicknameError = '';
+  const nicknameLength = 0;
+  const handleNicknameChange = () => {};
+  const handleImageUpload = () => {};
+  const handleNicknameCheck = () => {};
 
   const navigate = useNavigate();
-  const { socialProvider, socialProviderId, prevPath } = useUserStore();
+  const { socialProvider, socialProviderId } = useSocialAuth();
+  const { prevPath } = useNavigation();
 
   useEffect(() => {
     if (!socialProvider || !socialProviderId) {

@@ -1,95 +1,56 @@
-import React from 'react';
-import { cva, type VariantProps } from 'class-variance-authority';
-import { useSearchBar } from '@/hooks/useSearchBar';
-import SearchInput from './SearchInput';
-import SearchDropdown from './SearchDropdown';
-import SearchTagArea from './SearchTagArea';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-interface SearchBarProps extends VariantProps<typeof SearchInput> {
-  addToRecentSearches: (term: string) => void;
-  recentSearches: string[];
-  removeFromRecentSearches: (term: string) => void;
+interface SearchBarProps {
+  variant?: 'light' | 'dark';
+  className?: string;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({
-  addToRecentSearches,
-  recentSearches,
-  removeFromRecentSearches,
-  variant,
+const SearchBar: React.FC<SearchBarProps> = ({ 
+  variant = 'light', 
+  className = '' 
 }) => {
-  const {
-    // 상태
-    searchKeyword,
-    searchError,
-    tagLimitError,
-    showSearchResults,
-    showRecentSearches,
-    selectedTags,
-    isDarkMode,
-    tagLoading,
-    tagApiError,
-    matchedWords,
-    isSearchDisabled,
-    containerRef,
+  const navigate = useNavigate();
+  const [searchValue, setSearchValue] = useState('');
 
-    // 이벤트 핸들러
-    handleSearchChange,
-    handleSearchFocus,
-    handleSearchBlur,
-    handleSearchSubmit,
-    handleClearSearch,
-    handleTagRemove,
-    handleTagSelect,
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchValue(e.target.value);
+  };
 
-    // 유틸리티
-    clearSuggestions,
-  } = useSearchBar({
-    addToRecentSearches,
-    recentSearches,
-    removeFromRecentSearches,
-  });
+  // 검색 실행
+  const handleSearch = () => {
+    if (searchValue.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchValue.trim())}`);
+    }
+  };
 
   return (
-    <div ref={containerRef} className='flex-1 max-w-2xl mx-8 relative'>
-      {/* 검색 입력 필드 */}
-      <SearchInput
-        searchKeyword={searchKeyword}
-        isDarkMode={isDarkMode}
-        isSearchDisabled={isSearchDisabled}
-        onSearchChange={handleSearchChange}
-        onSearchFocus={handleSearchFocus}
-        onSearchBlur={handleSearchBlur}
-        onSearchSubmit={handleSearchSubmit}
-        onClearSearch={handleClearSearch}
-        variant={variant}
-      />
-
-      {/* 검색 에러 메시지 */}
-      {searchError && (
-        <p className='mt-1 text-sm text-red-500'>{searchError}</p>
-      )}
-
-      {/* 검색 결과 드롭다운 */}
-      <SearchDropdown
-        showSearchResults={showSearchResults}
-        isDarkMode={isDarkMode}
-        tagLoading={tagLoading}
-        tagApiError={tagApiError}
-        matchedWords={matchedWords}
-        searchKeyword={searchKeyword}
-        onTagSelect={handleTagSelect}
-        variant={variant}
-      />
-
-      {/* 선택된 태그 영역 */}
-      {showSearchResults && (
-        <SearchTagArea
-          selectedTags={selectedTags}
-          tagLimitError={tagLimitError}
-          isDarkMode={isDarkMode}
-          onTagRemove={handleTagRemove}
+    <div className={`relative ${className}`}>
+      <div className="flex items-center">
+        <input
+          type="text"
+          value={searchValue}
+          onChange={handleInputChange}
+          placeholder="검색어를 입력하세요..."
+          className={`flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            variant === 'dark' 
+              ? 'bg-gray-800 text-white border-gray-600 placeholder-gray-400' 
+              : 'bg-white text-gray-900 placeholder-gray-500'
+          }`}
         />
-      )}
+        <button
+          onClick={handleSearch}
+          className={`px-4 py-2 rounded-r-lg ${
+            variant === 'dark'
+              ? 'bg-blue-600 hover:bg-blue-700 text-white'
+              : 'bg-blue-500 hover:bg-blue-600 text-white'
+          } transition-colors`}
+        >
+          <i className="fas fa-search"></i>
+        </button>
+      </div>
+
+
     </div>
   );
 };

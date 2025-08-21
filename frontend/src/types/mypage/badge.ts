@@ -29,3 +29,9 @@ export interface MemberBadgeResponse {
     memberBadges: MemberBadge[];
   };
 }
+
+// 대표 배지 설정 API 응답 타입
+export interface PatchRepBadgeResponse {
+  status: string;
+  message: string;
+}

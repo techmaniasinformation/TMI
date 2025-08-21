@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { useThemeStore } from '@/stores/themeStore';
+import { useTheme } from '@/hooks/store/useStoreActions';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/utils/utils';
 import SocialLoginButton from '@/components/inter/SocialLoginButton';
@@ -28,7 +28,7 @@ interface LoginPageProps extends VariantProps<typeof loginPageVariants> {}
 
 const LoginPage: React.FC<LoginPageProps> = () => {
   const { hoveredButton, setHoveredButton } = useAuth();
-  const { isDarkMode } = useThemeStore();
+  const { isDarkMode } = useTheme();
   const variant = isDarkMode ? 'dark' : 'light';
 
   // 로그인 완료 후 경로 용도

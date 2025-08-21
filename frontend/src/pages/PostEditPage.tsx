@@ -1,5 +1,5 @@
 import React from 'react';
-import { useThemeStore } from '@/stores/themeStore';
+import { useTheme } from '@/hooks/store/useStoreActions';
 import { usePostEdit } from '@/hooks/usePostEdit';
 import PostEditHeader from '@/components/posts/PostEditHeader';
 import PostEditForm from '@/components/posts/PostEditForm';
@@ -9,7 +9,7 @@ import PostEditTags from '@/components/posts/PostEditTags';
 import PostEditActions from '@/components/posts/PostEditActions';
 
 const PostEditPage: React.FC = () => {
-  const { isDarkMode } = useThemeStore();
+  const { isDarkMode } = useTheme();
   
   const {
     // 상태
@@ -56,7 +56,7 @@ const PostEditPage: React.FC = () => {
     <div className="min-h-screen bg-light-bg dark:bg-dark-bg">
       <div className="max-w-4xl mx-auto p-6">
         {/* Header */}
-        <PostEditHeader />
+        <PostEditHeader title="게시글 수정" />
 
         <div className="bg-light-header dark:bg-dark-header rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 space-y-6">
           {/* Form Fields */}

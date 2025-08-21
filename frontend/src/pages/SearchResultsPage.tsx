@@ -31,16 +31,9 @@ const SearchResultsPage = () => {
     <div className="min-h-screen bg-light-bg dark:bg-dark-bg">
       <div className="container mx-auto px-4 py-8">
         <SearchPostListContainer
-          posts={posts}
-          loading={loading}
-          error={error}
-          currentPage={currentPage}
-          totalCount={totalCount}
-          appliedFilters={appliedFilters}
-          onPageChange={setCurrentPage}
-          onPostClick={handlePostClick}
-          searchState={searchState}
-          hasSearchConditions={hasSearchConditions}
+          searchKeyword=""
+          searchTechTags={[]}
+          searchCompanyTags={[]}
         />
       </div>
     </div>

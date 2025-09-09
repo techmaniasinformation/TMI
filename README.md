@@ -242,9 +242,9 @@
 
 # 3. 설치 및 사용법
 
-깃랩에 접속해 `clone` 받으신 후, `clone` 받은 디렉토리에서 아래의 순서대로 설치를 진행합니다.  
+깃허브에 접속해 `clone` 받으신 후, `clone` 받은 디렉토리에서 아래의 순서대로 설치를 진행합니다.  
 
-👉 [깃랩 주소](https://lab.ssafy.com/s13-webmobile2-sub1/S13P11A509)
+👉 [깃허브 주소](https://github.com/techmaniasinformation/TMI)
 
 ## 1) 백엔드
 

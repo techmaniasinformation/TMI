@@ -9,6 +9,8 @@ import com.tmi.backend.domain.post.dto.response.SimplePostSearchResponse;
 import com.tmi.backend.global.common.response.ServiceResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,54 +18,77 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class PostViewCacheService implements PostViewService{
+public class PostViewCacheService implements PostViewService {
 
+  @Qualifier("postViewLegacyService")
+  private final PostViewService delegate;
+
+  @Cacheable(
+      cacheNames = "post:list",
+      keyGenerator = "pageKeyGen",
+      unless = "#result == null || !#result.success()"
+  )
   @Override
   public ServiceResult<SimplePostPageResponse> readPosts(PostFilter filter, int page, int size) {
-    return null;
+    return delegate.readPosts(filter, page, size);
   }
 
   @Override
   public ServiceResult<SimplePostPageResponse> readFollowPosts(Long followMemberId, int page,
       int size) {
-    return null;
+    return delegate.readFollowPosts(followMemberId, page, size);
   }
 
   @Override
   public ServiceResult<SimplePostPageResponse> readCompanyPosts(Long companyId, int page,
       int size) {
-    return null;
+    return delegate.readCompanyPosts(companyId, page, size);
   }
 
   @Override
   public ServiceResult<SimplePostPageResponse> readMemberPosts(Long memberId, int page, int size) {
-    return null;
+    return delegate.readMemberPosts(memberId, page, size);
   }
 
   @Override
   public ServiceResult<SimplePostPageResponse> readStarPosts(Long starMemberId, int page,
       int size) {
-    return null;
+    return delegate.readStarPosts(starMemberId, page, size);
   }
 
+  @Cacheable(
+      cacheNames = "post:latest",
+      keyGenerator = "pageKeyGen",
+      unless = "#result == null || !#result.success()"
+  )
   @Override
   public ServiceResult<SimplePostPageResponse> readLatest(int page, int size) {
-    return null;
+    return delegate.readLatest(page, size);
   }
 
+  @Cacheable(
+      cacheNames = "post:search",
+      keyGenerator = "pageKeyGen",
+      unless = "#result == null || !#result.success()"
+  )
   @Override
   public ServiceResult<SimplePostSearchResponse> searchPosts(PostSearchFilter filter, int size,
       int page) {
-    return null;
+    return delegate.searchPosts(filter, size, page);
   }
 
   @Override
   public ServiceResult<DetailPostResponse> readDetailPost(Long postId) {
-    return null;
+    return delegate.readDetailPost(postId);
   }
 
+  @Cacheable(
+      cacheNames = "post:popular",
+      keyGenerator = "pageKeyGen",
+      unless = "#result == null || !#result.success()"
+  )
   @Override
   public ServiceResult<SimplePostPageResponse> readPopularPosts(int size) {
-    return null;
+    return delegate.readPopularPosts(size);
   }
 }

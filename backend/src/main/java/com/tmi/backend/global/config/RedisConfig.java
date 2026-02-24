@@ -57,9 +57,11 @@ public class RedisConfig {
 
     // 캐시별 TTL
     Map<String, RedisCacheConfiguration> conf = new HashMap<>();
+    conf.put("post:list",    base.entryTtl(Duration.ofSeconds(15)));
     conf.put("post:latest",  base.entryTtl(Duration.ofSeconds(15)));
     conf.put("post:popular", base.entryTtl(Duration.ofSeconds(60 * 9)));
     conf.put("post:detail",  base.entryTtl(Duration.ofSeconds(30)));
+    conf.put("post:search",  base.entryTtl(Duration.ofSeconds(30)));
 
     return RedisCacheManager.builder(cf)
         .cacheDefaults(base)

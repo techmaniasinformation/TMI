@@ -71,3 +71,7 @@ file:
   upload-dir: ${FILE_UPLOAD_DIR}
   base-url: ${FILE_BASE_URL}
 
+feature:
+  post-view-cache:
+    enabled: false
+

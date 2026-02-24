@@ -37,11 +37,9 @@ Output file:
 
 ## 5) Optional env vars for k6
 - `BASE_URL` (default: `http://localhost:8080`)
-- `POST_IDS` comma-separated post ids used for detail API (default: `1,2,3,4,5`)
 
 Example:
 ```powershell
 $env:BASE_URL="http://localhost:8080"
-$env:POST_IDS="10,11,12,13,14"
 k6 run .\perf\k6\post-view-load.js --summary-export .\perf\results\before.json
 ```

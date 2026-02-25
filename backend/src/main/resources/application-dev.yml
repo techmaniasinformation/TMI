@@ -1,9 +1,15 @@
 spring:
+  config:
+    import: optional:file:.env[.properties]
   datasource:
     url: ${RDB_URL}
     username: ${RDB_USER}
     password: ${RDB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
   task:
     scheduling:
       pool:

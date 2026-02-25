@@ -5,6 +5,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -24,10 +29,10 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @EnableCaching
 public class RedisConfig {
 
-  @Value("${spring.data.redis.host}")
+  @Value("${spring.data.redis.host:localhost}")
   private String redisHost;
 
-  @Value("${spring.data.redis.port}")
+  @Value("${spring.data.redis.port:6379}")
   private int redisPort;
 
   @Bean
@@ -39,7 +44,7 @@ public class RedisConfig {
   public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory cf) {
     RedisTemplate<String, Object> t = new RedisTemplate<>();
     t.setConnectionFactory(cf);
-    var serializer = new GenericJackson2JsonRedisSerializer();
+    var serializer = new GenericJackson2JsonRedisSerializer(redisObjectMapper());
     t.setKeySerializer(new StringRedisSerializer());
     t.setHashKeySerializer(new StringRedisSerializer());
     t.setValueSerializer(serializer);
@@ -50,10 +55,11 @@ public class RedisConfig {
 
   @Bean
   public CacheManager cacheManager(RedisConnectionFactory cf) {
+    var valueSerializer = new GenericJackson2JsonRedisSerializer(redisObjectMapper());
     RedisCacheConfiguration base = RedisCacheConfiguration.defaultCacheConfig()
         .disableCachingNullValues()
         .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
-        .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
+        .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(valueSerializer));
 
     // 캐시별 TTL
     Map<String, RedisCacheConfiguration> conf = new HashMap<>();
@@ -77,7 +83,18 @@ public class RedisConfig {
       String joined = Arrays.stream(params)
           .map(String::valueOf)
           .collect(Collectors.joining(":"));
-      return "v1:" + joined;
+      return "v2:" + joined;
     };
+  }
+
+  private ObjectMapper redisObjectMapper() {
+    return new ObjectMapper()
+        .registerModule(new JavaTimeModule())
+        .activateDefaultTyping(
+            LaissezFaireSubTypeValidator.instance,
+            ObjectMapper.DefaultTyping.EVERYTHING,
+            JsonTypeInfo.As.PROPERTY
+        )
+        .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
   }
 }

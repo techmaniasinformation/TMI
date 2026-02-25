@@ -7,7 +7,6 @@ import com.tmi.backend.domain.post.dto.response.DetailPostResponse;
 import com.tmi.backend.domain.post.dto.response.SimplePostPageResponse;
 import com.tmi.backend.domain.post.dto.response.SimplePostSearchResponse;
 import com.tmi.backend.global.common.response.ServiceResult;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
@@ -16,12 +15,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class PostViewCacheService implements PostViewService {
 
-  @Qualifier("postViewLegacyService")
   private final PostViewService delegate;
+
+  public PostViewCacheService(@Qualifier("postViewLegacyService") PostViewService delegate) {
+    this.delegate = delegate;
+  }
 
   @Cacheable(
       cacheNames = "post:list",

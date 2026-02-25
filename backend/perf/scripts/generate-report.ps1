@@ -14,11 +14,22 @@ function Get-MetricValue {
     [Parameter(Mandatory = $true)] [string] $StatName
   )
 
-  $metric = $Json.metrics.PSObject.Properties[$MetricName].Value
+  $metricProp = $Json.metrics.PSObject.Properties[$MetricName]
+  if ($null -eq $metricProp) { return $null }
+  $metric = $metricProp.Value
   if ($null -eq $metric) { return $null }
-  $values = $metric.values
-  if ($null -eq $values) { return $null }
-  return $values.PSObject.Properties[$StatName].Value
+
+  $valuesProp = $metric.PSObject.Properties["values"]
+  $values = if ($null -ne $valuesProp) { $valuesProp.Value } else { $null }
+  if ($null -ne $values) {
+    $statProp = $values.PSObject.Properties[$StatName]
+    if ($null -ne $statProp) { return $statProp.Value }
+  }
+
+  # k6 summary-export can also store stats directly under metric.
+  $directProp = $metric.PSObject.Properties[$StatName]
+  if ($null -ne $directProp) { return $directProp.Value }
+  return $null
 }
 
 function Format-Number {
@@ -51,8 +62,8 @@ $rows = @(
   },
   @{
     Name = "Error rate (%)"
-    Before = [double](Get-MetricValue -Json $beforeJson -MetricName "http_req_failed" -StatName "rate") * 100.0
-    After = [double](Get-MetricValue -Json $afterJson -MetricName "http_req_failed" -StatName "rate") * 100.0
+    Before = [double](Get-MetricValue -Json $beforeJson -MetricName "http_req_failed" -StatName "value") * 100.0
+    After = [double](Get-MetricValue -Json $afterJson -MetricName "http_req_failed" -StatName "value") * 100.0
     Better = "lower"
   },
   @{

@@ -14,7 +14,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface StarRepository extends JpaRepository<Star, Long> {
   boolean existsByMemberAndPost(Member member, Post post);
-  @EntityGraph(attributePaths = {"post"})
+
+  @EntityGraph(attributePaths = { "post" })
   List<Star> findByMember(Member member);
 
   void deleteByMemberId(@Param("memberId") Long memberId);
@@ -22,7 +23,8 @@ public interface StarRepository extends JpaRepository<Star, Long> {
   @EntityGraph(attributePaths = {
       "post",
       "post.member",
-      "post.company"
+      "post.company",
+      "post.postTags.tag"
   })
   Page<Star> findByMemberOrderByPostCreatedAtDesc(Member m, Pageable p);
 }

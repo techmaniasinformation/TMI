@@ -49,7 +49,8 @@ public class StarService {
       return ServiceResult.fail(ErrorCode.STAR_ALREADY_STARRED);
     }
 
-    post.plusStarCount();
+    // Atomic DB Update
+    postRepository.incrementStarCount(postId);
     Star star = starRepository.save(Star.of(member, post));
 
     publisher.publishEvent(new StarAddedEvent(post.getMember().getId()));
@@ -79,7 +80,8 @@ public class StarService {
       return ServiceResult.fail(ErrorCode.STAR_ALREADY_STARRED);
     }
 
-    star.getPost().minusStarCount();
+    // Atomic DB Update
+    postRepository.decrementStarCount(star.getPost().getId());
     starRepository.delete(star);
 
     return ServiceResult.ok();

@@ -54,7 +54,9 @@ public class CommentRecommendationService {
     CommentRecommendation recommendation = commentRecommendationRepository.save(
         CommentRecommendation.of(member, comment));
     recommendation.assignToComment(comment);
-    comment.plusRecommendCount();
+
+    // Atomic Update DB
+    commentRepository.incrementRecommendCount(comment.getId());
 
     publisher.publishEvent(new RecommendationAddedEvent(comment.getMember().getId()));
 
@@ -66,12 +68,13 @@ public class CommentRecommendationService {
     log.info("CommentRecommendationService : delete({}) 호출", recommendationId);
 
     CommentRecommendation recommendation = commentRecommendationRepository.findById(
-            recommendationId).orElse(null);
+        recommendationId).orElse(null);
     if (recommendation == null) {
       return ServiceResult.fail(ErrorCode.RECOMMEND_NOT_FOUND);
     }
 
-    recommendation.getComment().minusRecommendCount();
+    // Atomic Update DB
+    commentRepository.decrementRecommendCount(recommendation.getComment().getId());
     commentRecommendationRepository.delete(recommendation);
     return ServiceResult.ok();
   }
@@ -79,8 +82,7 @@ public class CommentRecommendationService {
   public ServiceResult<RecommendationListResponse> getRecommendations(Long memberId, Long postId) {
     log.info("CommentRecommendationService : getRecommendations() 호출");
 
-    List<CommentRecommendation> list =
-        commentRecommendationRepository.findAllByMemberIdAndPostId(memberId, postId);
+    List<CommentRecommendation> list = commentRecommendationRepository.findAllByMemberIdAndPostId(memberId, postId);
 
     return ServiceResult.ok(RecommendationListResponse.from(list));
   }

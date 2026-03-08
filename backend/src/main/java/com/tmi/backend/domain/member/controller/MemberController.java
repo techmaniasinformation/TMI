@@ -31,11 +31,14 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.tmi.backend.domain.member.service.MemberFacadeService;
+
 @RestController
 @RequestMapping("/api/v1/member")
 @RequiredArgsConstructor
 public class MemberController implements BaseController {
 
+  private final MemberFacadeService memberFacadeService;
   private final MemberService memberService;
   private final TokenService tokenService;
   private final RefreshTokenService refreshTokenService;
@@ -56,8 +59,7 @@ public class MemberController implements BaseController {
    */
   @GetMapping("/duplicate")
   public ResponseEntity<ApiResponse<Map<String, Boolean>>> checkNicknameDuplicate(
-      @RequestParam String nickname
-  ) {
+      @RequestParam String nickname) {
     return handle(memberService.existsByNickname(nickname));
 
   }
@@ -72,13 +74,12 @@ public class MemberController implements BaseController {
       @PathVariable Long memberId,
       @Valid @RequestPart("req") MemberUpdateRequest req,
       @RequestPart(value = "profileImage", required = false) MultipartFile profileImage,
-      @AuthenticationPrincipal CustomUserDetails userDetail
-  ) {
-    return handle(memberService.updateMember(memberId, req, profileImage));
+      @AuthenticationPrincipal CustomUserDetails userDetail) {
+    return handle(memberFacadeService.updateMember(memberId, req, profileImage));
   }
 
   /**
-   * 멤버등록 (회원가입)  API
+   * 멤버등록 (회원가입) API
    *
    * @RequestBody : 신규 회원 정보
    */
@@ -104,6 +105,13 @@ public class MemberController implements BaseController {
     if (!SecurityUtil.memberCheck(memberId)) {
       return handle(ServiceResult.fail(ErrorCode.AUTH_ACCESS_DENIED));
     }
-    return handle(memberService.deleteMember(memberId, res));
+
+    ServiceResult<Map<String, Long>> result = memberService.deleteMember(memberId);
+
+    if (result.success()) {
+      tokenService.deleteAuthCookies(res);
+    }
+
+    return handle(result);
   }
 }

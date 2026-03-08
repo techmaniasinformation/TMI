@@ -23,7 +23,7 @@ public interface PostViewService {
 
   public ServiceResult<SimplePostSearchResponse> searchPosts(PostSearchFilter filter, int size, int page);
 
-  public ServiceResult<DetailPostResponse> readDetailPost(Long postId);
+  public ServiceResult<DetailPostResponse> readDetailPost(Long postId, String viewerId);
 
   public ServiceResult<SimplePostPageResponse> readPopularPosts(int size);
 }

@@ -1,6 +1,5 @@
 package com.tmi.backend.domain.post.service;
 
-
 import com.tmi.backend.domain.post.dto.request.PostFilter;
 import com.tmi.backend.domain.post.dto.request.PostSearchFilter;
 import com.tmi.backend.domain.post.dto.response.DetailPostResponse;
@@ -24,11 +23,7 @@ public class PostViewCacheService implements PostViewService {
     this.delegate = delegate;
   }
 
-  @Cacheable(
-      cacheNames = "post:list",
-      keyGenerator = "pageKeyGen",
-      unless = "#result == null || !#result.success()"
-  )
+  @Cacheable(cacheNames = "post:list", keyGenerator = "pageKeyGen", unless = "#result == null || !#result.success()")
   @Override
   public ServiceResult<SimplePostPageResponse> readPosts(PostFilter filter, int page, int size) {
     return delegate.readPosts(filter, page, size);
@@ -57,21 +52,13 @@ public class PostViewCacheService implements PostViewService {
     return delegate.readStarPosts(starMemberId, page, size);
   }
 
-  @Cacheable(
-      cacheNames = "post:latest",
-      keyGenerator = "pageKeyGen",
-      unless = "#result == null || !#result.success()"
-  )
+  @Cacheable(cacheNames = "post:latest", keyGenerator = "pageKeyGen", unless = "#result == null || !#result.success()")
   @Override
   public ServiceResult<SimplePostPageResponse> readLatest(int page, int size) {
     return delegate.readLatest(page, size);
   }
 
-  @Cacheable(
-      cacheNames = "post:search",
-      keyGenerator = "pageKeyGen",
-      unless = "#result == null || !#result.success()"
-  )
+  @Cacheable(cacheNames = "post:search", keyGenerator = "pageKeyGen", unless = "#result == null || !#result.success()")
   @Override
   public ServiceResult<SimplePostSearchResponse> searchPosts(PostSearchFilter filter, int size,
       int page) {
@@ -79,15 +66,11 @@ public class PostViewCacheService implements PostViewService {
   }
 
   @Override
-  public ServiceResult<DetailPostResponse> readDetailPost(Long postId) {
-    return delegate.readDetailPost(postId);
+  public ServiceResult<DetailPostResponse> readDetailPost(Long postId, String viewerId) {
+    return delegate.readDetailPost(postId, viewerId);
   }
 
-  @Cacheable(
-      cacheNames = "post:popular",
-      keyGenerator = "pageKeyGen",
-      unless = "#result == null || !#result.success()"
-  )
+  @Cacheable(cacheNames = "post:popular", keyGenerator = "pageKeyGen", unless = "#result == null || !#result.success()")
   @Override
   public ServiceResult<SimplePostPageResponse> readPopularPosts(int size) {
     return delegate.readPopularPosts(size);

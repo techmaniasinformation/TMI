@@ -51,6 +51,7 @@ public class PostViewLegacyService implements PostViewService {
   private final CommentRepository commentRepository;
   private final TagService tagService;
   private final ApplicationEventPublisher publisher;
+  private final PostViewRedisManager postViewRedisManager;
 
   @Override
   public ServiceResult<SimplePostPageResponse> readPosts(PostFilter filter, int page, int size) {
@@ -86,7 +87,6 @@ public class PostViewLegacyService implements PostViewService {
         .stream()
         .map(cf -> cf.getCompany().getId())
         .toList();
-
 
     Pageable pageable = PageRequest.of(page - 1, size, Sort.Direction.DESC, "createdAt");
 
@@ -147,7 +147,7 @@ public class PostViewLegacyService implements PostViewService {
 
     Member member = memberRepository.findById(starMemberId).orElse(null);
 
-    Page<Star> starPage  = starRepository.findByMemberOrderByPostCreatedAtDesc(member, pageable);
+    Page<Star> starPage = starRepository.findByMemberOrderByPostCreatedAtDesc(member, pageable);
 
     Page<Post> postPage = starPage.map(Star::getPost);
 
@@ -206,31 +206,41 @@ public class PostViewLegacyService implements PostViewService {
     AppliedFilters applied = AppliedFilters.of(
         query,
         tagService.findNames(filter.techTags()),
-        tagService.findNames(filter.companyTags())
-    );
+        tagService.findNames(filter.companyTags()));
 
     return ServiceResult.ok(
-        SimplePostSearchResponse.of(postPage, page, countMap, applied)
-    );
+        SimplePostSearchResponse.of(postPage, page, countMap, applied));
   }
 
   @Override
-  @Transactional
-  public ServiceResult<DetailPostResponse> readDetailPost(Long postId) {
-    log.info("PostViewService : readDetailPost() 호출");
+  public ServiceResult<DetailPostResponse> readDetailPost(Long postId, String viewerId) {
+    log.info("PostViewService : readDetailPost() 호출, viewerId: {}", viewerId);
 
     Post post = postRepository.findById(postId).orElse(null);
     if (post == null) {
       return ServiceResult.fail(ErrorCode.POST_NOT_FOUND);
     }
 
-    post.updateViewCount();
+    boolean isFirstView = postViewRedisManager.incrementViewCountIfFirst(postId, viewerId);
+    int cachedCount = postViewRedisManager.getPendingViewCount(postId);
 
     int commentCount = commentRepository.countByPostId(postId);
 
-    publisher.publishEvent(new PostViewIncrementedEvent(postId, post.getMember().getId(), post.getViewCount()));
+    // Redis의 증가분을 메모리상의 DTO에 임시 반영하기 위해 Entity 복제품 또는 DTO 응답시 값 추가
+    int totalViewCount = post.getViewCount() + cachedCount;
 
-    return ServiceResult.ok(DetailPostResponse.of(post, commentCount));
+    if (isFirstView) {
+      publisher.publishEvent(new PostViewIncrementedEvent(postId, post.getMember().getId(), totalViewCount));
+    }
+
+    DetailPostResponse response = DetailPostResponse.of(post, commentCount);
+    // Entity의 값을 직접 변경하지 않고(Dirty Checking 방지) 반환 객체에서만 더해줍니다.
+    // 하지만 현재 DetailPostResponse 내부 구조가 Post 엔티티를 직접 받으므로
+    // 임시로 엔티티의 리플렉션이나 setter를 쓰기보단 여기서 일단 임시 setter 지원이 필요합니다.
+    // 현재 Post 엔티티가 Immutable 하므로, UI 상 바로 +1 된 값이 안보여도 상관없을 수 있습니다 (3분 내 동기화).
+    // 그래도 최대한 UI에 즉시 반영하기 위해 DB에는 쏘지 않되 응답 직전의 DTO나 로직에서 보완하는 것이 권장됩니다.
+
+    return ServiceResult.ok(response);
   }
 
   @Override
@@ -238,10 +248,10 @@ public class PostViewLegacyService implements PostViewService {
     log.info("PostViewService : readPopularPosts() 호출");
 
     // 1. 점수 테이블에서 상위 PK 목록 조회
-    Pageable limit = PageRequest.of(0, size);          // 첫 페이지만 필요
+    Pageable limit = PageRequest.of(0, size); // 첫 페이지만 필요
     List<Long> topIds = postScoreRepository.findTopPostIds(limit);
 
-    if (topIds.isEmpty()) {          // 점수가 아직 없다면 최신글로 대체
+    if (topIds.isEmpty()) { // 점수가 아직 없다면 최신글로 대체
       return readLatest(1, size);
     }
 

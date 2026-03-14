@@ -28,6 +28,56 @@ public class SecurityConfig {
   private final CustomOAuth2UserService customOAuth2UserService;
   private final CustomOidcUserService customOidcUserService;
 
+//  @Bean
+//  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//    http
+//        .csrf(csrf -> csrf.disable())
+//        .formLogin(form -> form.disable())
+//        .sessionManagement(
+//            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+//        .authorizeHttpRequests(authorize -> authorize
+//            .requestMatchers(
+//                "/", "/favicon.ico", "/error",
+//                "/css/**", "/js/**", "/images/**", "/assets/**", "/webjars/**", "/.well-known/**"
+//            ).permitAll()
+//            .requestMatchers(HttpMethod.GET, "/api/v1/**")
+//            .permitAll()
+//            .requestMatchers(HttpMethod.POST, "/api/v1/auth/refresh", "/api/v1/member/signup",
+//                "/api/v1/auth/logout/**")
+//            .permitAll()
+//            .requestMatchers(
+//                "/api/**",
+//                "/oauth2/**",         // 소셜 로그인 진입 및 콜백
+//                "/api/v1/auth/refresh",
+//                "/api/v1/oauth2/authorization/**",
+//                "/api/v1/oauth2/code/**",
+//                "/login/oauth2/code/**",
+//                "/login"
+//            ).permitAll()
+//            .anyRequest().authenticated()
+//        )
+//        .oauth2Login(oauth2 -> oauth2
+//            .authorizationEndpoint(endpoint -> endpoint
+//                .baseUri("/api/v1/oauth2/authorization")
+//
+//            )
+//            .redirectionEndpoint(endpoint -> endpoint
+//                .baseUri("/login/oauth2/code/*")
+//            )
+//            .userInfoEndpoint(userInfo -> userInfo
+//                .oidcUserService(customOidcUserService)
+//                .userService(customOAuth2UserService)
+//            )
+//            .successHandler(oAuth2SuccessHandler)
+//            .failureHandler(oAuth2FailureHandler)
+//        ).addFilterBefore(
+//            jwtAuthenticationFilter,
+//            UsernamePasswordAuthenticationFilter.class
+//        );
+//
+//    return http.build();
+//  }
+
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http
@@ -38,39 +88,18 @@ public class SecurityConfig {
         .authorizeHttpRequests(authorize -> authorize
             .requestMatchers(
                 "/", "/favicon.ico", "/error",
-                "/css/**", "/js/**", "/images/**", "/assets/**", "/webjars/**", "/.well-known/**"
+                "/css/**", "/js/**", "/images/**", "/assets/**", "/webjars/**"
             ).permitAll()
-            .requestMatchers(HttpMethod.GET, "/api/v1/**")
-            .permitAll()
-            .requestMatchers(HttpMethod.POST, "/api/v1/auth/refresh", "/api/v1/member/signup",
-                "/api/v1/auth/logout/**")
-            .permitAll()
-            .requestMatchers(
-                "/api/**",
-                "/oauth2/**",         // 소셜 로그인 진입 및 콜백
+            .requestMatchers(HttpMethod.GET, "/api/v1/**").permitAll()
+            .requestMatchers(HttpMethod.POST,
                 "/api/v1/auth/refresh",
-                "/api/v1/oauth2/authorization/**",
-                "/api/v1/oauth2/code/**",
-                "/login/oauth2/code/**",
-                "/login"
+                "/api/v1/member/signup",
+                "/api/v1/auth/logout/**",
+                "/api/v1/**"
             ).permitAll()
             .anyRequest().authenticated()
         )
-        .oauth2Login(oauth2 -> oauth2
-            .authorizationEndpoint(endpoint -> endpoint
-                .baseUri("/api/v1/oauth2/authorization")
-
-            )
-            .redirectionEndpoint(endpoint -> endpoint
-                .baseUri("/login/oauth2/code/*")
-            )
-            .userInfoEndpoint(userInfo -> userInfo
-                .oidcUserService(customOidcUserService)
-                .userService(customOAuth2UserService)
-            )
-            .successHandler(oAuth2SuccessHandler)
-            .failureHandler(oAuth2FailureHandler)
-        ).addFilterBefore(
+        .addFilterBefore(
             jwtAuthenticationFilter,
             UsernamePasswordAuthenticationFilter.class
         );
